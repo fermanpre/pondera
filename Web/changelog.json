@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-10",
+    "titulo": "SALF abreviado en toda la web",
+    "texto": "Se Acabó La Fiesta aparece como SALF en tablas, leyendas, barra de escaños y gráficos."
+  },
+  {
+    "fecha": "2026-11-10",
     "titulo": "Sin recálculos del CIS y tres columnas de peso",
     "texto": "Se excluyen del promedio los recálculos de terceros sobre el CIS («CIS (Logoslab)», «CIS (SocioMétrica)» y similares), que no son encuestas; el CIS en sí se mantiene. En la tabla de encuestas del día, «Peso» pasa a «Peso relativo» y se añaden «Peso absoluto» (el rating total de la encuesta, igual todos los días) y «Peso actual» (el que tiene en el día marcado)."
   },
