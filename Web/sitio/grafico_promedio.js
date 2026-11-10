@@ -23,10 +23,10 @@
   const totalDias = SERIE_PROMEDIO.dias;
   const series = Object.keys(SERIE_PROMEDIO.partidos)
     .filter((nombre) => IDENTIFICADOR_DE_SERIE[nombre])
-    .map((nombre) => ({ id: IDENTIFICADOR_DE_SERIE[nombre], valores: SERIE_PROMEDIO.partidos[nombre] }))
+    .map((nombre) => ({ id: IDENTIFICADOR_DE_SERIE[nombre], nombre: nombre, valores: SERIE_PROMEDIO.partidos[nombre] }))
     .filter((serie) => serie.valores.some((valor) => valor !== null));
 
-  const estado = { seleccion: new Set(SELECCION_INICIAL), rango: "todo", indiceMarcado: totalDias - 1 };
+  const estado = { seleccion: new Set(SELECCION_INICIAL), rango: "todo", indiceMarcado: totalDias - 1, orden: { columna: "peso", descendente: true } };
 
   const formato = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const nombreDe = (id) => NOMBRES_EN_GRAFICO[id] || NOMBRES[id] || id;
@@ -135,6 +135,70 @@
     texto += '<div class="valores-promedio">' + filas.map((fila) =>
       '<span><span class="ficha" style="background:' + COLORES[fila.id] + '"></span>' + nombreDe(fila.id) + " <b>" + formato.format(fila.valor) + " %</b></span>").join("") + "</div>";
     document.getElementById("detalle-promedio").innerHTML = texto;
+    pintarEncuestas();
+  }
+
+  /* Tabla de las encuestas que entran en el promedio del día marcado: encuestadora, trabajo de campo, entrevistados, peso (parte del peso total del día)
+     y el valor de cada partido seleccionado. Se puede ordenar pulsando en la cabecera. */
+  function pintarEncuestas() {
+    const tabla = document.getElementById("tabla-encuestas-dia");
+    if (!tabla || typeof ENCUESTAS_PROMEDIO === "undefined") { return; }
+    const indice = estado.indiceMarcado;
+    const entradas = ENCUESTAS_PROMEDIO.dias[indice] || [];
+    const pesoTotal = entradas.reduce((suma, par) => suma + par[1], 0);
+    const partidosElegidos = series.filter((serie) => estado.seleccion.has(serie.id));
+    const filas = entradas.map((par) => {
+      const encuesta = ENCUESTAS_PROMEDIO.encuestas[par[0]];
+      return { encuesta: encuesta, peso: pesoTotal > 0 ? par[1] / pesoTotal : 0 };
+    });
+
+    const valorDeOrden = (fila) => {
+      const columna = estado.orden.columna;
+      if (columna === "firma") { return fila.encuesta.firma.toLowerCase(); }
+      if (columna === "campo") { return fila.encuesta.fin; }
+      if (columna === "muestra") { return fila.encuesta.muestra === null ? -1 : fila.encuesta.muestra; }
+      if (columna === "peso") { return fila.peso; }
+      const serie = series.find((candidata) => candidata.id === columna);
+      const valor = serie ? fila.encuesta.valores[serie.nombre] : undefined;
+      return valor === undefined ? -1 : valor;
+    };
+    filas.sort((a, b) => {
+      const x = valorDeOrden(a), y = valorDeOrden(b);
+      const comparacion = x < y ? -1 : (x > y ? 1 : 0);
+      return estado.orden.descendente ? -comparacion : comparacion;
+    });
+
+    document.getElementById("resumen-encuestas-dia").textContent = filas.length
+      ? textoDeFecha(indice) + ": " + filas.length + " encuestas con fin de campo en los 30 días anteriores. Pulsa una cabecera para ordenar."
+      : textoDeFecha(indice) + ": ninguna encuesta con fin de campo en los 30 días anteriores.";
+
+    const cabeceras = [["firma", "Encuestadora"], ["campo", "Trabajo de campo"], ["muestra", "Entrevistados"], ["peso", "Peso"]]
+      .concat(partidosElegidos.map((serie) => [serie.id, nombreDe(serie.id)]));
+    const flecha = (columna) => (estado.orden.columna === columna ? (estado.orden.descendente ? " ▼" : " ▲") : "");
+    tabla.querySelector("thead").innerHTML = "<tr>" + cabeceras.map((par) =>
+      '<th data-columna="' + par[0] + '" style="cursor:pointer' + (par[0] === "firma" || par[0] === "campo" ? ";text-align:left" : "") + '">' + par[1] + flecha(par[0]) + "</th>").join("") + "</tr>";
+    tabla.querySelectorAll("thead th").forEach((celda) => celda.addEventListener("click", () => {
+      const columna = celda.dataset.columna;
+      estado.orden = { columna: columna, descendente: estado.orden.columna === columna ? !estado.orden.descendente : columna !== "firma" && columna !== "campo" };
+      pintarEncuestas();
+    }));
+
+    const formatoEntero = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 });
+    tabla.querySelector("tbody").innerHTML = filas.map((fila) => {
+      const encuesta = fila.encuesta;
+      const cliente = encuesta.cliente ? ' <span class="nota">(' + escaparHtml(encuesta.cliente) + ")</span>" : "";
+      const barra = '<span class="prob" style="width:' + Math.max(1, Math.round(60 * fila.peso / (filas[0] ? Math.max(...filas.map((f) => f.peso)) : 1))) + 'px"></span>';
+      const celdasDePartidos = partidosElegidos.map((serie) => {
+        const valor = encuesta.valores[serie.nombre];
+        return "<td>" + (valor === undefined ? "–" : formato.format(valor)) + "</td>";
+      }).join("");
+      return "<tr><td>" + escaparHtml(encuesta.firma) + cliente + '</td><td style="text-align:left">' + escaparHtml(encuesta.campo) + "</td><td>" +
+        (encuesta.muestra === null ? "–" : formatoEntero.format(encuesta.muestra)) + "</td><td>" + barra + formato.format(100 * fila.peso) + " %</td>" + celdasDePartidos + "</tr>";
+    }).join("");
+  }
+
+  function escaparHtml(texto) {
+    return String(texto).replace(/[&<>"]/g, (letra) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[letra]));
   }
 
   function construirControles() {

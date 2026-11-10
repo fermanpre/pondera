@@ -27,7 +27,7 @@ LEMA = "Elecciones generales 2026"
 URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
-SCRIPTS_DE_PROMEDIO = ["assets/comun.js", "serie_promedio.js", "grafico_promedio.js"]
+SCRIPTS_DE_PROMEDIO = ["assets/comun.js", "serie_promedio.js", "encuestas_promedio.js", "grafico_promedio.js"]
 
 # archivo, plantilla, título, descripción, texto del menú (None = no aparece en el menú), scripts de la página
 PAGINAS = [

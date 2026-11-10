@@ -84,6 +84,7 @@ def leer_encuestas(convocatoria, fusionar_frente_amplio_en_sumar=True):
                 "firma_original": fila["firma"],
                 "fin": datetime.strptime(fila["fin_campo"], "%Y-%m-%d").date(),
                 "muestra": int(float(fila["muestra"])) if fila["muestra"] else None,
+                "clave": clave, "cliente": fila["cliente"], "fecha_texto": fila["fecha_texto"],
                 "valores": {},
             })
             nombre_del_partido = fila["partido"]
@@ -174,9 +175,10 @@ def leer_pesos_de_notas(ruta=RUTA_NOTAS):
     return pesos
 
 
-def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_eleccion=None, escribir=True, encuestas_leidas=None):
+def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_eleccion=None, escribir=True, encuestas_leidas=None, pesos_por_encuesta=None):
     """Promedio a la fecha «hoy» (por defecto HOY) para unas elecciones en «fecha_eleccion». Con escribir=False no toca promedio_actual.csv.
-    Con encuestas_leidas (resultado de leer_encuestas) no se vuelve a leer el CSV: sirve para calcular muchos días seguidos."""
+    Con encuestas_leidas (resultado de leer_encuestas) no se vuelve a leer el CSV: sirve para calcular muchos días seguidos.
+    Si se pasa una lista en pesos_por_encuesta, se le añade (encuesta, peso) de cada encuesta que entra en el promedio."""
     hoy = hoy or HOY
     fecha_eleccion = fecha_eleccion or FECHA_ELECCION
     if encuestas_leidas is None:
@@ -206,6 +208,8 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
         nota = rating_n * rating_c if FORMULA_DE_PESO == "producto" else rating_n + rating_c
         peso = nota * saturacion * 0.5 ** (antiguedad / vida_media) * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0)
         usadas += 1
+        if pesos_por_encuesta is not None:
+            pesos_por_encuesta.append((encuesta, peso))
         for partido, valor in encuesta["valores"].items():
             suma_ponderada[partido] += peso * valor
             suma_de_pesos[partido] += peso

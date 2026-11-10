@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-10",
+    "titulo": "Encuestas que entran en el promedio de cada día",
+    "texto": "En la página del promedio, una tabla muestra las encuestas que contribuyen al promedio del día marcado en el gráfico: encuestadora, trabajo de campo, entrevistados, peso y el valor de cada partido seleccionado. Se puede ordenar por cualquier columna."
+  },
+  {
+    "fecha": "2026-11-10",
     "titulo": "Gráfico de distribución de escaños por provincia",
     "texto": "En la ficha por provincia, la lista de probabilidades se sustituye por un gráfico de distribución de escaños para cada partido, con su color. La altura de cada barra es la probabilidad de ese número de escaños y la banda oscura marca el reparto central. Además, la línea de Sumar del histórico se detiene el 14 de octubre, cuando empieza la de Frente Amplio."
   },
