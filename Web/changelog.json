@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-10",
+    "titulo": "Nuevo orden en la barra de escaños",
+    "texto": "La barra del reparto de escaños ordena los partidos de izquierda a derecha así: Podemos, EH Bildu, BNG, ERC, Adelante Andalucía, FV, Sumar, PSOE, PNV, CC, Junts, UPN, PP y Vox, con SALF y PACMA al final."
+  },
+  {
+    "fecha": "2026-11-10",
     "titulo": "Páginas propias, acerca de, enlaces y historial de cambios",
     "texto": "El sitio pasa de una sola página a varias, con cabecera común, tema claro, oscuro o automático y pie con avisos: Inicio, Promedio, Provincias, Simulador, Metodología, Acerca de, Sobre el autor, Enlaces y este historial de cambios. Se añaden el feed RSS, el mapa del sitio y la licencia."
   },
