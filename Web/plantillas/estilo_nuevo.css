@@ -1,0 +1,37 @@
+
+  a { color: var(--acento); }
+  .contenedor { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+  .cabecera-sitio { background: var(--tarjeta); border-bottom: 1px solid var(--linea); }
+  .cabecera-sitio .interior { max-width: 1100px; margin: 0 auto; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; }
+  .marca { font-weight: 800; letter-spacing: 0.08em; font-size: 1.2rem; color: var(--texto); text-decoration: none; }
+  .marca small { font-weight: 400; letter-spacing: 0; color: var(--suave); font-size: 0.75rem; margin-left: 8px; }
+  nav.principal { display: flex; flex-wrap: wrap; gap: 2px 4px; flex: 1; }
+  nav.principal a { padding: 6px 10px; border-radius: 6px; color: var(--texto); text-decoration: none; font-size: 0.95rem; }
+  nav.principal a:hover { background: var(--fondo); }
+  nav.principal a[aria-current="page"] { background: var(--acento); color: var(--tarjeta); }
+  #boton-tema { padding: 4px 10px; font-size: 0.85rem; }
+  .cabecera-pagina { padding: 24px 0 4px; }
+  h1 { font-size: 1.7rem; margin: 0 0 4px; }
+  .prosa { max-width: 72ch; }
+  .prosa h2 { margin-top: 24px; }
+  .prosa p, .prosa ul { margin: 0 0 12px; }
+  .prosa li { margin-bottom: 4px; }
+  .tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 16px 0; }
+  .tarjetas a { display: block; background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 10px; padding: 14px 16px; text-decoration: none; color: var(--texto); }
+  .tarjetas a:hover { border-color: var(--acento); }
+  .tarjetas b { display: block; margin-bottom: 2px; color: var(--acento); }
+  .tarjetas span { color: var(--suave); font-size: 0.9rem; }
+  .aviso { border-left: 4px solid var(--marca); padding: 8px 14px; background: var(--tarjeta); border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 0.95rem; }
+  .entrada-cambio { border-bottom: 1px solid var(--linea); padding: 14px 0; }
+  .entrada-cambio:last-child { border-bottom: 0; }
+  .entrada-cambio time { color: var(--suave); font-variant-numeric: tabular-nums; font-size: 0.9rem; }
+  .entrada-cambio h3 { margin: 2px 0 6px; font-size: 1.05rem; }
+  .entrada-cambio p { margin: 0; }
+  .lista-enlaces { list-style: none; padding: 0; margin: 0 0 12px; }
+  .lista-enlaces li { padding: 8px 0; border-bottom: 1px solid var(--linea); }
+  .lista-enlaces li:last-child { border-bottom: 0; }
+  .lista-enlaces span { display: block; color: var(--suave); font-size: 0.9rem; }
+  .pie { padding-top: 8px; padding-bottom: 40px; color: var(--suave); font-size: 0.85rem; }
+  .pie p { margin: 8px 0; }
+  .pie nav a { margin-right: 12px; white-space: nowrap; }
+  @media (max-width: 560px) { .marca small { display: none; } }

@@ -17,3 +17,7 @@ Los pesos de cada firma están en `Sondeos/pesos_firmas.csv`.
 ## Datos y licencias
 
 Las encuestas proceden de las tablas de Wikipedia «Opinion polling for the next Spanish general election» (CC BY-SA 4.0). Elaboración propia.
+
+## Páginas del sitio
+
+Las páginas se generan con `python Web/generar_sitio.py` a partir de `Web/plantillas/` y de `Web/changelog.json` (historial de cambios, que también produce `feed.xml` y `sitemap.xml`). Para añadir una entrada al historial, se edita `changelog.json` y se vuelve a generar.

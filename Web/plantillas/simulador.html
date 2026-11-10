@@ -1,0 +1,47 @@
+<div class="cabecera-pagina">
+  <h1>Simulador</h1>
+  <p class="subtitulo">Fija tú el voto de cada partido y mira qué pasa con los escaños, en España y en cada provincia.</p>
+</div>
+
+<section id="simulador">
+  <h2>Voto por partido</h2>
+  <p class="nota">Mueve el voto de un partido y el resto se reajusta en proporción para sumar 100 %. El reparto por provincia se recalcula con el mismo método que la previsión.</p>
+  <div class="controles">
+    <button id="restablecer" type="button">Restablecer a la previsión</button>
+    <label>Sorteos Monte Carlo
+      <select id="numero-sorteos"><option value="500">500</option><option value="2000" selected>2.000</option><option value="10000">10.000</option></select>
+    </label>
+    <span class="nota" id="estado-calculo"></span>
+  </div>
+  <div class="deslizadores" id="deslizadores"></div>
+</section>
+
+<section id="nacional">
+  <h2>Resultado nacional</h2>
+  <div id="barra-escanos" class="barra" aria-label="Escaños previstos por partido"></div>
+  <div class="leyenda176" id="leyenda176"></div>
+  <div class="rejilla" id="mayorias"></div>
+  <div class="tabla-ancha">
+    <table id="tabla-nacional">
+      <thead><tr><th>Partido</th><th>Voto</th><th>Escaños (mediana)</th><th>Rango 80 %</th><th>Rango 95 %</th><th>Prob. de al menos 1 escaño</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="nota" id="nota-sorteos"></p>
+</section>
+
+<section id="provincias">
+  <h2>Por provincia</h2>
+  <div class="controles">
+    <label>Provincia <select id="selector-provincia"></select></label>
+    <span class="nota" id="resumen-provincia"></span>
+  </div>
+  <div class="tabla-ancha">
+    <table id="tabla-provincia">
+      <thead><tr><th>Partido</th><th>Voto previsto</th><th>Escaños (reparto central)</th><th>Escaños más probable</th><th>Probabilidad de cada resultado</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<p class="aviso">El simulador no es una encuesta ni una predicción: devuelve lo que saldría con los porcentajes que tú elijas.</p>

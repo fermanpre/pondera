@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Promedio de encuestas · PONDERA</title>
+<meta name="description" content="Promedio diario de encuestas de las generales de 2026, día a día desde las elecciones de julio de 2023.">
+<link rel="canonical" href="https://fermanpre.github.io/pondera/promedio.html">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="alternate" type="application/rss+xml" title="PONDERA · Historial de cambios" href="feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="PONDERA">
+<meta property="og:title" content="Promedio de encuestas · PONDERA">
+<meta property="og:description" content="Promedio diario de encuestas de las generales de 2026, día a día desde las elecciones de julio de 2023.">
+<meta property="og:url" content="https://fermanpre.github.io/pondera/promedio.html">
+<meta property="og:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Promedio de encuestas · PONDERA">
+<meta name="twitter:description" content="Promedio diario de encuestas de las generales de 2026, día a día desde las elecciones de julio de 2023.">
+<meta name="twitter:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<link rel="stylesheet" href="assets/estilo.css">
+<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>
+</head>
+<body>
+<header class="cabecera-sitio">
+  <div class="interior">
+    <a class="marca" href="index.html">PONDERA<small>Elecciones generales 2026</small></a>
+    <nav class="principal" aria-label="Principal">
+      <a href="index.html">Inicio</a>
+      <a href="promedio.html" aria-current="page">Promedio</a>
+      <a href="provincias.html">Provincias</a>
+      <a href="simulador.html">Simulador</a>
+      <a href="metodologia.html">Metodología</a>
+      <a href="acerca.html">Acerca de</a>
+      <a href="enlaces.html">Enlaces</a>
+    </nav>
+    <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
+  </div>
+</header>
+<main class="contenedor">
+<div class="cabecera-pagina">
+  <h1>Promedio de encuestas</h1>
+  <p class="subtitulo">El promedio que «tocaba» cada día desde las generales del 23 de julio de 2023, con las encuestas ya terminadas ese día.</p>
+</div>
+
+<section id="promedio">
+  <h2>Evolución día a día</h2>
+  <div class="controles"><span id="rangos-promedio"></span></div>
+  <div id="grafico-promedio"></div>
+  <div id="detalle-promedio" aria-live="polite"></div>
+  <div id="partidos-promedio" class="casillas-partidos"></div>
+  <p class="nota" id="nota-promedio"></p>
+</section>
+
+<div class="prosa">
+  <h2>Cómo leerlo</h2>
+  <ul>
+    <li>Pasa el cursor (o el dedo) por el gráfico para ver el promedio de cualquier día y cuántas encuestas entraban en él.</li>
+    <li>Cada encuesta pesa según la fiabilidad histórica de su firma, lo reciente que es y cuántas hay de la misma casa. El detalle está en la <a href="metodologia.html">metodología</a>.</li>
+    <li>Los tramos sin línea son días en los que no había ninguna encuesta en los 30 días anteriores: no se interpola.</li>
+    <li>El promedio se recalcula entero cada día, así que el pasado puede moverse un poco si Wikipedia añade encuestas con retraso.</li>
+  </ul>
+</div>
+</main>
+<footer class="pie contenedor">
+  <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
+  <nav aria-label="Pie">
+    <a href="LICENSE">Licencia</a>
+    <a href="changelog.html">Historial de cambios</a>
+    <a href="feed.xml">RSS</a>
+    <a href="acerca.html">Acerca de</a>
+    <a href="autor.html">Sobre el autor</a>
+    <a href="enlaces.html">Enlaces</a>
+    <a href="cerveza.html">Invítame a una cerveza</a>
+    <a href="https://github.com/fermanpre/pondera">GitHub</a>
+  </nav>
+</footer>
+<script src="assets/tema.js"></script>
+<script src="assets/comun.js"></script>
+<script src="serie_promedio.js"></script>
+<script src="grafico_promedio.js"></script>
+</body>
+</html>

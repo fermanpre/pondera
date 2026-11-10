@@ -1,0 +1,22 @@
+[
+  {
+    "fecha": "2026-11-10",
+    "titulo": "Páginas propias, acerca de, enlaces y historial de cambios",
+    "texto": "El sitio pasa de una sola página a varias, con cabecera común, tema claro, oscuro o automático y pie con avisos: Inicio, Promedio, Provincias, Simulador, Metodología, Acerca de, Sobre el autor, Enlaces y este historial de cambios. Se añaden el feed RSS, el mapa del sitio y la licencia."
+  },
+  {
+    "fecha": "2026-11-10",
+    "titulo": "Promedio de encuestas día a día",
+    "texto": "Nuevo gráfico con el promedio que tocaba cada día desde las generales del 23 de julio de 2023, con selección de partidos, rangos de tiempo y detalle por día. Se recalcula entero cada día con las encuestas de Wikipedia y se publica solo, mediante una tarea automática de GitHub Actions."
+  },
+  {
+    "fecha": "2026-11-10",
+    "titulo": "Sitio publicado como PONDERA",
+    "texto": "La web se publica en GitHub Pages con el nombre provisional PONDERA."
+  },
+  {
+    "fecha": "2026-11-09",
+    "titulo": "Primera versión de la previsión",
+    "texto": "Previsión nacional con rangos y probabilidades de mayoría, simulador con deslizadores por partido y ficha por provincia. Todo se calcula en el navegador con un motor en JavaScript idéntico al de Python."
+  }
+]

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metodología · PONDERA</title>
+<meta name="description" content="Cómo se calcula el promedio de encuestas, el reparto por provincia, los escaños y la incertidumbre.">
+<link rel="canonical" href="https://fermanpre.github.io/pondera/metodologia.html">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="alternate" type="application/rss+xml" title="PONDERA · Historial de cambios" href="feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="PONDERA">
+<meta property="og:title" content="Metodología · PONDERA">
+<meta property="og:description" content="Cómo se calcula el promedio de encuestas, el reparto por provincia, los escaños y la incertidumbre.">
+<meta property="og:url" content="https://fermanpre.github.io/pondera/metodologia.html">
+<meta property="og:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Metodología · PONDERA">
+<meta name="twitter:description" content="Cómo se calcula el promedio de encuestas, el reparto por provincia, los escaños y la incertidumbre.">
+<meta name="twitter:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<link rel="stylesheet" href="assets/estilo.css">
+<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>
+</head>
+<body>
+<header class="cabecera-sitio">
+  <div class="interior">
+    <a class="marca" href="index.html">PONDERA<small>Elecciones generales 2026</small></a>
+    <nav class="principal" aria-label="Principal">
+      <a href="index.html">Inicio</a>
+      <a href="promedio.html">Promedio</a>
+      <a href="provincias.html">Provincias</a>
+      <a href="simulador.html">Simulador</a>
+      <a href="metodologia.html" aria-current="page">Metodología</a>
+      <a href="acerca.html">Acerca de</a>
+      <a href="enlaces.html">Enlaces</a>
+    </nav>
+    <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
+  </div>
+</header>
+<main class="contenedor">
+<div class="cabecera-pagina">
+  <h1>Metodología</h1>
+  <p class="subtitulo">De dónde salen los datos y cómo se llega de una encuesta a un escaño.</p>
+</div>
+
+<div class="prosa">
+  <h2>1. Punto de partida: 2023 sobre el censo de residentes</h2>
+  <p>La base son los resultados provisionales de las generales de 2023 (la noche electoral, sin voto CERA), escalados al censo de residentes de 2026 que publica el INE: 35.958.711 electores de los 38.728.356 totales. El voto CERA (residentes ausentes) se cuenta después y no entra en la noche electoral, así que comparar la participación provisional con la final falsea la lectura: en 2023 fue el 70,4 % sobre residentes frente al 66,6 % final con CERA.</p>
+
+  <h2>2. Promedio de encuestas</h2>
+  <p>Las encuestas se toman de las tablas de Wikipedia sobre la próxima elección general. Cada día se calcula el promedio con las encuestas cuyo trabajo de campo ya había terminado y que caen en los 30 días anteriores. Cada encuesta pesa según:</p>
+  <ul>
+    <li>la fiabilidad histórica de su firma (error en las generales de 2023 y las europeas de 2024);</li>
+    <li>lo reciente que es: el peso se reduce a la mitad cada cierto número de días, que depende de cuánto falta para la elección y de cuántas encuestas recientes hay;</li>
+    <li>una penalización de saturación, para que una casa que publica mucho no domine el promedio.</li>
+  </ul>
+  <p>Las encuestas internas de partidos se excluyen. La serie diaria se recalcula entera cada vez, con la misma fórmula para todos los días.</p>
+
+  <h2>3. Del voto nacional al voto provincial</h2>
+  <p>El porcentaje nacional de cada partido se reparte entre las 52 circunscripciones con un ajuste proporcional iterativo (raking) sobre la base de 2023: las provincias suman el 100 % y los partidos suman su total nacional. En los retrocesos con resultados históricos (generales de 2019 a 2023, andaluzas, catalanas) fue mejor que las alternativas probadas (modelos logit y mezclas).</p>
+
+  <h2>4. Escaños</h2>
+  <p>En cada provincia se aplica la regla D'Hondt con una barrera del 3 % de los votos válidos. Ceuta y Melilla reparten un escaño cada una.</p>
+
+  <h2>5. Incertidumbre: Monte Carlo</h2>
+  <p>Se simulan miles de elecciones con errores aleatorios en el voto nacional (correlacionados por bloques: derecha, izquierda y nacionalistas) y en el reparto provincial de cada partido. La dispersión nacional está calibrada con el error del promedio de encuestas a 26 días de las 16 elecciones generales desde 1977, y la provincial con 15 transiciones entre elecciones consecutivas. De ahí salen la mediana, los rangos del 80 % y del 95 % y las probabilidades de mayoría.</p>
+
+  <h2>6. Criterios sobre los partidos</h2>
+  <ul>
+    <li>Front Valencià (FV) tiene candidatura propia en la Comunitat Valenciana (Compromís, IU, Podemos y ERC); Sumar no se presenta allí.</li>
+    <li>En Cataluña, Podemos va con ERC; en Canarias, Podemos y Nueva Canarias van en la fila de Sumar.</li>
+    <li>Adelante Andalucía y SALF se estiman a partir de las últimas elecciones andaluzas y europeas, que es donde se presentaron.</li>
+    <li>El Podemos de las encuestas es el de «resto de España».</li>
+  </ul>
+
+  <h2>7. Qué no es</h2>
+  <p>Es una previsión estadística, no una encuesta, y no tiene vínculo con ningún partido ni empresa demoscópica. Los rangos reflejan la incertidumbre del modelo, no una garantía. El Senado todavía no está en la web.</p>
+
+  <h2>8. Veda de sondeos</h2>
+  <p>Con la normativa sobre publicación de encuestas en los días previos a la votación, el promedio diario deja de actualizarse antes de la jornada electoral y la serie queda congelada, con aviso en la página.</p>
+
+  <h2>Código y datos</h2>
+  <p>El código y los datos están en el <a href="https://github.com/fermanpre/pondera">repositorio de GitHub</a>. La lista de fuentes está en <a href="enlaces.html">Enlaces</a>.</p>
+</div>
+</main>
+<footer class="pie contenedor">
+  <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
+  <nav aria-label="Pie">
+    <a href="LICENSE">Licencia</a>
+    <a href="changelog.html">Historial de cambios</a>
+    <a href="feed.xml">RSS</a>
+    <a href="acerca.html">Acerca de</a>
+    <a href="autor.html">Sobre el autor</a>
+    <a href="enlaces.html">Enlaces</a>
+    <a href="cerveza.html">Invítame a una cerveza</a>
+    <a href="https://github.com/fermanpre/pondera">GitHub</a>
+  </nav>
+</footer>
+<script src="assets/tema.js"></script>
+</body>
+</html>
