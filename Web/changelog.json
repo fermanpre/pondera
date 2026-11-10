@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-10",
+    "titulo": "Corregido un error al leer las encuestas de Wikipedia",
+    "texto": "Cuando una encuesta publicaba Frente Amplio y Front Valencià en una sola celda, los valores de los partidos siguientes se asignaban a la columna equivocada. Afectaba sobre todo a SALF y Coalición Canaria, que salían muy inflados (3,3 % y 0,9 %), y movía también a Sumar, ERC y otros. Corregido y recalculado todo: ahora SALF queda en el 1,8 % y Coalición Canaria en el 0,4 %."
+  },
+  {
+    "fecha": "2026-11-10",
     "titulo": "Coalición Existe en la previsión",
     "texto": "Teruel Existe y Aragón Existe concurren juntas como Coalición Existe. Pasa a tener fila propia en el modelo, con el voto que obtuvo Teruel Existe en Teruel en 2023, que antes estaba dentro de «Otros»."
   },

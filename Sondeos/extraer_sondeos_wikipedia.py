@@ -82,6 +82,49 @@ def nombre_de_cabecera(celda):
     return ""
 
 
+def numero_de_atributo(celda, atributo):
+    valor = re.sub(r"[^\d]", "", celda.get(atributo) or "")
+    return int(valor) if valor else 1
+
+
+def construir_rejilla(filas):
+    """Expande colspan y rowspan: devuelve, para cada fila, la lista de columnas reales como pares (celda, es_continuacion).
+    Una celda que ocupa varias columnas (p. ej. Frente Amplio y Front Valencià juntos) aparece en todas, y solo la primera no es continuación.
+    Sin esto, los valores que siguen a una celda combinada se asignan a la columna equivocada."""
+    rejilla = []
+    pendientes = {}  # columna -> (celda, filas que le quedan)
+    for fila in filas:
+        celdas = fila.xpath("./th|./td")
+        columnas = []
+        columna = 0
+        posicion_celda = 0
+        while posicion_celda < len(celdas) or any(c >= columna for c in pendientes):
+            if columna in pendientes:
+                celda_arrastrada, restantes = pendientes[columna]
+                columnas.append((celda_arrastrada, True))
+                if restantes > 1:
+                    pendientes[columna] = (celda_arrastrada, restantes - 1)
+                else:
+                    del pendientes[columna]
+                columna += 1
+                continue
+            if posicion_celda >= len(celdas):
+                columna += 1
+                columnas.append((None, True))
+                continue
+            celda = celdas[posicion_celda]
+            posicion_celda += 1
+            ancho = numero_de_atributo(celda, "colspan")
+            alto = numero_de_atributo(celda, "rowspan")
+            for desplazamiento in range(ancho):
+                columnas.append((celda, desplazamiento > 0))
+                if alto > 1:
+                    pendientes[columna] = (celda, alto - 1)
+                columna += 1
+        rejilla.append(columnas)
+    return rejilla
+
+
 def fecha_fin(texto_fecha):
     """Devuelve (día, mes) del final del campo o (None, mes) si solo hay mes."""
     coincidencias = PATRON_FECHA.findall(texto_fecha)
@@ -102,14 +145,15 @@ def extraer_pagina(convocatoria, titulo, anio_eleccion):
         encabezado = tabla.xpath("preceding::*[self::h2 or self::h3 or self::h4][1]")
         seccion = texto(encabezado[0]).replace("edit", "").strip() if encabezado else ""
         filas = tabla.xpath(".//tr")
+        rejilla = construir_rejilla(filas)
         cabeceras = filas[0].xpath("./th") if filas else []
         if not cabeceras or not texto(cabeceras[0]).startswith("Polling firm") or not ("Voting intention estimates" in seccion or re.fullmatch(r"\d{4}", seccion)):
             continue
         numero_tabla += 1
-        partidos = [nombre_de_cabecera(c) for c in cabeceras]
-        for fila in filas[1:]:
-            celdas = fila.xpath("./th|./td")
-            if len(celdas) < 6 or not texto(celdas[0]):
+        partidos = [("" if continuacion else nombre_de_cabecera(celda)) for celda, continuacion in rejilla[0] if celda is not None]
+        for columnas_de_la_fila in rejilla[1:]:
+            celdas = [celda for celda, _continuacion in columnas_de_la_fila]
+            if len(celdas) < 6 or celdas[0] is None or not texto(celdas[0]):
                 continue
             firma_cliente = texto(celdas[0])
             fecha_texto = texto(celdas[1])
@@ -135,9 +179,10 @@ def extraer_pagina(convocatoria, titulo, anio_eleccion):
             fin_iso = "%04d-%02d-%02d" % (anio_actual, mes, dia) if dia else ""
             for posicion in range(4, min(len(celdas), len(partidos))):
                 partido = partidos[posicion]
-                if not partido or partido.lower() in COLUMNAS_QUE_NO_SON_PARTIDOS:
+                celda_del_valor, es_continuacion = columnas_de_la_fila[posicion]
+                if not partido or es_continuacion or celda_del_valor is None or partido.lower() in COLUMNAS_QUE_NO_SON_PARTIDOS:
                     continue
-                numero = PATRON_NUMERO.match(texto(celdas[posicion]))
+                numero = PATRON_NUMERO.match(texto(celda_del_valor))
                 if not numero:
                     continue
                 filas_salida.append(
