@@ -166,14 +166,38 @@ function pintarProvincia() {
     filas.push({ partido: partido, cuota: cuotas[p * K + k], central: escanosCentrales[p * K + k], masProbable: masProbable, cuentas: cuentas });
   });
   filas.sort(function (a, b) { return b.cuota - a.cuota; });
+  const tablaConResultados2023 = document.getElementById("tabla-provincia").hasAttribute("data-con-2023") && typeof RESULTADOS_2023 !== "undefined";
+  const resultados2023 = tablaConResultados2023 ? RESULTADOS_2023[provincia.nombre] : null;
+  const porClave2023 = {};
+  if (resultados2023) resultados2023.candidaturas.forEach(function (c) { porClave2023[c.clave] = c; });
   const cuerpo = document.querySelector("#tabla-provincia tbody");
   cuerpo.innerHTML = "";
+  function celdas2023(clave) {
+    if (!tablaConResultados2023) return "";
+    const c = porClave2023[clave];
+    if (!c) return '<td class="num2023 borde-izq">–</td><td class="num2023">–</td><td class="num2023">–</td>';
+    return '<td class="num2023 borde-izq">' + c.votos.toLocaleString("es-ES", { useGrouping: "always" }) + '</td><td class="num2023">' + porcentaje(100 * c.votos / resultados2023.validos) + '</td><td class="num2023">' + c.escanos + '</td>';
+  }
   filas.forEach(function (f) {
     const fila = document.createElement("tr");
     fila.innerHTML = '<td>' + ficha(f.partido) + NOMBRES[f.partido] + '</td><td>' + porcentaje(100 * f.cuota) + '</td><td>' + f.central + '</td><td>' + f.masProbable +
-      '</td><td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>';
+      '</td><td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>' + celdas2023(f.partido);
     cuerpo.appendChild(fila);
   });
+  if (resultados2023) {
+    // Candidaturas de 2023 sin fila en 2026 (partidos que ya no concurren o que no tienen lista en esta provincia): al final, con la previsión vacía
+    const mostradas = {};
+    filas.forEach(function (f) { mostradas[f.partido] = true; });
+    resultados2023.candidaturas.forEach(function (c) {
+      if (mostradas[c.clave]) return;
+      const nombre = NOMBRES[c.clave] || c.siglas || c.clave;
+      const color = COLORES[c.clave] || "#9a9a94";
+      const fila = document.createElement("tr");
+      fila.className = "solo-2023";
+      fila.innerHTML = '<td><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td><td colspan="4" class="suave">Sin previsión en esta provincia</td>' + celdas2023(c.clave);
+      cuerpo.appendChild(fila);
+    });
+  }
 }
 
 /* Distribución de escaños de un partido en una provincia: una barra por número de escaños, con la altura proporcional a su probabilidad.

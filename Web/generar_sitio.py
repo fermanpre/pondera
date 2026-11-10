@@ -27,6 +27,7 @@ LEMA = "Elecciones generales 2026"
 URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
+SCRIPTS_DE_PROVINCIAS = ["datos_modelo.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
 SCRIPTS_DE_PROMEDIO = ["assets/comun.js", "serie_promedio.js", "encuestas_promedio.js", "grafico_promedio.js"]
 
 # archivo, plantilla, título, descripción, texto del menú (None = no aparece en el menú), scripts de la página
@@ -35,7 +36,7 @@ PAGINAS = [
      "descripcion": "Previsión de escaños de las elecciones generales de España del 29 de noviembre de 2026, con rangos, probabilidades de mayoría y reparto por provincia."},
     {"archivo": "promedio.html", "plantilla": "promedio", "titulo": "Promedio de encuestas", "menu": "Promedio", "scripts": SCRIPTS_DE_PROMEDIO,
      "descripcion": "Promedio diario de encuestas de las generales de 2026, día a día desde las elecciones de julio de 2023."},
-    {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "menu": "Provincias", "scripts": SCRIPTS_DE_PREVISION,
+    {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "menu": "Provincias", "scripts": SCRIPTS_DE_PROVINCIAS,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
     {"archivo": "simulador.html", "plantilla": "simulador", "titulo": "Simulador", "menu": "Simulador", "scripts": SCRIPTS_DE_PREVISION,
      "descripcion": "Simulador de escaños: fija el voto de cada partido y mira cómo cambia el reparto en España y en cada provincia."},
