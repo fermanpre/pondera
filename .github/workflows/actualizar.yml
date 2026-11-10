@@ -1,0 +1,60 @@
+# Actualización diaria del promedio de encuestas y publicación de la web en GitHub Pages.
+# Se ejecuta todos los días y a mano (pestaña Actions, botón «Run workflow»).
+name: Actualizar promedio y publicar
+
+on:
+  schedule:
+    - cron: "30 6 * * *"   # 06:30 UTC (07:30 o 08:30 en España)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: pip install lxml
+
+      - name: Bajar las encuestas nuevas de Wikipedia (solo la próxima elección)
+        run: python Sondeos/extraer_sondeos_wikipedia.py --solo-proxima
+
+      - name: Recalcular la serie diaria del promedio
+        run: python Sondeos/serie_promedio_diaria.py
+
+      - name: Guardar los cambios en el repositorio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Sondeos/sondeos_wikipedia_largo.csv Web/sitio/serie_promedio.json Web/sitio/serie_promedio.js
+          if git diff --cached --quiet; then
+            echo "Sin cambios hoy."
+          else
+            git commit -m "Actualizar promedio de encuestas ($(date -u +%Y-%m-%d))"
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: Web/sitio
+
+      - id: despliegue
+        uses: actions/deploy-pages@v4
