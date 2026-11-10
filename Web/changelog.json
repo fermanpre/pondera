@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-10",
+    "titulo": "Gráfico de distribución de escaños por provincia",
+    "texto": "En la ficha por provincia, la lista de probabilidades se sustituye por un gráfico de distribución de escaños para cada partido, con su color. La altura de cada barra es la probabilidad de ese número de escaños y la banda oscura marca el reparto central. Además, la línea de Sumar del histórico se detiene el 14 de octubre, cuando empieza la de Frente Amplio."
+  },
+  {
+    "fecha": "2026-11-10",
     "titulo": "Sumar y Frente Amplio, por separado en el histórico",
     "texto": "En el gráfico del promedio, la línea de Sumar se traza mientras haya encuestas que usen ese nombre y la de Frente Amplio empieza con las primeras encuestas que lo incluyen. En el resto de la web, «Sumar» se sustituye por «Frente Amplio» en leyendas, tablas y textos."
   },

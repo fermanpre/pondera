@@ -58,6 +58,11 @@ def main():
         series_por_partido[partido] = [
             round(valores[partido], 2) if valores and partido in valores else None for _dia, valores, _n in serie
         ]
+    # «Sumar» deja de dibujarse el día en que empieza la línea de Frente Amplio (el partido cambió de nombre en las encuestas)
+    if "Sumar" in series_por_partido and "FA" in series_por_partido:
+        primer_dia_de_frente_amplio = next(i for i, valor in enumerate(series_por_partido["FA"]) if valor is not None)
+        for indice in range(primer_dia_de_frente_amplio, len(dias)):
+            series_por_partido["Sumar"][indice] = None
     datos = {
         "generado": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "primer_dia": dias[0].isoformat(), "ultimo_dia": dias[-1].isoformat(),

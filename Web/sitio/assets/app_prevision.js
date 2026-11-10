@@ -169,15 +169,51 @@ function pintarProvincia() {
   const cuerpo = document.querySelector("#tabla-provincia tbody");
   cuerpo.innerHTML = "";
   filas.forEach(function (f) {
-    const trozos = Object.keys(f.cuentas).map(Number).sort(function (a, b) { return a - b; }).filter(function (n) { return f.cuentas[n] / sorteos >= 0.01; }).map(function (n) {
-      const probabilidad = f.cuentas[n] / sorteos;
-      return '<span class="prob" style="width:' + Math.max(2, Math.round(60 * probabilidad)) + 'px"></span>' + n + " escaños: " + porcentaje(100 * probabilidad);
-    });
     const fila = document.createElement("tr");
     fila.innerHTML = '<td>' + ficha(f.partido) + NOMBRES[f.partido] + '</td><td>' + porcentaje(100 * f.cuota) + '</td><td>' + f.central + '</td><td>' + f.masProbable +
-      '</td><td style="text-align:left;white-space:normal">' + trozos.join("<br>") + '</td>';
+      '</td><td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>';
     cuerpo.appendChild(fila);
   });
+}
+
+/* Distribución de escaños de un partido en una provincia: una barra por número de escaños, con la altura proporcional a su probabilidad.
+   La banda oscura marca el reparto central (sin ruido). Cada barra lleva su probabilidad en el texto emergente. */
+function histogramaDeEscanos(f, sorteos) {
+  const UMBRAL_VISIBLE = 0.005;
+  const numeros = Object.keys(f.cuentas).map(Number).sort(function (a, b) { return a - b; });
+  const visibles = numeros.filter(function (n) { return f.cuentas[n] / sorteos >= UMBRAL_VISIBLE; });
+  const desde = Math.max(0, Math.min(visibles[0], f.central) - 1);
+  const hasta = Math.max(visibles[visibles.length - 1], f.central) + 1;
+  const cantidad = hasta - desde + 1;
+  const ANCHO = 260, ALTO_BARRAS = 44, MARGEN_ARRIBA = 12, ALTO_EJE = 16;
+  const anchoDeBarra = ANCHO / cantidad;
+  let probabilidadMaxima = 0;
+  for (let n = desde; n <= hasta; n++) probabilidadMaxima = Math.max(probabilidadMaxima, (f.cuentas[n] || 0) / sorteos);
+  const color = COLORES[f.partido];
+  let svg = '<svg viewBox="0 0 ' + ANCHO + " " + (MARGEN_ARRIBA + ALTO_BARRAS + ALTO_EJE) + '" width="' + ANCHO + '" role="img" aria-label="Distribución de escaños de ' + NOMBRES[f.partido] + '" style="max-width:100%;height:auto">';
+  let etiquetaDeLaMasProbable = '';
+  for (let n = desde; n <= hasta; n++) {
+    const probabilidad = (f.cuentas[n] || 0) / sorteos;
+    if (probabilidad === 0) continue;
+    const altura = Math.max(1, ALTO_BARRAS * probabilidad / probabilidadMaxima);
+    const x = (n - desde) * anchoDeBarra;
+    svg += '<rect x="' + (x + 0.5).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura).toFixed(1) + '" width="' + Math.max(1, anchoDeBarra - 1).toFixed(1) + '" height="' + altura.toFixed(1) +
+      '" fill="' + color + '" opacity="0.9"><title>' + n + " escaños: " + porcentaje(100 * probabilidad) + '</title></rect>';
+    if (n === f.masProbable) {
+      etiquetaDeLaMasProbable = '<text x="' + (x + anchoDeBarra / 2).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura - 2).toFixed(1) + '" text-anchor="middle" font-size="10" fill="var(--suave)">' + entero(100 * probabilidad) + ' %</text>';
+    }
+  }
+  const bandaCentral = (f.central - desde) * anchoDeBarra;
+  svg += '<rect x="' + bandaCentral.toFixed(1) + '" y="' + (MARGEN_ARRIBA - 6) + '" width="' + anchoDeBarra.toFixed(1) + '" height="' + (ALTO_BARRAS + 6) + '" fill="var(--texto)" opacity="0.35"><title>Reparto central: ' + f.central + ' escaños</title></rect>';
+  svg += etiquetaDeLaMasProbable;
+  svg += '<line x1="0" x2="' + ANCHO + '" y1="' + (MARGEN_ARRIBA + ALTO_BARRAS + 0.5) + '" y2="' + (MARGEN_ARRIBA + ALTO_BARRAS + 0.5) + '" stroke="var(--linea)" />';
+  const salto = cantidad <= 8 ? 1 : (cantidad <= 16 ? 2 : (cantidad <= 40 ? 5 : 10));
+  for (let n = desde; n <= hasta; n++) {
+    if (n % salto !== 0 && n !== desde && n !== hasta) continue;
+    if (n !== desde && n !== hasta && (n - desde < salto / 2 || hasta - n < salto / 2)) continue;
+    svg += '<text x="' + ((n - desde) * anchoDeBarra + anchoDeBarra / 2).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS + 12) + '" text-anchor="middle" font-size="10" fill="var(--suave)">' + n + '</text>';
+  }
+  return svg + "</svg>";
 }
 
 /* ---------- Arranque ---------- */

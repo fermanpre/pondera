@@ -165,7 +165,7 @@
     marcarBotones();
     document.getElementById("nota-promedio").textContent =
       "Actualizado el " + SERIE_PROMEDIO.generado + ". Cada día se calcula solo con las encuestas cuyo trabajo de campo había terminado ese día. " +
-      "La línea de Sumar se traza mientras haya encuestas que usen ese nombre y la de Frente Amplio empieza con las primeras que lo incluyen; Frente Amplio suma Front Valencià cuando la encuesta los separa. " + SERIE_PROMEDIO.fuente +
+      "La línea de Sumar se detiene el día en que empieza la de Frente Amplio, con las primeras encuestas que usan ese nombre; Frente Amplio suma Front Valencià cuando la encuesta los separa. " + SERIE_PROMEDIO.fuente +
       (SERIE_PROMEDIO.ultimo_dia >= SERIE_PROMEDIO.ultimo_dia_publicable ? " Serie congelada: la ley electoral prohíbe publicar sondeos en los cinco días previos a la votación." : "");
   }
 
