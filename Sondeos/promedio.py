@@ -18,6 +18,7 @@ Uso: python promedio.py            (escribe fiabilidad_firmas.csv y promedio_act
 """
 
 import csv
+import re
 import math
 import sys
 import unicodedata
@@ -45,6 +46,7 @@ RUTA_NOTAS = Path(r"P:\Claude Code\Elecciones\Sondeos\Fiabilidad encuestadoras (
 ALIAS_NOTAS = {"hamalgama": "hamalgama metrica", "40db/myword": "40db", "myword": "40db", "sigmados": "sigma dos", "em-analytics": "electomania", "electopanel": "electomania"}
 DIAS_PREVIOS_PARA_FIABILIDAD = 14
 HOY = date.today()
+RECALCULO_DEL_CIS = re.compile(r"^CIS\s*\(", re.IGNORECASE)
 FECHA_ELECCION = date(2026, 11, 29)  # confirmada por la nota del INE (EG2026)
 
 ELECCIONES_DE_FIABILIDAD = {
@@ -78,6 +80,8 @@ def leer_encuestas(convocatoria, fusionar_frente_amplio_en_sumar=True):
         for fila in csv.DictReader(fichero, delimiter=";"):
             if fila["convocatoria"] != convocatoria or not fila["fin_campo"] or not fila["valor"] or fila["firma"] == "2024 EP election":
                 continue
+            if RECALCULO_DEL_CIS.match(fila["firma"]):
+                continue  # «CIS (Logoslab)», «CIS (SocioMétrica)»…: recálculos de terceros sobre el CIS, no son encuestas
             clave = (fila["tabla"], fila["firma"], fila["cliente"], fila["fin_campo"], fila["muestra"])
             encuesta = encuestas.setdefault(clave, {
                 "firma": normalizar_firma(fila["firma"]),
@@ -178,7 +182,8 @@ def leer_pesos_de_notas(ruta=RUTA_NOTAS):
 def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_eleccion=None, escribir=True, encuestas_leidas=None, pesos_por_encuesta=None):
     """Promedio a la fecha «hoy» (por defecto HOY) para unas elecciones en «fecha_eleccion». Con escribir=False no toca promedio_actual.csv.
     Con encuestas_leidas (resultado de leer_encuestas) no se vuelve a leer el CSV: sirve para calcular muchos días seguidos.
-    Si se pasa una lista en pesos_por_encuesta, se le añade (encuesta, peso) de cada encuesta que entra en el promedio."""
+    Si se pasa una lista en pesos_por_encuesta, se le añade (encuesta, peso, nota) de cada encuesta que entra en el promedio: «peso» es el real de ese día
+    (nota × saturación × caída temporal) y «nota» el rating total de la encuesta (rating de muestra × rating de la firma × ajuste manual), sin saturación ni caída."""
     hoy = hoy or HOY
     fecha_eleccion = fecha_eleccion or FECHA_ELECCION
     if encuestas_leidas is None:
@@ -209,7 +214,7 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
         peso = nota * saturacion * 0.5 ** (antiguedad / vida_media) * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0)
         usadas += 1
         if pesos_por_encuesta is not None:
-            pesos_por_encuesta.append((encuesta, peso))
+            pesos_por_encuesta.append((encuesta, peso, nota * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0)))
         for partido, valor in encuesta["valores"].items():
             suma_ponderada[partido] += peso * valor
             suma_de_pesos[partido] += peso

@@ -58,11 +58,12 @@ def fecha_de_campo_en_espanol(fecha_texto, fin):
 
 
 def construir_detalle_de_encuestas(detalle_por_dia, partidos_a_mostrar):
-    """Tabla única de encuestas ({firma, cliente, campo, fin, muestra, valores}) y, para cada día, la lista [[id, peso], ...] de las que entran en su promedio."""
+    """Tabla única de encuestas ({firma, cliente, campo, fin, muestra, absoluto, valores}) y, para cada día, la lista [[id, peso actual], ...] de las que entran en su promedio.
+    «absoluto» es el rating total de la encuesta (el mismo todos los días); el peso actual incluye además la saturación y la caída con la antigüedad de ese día."""
     identificador_de_encuesta = {}
     encuestas = []
     for pesos_del_dia in detalle_por_dia:
-        for encuesta, _peso in pesos_del_dia:
+        for encuesta, _peso, nota in pesos_del_dia:
             if encuesta["clave"] in identificador_de_encuesta:
                 continue
             identificador_de_encuesta[encuesta["clave"]] = len(encuestas)
@@ -73,11 +74,11 @@ def construir_detalle_de_encuestas(detalle_por_dia, partidos_a_mostrar):
             encuestas.append({
                 "firma": encuesta["firma_original"], "cliente": encuesta["cliente"],
                 "campo": fecha_de_campo_en_espanol(encuesta["fecha_texto"], encuesta["fin"]), "fin": encuesta["fin"].isoformat(),
-                "muestra": encuesta["muestra"], "valores": valores,
+                "muestra": encuesta["muestra"], "absoluto": round(nota, 4), "valores": valores,
             })
     dias = []
     for pesos_del_dia in detalle_por_dia:
-        pares = [[identificador_de_encuesta[encuesta["clave"]], round(peso, 4)] for encuesta, peso in pesos_del_dia]
+        pares = [[identificador_de_encuesta[encuesta["clave"]], round(peso, 4)] for encuesta, peso, _nota in pesos_del_dia]
         pares.sort(key=lambda par: -par[1])
         dias.append(pares)
     return {"encuestas": encuestas, "dias": dias}

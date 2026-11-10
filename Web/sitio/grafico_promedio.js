@@ -149,7 +149,7 @@
     const partidosElegidos = series.filter((serie) => estado.seleccion.has(serie.id));
     const filas = entradas.map((par) => {
       const encuesta = ENCUESTAS_PROMEDIO.encuestas[par[0]];
-      return { encuesta: encuesta, peso: pesoTotal > 0 ? par[1] / pesoTotal : 0 };
+      return { encuesta: encuesta, pesoActual: par[1], peso: pesoTotal > 0 ? par[1] / pesoTotal : 0 };
     });
 
     const valorDeOrden = (fila) => {
@@ -158,6 +158,8 @@
       if (columna === "campo") { return fila.encuesta.fin; }
       if (columna === "muestra") { return fila.encuesta.muestra === null ? -1 : fila.encuesta.muestra; }
       if (columna === "peso") { return fila.peso; }
+      if (columna === "actual") { return fila.pesoActual; }
+      if (columna === "absoluto") { return fila.encuesta.absoluto; }
       const serie = series.find((candidata) => candidata.id === columna);
       const valor = serie ? fila.encuesta.valores[serie.nombre] : undefined;
       return valor === undefined ? -1 : valor;
@@ -172,7 +174,7 @@
       ? textoDeFecha(indice) + ": " + filas.length + " encuestas con fin de campo en los 30 días anteriores. Pulsa una cabecera para ordenar."
       : textoDeFecha(indice) + ": ninguna encuesta con fin de campo en los 30 días anteriores.";
 
-    const cabeceras = [["firma", "Encuestadora"], ["campo", "Trabajo de campo"], ["muestra", "Entrevistados"], ["peso", "Peso"]]
+    const cabeceras = [["firma", "Encuestadora"], ["campo", "Trabajo de campo"], ["muestra", "Entrevistados"], ["absoluto", "Peso absoluto"], ["actual", "Peso actual"], ["peso", "Peso relativo"]]
       .concat(partidosElegidos.map((serie) => [serie.id, nombreDe(serie.id)]));
     const flecha = (columna) => (estado.orden.columna === columna ? (estado.orden.descendente ? " ▼" : " ▲") : "");
     tabla.querySelector("thead").innerHTML = "<tr>" + cabeceras.map((par) =>
@@ -184,6 +186,7 @@
     }));
 
     const formatoEntero = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 });
+    const formatoPeso = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
     tabla.querySelector("tbody").innerHTML = filas.map((fila) => {
       const encuesta = fila.encuesta;
       const cliente = encuesta.cliente ? ' <span class="nota">(' + escaparHtml(encuesta.cliente) + ")</span>" : "";
@@ -193,7 +196,8 @@
         return "<td>" + (valor === undefined ? "–" : formato.format(valor)) + "</td>";
       }).join("");
       return "<tr><td>" + escaparHtml(encuesta.firma) + cliente + '</td><td style="text-align:left">' + escaparHtml(encuesta.campo) + "</td><td>" +
-        (encuesta.muestra === null ? "–" : formatoEntero.format(encuesta.muestra)) + "</td><td>" + barra + formato.format(100 * fila.peso) + " %</td>" + celdasDePartidos + "</tr>";
+        (encuesta.muestra === null ? "–" : formatoEntero.format(encuesta.muestra)) + "</td><td>" + formatoPeso.format(encuesta.absoluto) + "</td><td>" + formatoPeso.format(fila.pesoActual) +
+        "</td><td>" + barra + formato.format(100 * fila.peso) + " %</td>" + celdasDePartidos + "</tr>";
     }).join("");
   }
 
