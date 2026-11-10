@@ -48,7 +48,7 @@ def main():
     sys.stdout.reconfigure(encoding="utf-8")
     ultimo_dia = min(promedio.HOY, ULTIMO_DIA_PUBLICABLE)
     dias = [PRIMER_DIA + timedelta(days=n) for n in range((ultimo_dia - PRIMER_DIA).days + 1)]
-    encuestas_leidas = promedio.leer_encuestas("generales_proxima")
+    encuestas_leidas = promedio.leer_encuestas("generales_proxima", fusionar_frente_amplio_en_sumar=False)
     pesos_de_firmas = leer_pesos_de_firmas()
     serie = calcular_serie(dias, encuestas_leidas, pesos_de_firmas)
 

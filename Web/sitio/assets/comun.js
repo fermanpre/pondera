@@ -1,10 +1,10 @@
 "use strict";
 const NOMBRES = {
-  PP: "PP", PSOE: "PSOE", VOX: "Vox", SUMAR: "Sumar / Frente Amplio (sin la C. Valenciana)", PODEMOS: "Podemos", SALF: "Se Acabó La Fiesta", ADELANTE: "Adelante Andalucía", FV: "Front Valencià",
+  PP: "PP", PSOE: "PSOE", VOX: "Vox", SUMAR: "Frente Amplio", PODEMOS: "Podemos", SALF: "Se Acabó La Fiesta", ADELANTE: "Adelante Andalucía", FV: "Front Valencià",
   ERC: "ERC", JUNTS: "Junts", BILDU: "EH Bildu", PNV: "PNV", BNG: "BNG", CC: "Coalición Canaria", UPN: "UPN", PACMA: "PACMA", EXISTE: "Coalición Existe (Teruel Existe y Aragón Existe)", OTROS: "Otros",
 };
 const COLORES = {
-  PP: "#1d6fb8", PSOE: "#d4141c", VOX: "#4e9a1d", SUMAR: "#ee3500", PODEMOS: "#6b2d8f", SALF: "#8a6a3b", ADELANTE: "#0b7a3a", FV: "#f2b08c",
+  PP: "#1d6fb8", PSOE: "#d4141c", VOX: "#4e9a1d", SUMAR: "#ee3500", SUMAR_ANTIGUO: "#c4157a", PODEMOS: "#6b2d8f", SALF: "#8a6a3b", ADELANTE: "#0b7a3a", FV: "#f2b08c",
   ERC: "#d98c00", JUNTS: "#0a9e92", BILDU: "#7aa32c", PNV: "#0f7d3f", BNG: "#4b9fd0", CC: "#b8960a", UPN: "#2a4a8c", PACMA: "#9aa800", EXISTE: "#e377c2", OTROS: "#7a7a75",
 };
 const ORDEN_EN_LA_BARRA = ["PODEMOS", "BILDU", "BNG", "ERC", "ADELANTE", "FV", "SUMAR", "PSOE", "PNV", "CC", "JUNTS", "EXISTE", "UPN", "PP", "VOX", "SALF", "PACMA"];

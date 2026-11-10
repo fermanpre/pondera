@@ -9,11 +9,11 @@
 
   // Nombre del partido en la serie (tal como sale de Wikipedia) -> identificador del modelo
   const IDENTIFICADOR_DE_SERIE = {
-    PP: "PP", PSOE: "PSOE", Vox: "VOX", Sumar: "SUMAR", Podemos: "PODEMOS", ERC: "ERC", Junts: "JUNTS", "EH Bildu": "BILDU", PNV: "PNV", BNG: "BNG",
+    PP: "PP", PSOE: "PSOE", Vox: "VOX", Sumar: "SUMAR_ANTIGUO", FA: "SUMAR", Podemos: "PODEMOS", ERC: "ERC", Junts: "JUNTS", "EH Bildu": "BILDU", PNV: "PNV", BNG: "BNG",
     SALF: "SALF", CCa: "CC", UPN: "UPN", "Adelante Andalucía": "ADELANTE", FV: "FV",
   };
-  const SELECCION_INICIAL = ["PP", "PSOE", "VOX", "SUMAR", "PODEMOS", "SALF"];
-  const NOMBRES_EN_GRAFICO = { SUMAR: "Sumar / Frente Amplio", FV: "Front Valencià (dentro de Sumar)" };
+  const SELECCION_INICIAL = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "PODEMOS", "SALF"];
+  const NOMBRES_EN_GRAFICO = { SUMAR: "Frente Amplio", SUMAR_ANTIGUO: "Sumar", FV: "Front Valencià (incluido en Frente Amplio)" };
   const ELECCIONES_MARCADAS = [{ fecha: "2024-06-09", texto: "Europeas" }];
   const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   const MARGEN = { izquierda: 40, derecha: 12, arriba: 12, abajo: 28 };
@@ -164,7 +164,8 @@
     });
     marcarBotones();
     document.getElementById("nota-promedio").textContent =
-      "Actualizado el " + SERIE_PROMEDIO.generado + ". Cada día se calcula solo con las encuestas cuyo trabajo de campo había terminado ese día. " + SERIE_PROMEDIO.fuente +
+      "Actualizado el " + SERIE_PROMEDIO.generado + ". Cada día se calcula solo con las encuestas cuyo trabajo de campo había terminado ese día. " +
+      "La línea de Sumar se traza mientras haya encuestas que usen ese nombre y la de Frente Amplio empieza con las primeras que lo incluyen; Frente Amplio suma Front Valencià cuando la encuesta los separa. " + SERIE_PROMEDIO.fuente +
       (SERIE_PROMEDIO.ultimo_dia >= SERIE_PROMEDIO.ultimo_dia_publicable ? " Serie congelada: la ley electoral prohíbe publicar sondeos en los cinco días previos a la votación." : "");
   }
 

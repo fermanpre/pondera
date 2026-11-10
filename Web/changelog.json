@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-10",
+    "titulo": "Sumar y Frente Amplio, por separado en el histórico",
+    "texto": "En el gráfico del promedio, la línea de Sumar se traza mientras haya encuestas que usen ese nombre y la de Frente Amplio empieza con las primeras encuestas que lo incluyen. En el resto de la web, «Sumar» se sustituye por «Frente Amplio» en leyendas, tablas y textos."
+  },
+  {
+    "fecha": "2026-11-10",
     "titulo": "Corregido un error al leer las encuestas de Wikipedia",
     "texto": "Cuando una encuesta publicaba Frente Amplio y Front Valencià en una sola celda, los valores de los partidos siguientes se asignaban a la columna equivocada. Afectaba sobre todo a SALF y Coalición Canaria, que salían muy inflados (3,3 % y 0,9 %), y movía también a Sumar, ERC y otros. Corregido y recalculado todo: ahora SALF queda en el 1,8 % y Coalición Canaria en el 0,4 %."
   },

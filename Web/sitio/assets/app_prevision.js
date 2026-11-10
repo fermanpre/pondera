@@ -77,7 +77,7 @@ function pintarNacional() {
   document.getElementById("mayorias").innerHTML =
     '<div class="dato"><b>' + porcentaje(100 * pDerecha3) + '</b><span>PP + Vox + UPN suman 176 o más</span></div>' +
     '<div class="dato"><b>' + porcentaje(100 * pDerecha) + '</b><span>Derecha ampliada (PP, Vox, UPN, CC y SALF) suma 176 o más</span></div>' +
-    '<div class="dato"><b>' + porcentaje(100 * pIzquierda) + '</b><span>Izquierda y nacionalistas (PSOE, Sumar, Podemos, FV, Adelante, ERC, Junts, Bildu, PNV, BNG) suman 176 o más</span></div>';
+    '<div class="dato"><b>' + porcentaje(100 * pIzquierda) + '</b><span>Izquierda y nacionalistas (PSOE, Frente Amplio, Podemos, FV, Adelante, ERC, Junts, Bildu, PNV, BNG) suman 176 o más</span></div>';
 
   const cuerpo = document.querySelector("#tabla-nacional tbody");
   cuerpo.innerHTML = "";

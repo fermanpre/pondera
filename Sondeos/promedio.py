@@ -71,7 +71,7 @@ def normalizar_firma(nombre):
     return EQUIVALENCIAS_DE_FIRMA.get(sin_tildes, sin_tildes)
 
 
-def leer_encuestas(convocatoria):
+def leer_encuestas(convocatoria, fusionar_frente_amplio_en_sumar=True):
     """Devuelve {clave de encuesta: {'firma', 'fin', 'muestra', 'valores': {partido: valor}}} de una convocatoria."""
     encuestas = {}
     with open(CARPETA / "sondeos_wikipedia_largo.csv", encoding="utf-8-sig") as fichero:
@@ -86,11 +86,20 @@ def leer_encuestas(convocatoria):
                 "muestra": int(float(fila["muestra"])) if fila["muestra"] else None,
                 "valores": {},
             })
-            encuesta["valores"][EQUIVALENCIAS_DE_PARTIDO.get(fila["partido"], fila["partido"])] = float(fila["valor"])
+            nombre_del_partido = fila["partido"]
+            if fusionar_frente_amplio_en_sumar or nombre_del_partido != "FA":
+                nombre_del_partido = EQUIVALENCIAS_DE_PARTIDO.get(nombre_del_partido, nombre_del_partido)
+            encuesta["valores"][nombre_del_partido] = float(fila["valor"])
     # Front Valencià (FV) es la candidatura de la izquierda alternativa en la Comunitat Valenciana (Compromís, IU, Podemos y ERC): las firmas que la
     # separan publican el Frente Amplio sin la Comunitat Valenciana, así que «Sumar» pasa a ser el total (Frente Amplio + FV) para que todas las encuestas midan lo mismo.
     # Para poder mostrar FV por separado se guardan, solo en las encuestas que la publican, FV y «Sumar_con_FV» (el mismo total): la proporción
     # promedio(FV) / promedio(Sumar_con_FV) es la parte de FV dentro del total, y se aplica al promedio de «Sumar» (ver calcular_prevision_base.py).
+    if not fusionar_frente_amplio_en_sumar:
+        # Serie histórica: «Sumar» y «FA» (Frente Amplio) son líneas distintas. Frente Amplio incluye FV cuando la encuesta los separa, para que todas midan lo mismo.
+        for encuesta in encuestas.values():
+            if "FV" in encuesta["valores"] and "FA" in encuesta["valores"]:
+                encuesta["valores"]["FA"] += encuesta["valores"]["FV"]
+        return list(encuestas.values())
     for encuesta in encuestas.values():
         if "FV" in encuesta["valores"]:
             total = encuesta["valores"].get("Sumar", 0.0) + encuesta["valores"]["FV"]
