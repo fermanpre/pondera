@@ -11,7 +11,7 @@
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
     <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-0</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
-    <description>La tabla de cada provincia incluye ahora los votos, el porcentaje y los escaños de 2023 (resultados definitivos del BOE, con voto CERA) de las candidaturas con al menos el 0,5 % de los votos y de PACMA. En la fila de Frente Amplio figura lo que obtuvo Sumar.</description>
+    <description>La tabla de cada provincia incluye ahora los votos, el porcentaje y los escaños de 2023 (resultados definitivos del BOE, con voto CERA) de las candidaturas con al menos el 0,5 % de los votos y de PACMA. En la fila de Frente Amplio figura lo que obtuvo Sumar. Por defecto el bloque va a la izquierda del partido (pasado a la izquierda, previsión a la derecha); un desplegable permite moverlo entre el partido y la previsión o a la derecha, y el sitio recuerda la elección.</description>
   </item>
   <item>
     <title>SALF abreviado en toda la web</title>

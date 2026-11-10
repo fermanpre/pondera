@@ -172,16 +172,26 @@ function pintarProvincia() {
   if (resultados2023) resultados2023.candidaturas.forEach(function (c) { porClave2023[c.clave] = c; });
   const cuerpo = document.querySelector("#tabla-provincia tbody");
   cuerpo.innerHTML = "";
+  const orden2023 = ordenElegidoDeLos2023();
+  construirCabeceraConPasado(orden2023);
+  const marcaDeInicio = orden2023 === "final" ? " borde-izq" : "";
   function celdas2023(clave) {
     if (!tablaConResultados2023) return "";
     const c = porClave2023[clave];
-    if (!c) return '<td class="num2023 borde-izq">–</td><td class="num2023">–</td><td class="num2023">–</td>';
-    return '<td class="num2023 borde-izq">' + c.votos.toLocaleString("es-ES", { useGrouping: "always" }) + '</td><td class="num2023">' + porcentaje(100 * c.votos / resultados2023.validos) + '</td><td class="num2023">' + c.escanos + '</td>';
+    if (!c) return '<td class="num2023' + marcaDeInicio + '">–</td><td class="num2023">–</td><td class="num2023 borde-der">–</td>';
+    return '<td class="num2023' + marcaDeInicio + '">' + c.votos.toLocaleString("es-ES", { useGrouping: "always" }) + '</td><td class="num2023">' + porcentaje(100 * c.votos / resultados2023.validos) + '</td><td class="num2023 borde-der">' + c.escanos + '</td>';
+  }
+  function ordenarFila(celdaPartido, celdasPrevision, celdasPasado) {
+    if (orden2023 === "antes") return celdasPasado + celdaPartido + celdasPrevision;
+    if (orden2023 === "tras-partido") return celdaPartido + celdasPasado + celdasPrevision;
+    return celdaPartido + celdasPrevision + celdasPasado;
   }
   filas.forEach(function (f) {
     const fila = document.createElement("tr");
-    fila.innerHTML = '<td>' + ficha(f.partido) + NOMBRES[f.partido] + '</td><td>' + porcentaje(100 * f.cuota) + '</td><td>' + f.central + '</td><td>' + f.masProbable +
-      '</td><td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>' + celdas2023(f.partido);
+    const celdaPartido = '<td class="col-partido">' + ficha(f.partido) + NOMBRES[f.partido] + '</td>';
+    const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + '</td><td>' + f.central + '</td><td>' + f.masProbable +
+      '</td><td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>';
+    fila.innerHTML = ordenarFila(celdaPartido, celdasPrevision, celdas2023(f.partido));
     cuerpo.appendChild(fila);
   });
   if (resultados2023) {
@@ -194,7 +204,7 @@ function pintarProvincia() {
       const color = COLORES[c.clave] || "#9a9a94";
       const fila = document.createElement("tr");
       fila.className = "solo-2023";
-      fila.innerHTML = '<td><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td><td colspan="4" class="suave">Sin previsión en esta provincia</td>' + celdas2023(c.clave);
+      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="4" class="suave">Sin previsión en esta provincia</td>', celdas2023(c.clave));
       cuerpo.appendChild(fila);
     });
   }
@@ -240,8 +250,45 @@ function histogramaDeEscanos(f, sorteos) {
   return svg + "</svg>";
 }
 
+
+/* Posición del bloque de resultados de 2023 en la tabla de provincias: por defecto a la izquierda del partido; la elección del visitante se recuerda */
+function ordenElegidoDeLos2023() {
+  const selector = document.getElementById("posicion-2023");
+  return selector ? selector.value : "final";
+}
+
+function construirCabeceraConPasado(orden) {
+  const cabecera = document.querySelector("#tabla-provincia thead");
+  if (!cabecera || !document.getElementById("tabla-provincia").hasAttribute("data-con-2023")) return;
+  const marcaDeInicio = orden === "final" ? " borde-izq" : "";
+  const grupoPasado = '<th colspan="3" class="grupo2023' + marcaDeInicio + ' borde-der">Resultado de 2023 (definitivo)</th>';
+  const subPasado = '<th class="' + marcaDeInicio.trim() + '">Votos</th><th>%</th><th class="borde-der">Escaños</th>';
+  const grupoPrevision = '<th colspan="4" style="text-align:center">Previsión 2026</th>';
+  const subPrevision = '<th>Voto previsto</th><th>Escaños (reparto central)</th><th>Escaños más probable</th><th style="text-align:left">Distribución de escaños (banda oscura: reparto central)</th>';
+  const partido = '<th rowspan="2" class="col-partido">Partido</th>';
+  let primeraFila, segundaFila;
+  if (orden === "antes") { primeraFila = grupoPasado + partido + grupoPrevision; segundaFila = subPasado + subPrevision; }
+  else if (orden === "tras-partido") { primeraFila = partido + grupoPasado + grupoPrevision; segundaFila = subPasado + subPrevision; }
+  else { primeraFila = partido + grupoPrevision + grupoPasado; segundaFila = subPrevision + subPasado; }
+  cabecera.innerHTML = "<tr>" + primeraFila + "</tr><tr>" + segundaFila + "</tr>";
+}
+
+function activarSelectorDePosicion2023() {
+  const selector = document.getElementById("posicion-2023");
+  if (!selector) return;
+  try {
+    const guardada = localStorage.getItem("pondera-posicion-2023");
+    if (guardada && selector.querySelector('option[value="' + guardada + '"]')) selector.value = guardada;
+  } catch (error) { /* sin almacenamiento: se usa el valor por defecto */ }
+  selector.addEventListener("change", function () {
+    try { localStorage.setItem("pondera-posicion-2023", selector.value); } catch (error) { /* ignorar */ }
+    pintarProvincia();
+  });
+}
+
 /* ---------- Arranque ---------- */
 
+activarSelectorDePosicion2023();
 const botonRestablecer = document.getElementById("restablecer");
 if (botonRestablecer) {
   botonRestablecer.addEventListener("click", function () {

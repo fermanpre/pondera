@@ -48,14 +48,18 @@
   <h2>Por provincia</h2>
   <div class="controles">
     <label>Provincia <select id="selector-provincia"></select></label>
+    <label>Resultados de 2023
+      <select id="posicion-2023">
+        <option value="antes">A la izquierda del partido</option>
+        <option value="tras-partido">Entre el partido y la previsión</option>
+        <option value="final">A la derecha de la previsión</option>
+      </select>
+    </label>
     <span class="nota" id="resumen-provincia"></span>
   </div>
   <div class="tabla-ancha">
     <table id="tabla-provincia" data-con-2023>
-      <thead>
-        <tr><th rowspan="2">Partido</th><th colspan="4" style="text-align:center">Previsión 2026</th><th colspan="3" class="grupo2023 borde-izq">Resultado de 2023 (definitivo)</th></tr>
-        <tr><th>Voto previsto</th><th>Escaños (reparto central)</th><th>Escaños más probable</th><th style="text-align:left">Distribución de escaños (banda oscura: reparto central)</th><th class="borde-izq">Votos</th><th>%</th><th>Escaños</th></tr>
-      </thead>
+      <thead></thead>
       <tbody></tbody>
     </table>
   </div>

@@ -86,4 +86,6 @@ h1 { font-size: 1.7rem; margin: 0 0 4px; }
 td.num2023, th.grupo2023 { background: color-mix(in srgb, var(--texto) 4%, transparent); }
 th.grupo2023 { text-align: center; }
 th.borde-izq, td.borde-izq { border-left: 2px solid var(--linea); }
+th.borde-der, td.borde-der { border-right: 2px solid var(--linea); }
 tr.solo-2023 td:first-child { font-style: italic; }
+th.col-partido, td.col-partido { text-align: left; white-space: normal; }
