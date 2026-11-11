@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-11",
+    "titulo": "Vox en Santa Cruz de Tenerife",
+    "texto": "Vox no concurrió a las generales de 2023 en Santa Cruz de Tenerife, y el modelo no podía darle voto ni escaños allí. Ahora la base incluye una estimación de lo que habría obtenido (un 11,5 % de los votos a candidaturas, entre 10,2 % y 12,7 %), calculada con su fuerza relativa frente a Las Palmas en las generales de 2019 y en las autonómicas de 2019 y 2023, y restada sobre todo al PP. Con ello Vox puede obtener un escaño en Santa Cruz, como en la mayoría de las encuestas."
+  },
+  {
+    "fecha": "2026-11-11",
     "titulo": "Escaños de 2026 por circunscripción: Madrid 38 y Cádiz 8",
     "texto": "El modelo partía de los escaños de 2023 en todas las provincias. Para estas elecciones Madrid gana un diputado (38) y Cádiz pierde uno (8); el total sigue siendo 350. Las previsiones, las tablas de provincias, comunidades y resumen y el simulador usan ya los escaños de 2026; las columnas de resultados de 2023 conservan los de entonces."
   },
