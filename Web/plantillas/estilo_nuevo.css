@@ -42,3 +42,11 @@
   th.borde-der, td.borde-der { border-right: 2px solid var(--linea); }
   tr.solo-2023 td:first-child { font-style: italic; }
   th.col-partido, td.col-partido { text-align: left; white-space: normal; }
+  a.boton { font: inherit; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--linea); background: var(--tarjeta); color: var(--acento); text-decoration: none; }
+  a.boton:hover { border-color: var(--acento); }
+  .tabla-resumen table { font-size: 0.88rem; }
+  .tabla-resumen th, .tabla-resumen td { white-space: nowrap; }
+  .tabla-resumen thead th { position: sticky; top: 0; background: var(--tarjeta); z-index: 2; }
+  .tabla-resumen th:first-child, .tabla-resumen td:first-child { position: sticky; left: 0; background: var(--tarjeta); z-index: 1; }
+  .tabla-resumen thead th:first-child { z-index: 3; }
+  .tabla-resumen tfoot th { border-top: 2px solid var(--linea); }
