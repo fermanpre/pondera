@@ -44,6 +44,13 @@ def clave_y_nombre(nombre_original):
     return "X:" + siglas, siglas
 
 
+def clave_en_provincia(provincia, clave):
+    """En Navarra, UPN y PP concurren en coalición en 2026: sus resultados de 2023 se suman en la fila UPN."""
+    if provincia == "Navarra" and clave == "PP":
+        return "UPN"
+    return clave
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     votos_validos = {}
@@ -81,6 +88,7 @@ def main():
             if provincia_fila != provincia:
                 continue
             clave, siglas = clave_y_nombre(nombre_original)
+            clave = clave_en_provincia(provincia, clave)
             if "BLANCO" in nombre_original.upper() and "ESCA" in nombre_original.upper():
                 continue
             escanos_de_la_candidatura = escanos.get((provincia, nombre_original), 0)
@@ -121,6 +129,7 @@ def main():
         if "BLANCO" in nombre_original.upper() and "ESCA" in nombre_original.upper():
             continue
         clave, siglas = clave_y_nombre(nombre_original)
+        clave = clave_en_provincia(provincia, clave)
         comunidad = comunidad_de_provincia[provincia]
         acumulado = votos_por_comunidad.setdefault(comunidad, {}).setdefault(clave, {"votos": 0, "escanos": 0})
         acumulado["votos"] += cantidad

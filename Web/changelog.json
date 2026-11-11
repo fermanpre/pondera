@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-11",
+    "titulo": "Coalición UPN-PP en Navarra",
+    "texto": "UPN y PP concurren juntos al Congreso en Navarra. El modelo trata la lista como una sola candidatura («UPN-PP»), con el voto de 2023 de ambos partidos sumado, y sigue la evolución nacional del PP porque las encuestas ya no estiman UPN. Los escaños de la coalición se reparten por orden de lista (UPN, PP, PP, UPN): con dos escaños, uno para cada partido. En la página de Navarra aparece una sola fila; en el total nacional, cada partido con los suyos."
+  },
+  {
+    "fecha": "2026-11-11",
     "titulo": "Página de comunidades autónomas",
     "texto": "Nueva página con la misma tabla que la de provincias, sumando las provincias de cada comunidad: voto previsto, escaños centrales, distribución de escaños y resultados de 2023 (votos, porcentaje y escaños), con el mismo desplegable para elegir dónde va el bloque de 2023."
   },

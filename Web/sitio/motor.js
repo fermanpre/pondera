@@ -73,7 +73,14 @@
         }
       });
     });
+    // Coaliciones con reparto interno de escaños por orden de lista: índices de provincia, columna y socio
+    const coaliciones = (datos.coaliciones || []).map(function (coalicion) {
+      const indice = provincias.findIndex(function (provincia) { return provincia.nombre === coalicion.provincia; });
+      return { provincia: indice, columna: indiceDePartido[coalicion.columna], socio: indiceDePartido[coalicion.socio],
+               orden: coalicion.orden.map(function (nombre) { return indiceDePartido[nombre]; }), nombre: coalicion.nombre };
+    });
     return {
+      coaliciones: coaliciones,
       datos: datos, partidos: partidos, indiceDePartido: indiceDePartido, numeroDePartidos: numeroDePartidos,
       provincias: provincias, numeroDeProvincias: numeroDeProvincias, base: base, presente: presente, peso: peso, pesoTotal: pesoTotal,
     };
@@ -165,6 +172,13 @@
         votos[k] = excluido ? 0 : reparto[p * K + k] * modelo.peso[p];
       }
       repartirDhondt(votos, modelo.provincias[p].escanos, datos.barrera * modelo.provincias[p].votos_validos, escanos);
+      modelo.coaliciones.forEach(function (coalicion) {
+        if (coalicion.provincia !== p || escanos[coalicion.columna] === 0) return;
+        // Los n escaños de la coalición ocupan los n primeros puestos de su lista: se reparten entre la columna y su socio
+        const puestos = coalicion.orden.slice(0, escanos[coalicion.columna]);
+        escanos[coalicion.columna] = puestos.filter(function (k) { return k === coalicion.columna; }).length;
+        escanos[coalicion.socio] += puestos.filter(function (k) { return k === coalicion.socio; }).length;
+      });
       for (let k = 0; k < K; k++) resultado[p * K + k] = escanos[k];
     }
     return resultado;

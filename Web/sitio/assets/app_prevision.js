@@ -205,14 +205,28 @@ function pintarTablaDeTerritorio(config) {
     if (partido === "OTROS" || !indices.some(function (p) { return modelo.presente[p * K + k]; })) return;
     let cuota = 0;
     let central = 0;
+    let nombreDeCoalicion = null;
     indices.forEach(function (p) {
       cuota += cuotas[p * K + k] * modelo.provincias[p].peso / pesoTotal;
       central += escanosCentrales[p * K + k];
+      // Coalición (UPN-PP en Navarra): la fila de la columna suma los escaños de su socio; el socio no tiene fila propia en esa provincia
+      modelo.coaliciones.forEach(function (coalicion) {
+        if (coalicion.provincia !== p) return;
+        if (coalicion.columna === k) { central += escanosCentrales[p * K + coalicion.socio]; nombreDeCoalicion = coalicion.nombre; }
+        if (coalicion.socio === k) central -= escanosCentrales[p * K + k];
+      });
     });
     const cuentas = {};
     for (let s = 0; s < sorteos; s++) {
       let cantidad = 0;
-      indices.forEach(function (p) { cantidad += ultimoResultado.simulacion.provinciales[(s * P + p) * K + k]; });
+      indices.forEach(function (p) {
+        cantidad += ultimoResultado.simulacion.provinciales[(s * P + p) * K + k];
+        modelo.coaliciones.forEach(function (coalicion) {
+          if (coalicion.provincia !== p) return;
+          if (coalicion.columna === k) cantidad += ultimoResultado.simulacion.provinciales[(s * P + p) * K + coalicion.socio];
+          if (coalicion.socio === k) cantidad -= ultimoResultado.simulacion.provinciales[(s * P + p) * K + k];
+        });
+      });
       cuentas[cantidad] = (cuentas[cantidad] || 0) + 1;
     }
     let masProbable = 0;
@@ -220,7 +234,7 @@ function pintarTablaDeTerritorio(config) {
     Object.keys(cuentas).forEach(function (cantidad) {
       if (cuentas[cantidad] > mejor) { mejor = cuentas[cantidad]; masProbable = parseInt(cantidad, 10); }
     });
-    filas.push({ partido: partido, cuota: cuota, central: central, masProbable: masProbable, cuentas: cuentas });
+    filas.push({ partido: partido, nombre: nombreDeCoalicion || NOMBRES[partido], cuota: cuota, central: central, masProbable: masProbable, cuentas: cuentas });
   });
   filas.sort(function (a, b) { return b.cuota - a.cuota; });
   const tabla = document.getElementById(config.idTabla);
@@ -247,7 +261,7 @@ function pintarTablaDeTerritorio(config) {
   }
   filas.forEach(function (f) {
     const fila = document.createElement("tr");
-    const celdaPartido = '<td class="col-partido">' + ficha(f.partido) + NOMBRES[f.partido] + '</td>';
+    const celdaPartido = '<td class="col-partido">' + ficha(f.partido) + f.nombre + '</td>';
     const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + '</td><td>' + f.central + '</td><td>' + f.masProbable +
       '</td><td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>';
     fila.innerHTML = ordenarFila(celdaPartido, celdasPrevision, celdas2023(f.partido));
