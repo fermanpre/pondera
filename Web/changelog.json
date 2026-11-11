@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-11",
+    "titulo": "Escaños de 2026 por circunscripción: Madrid 38 y Cádiz 8",
+    "texto": "El modelo partía de los escaños de 2023 en todas las provincias. Para estas elecciones Madrid gana un diputado (38) y Cádiz pierde uno (8); el total sigue siendo 350. Las previsiones, las tablas de provincias, comunidades y resumen y el simulador usan ya los escaños de 2026; las columnas de resultados de 2023 conservan los de entonces."
+  },
+  {
+    "fecha": "2026-11-11",
     "titulo": "Página de resumen y descargas",
     "texto": "Nueva página con dos tablas sencillas, escaños y porcentaje de voto (a un decimal) de cada partido en cada provincia, según el reparto central. Se pueden descargar en CSV (una fila por provincia y partido) y en XLSX (una hoja por tabla)."
   },
