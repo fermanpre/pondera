@@ -2,7 +2,7 @@
 Resultados definitivos del Congreso de 2023 por provincia, para las columnas «2023» de la página de provincias.
 
 Entrada: historico/congreso_2023_candidaturas.csv y congreso_2023_participacion.csv (BOE, definitivos, con voto CERA).
-Salida:  sitio/resultados_2023.js («const RESULTADOS_2023 = …;») y sitio/resultados_2023.json.
+Salida:  sitio/resultados_2023.js («const RESULTADOS_2023 = …;» por provincia y «const RESULTADOS_2023_COMUNIDADES = …;» por comunidad) y sitio/resultados_2023.json.
 
 Por provincia se guardan los votos válidos (con blancos), los escaños y, por candidatura, votos y escaños.
 Se incluyen las candidaturas con al menos el 0,5 % de los votos válidos de la provincia, o con algún escaño, y PACMA siempre.
@@ -104,9 +104,49 @@ def main():
             print("AVISO: escaños de %s: suman %d y el total es %d" % (provincia, escanos_repartidos, total_escanos[provincia]))
         resultado[provincia] = {"validos": validos, "escanos": total_escanos[provincia], "candidaturas": lista}
 
+    # Comunidades autónomas: se suman votos y escaños de sus provincias y se aplica el umbral del 0,5 % sobre el total de la comunidad
+    comunidad_de_provincia = {}
+    datos_modelo = json.loads((CARPETA_SITIO / "datos_modelo.json").read_text(encoding="utf-8"))
+    for provincia_modelo in datos_modelo["provincias"]:
+        comunidad_de_provincia[provincia_modelo["nombre"]] = provincia_modelo["comunidad"]
+    votos_por_comunidad = {}
+    validos_por_comunidad = {}
+    escanos_por_comunidad = {}
+    for provincia, validos in votos_validos.items():
+        comunidad = comunidad_de_provincia[provincia]
+        validos_por_comunidad[comunidad] = validos_por_comunidad.get(comunidad, 0) + validos
+        escanos_por_comunidad[comunidad] = escanos_por_comunidad.get(comunidad, 0) + total_escanos[provincia]
+    siglas_por_clave = {}
+    for (provincia, nombre_original), cantidad in votos.items():
+        if "BLANCO" in nombre_original.upper() and "ESCA" in nombre_original.upper():
+            continue
+        clave, siglas = clave_y_nombre(nombre_original)
+        comunidad = comunidad_de_provincia[provincia]
+        acumulado = votos_por_comunidad.setdefault(comunidad, {}).setdefault(clave, {"votos": 0, "escanos": 0})
+        acumulado["votos"] += cantidad
+        acumulado["escanos"] += escanos.get((provincia, nombre_original), 0)
+        if siglas is not None:
+            siglas_por_clave[clave] = siglas
+    resultado_comunidades = {}
+    for comunidad, por_clave in votos_por_comunidad.items():
+        lista = []
+        for clave, acumulado in por_clave.items():
+            if clave != "PACMA" and acumulado["escanos"] == 0 and acumulado["votos"] / validos_por_comunidad[comunidad] < UMBRAL_DE_VOTO:
+                continue
+            entrada = {"clave": clave, "votos": acumulado["votos"], "escanos": acumulado["escanos"]}
+            if clave in siglas_por_clave:
+                entrada["siglas"] = siglas_por_clave[clave]
+            lista.append(entrada)
+        lista.sort(key=lambda entrada: -entrada["votos"])
+        suma_escanos = sum(entrada["escanos"] for entrada in lista)
+        if suma_escanos != escanos_por_comunidad[comunidad]:
+            print("AVISO: escaños de %s: suman %d y el total es %d" % (comunidad, suma_escanos, escanos_por_comunidad[comunidad]))
+        resultado_comunidades[comunidad] = {"validos": validos_por_comunidad[comunidad], "escanos": escanos_por_comunidad[comunidad], "candidaturas": lista}
+
     texto = json.dumps(resultado, ensure_ascii=False, separators=(",", ":"))
-    (CARPETA_SITIO / "resultados_2023.json").write_text(texto, encoding="utf-8")
-    (CARPETA_SITIO / "resultados_2023.js").write_text("const RESULTADOS_2023 = " + texto + ";" + chr(10), encoding="utf-8")
+    texto_comunidades = json.dumps(resultado_comunidades, ensure_ascii=False, separators=(",", ":"))
+    (CARPETA_SITIO / "resultados_2023.json").write_text(json.dumps({"provincias": resultado, "comunidades": resultado_comunidades}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    (CARPETA_SITIO / "resultados_2023.js").write_text("const RESULTADOS_2023 = " + texto + ";" + chr(10) + "const RESULTADOS_2023_COMUNIDADES = " + texto_comunidades + ";" + chr(10), encoding="utf-8")
     print("Provincias: %d | %.0f kB" % (len(resultado), len(texto.encode("utf-8")) / 1024))
     extras = sorted({entrada["siglas"] for datos in resultado.values() for entrada in datos["candidaturas"] if "siglas" in entrada})
     print("Candidaturas sin clave del modelo mostradas:", ", ".join(extras))

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Previsión por comunidad · PONDERA</title>
+<meta name="description" content="Voto previsto, escaños y probabilidad de cada resultado en cada comunidad autónoma de las generales de 2026, con los resultados de 2023.">
+<link rel="canonical" href="https://fermanpre.github.io/pondera/comunidades.html">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="alternate" type="application/rss+xml" title="PONDERA · Historial de cambios" href="feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="PONDERA">
+<meta property="og:title" content="Previsión por comunidad · PONDERA">
+<meta property="og:description" content="Voto previsto, escaños y probabilidad de cada resultado en cada comunidad autónoma de las generales de 2026, con los resultados de 2023.">
+<meta property="og:url" content="https://fermanpre.github.io/pondera/comunidades.html">
+<meta property="og:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Previsión por comunidad · PONDERA">
+<meta name="twitter:description" content="Voto previsto, escaños y probabilidad de cada resultado en cada comunidad autónoma de las generales de 2026, con los resultados de 2023.">
+<meta name="twitter:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<link rel="stylesheet" href="assets/estilo.css">
+<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>
+</head>
+<body>
+<header class="cabecera-sitio">
+  <div class="interior">
+    <a class="marca" href="index.html">PONDERA<small>Elecciones generales 2026</small></a>
+    <nav class="principal" aria-label="Principal">
+      <a href="index.html">Inicio</a>
+      <a href="promedio.html">Promedio</a>
+      <a href="provincias.html">Provincias</a>
+      <a href="comunidades.html" aria-current="page">Comunidades</a>
+      <a href="simulador.html">Simulador</a>
+      <a href="metodologia.html">Metodología</a>
+      <a href="acerca.html">Acerca de</a>
+      <a href="enlaces.html">Enlaces</a>
+    </nav>
+    <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
+  </div>
+</header>
+<main class="contenedor">
+<div class="cabecera-pagina">
+  <h1>Previsión por comunidad autónoma</h1>
+  <p class="subtitulo">Voto previsto, reparto central de escaños y probabilidad de cada resultado en cada comunidad, sumando sus provincias.</p>
+</div>
+
+<section id="comunidades">
+  <h2>Por comunidad</h2>
+  <div class="controles">
+    <label>Comunidad <select id="selector-comunidad"></select></label>
+    <label>Resultados de 2023
+      <select id="posicion-2023">
+        <option value="antes">A la izquierda del partido</option>
+        <option value="tras-partido">Entre el partido y la previsión</option>
+        <option value="final">A la derecha de la previsión</option>
+      </select>
+    </label>
+    <span class="nota" id="resumen-comunidad"></span>
+  </div>
+  <div class="tabla-ancha">
+    <table id="tabla-comunidad" data-con-2023>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<p class="nota">El voto previsto de una comunidad es la media del de sus provincias ponderada por sus votos; los escaños son la suma de los de sus provincias, y la distribución suma, en cada sorteo, los escaños de todas ellas. Las columnas de 2023 son los resultados definitivos del Congreso sumados por comunidad (BOE, con voto CERA); el porcentaje es sobre los votos válidos, blancos incluidos. Se muestran las candidaturas con al menos el 0,5 % de los votos de la comunidad y PACMA. En la fila de Frente Amplio figura Sumar, que fue la candidatura de 2023; las filas en cursiva son candidaturas de 2023 sin previsión en esa comunidad.</p>
+<p class="nota">Para ver cada circunscripción por separado, usa <a href="provincias.html">Provincias</a>; para otras hipótesis de voto, el <a href="simulador.html">simulador</a>.</p>
+</main>
+<footer class="pie contenedor">
+  <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
+  <nav aria-label="Pie">
+    <a href="LICENSE">Licencia</a>
+    <a href="changelog.html">Historial de cambios</a>
+    <a href="feed.xml">RSS</a>
+    <a href="acerca.html">Acerca de</a>
+    <a href="autor.html">Sobre el autor</a>
+    <a href="enlaces.html">Enlaces</a>
+    <a href="cerveza.html">Invítame a una cerveza</a>
+    <a href="https://github.com/fermanpre/pondera">GitHub</a>
+  </nav>
+</footer>
+<script src="assets/tema.js"></script>
+<script src="datos_modelo.js"></script>
+<script src="resultados_2023.js"></script>
+<script src="assets/comun.js"></script>
+<script src="motor.js"></script>
+<script src="assets/app_prevision.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<div class="cabecera-pagina">
+  <h1>Previsión por comunidad autónoma</h1>
+  <p class="subtitulo">Voto previsto, reparto central de escaños y probabilidad de cada resultado en cada comunidad, sumando sus provincias.</p>
+</div>
+
+<section id="comunidades">
+  <h2>Por comunidad</h2>
+  <div class="controles">
+    <label>Comunidad <select id="selector-comunidad"></select></label>
+    <label>Resultados de 2023
+      <select id="posicion-2023">
+        <option value="antes">A la izquierda del partido</option>
+        <option value="tras-partido">Entre el partido y la previsión</option>
+        <option value="final">A la derecha de la previsión</option>
+      </select>
+    </label>
+    <span class="nota" id="resumen-comunidad"></span>
+  </div>
+  <div class="tabla-ancha">
+    <table id="tabla-comunidad" data-con-2023>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<p class="nota">El voto previsto de una comunidad es la media del de sus provincias ponderada por sus votos; los escaños son la suma de los de sus provincias, y la distribución suma, en cada sorteo, los escaños de todas ellas. Las columnas de 2023 son los resultados definitivos del Congreso sumados por comunidad (BOE, con voto CERA); el porcentaje es sobre los votos válidos, blancos incluidos. Se muestran las candidaturas con al menos el 0,5 % de los votos de la comunidad y PACMA. En la fila de Frente Amplio figura Sumar, que fue la candidatura de 2023; las filas en cursiva son candidaturas de 2023 sin previsión en esa comunidad.</p>
+<p class="nota">Para ver cada circunscripción por separado, usa <a href="provincias.html">Provincias</a>; para otras hipótesis de voto, el <a href="simulador.html">simulador</a>.</p>

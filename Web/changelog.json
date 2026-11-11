@@ -1,5 +1,10 @@
 [
   {
+    "fecha": "2026-11-11",
+    "titulo": "Página de comunidades autónomas",
+    "texto": "Nueva página con la misma tabla que la de provincias, sumando las provincias de cada comunidad: voto previsto, escaños centrales, distribución de escaños y resultados de 2023 (votos, porcentaje y escaños), con el mismo desplegable para elegir dónde va el bloque de 2023."
+  },
+  {
     "fecha": "2026-11-10",
     "titulo": "Resultados de 2023 en la página de provincias",
     "texto": "La tabla de cada provincia incluye ahora los votos, el porcentaje y los escaños de 2023 (resultados definitivos del BOE, con voto CERA) de las candidaturas con al menos el 0,5 % de los votos y de PACMA. En la fila de Frente Amplio figura lo que obtuvo Sumar. Por defecto el bloque va a la izquierda del partido (pasado a la izquierda, previsión a la derecha); un desplegable permite moverlo entre el partido y la previsión o a la derecha, y el sitio recuerda la elección."

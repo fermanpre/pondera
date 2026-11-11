@@ -28,6 +28,7 @@ URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
 SCRIPTS_DE_PROVINCIAS = ["datos_modelo.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
+SCRIPTS_DE_COMUNIDADES = SCRIPTS_DE_PROVINCIAS
 SCRIPTS_DE_PROMEDIO = ["assets/comun.js", "serie_promedio.js", "encuestas_promedio.js", "grafico_promedio.js"]
 
 # archivo, plantilla, título, descripción, texto del menú (None = no aparece en el menú), scripts de la página
@@ -38,6 +39,8 @@ PAGINAS = [
      "descripcion": "Promedio diario de encuestas de las generales de 2026, día a día desde las elecciones de julio de 2023."},
     {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "menu": "Provincias", "scripts": SCRIPTS_DE_PROVINCIAS,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
+    {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "menu": "Comunidades", "scripts": SCRIPTS_DE_COMUNIDADES,
+     "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en cada comunidad autónoma de las generales de 2026, con los resultados de 2023."},
     {"archivo": "simulador.html", "plantilla": "simulador", "titulo": "Simulador", "menu": "Simulador", "scripts": SCRIPTS_DE_PREVISION,
      "descripcion": "Simulador de escaños: fija el voto de cada partido y mira cómo cambia el reparto en España y en cada provincia."},
     {"archivo": "metodologia.html", "plantilla": "metodologia", "titulo": "Metodología", "menu": "Metodología", "scripts": [],

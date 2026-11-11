@@ -27,6 +27,7 @@ function recalcular() {
     estado.textContent = "Calculado en " + ((performance.now() - inicio) / 1000).toFixed(1).replace(".", ",") + " s";
     pintarNacional();
     pintarProvincia();
+    pintarComunidad();
   }, 20);
 }
 
@@ -128,7 +129,7 @@ function moverPartido(partido, nuevoPorcentaje) {
   recalcularConRetraso();
 }
 
-/* ---------- Provincias ---------- */
+/* ---------- Provincias y comunidades ---------- */
 
 function crearSelectorDeProvincias() {
   const selector = document.getElementById("selector-provincia");
@@ -142,20 +143,76 @@ function crearSelectorDeProvincias() {
   selector.addEventListener("change", pintarProvincia);
 }
 
+/* Comunidades autónomas: nombre y índices de sus provincias, en orden alfabético */
+function comunidadesDelModelo() {
+  const porNombre = {};
+  modelo.provincias.forEach(function (provincia, p) {
+    if (!porNombre[provincia.comunidad]) porNombre[provincia.comunidad] = [];
+    porNombre[provincia.comunidad].push(p);
+  });
+  return Object.keys(porNombre).sort(function (a, b) { return a.localeCompare(b, "es"); }).map(function (nombre) {
+    const indices = porNombre[nombre];
+    const escanos = indices.reduce(function (suma, p) { return suma + modelo.provincias[p].escanos; }, 0);
+    return { nombre: nombre, indices: indices, escanos: escanos };
+  });
+}
+const COMUNIDADES = comunidadesDelModelo();
+
+function crearSelectorDeComunidades() {
+  const selector = document.getElementById("selector-comunidad");
+  if (!selector) return;
+  COMUNIDADES.forEach(function (comunidad, c) {
+    const opcion = document.createElement("option");
+    opcion.value = c;
+    opcion.textContent = comunidad.nombre + " (" + comunidad.escanos + ")";
+    selector.appendChild(opcion);
+  });
+  selector.addEventListener("change", pintarComunidad);
+}
+
 function pintarProvincia() {
   if (!ultimoResultado || !document.getElementById("selector-provincia")) return;
   const p = parseInt(document.getElementById("selector-provincia").value, 10);
   const provincia = modelo.provincias[p];
   document.getElementById("resumen-provincia").textContent = provincia.comunidad + ": " + provincia.escanos + " escaños, " + entero(provincia.votos_validos) + " votos válidos (base 2023 sobre residentes).";
+  pintarTablaDeTerritorio({
+    idTabla: "tabla-provincia", indices: [p], territorio: "esta provincia",
+    resultados2023: typeof RESULTADOS_2023 !== "undefined" ? RESULTADOS_2023[provincia.nombre] : null,
+  });
+}
+
+function pintarComunidad() {
+  if (!ultimoResultado || !document.getElementById("selector-comunidad")) return;
+  const comunidad = COMUNIDADES[parseInt(document.getElementById("selector-comunidad").value, 10)];
+  const votosValidos = comunidad.indices.reduce(function (suma, p) { return suma + modelo.provincias[p].votos_validos; }, 0);
+  document.getElementById("resumen-comunidad").textContent = comunidad.indices.length + (comunidad.indices.length === 1 ? " provincia" : " provincias") + ", " + comunidad.escanos + " escaños, " + entero(votosValidos) + " votos válidos (base 2023 sobre residentes).";
+  pintarTablaDeTerritorio({
+    idTabla: "tabla-comunidad", indices: comunidad.indices, territorio: "esta comunidad",
+    resultados2023: typeof RESULTADOS_2023_COMUNIDADES !== "undefined" ? RESULTADOS_2023_COMUNIDADES[comunidad.nombre] : null,
+  });
+}
+
+/* Tabla de un territorio (una provincia o varias, sumadas): voto previsto = media de las cuotas de sus provincias ponderada por su peso;
+   escaños centrales = suma de los de sus provincias; distribución = suma de los escaños de sus provincias en cada sorteo. */
+function pintarTablaDeTerritorio(config) {
+  const indices = config.indices;
   const cuotas = ultimoResultado.central.cuotas;
   const escanosCentrales = ultimoResultado.central.escanos;
   const sorteos = ultimoResultado.sorteos;
+  const pesoTotal = indices.reduce(function (suma, p) { return suma + modelo.provincias[p].peso; }, 0);
   const filas = [];
   modelo.partidos.forEach(function (partido, k) {
-    if (!modelo.presente[p * K + k] || partido === "OTROS") return;
+    if (partido === "OTROS" || !indices.some(function (p) { return modelo.presente[p * K + k]; })) return;
+    let cuota = 0;
+    let central = 0;
+    indices.forEach(function (p) {
+      cuota += cuotas[p * K + k] * modelo.provincias[p].peso / pesoTotal;
+      central += escanosCentrales[p * K + k];
+    });
     const cuentas = {};
     for (let s = 0; s < sorteos; s++) {
-      const cantidad = ultimoResultado.simulacion.provinciales[(s * P + p) * K + k];
+      let cantidad = 0;
+      indices.forEach(function (p) { cantidad += ultimoResultado.simulacion.provinciales[(s * P + p) * K + k]; });
       cuentas[cantidad] = (cuentas[cantidad] || 0) + 1;
     }
     let masProbable = 0;
@@ -163,17 +220,18 @@ function pintarProvincia() {
     Object.keys(cuentas).forEach(function (cantidad) {
       if (cuentas[cantidad] > mejor) { mejor = cuentas[cantidad]; masProbable = parseInt(cantidad, 10); }
     });
-    filas.push({ partido: partido, cuota: cuotas[p * K + k], central: escanosCentrales[p * K + k], masProbable: masProbable, cuentas: cuentas });
+    filas.push({ partido: partido, cuota: cuota, central: central, masProbable: masProbable, cuentas: cuentas });
   });
   filas.sort(function (a, b) { return b.cuota - a.cuota; });
-  const tablaConResultados2023 = document.getElementById("tabla-provincia").hasAttribute("data-con-2023") && typeof RESULTADOS_2023 !== "undefined";
-  const resultados2023 = tablaConResultados2023 ? RESULTADOS_2023[provincia.nombre] : null;
+  const tabla = document.getElementById(config.idTabla);
+  const tablaConResultados2023 = tabla.hasAttribute("data-con-2023") && !!config.resultados2023;
+  const resultados2023 = tablaConResultados2023 ? config.resultados2023 : null;
   const porClave2023 = {};
   if (resultados2023) resultados2023.candidaturas.forEach(function (c) { porClave2023[c.clave] = c; });
-  const cuerpo = document.querySelector("#tabla-provincia tbody");
+  const cuerpo = tabla.querySelector("tbody");
   cuerpo.innerHTML = "";
   const orden2023 = ordenElegidoDeLos2023();
-  construirCabeceraConPasado(orden2023);
+  construirCabeceraConPasado(tabla, orden2023);
   const marcaDeInicio = orden2023 === "final" ? " borde-izq" : "";
   function celdas2023(clave) {
     if (!tablaConResultados2023) return "";
@@ -182,6 +240,7 @@ function pintarProvincia() {
     return '<td class="num2023' + marcaDeInicio + '">' + c.votos.toLocaleString("es-ES", { useGrouping: "always" }) + '</td><td class="num2023">' + porcentaje(100 * c.votos / resultados2023.validos) + '</td><td class="num2023 borde-der">' + c.escanos + '</td>';
   }
   function ordenarFila(celdaPartido, celdasPrevision, celdasPasado) {
+    if (!tablaConResultados2023) return celdaPartido + celdasPrevision;
     if (orden2023 === "antes") return celdasPasado + celdaPartido + celdasPrevision;
     if (orden2023 === "tras-partido") return celdaPartido + celdasPasado + celdasPrevision;
     return celdaPartido + celdasPrevision + celdasPasado;
@@ -195,7 +254,7 @@ function pintarProvincia() {
     cuerpo.appendChild(fila);
   });
   if (resultados2023) {
-    // Candidaturas de 2023 sin fila en 2026 (partidos que ya no concurren o que no tienen lista en esta provincia): al final, con la previsión vacía
+    // Candidaturas de 2023 sin fila en 2026 (partidos que ya no concurren o que no tienen lista aquí): al final, con la previsión vacía
     const mostradas = {};
     filas.forEach(function (f) { mostradas[f.partido] = true; });
     resultados2023.candidaturas.forEach(function (c) {
@@ -204,7 +263,7 @@ function pintarProvincia() {
       const color = COLORES[c.clave] || "#9a9a94";
       const fila = document.createElement("tr");
       fila.className = "solo-2023";
-      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="4" class="suave">Sin previsión en esta provincia</td>', celdas2023(c.clave));
+      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="4" class="suave">Sin previsión en ' + config.territorio + '</td>', celdas2023(c.clave));
       cuerpo.appendChild(fila);
     });
   }
@@ -257,9 +316,9 @@ function ordenElegidoDeLos2023() {
   return selector ? selector.value : "final";
 }
 
-function construirCabeceraConPasado(orden) {
-  const cabecera = document.querySelector("#tabla-provincia thead");
-  if (!cabecera || !document.getElementById("tabla-provincia").hasAttribute("data-con-2023")) return;
+function construirCabeceraConPasado(tabla, orden) {
+  const cabecera = tabla.querySelector("thead");
+  if (!cabecera || !tabla.hasAttribute("data-con-2023")) return;
   const marcaDeInicio = orden === "final" ? " borde-izq" : "";
   const grupoPasado = '<th colspan="3" class="grupo2023' + marcaDeInicio + ' borde-der">Resultado de 2023 (definitivo)</th>';
   const subPasado = '<th class="' + marcaDeInicio.trim() + '">Votos</th><th>%</th><th class="borde-der">Escaños</th>';
@@ -283,6 +342,7 @@ function activarSelectorDePosicion2023() {
   selector.addEventListener("change", function () {
     try { localStorage.setItem("pondera-posicion-2023", selector.value); } catch (error) { /* ignorar */ }
     pintarProvincia();
+    pintarComunidad();
   });
 }
 
@@ -301,4 +361,5 @@ const selectorDeSorteosInicial = document.getElementById("numero-sorteos");
 if (selectorDeSorteosInicial) { selectorDeSorteosInicial.addEventListener("change", recalcular); }
 crearDeslizadores();
 crearSelectorDeProvincias();
+crearSelectorDeComunidades();
 recalcular();
