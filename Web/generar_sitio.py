@@ -57,6 +57,12 @@ PAGINAS = [
      "descripcion": "Una opción, sin expectativas, para invitar al autor a una cerveza."},
 ]
 
+ID_DE_MEDICION_DE_GOOGLE_ANALYTICS = "G-EPHEWLQSRW"
+ETIQUETA_DE_GOOGLE_ANALYTICS = (
+    '<script async src="https://www.googletagmanager.com/gtag/js?id=%s"></script>'
+    "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','%s');</script>"
+) % (ID_DE_MEDICION_DE_GOOGLE_ANALYTICS, ID_DE_MEDICION_DE_GOOGLE_ANALYTICS)
+
 SCRIPT_DE_TEMA_EN_CABECERA = (
     "<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>"
 )
@@ -152,7 +158,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
 </html>
 """.format(
         titulo_completo=escapar(titulo_completo), descripcion=escapar(pagina["descripcion"]), url_canonica=url_canonica, prefijo=prefijo,
-        nombre=NOMBRE_SITIO, lema=escapar(LEMA), base_url=BASE_URL, script_de_tema=SCRIPT_DE_TEMA_EN_CABECERA, menu="\n      ".join(enlaces_del_menu),
+        nombre=NOMBRE_SITIO, lema=escapar(LEMA), base_url=BASE_URL, script_de_tema=SCRIPT_DE_TEMA_EN_CABECERA + ETIQUETA_DE_GOOGLE_ANALYTICS, menu="\n      ".join(enlaces_del_menu),
         contenido=contenido, scripts=scripts, url_repositorio=URL_REPOSITORIO)
 
 
