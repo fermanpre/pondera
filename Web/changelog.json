@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-12",
+    "titulo": "Voto de 2019 de Cs, CUP y PRC por bloque",
+    "texto": "En la base mezclada con 2019, el voto de las candidaturas que no continúan ya no se reparte en proporción entre todas, sino por bloque: Cs va a los partidos de derecha, la CUP a los de izquierda y el PRC a partes iguales entre ambos. Con el promedio actual cambian unos pocos escaños: Barcelona (PP +1, Junts −1), Cantabria (PP −1, PSOE +1) y A Coruña (BNG +1, PP −1)."
+  },
+  {
+    "fecha": "2026-11-12",
     "titulo": "Base provincial mezclada con 2019",
     "texto": "La base de partida de cada provincia pasa de ser solo 2023 a un 75 % de 2023 más un 25 % de la media de las generales de 2019 (abril y noviembre). Con las 13 elecciones de 1986 a 2023 y el mismo método de reparto, esa mezcla reduce el error del reparto provincial un 12 % y mejora en 10 de las 11 elecciones normales. Con el promedio actual cambia poco: Cantabria y Ceuta cambian un escaño, el PSOE baja uno en el total y Vox sube uno."
   },
