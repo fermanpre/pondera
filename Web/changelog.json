@@ -1,5 +1,10 @@
 [
   {
+    "fecha": "2026-11-12",
+    "titulo": "Base provincial mezclada con 2019",
+    "texto": "La base de partida de cada provincia pasa de ser solo 2023 a un 75 % de 2023 más un 25 % de la media de las generales de 2019 (abril y noviembre). Con las 13 elecciones de 1986 a 2023 y el mismo método de reparto, esa mezcla reduce el error del reparto provincial un 12 % y mejora en 10 de las 11 elecciones normales. Con el promedio actual cambia poco: Cantabria y Ceuta cambian un escaño, el PSOE baja uno en el total y Vox sube uno."
+  },
+  {
     "fecha": "2026-11-11",
     "titulo": "Vox en Santa Cruz de Tenerife",
     "texto": "Vox no concurrió a las generales de 2023 en Santa Cruz de Tenerife, y el modelo no podía darle voto ni escaños allí. Ahora la base incluye una estimación de lo que habría obtenido (un 11,5 % de los votos a candidaturas, entre 10,2 % y 12,7 %), calculada con su fuerza relativa frente a Las Palmas en las generales de 2019 y en las autonómicas de 2019 y 2023, y restada sobre todo al PP. Con ello Vox puede obtener un escaño en Santa Cruz, como en la mayoría de las encuestas."
