@@ -35,6 +35,12 @@ ERROR_SIN_MUESTRA = 0.1
 VENTANA_DIAS = 30
 SATURACION_POR_FIRMA = 0.75
 VIDA_MEDIA_MINIMA = 7.0
+# La vida media mínima baja conforme se acercan las elecciones (decisión del usuario, 12/11/2026): 7 días hasta DIAS_VIDA_MEDIA_LEJOS, bajada lineal hasta
+# VIDA_MEDIA_MINIMA_CERCA a DIAS_VIDA_MEDIA_CERCA días de la votación y ese valor desde entonces. Contraste: a 26 días de las generales de 2008 a 2023, pasar de 7 a 3 días
+# reduce el error por bloque de 1,96 a 1,69 puntos (casi todo por 2015 y 2023, campañas con movimiento tardío). Ver Informes/idea3_contrastes.md.
+VIDA_MEDIA_MINIMA_CERCA = 3.0
+DIAS_VIDA_MEDIA_LEJOS = 60
+DIAS_VIDA_MEDIA_CERCA = 30
 RATING_MINIMO = 0.2
 # Ajuste manual del peso de una firma (multiplica su peso final; 1,0 = sin ajuste). Clave: nombre normalizado de la firma, p. ej. "electomania", "cis".
 AJUSTE_MANUAL_DE_PESO = {}
@@ -179,6 +185,16 @@ def leer_pesos_de_notas(ruta=RUTA_NOTAS):
     return pesos
 
 
+def vida_media_minima(dias_hasta_eleccion):
+    """Vida media mínima (días) según lo que falta para las elecciones: VIDA_MEDIA_MINIMA lejos, VIDA_MEDIA_MINIMA_CERCA cerca, e interpolación lineal entre ambas."""
+    if dias_hasta_eleccion >= DIAS_VIDA_MEDIA_LEJOS:
+        return VIDA_MEDIA_MINIMA
+    if dias_hasta_eleccion <= DIAS_VIDA_MEDIA_CERCA:
+        return min(VIDA_MEDIA_MINIMA, VIDA_MEDIA_MINIMA_CERCA)
+    fraccion = (dias_hasta_eleccion - DIAS_VIDA_MEDIA_CERCA) / float(DIAS_VIDA_MEDIA_LEJOS - DIAS_VIDA_MEDIA_CERCA)
+    return min(VIDA_MEDIA_MINIMA, VIDA_MEDIA_MINIMA_CERCA + fraccion * (VIDA_MEDIA_MINIMA - VIDA_MEDIA_MINIMA_CERCA))
+
+
 def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_eleccion=None, escribir=True, encuestas_leidas=None, pesos_por_encuesta=None):
     """Promedio a la fecha «hoy» (por defecto HOY) para unas elecciones en «fecha_eleccion». Con escribir=False no toca promedio_actual.csv.
     Con encuestas_leidas (resultado de leer_encuestas) no se vuelve a leer el CSV: sirve para calcular muchos días seguidos.
@@ -193,9 +209,10 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
     dias_hasta_eleccion = (fecha_eleccion - hoy).days
     ventana = 7 + 0.2 * dias_hasta_eleccion
     numero_recientes = sum(1 for e in encuestas if (hoy - e["fin"]).days < ventana)
-    vida_media = 7.0
+    minimo_de_vida_media = vida_media_minima(dias_hasta_eleccion)
+    vida_media = minimo_de_vida_media
     if numero_recientes > 0:
-        vida_media = max(VIDA_MEDIA_MINIMA, min(ventana, dias_hasta_eleccion / numero_recientes))
+        vida_media = max(minimo_de_vida_media, min(ventana, dias_hasta_eleccion / numero_recientes))
     error_de_referencia = error_de_muestra(MUESTRA_DE_REFERENCIA)
     posicion_en_firma = defaultdict(int)
     suma_ponderada = defaultdict(float)

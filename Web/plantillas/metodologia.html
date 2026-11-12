@@ -11,7 +11,7 @@
   <p>Las encuestas se toman de las tablas de Wikipedia sobre la próxima elección general. Cada día se calcula el promedio con las encuestas cuyo trabajo de campo ya había terminado y que caen en los 30 días anteriores. Cada encuesta pesa según:</p>
   <ul>
     <li>la fiabilidad histórica de su firma (error en las generales de 2023 y las europeas de 2024);</li>
-    <li>lo reciente que es: el peso se reduce a la mitad cada cierto número de días, que depende de cuánto falta para la elección y de cuántas encuestas recientes hay;</li>
+    <li>lo reciente que es: el peso se reduce a la mitad cada cierto número de días, que depende de cuánto falta para la elección y de cuántas encuestas recientes hay. Su mínimo es de 7 días hasta dos meses antes de la votación y baja de forma gradual hasta 3 días en el último mes, para seguir mejor los movimientos de campaña;</li>
     <li>una penalización de saturación, para que una casa que publica mucho no domine el promedio.</li>
   </ul>
   <p>Las encuestas internas de partidos se excluyen. La serie diaria se recalcula entera cada vez, con la misma fórmula para todos los días.</p>

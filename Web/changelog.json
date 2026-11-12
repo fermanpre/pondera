@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-12",
+    "titulo": "Promedio más reactivo en el último mes",
+    "texto": "El peso de una encuesta se reducía a la mitad, como mínimo, cada 7 días. Ese mínimo baja ahora de forma gradual desde 7 días (a dos meses de la votación) hasta 3 días (en el último mes), para que el promedio siga mejor los movimientos de campaña. A 26 días de las generales de 2008 a 2023, ese cambio reduce el error por bloque de 1,96 a 1,69 puntos, sobre todo por 2015 y 2023. Hoy mueve el PSOE de 26,85 a 27,07 y el PP de 31,29 a 31,24. En la tabla de sesgos de la página Resumen, Junts, PNV y Coalición Canaria pasan a contar en la derecha."
+  },
+  {
+    "fecha": "2026-11-12",
     "titulo": "Incertidumbre recalibrada y sesgo de cada provincia",
     "texto": "El Monte Carlo generaba bloques más dispersos y partidos grandes menos dispersos que lo medido en las 16 generales desde 1977. Ahora el error de bloque mueve el total del bloque y el error propio de cada partido solo reparte dentro de él, con parámetros ajustados para reproducir los errores históricos. Los rangos del PP y de Vox se estrechan algo y los del PSOE y Sumar se ensanchan. Además, la página Resumen incluye una tabla de diagnóstico con el sesgo izquierda/derecha y el peso de los partidos periféricos en cada provincia."
   },

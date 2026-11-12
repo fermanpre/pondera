@@ -131,7 +131,7 @@ def tabla_de_sesgos():
   <div class="tabla-ancha tabla-resumen"><table id="tabla-sesgos"><thead><tr><th>Provincia</th><th>Base</th><th>Esperado</th><th>Proyección</th><th>Desviación</th><th>Periférico base (%%)</th><th>Periférico proyección (%%)</th></tr></thead>
 <tbody>
 %s</tbody></table></div>
-  <p class="nota">Eje izquierda/derecha: voto de izquierda menos voto de derecha en la provincia, menos el mismo dato de España (los partidos periféricos de izquierda cuentan en la izquierda; Junts, PNV y Coalición Canaria no se ubican). «Base» es el patrón de fondo (75 %% de 2023 y 25 %% de 2019); «Esperado», lo que saldría si cada bloque cambiara igual en toda España; «Proyección», el reparto central. La desviación (proyección menos esperado) se resalta a partir de %s puntos. «Periférico» es el peso conjunto de los partidos de ámbito no estatal. La clasificación de los partidos es provisional.</p>
+  <p class="nota">Eje izquierda/derecha: voto de izquierda menos voto de derecha en la provincia, menos el mismo dato de España (los partidos periféricos cuentan en su lado: ERC, EH Bildu, BNG y Adelante Andalucía en la izquierda; Junts, PNV y Coalición Canaria en la derecha). «Base» es el patrón de fondo (75 %% de 2023 y 25 %% de 2019); «Esperado», lo que saldría si cada bloque cambiara igual en toda España; «Proyección», el reparto central. La desviación (proyección menos esperado) se resalta a partir de %s puntos. «Periférico» es el peso conjunto de los partidos de ámbito no estatal.</p>
 """ % (cuerpo, formato_decimal(sesgos["umbral_de_revision"]).replace(",0", ""))
 
 
