@@ -212,16 +212,24 @@
     Object.keys(datos.sigma_bloque).forEach(function (bloque) {
       errorDeBloque[bloque] = generador.gauss(0, datos.sigma_bloque[bloque]) / 100;
     });
-    const nuevos = new Float64Array(K);
+    // Ruido propio de cada partido (lognormal relativo). Dentro de un bloque solo REPARTE: se reescala para conservar el total del bloque, y el total lo mueve el error de bloque
+    const conRuido = new Float64Array(K);
+    const sumaConRuidoPorBloque = {};
     for (let k = 0; k < K; k++) {
       const partido = modelo.partidos[k];
+      conRuido[k] = objetivo[k] * Math.exp(generador.gauss(0, datos.sigma_partido[partido] || 0));
       const bloque = datos.bloques[partido];
-      let factor = 1;
-      if (bloque && cuotaDeBloque[bloque] > 0) {
-        factor = Math.max(0.05, (cuotaDeBloque[bloque] + (errorDeBloque[bloque] || 0)) / cuotaDeBloque[bloque]);
+      if (bloque) sumaConRuidoPorBloque[bloque] = (sumaConRuidoPorBloque[bloque] || 0) + conRuido[k];
+    }
+    const nuevos = new Float64Array(K);
+    for (let k = 0; k < K; k++) {
+      const bloque = datos.bloques[modelo.partidos[k]];
+      if (bloque && cuotaDeBloque[bloque] > 0 && sumaConRuidoPorBloque[bloque] > 0) {
+        const totalDelBloque = Math.max(0.05 * cuotaDeBloque[bloque], cuotaDeBloque[bloque] + (errorDeBloque[bloque] || 0));
+        nuevos[k] = conRuido[k] * totalDelBloque / sumaConRuidoPorBloque[bloque];
+      } else {
+        nuevos[k] = conRuido[k];
       }
-      const propio = Math.exp(generador.gauss(0, datos.sigma_partido[partido] || 0));
-      nuevos[k] = objetivo[k] * factor * propio;
     }
     if (palanca) {
       const indicePsoe = modelo.indiceDePartido.PSOE;

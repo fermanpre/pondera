@@ -106,6 +106,35 @@ def tabla_html(titulo_id, partidos, filas, clave, formato, columna_extra, fila_t
     return '<div class="tabla-ancha tabla-resumen"><table id="%s"><thead><tr>%s</tr></thead>\n<tbody>\n%s</tbody>%s</table></div>' % (titulo_id, cabecera, cuerpo, pie)
 
 
+def etiqueta_de_sesgo(valor):
+    if abs(valor) < 0.5:
+        return "0"
+    return ("I+%d" % round(valor)) if valor > 0 else ("D+%d" % round(-valor))
+
+
+def tabla_de_sesgos():
+    """Tabla del diagnóstico de sesgos provinciales (calcular_sesgos_provinciales.py); cadena vacía si no existe el fichero."""
+    ruta = CARPETA_WEB / "sesgos_provinciales.json"
+    if not ruta.exists():
+        return ""
+    sesgos = json.loads(ruta.read_text(encoding="utf-8"))
+    cuerpo = ""
+    for fila in sesgos["provincias"]:
+        marca = ' class="suave"' if not fila["revisar"] else ""
+        cuerpo += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td%s>%s</td><td>%s</td><td>%s</td></tr>\n" % (
+            html.escape(fila["provincia"]), etiqueta_de_sesgo(fila["izquierda_derecha_base"]), etiqueta_de_sesgo(fila["izquierda_derecha_esperado"]),
+            etiqueta_de_sesgo(fila["izquierda_derecha_proyeccion"]), marca, ("%+.1f" % fila["desviacion"]).replace(".", ","),
+            formato_decimal(fila["periferico_base"]), formato_decimal(fila["periferico_proyeccion"]))
+    return """  <h2>Sesgo de cada provincia</h2>
+  <div class="controles"><a class="boton" href="sesgos_provinciales.csv" download>Descargar CSV</a>
+    <span class="nota">Diagnóstico, no previsión. I+x: x puntos más a la izquierda que España; D+x: más a la derecha.</span></div>
+  <div class="tabla-ancha tabla-resumen"><table id="tabla-sesgos"><thead><tr><th>Provincia</th><th>Base</th><th>Esperado</th><th>Proyección</th><th>Desviación</th><th>Periférico base (%%)</th><th>Periférico proyección (%%)</th></tr></thead>
+<tbody>
+%s</tbody></table></div>
+  <p class="nota">Eje izquierda/derecha: voto de izquierda menos voto de derecha en la provincia, menos el mismo dato de España (los partidos periféricos de izquierda cuentan en la izquierda; Junts, PNV y Coalición Canaria no se ubican). «Base» es el patrón de fondo (75 %% de 2023 y 25 %% de 2019); «Esperado», lo que saldría si cada bloque cambiara igual en toda España; «Proyección», el reparto central. La desviación (proyección menos esperado) se resalta a partir de %s puntos. «Periférico» es el peso conjunto de los partidos de ámbito no estatal. La clasificación de los partidos es provisional.</p>
+""" % (cuerpo, formato_decimal(sesgos["umbral_de_revision"]).replace(",0", ""))
+
+
 def escribir_pagina(partidos, filas):
     tabla_escanos = tabla_html("tabla-escanos", partidos[:-1], filas, "escanos", lambda valor: "%d" % valor, True, True)
     tabla_voto = tabla_html("tabla-voto", partidos, filas, "voto", formato_decimal, False, False)
@@ -124,11 +153,12 @@ def escribir_pagina(partidos, filas):
   %s
   <h2>Porcentaje de voto</h2>
   %s
-</section>
+MARCA_DE_SESGOS</section>
 
 <p class="nota">Es el reparto central, sin ruido: el mismo de la barra de escaños de la portada. Pueden diferir en uno de la mediana que muestra la página de provincias. El porcentaje es sobre los votos a candidaturas y va redondeado a un decimal, así que cada fila puede no sumar exactamente 100 %%. Un guion indica que el partido no concurre en esa provincia. Frente Amplio no presenta lista en Teruel, Ceuta ni Melilla.</p>
 <p class="nota">En Navarra, UPN y PP concurren en coalición: el porcentaje de la coalición figura en la columna de UPN y el PP no tiene porcentaje propio; los escaños de la coalición se reparten por orden de lista (UPN, PP, PP, UPN), así que ambos partidos tienen escaños.</p>
 """ % (tabla_escanos, tabla_voto)
+    texto = texto.replace("MARCA_DE_SESGOS", tabla_de_sesgos())
     RUTA_PLANTILLA.write_text(texto, encoding="utf-8")
 
 
