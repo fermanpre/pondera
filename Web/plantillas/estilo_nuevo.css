@@ -60,3 +60,29 @@
 
   /* Etiqueta «de parte» en los listados de sondeos */
   .etiqueta-de-parte { display: inline-block; font-size: .72em; padding: 1px 6px; border: 1px solid var(--linea, #999); border-radius: 999px; vertical-align: 1px; white-space: nowrap; opacity: .85; }
+
+  /* Página del mapa */
+  .mapas-pareja { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 760px) { .mapas-pareja { grid-template-columns: 1fr; } }
+  .figura-mapa { margin: 0; background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 8px; padding: 8px 8px 4px; }
+  .figura-mapa figcaption { font-weight: 600; margin: 2px 4px 4px; }
+  .mapa svg { width: 100%; height: auto; display: block; }
+  .mapa .prov path { fill: var(--relleno, #e6e6e6); stroke: rgba(0,0,0,.55); stroke-width: 1; stroke-linejoin: round; fill-rule: evenodd; cursor: pointer; }
+  .mapa .prov:hover path, .mapa .prov:focus path { stroke: var(--texto); stroke-width: 3; }
+  .mapa .prov:focus { outline: none; }
+  .mapa .marco { fill: none; stroke: var(--suave); stroke-width: 1; }
+  :root[data-tema="oscuro"] .mapa .prov path { stroke: rgba(255,255,255,.45); }
+  @media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) .mapa .prov path { stroke: rgba(255,255,255,.45); } }
+  .leyenda-mapa { max-width: 640px; margin: 14px auto 6px; }
+  .barra-escala { height: 16px; border: 1px solid var(--linea); border-radius: 3px; }
+  .marcas-escala { position: relative; height: 22px; font-size: 0.8rem; color: var(--suave); }
+  .marcas-escala span { position: absolute; transform: translateX(-50%); top: 2px; white-space: nowrap; }
+  .leyenda-mapa .nota { text-align: center; margin: 4px 0 0; }
+  .ficha-provincia { margin: 10px auto 0; max-width: 640px; background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 8px; padding: 10px 14px; min-height: 120px; overflow-x: auto; }
+  .ficha-provincia h3 { margin: 0 0 6px; }
+  .tabla-ficha { border-collapse: collapse; font-size: 0.92rem; }
+  .tabla-ficha th, .tabla-ficha td { padding: 3px 10px; text-align: left; border-bottom: 1px solid var(--linea); }
+  .tabla-ficha th.num, .tabla-ficha td.num, #tabla-margenes-mapa .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .muestra-color { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; border: 1px solid var(--linea); }
+  .tabla-bloques th, .tabla-bloques td { text-align: left; vertical-align: top; line-height: 1.6; white-space: normal; }
+  #tabla-margenes-mapa th[data-orden] { user-select: none; }

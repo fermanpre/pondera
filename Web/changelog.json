@@ -1,6 +1,11 @@
 [
  {
   "fecha": "2026-11-13",
+  "titulo": "Nueva página: mapa por provincia",
+  "texto": "Mapa de España con el margen izquierda-derecha de cada provincia en 2023 y en la previsión central de 2026, en la misma escala (de I+40 a D+40, comprimida entre 40 y 10 puntos para que se vea púrpura lo que de verdad es equilibrado). La página incluye ficha por provincia, tabla de márgenes y la clasificación de partidos por lado, con los casos discutibles señalados. El mapa de provincias es «Provinces of Spain (Blank map)» de Wikimedia Commons (CC BY-SA 3.0), vectorizado y coloreado para PONDERA y distribuido bajo la misma licencia."
+ },
+ {
+  "fecha": "2026-11-13",
   "titulo": "La base provincial se ancla en parte al CIS",
   "texto": "La cuota de partida de cada bloque principal en cada provincia es ahora una mezcla entre la base (generales de 2023 y 2019) y la forma provincial del preelectoral del CIS de 2026, con un peso del 50 % corregido por el tamaño de la muestra provincial (0,5 × n / (n + 300)). El nivel nacional de cada partido sigue fijándolo el promedio de encuestas, de modo que el sesgo de la muestra del CIS no entra. En el retroceso con el preelectoral de 2023 redujo el error de cuota provincial en torno a un 30 %. Efecto hoy en el reparto central: 13 provincias cambian de escaños, casi todas por el último escaño entre PP y Vox; PP 132 (+1), PSOE 109 (−1), Vox 65 (−1) y PNV 4 (+1)."
  },

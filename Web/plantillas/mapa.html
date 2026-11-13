@@ -1,0 +1,64 @@
+<div class="cabecera-pagina">
+  <h1>Mapa: izquierda y derecha por provincia</h1>
+  <p class="subtitulo">Cómo votó cada provincia en 2023 y cómo la prevé el modelo para 2026, en una misma escala.</p>
+</div>
+
+<section id="mapas">
+  <div class="mapas-pareja">
+    <figure class="figura-mapa">
+      <figcaption>Generales de 2023 <span class="nota">(resultado)</span></figcaption>
+      <div id="mapa-2023" class="mapa" aria-label="Mapa de España con el margen izquierda-derecha de 2023"></div>
+    </figure>
+    <figure class="figura-mapa">
+      <figcaption>Generales de 2026 <span class="nota">(previsión central)</span></figcaption>
+      <div id="mapa-2026" class="mapa" aria-label="Mapa de España con el margen izquierda-derecha previsto para 2026"></div>
+    </figure>
+  </div>
+
+  <div id="leyenda-mapa" class="leyenda-mapa" aria-hidden="true"></div>
+
+  <div id="ficha-provincia" class="ficha-provincia" aria-live="polite">
+    <p class="nota">Pasa el ratón (o toca) una provincia para ver sus cifras.</p>
+  </div>
+</section>
+
+<section id="que-se-muestra">
+  <h2>Qué se muestra</h2>
+  <p>El color de cada provincia es su <strong>margen</strong>: el porcentaje de voto de los partidos de izquierda menos el de los de derecha, sobre los votos a candidaturas (sin blancos ni nulos). «I+10» significa que la izquierda saca 10 puntos más que la derecha; «D+10», que los saca la derecha. El púrpura es el empate. La escala es la misma en los dos mapas, de I+40 a D+40, y está comprimida a propósito: del tramo de 40 a 10 puntos el color cambia despacio y de 10 a 0 cambia deprisa, de modo que se ve púrpura lo que de verdad es una provincia equilibrada, y da igual, a efectos del mapa, que una provincia sea de izquierdas por 40 o por 20.</p>
+  <p>Los partidos que no están en ninguno de los dos lados (por ejemplo Existe, SALF o las candidaturas locales) no suman a ninguno, pero sí cuentan en el total; por eso, en provincias donde pesan, el margen sale más pequeño que si se repartieran. La ficha de cada provincia muestra los tres porcentajes.</p>
+  <p><strong>Cómo leer el mapa de 2026.</strong> Es la previsión central del modelo (la de las páginas de <a href="provincias.html">Provincias</a> y <a href="comunidades.html">Comunidades</a>), no una encuesta por provincia. El modelo reparte el voto nacional estimado entre las provincias partiendo de los resultados anteriores y, en parte, de la forma provincial del preelectoral del CIS (véase la <a href="metodologia.html">metodología</a>); por eso la mayor parte de la diferencia entre los dos mapas es el giro nacional aplicado a cada provincia. Hay una excepción conocida: donde pesan los partidos de un solo territorio (Euskadi, Cataluña, Galicia, Canarias), el modelo reparte entre provincias el voto que las encuestas dan a esos partidos en toda España, y el resultado puede moverse distinto del resto (por ejemplo, el PNV baja en las encuestas y eso hace que Euskadi se mueva hacia la izquierda en el mapa, porque el PNV figura en la derecha). Es una limitación del modelo, no un dato.</p>
+</section>
+
+<section id="bloques">
+  <h2>Qué partido va en cada lado</h2>
+  <p>La clasificación es de PONDERA y es una convención para este mapa: no pretende zanjar cómo se definen a sí mismos los partidos, y algunos casos son discutibles (los marcados con asterisco). Se ha aplicado igual a 2023 y a 2026.</p>
+  <div class="tabla-ancha">
+    <table id="tabla-bloques" class="tabla-bloques">
+      <thead><tr><th>Izquierda</th><th>Derecha</th><th>Sin lado (cuentan en el total)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>PSOE<br>Frente Amplio (Sumar en 2023)<br>Podemos<br>Front Valencià (Compromís)<br>Adelante Andalucía<br>EH Bildu<br>ERC*<br>BNG*<br>CUP*<br>PACMA*<br>Frente Obrero</td>
+          <td>PP (con UPN en Navarra)<br>Vox<br>UPN<br>Junts* (en 2023 también PDeCAT)<br>PNV*<br>Coalición Canaria* (en 2023 también Nueva Canarias)</td>
+          <td>Existe (Teruel Existe y Aragón Existe)<br>SALF<br>Geroa Bai<br>UPL<br>Fuerza Cívica<br>Recortes Cero<br>Coalición por Melilla<br>y el resto de candidaturas</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="nota">* Partidos nacionalistas o regionalistas cuyo encaje en el eje izquierda-derecha es discutible. ERC, Bildu, BNG y CUP van a la izquierda; Junts, PNV y Coalición Canaria, a la derecha, por el espacio que ocupan en el voto de su territorio. Con los porcentajes de cada partido por provincia (páginas <a href="provincias.html">Provincias</a> y <a href="resumen.html">Resumen</a>) cualquiera puede rehacer el mapa con otra clasificación. Esta solo se usa en el mapa: no afecta al modelo ni a los escaños.</p>
+</section>
+
+<section id="tabla-margenes">
+  <h2>Márgenes por provincia</h2>
+  <p class="nota">Pulsa una cabecera para ordenar. El cambio es el margen de 2026 menos el de 2023: positivo, la provincia se mueve a la izquierda; negativo, a la derecha.</p>
+  <div class="tabla-ancha">
+    <table id="tabla-margenes-mapa">
+      <thead><tr><th data-orden="nombre">Provincia</th><th data-orden="m2023" class="num">2023</th><th data-orden="m2026" class="num">2026</th><th data-orden="cambio" class="num">Cambio</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<p class="nota">El mapa de 2026 refleja la previsión vigente en cada actualización del sitio; a partir del 24 de noviembre, último día para publicar encuestas, no se actualizará.</p>
+<p class="nota">Mapa de provincias: «Provinces of Spain (Blank map)», <a href="https://commons.wikimedia.org/wiki/File:Provinces_of_Spain_(Blank_map).png">Wikimedia Commons</a>, licencia <a href="https://creativecommons.org/licenses/by-sa/3.0/deed.es">CC BY-SA 3.0</a> (también GFDL 1.2 o posterior). Se ha vectorizado y coloreado para PONDERA; esta versión se distribuye bajo la misma licencia (CC BY-SA 3.0). Descarga: <a href="assets/provincias_espana.svg">provincias_espana.svg</a>.</p>
+
+<template id="svg-provincias"><!--SVG_PROVINCIAS--></template>

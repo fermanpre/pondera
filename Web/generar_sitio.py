@@ -12,6 +12,7 @@ Uso: python generar_sitio.py
 import html
 import json
 import re
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -29,6 +30,7 @@ URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
 SCRIPTS_DE_PROVINCIAS = ["datos_modelo.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
 SCRIPTS_DE_COMUNIDADES = SCRIPTS_DE_PROVINCIAS
+SCRIPTS_DE_MAPA = ["datos_modelo.js", "datos_mapa_2023.js", "assets/comun.js", "motor.js", "assets/app_mapa.js"]
 SCRIPTS_DE_PROMEDIO = ["assets/comun.js", "serie_promedio.js", "encuestas_promedio.js", "grafico_promedio.js"]
 
 # archivo, plantilla, título, descripción, texto del menú (None = no aparece en el menú), scripts de la página
@@ -45,6 +47,8 @@ PAGINAS = [
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
     {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "menu": "Comunidades", "scripts": SCRIPTS_DE_COMUNIDADES,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en cada comunidad autónoma de las generales de 2026, con los resultados de 2023."},
+    {"archivo": "mapa.html", "plantilla": "mapa", "titulo": "Mapa por provincia", "menu": "Mapa", "scripts": SCRIPTS_DE_MAPA,
+     "descripcion": "Mapa de España por provincias con el margen izquierda-derecha de las generales de 2023 y el previsto para 2026, en una misma escala."},
     {"archivo": "resumen.html", "plantilla": "resumen", "titulo": "Resumen por provincia", "menu": "Resumen", "scripts": [],
      "descripcion": "Escaños y porcentaje de voto previstos de cada partido en cada provincia, con descarga en CSV y XLSX."},
     {"archivo": "simulador.html", "plantilla": "simulador", "titulo": "Simulador", "menu": "Simulador", "scripts": SCRIPTS_DE_PREVISION,
@@ -256,6 +260,16 @@ def unir_estilos():
     (CARPETA_SITIO / "assets" / "estilo.css").write_text(texto, encoding="utf-8")
 
 
+def svg_de_provincias_para_incrustar():
+    """El SVG de provincias sin cabecera XML, sin estilo propio (lo da estilo.css) y sin los textos de título y descripción generales."""
+    texto = (CARPETA / "Mapa_provincias" / "provincias_espana.svg").read_text(encoding="utf-8")
+    texto = re.sub(r"<\?xml[^>]*\?>\s*", "", texto)
+    texto = re.sub(r"<style>.*?</style>\s*", "", texto, flags=re.S)
+    texto = re.sub(r"<desc>.*?</desc>\s*", "", texto, flags=re.S)
+    texto = re.sub(r"<title>Provincias de España</title>\s*", "", texto)
+    return texto.strip()
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     entradas = leer_changelog()
@@ -264,6 +278,8 @@ def main():
 
     for pagina in PAGINAS:
         contenido = (CARPETA_PLANTILLAS / (pagina["plantilla"] + ".html")).read_text(encoding="utf-8").rstrip()
+        if "<!--SVG_PROVINCIAS-->" in contenido:
+            contenido = contenido.replace("<!--SVG_PROVINCIAS-->", svg_de_provincias_para_incrustar())
         (CARPETA_SITIO / pagina["archivo"]).write_text(construir_pagina(pagina, contenido), encoding="utf-8")
 
     pagina_changelog = {"archivo": "changelog.html", "titulo": "Historial de cambios", "menu": None, "scripts": [],
@@ -274,6 +290,7 @@ def main():
     contenido_404 = '<div class="cabecera-pagina"><h1>Página no encontrada</h1><p class="subtitulo">Esa dirección no existe. <a href="%s/">Vuelve al inicio</a>.</p></div>' % BASE_URL
     (CARPETA_SITIO / "404.html").write_text(construir_pagina(pagina_404, contenido_404, prefijo=BASE_URL + "/"), encoding="utf-8")
 
+    shutil.copyfile(CARPETA / "Mapa_provincias" / "provincias_espana.svg", CARPETA_SITIO / "assets" / "provincias_espana.svg")
     (CARPETA_SITIO / "feed.xml").write_text(construir_feed(entradas), encoding="utf-8")
     (CARPETA_SITIO / "sitemap.xml").write_text(construir_mapa_del_sitio(entradas), encoding="utf-8")
     (CARPETA_SITIO / "robots.txt").write_text("User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n" % BASE_URL, encoding="utf-8")
