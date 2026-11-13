@@ -136,7 +136,26 @@ def fecha_fin(texto_fecha):
     return (None, meses[-1]) if meses else (None, None)
 
 
-def extraer_pagina(convocatoria, titulo, anio_eleccion):
+def enlaces_de_celda(celda, arbol):
+    """Fuentes (PDF, artículos de prensa) citadas en una celda: [{"url", "titulo"}], leídas de la lista de referencias de la página.
+    Debe llamarse antes de texto(celda), que retira las llamadas a nota."""
+    fuentes, vistas = [], set()
+    for destino in celda.xpath(".//sup[contains(@class,'reference')]//a/@href"):
+        if not destino.startswith("#"):
+            continue
+        for nota in arbol.xpath("//li[@id=$identificador]", identificador=destino[1:]):
+            direcciones = [d for d in nota.xpath(".//a[contains(@class,'external')]/@href") if "web.archive.org" not in d and "archive.ph" not in d]
+            if not direcciones or direcciones[0] in vistas:
+                continue
+            vistas.add(direcciones[0])
+            titulos = nota.xpath(".//cite//a[contains(@class,'external')]")
+            titulo_nota = re.sub(r"\s+", " ", titulos[0].text_content()).strip().strip('"“”') if titulos else ""
+            fuentes.append({"url": direcciones[0], "titulo": titulo_nota})
+    return fuentes
+
+
+def extraer_pagina(convocatoria, titulo, anio_eleccion, con_enlaces=False):
+    """Con con_enlaces=True cada fila trae además la clave "enlaces" (lista de fuentes); sin ella las filas son las de siempre."""
     arbol = bajar(titulo)
     anio_actual, mes_previo = anio_eleccion, None
     filas_salida, anclas, desajustes = [], 0, []
@@ -153,6 +172,7 @@ def extraer_pagina(convocatoria, titulo, anio_eleccion):
         partidos = [("" if continuacion else nombre_de_cabecera(celda)) for celda, continuacion in rejilla[0] if celda is not None]
         for columnas_de_la_fila in rejilla[1:]:
             celdas = [celda for celda, _continuacion in columnas_de_la_fila]
+            enlaces = enlaces_de_celda(celdas[0], arbol) if con_enlaces and celdas and celdas[0] is not None else []  # antes de texto(), que retira las notas
             if len(celdas) < 6 or celdas[0] is None or not texto(celdas[0]):
                 continue
             firma_cliente = texto(celdas[0])
@@ -190,6 +210,8 @@ def extraer_pagina(convocatoria, titulo, anio_eleccion):
                      "fecha_texto": fecha_texto, "anio_inferido": anio_actual, "fin_campo": fin_iso, "muestra": muestra,
                      "partido": partido, "valor_texto": numero.group(0), "valor": float(numero.group(0))}
                 )
+                if con_enlaces:
+                    filas_salida[-1]["enlaces"] = enlaces
     return filas_salida, anclas, desajustes
 
 

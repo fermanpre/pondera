@@ -37,6 +37,8 @@ PAGINAS = [
      "descripcion": "Previsión de escaños de las elecciones generales de España del 29 de noviembre de 2026, con rangos, probabilidades de mayoría y reparto por provincia."},
     {"archivo": "promedio.html", "plantilla": "promedio", "titulo": "Promedio de encuestas", "menu": "Promedio", "scripts": SCRIPTS_DE_PROMEDIO,
      "descripcion": "Promedio diario de encuestas de las generales de 2026, día a día desde las elecciones de julio de 2023."},
+    {"archivo": "sondeos.html", "plantilla": "listado", "titulo": "Listado de sondeos", "menu": "Sondeos", "scripts": ["assets/comun.js", "listado_sondeos.js", "assets/listado_sondeos.js"],
+     "descripcion": "Listado de todas las encuestas publicadas para las generales de 2026, con enlace al informe o al artículo de prensa de cada una."},
     {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "menu": "Provincias", "scripts": SCRIPTS_DE_PROVINCIAS,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
     {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "menu": "Comunidades", "scripts": SCRIPTS_DE_COMUNIDADES,

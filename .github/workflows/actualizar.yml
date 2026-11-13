@@ -38,11 +38,14 @@ jobs:
       - name: Recalcular la serie diaria del promedio
         run: python Sondeos/serie_promedio_diaria.py
 
+      - name: Actualizar el listado de sondeos con sus fuentes
+        run: python Web/exportar_listado_sondeos.py
+
       - name: Guardar los cambios en el repositorio
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Sondeos/sondeos_wikipedia_largo.csv Web/sitio/serie_promedio.json Web/sitio/serie_promedio.js Web/sitio/encuestas_promedio.json Web/sitio/encuestas_promedio.js
+          git add Sondeos/sondeos_wikipedia_largo.csv Web/sitio/serie_promedio.json Web/sitio/serie_promedio.js Web/sitio/encuestas_promedio.json Web/sitio/encuestas_promedio.js Web/sitio/listado_sondeos.json Web/sitio/listado_sondeos.js
           if git diff --cached --quiet; then
             echo "Sin cambios hoy."
           else
