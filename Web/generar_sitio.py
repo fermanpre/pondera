@@ -39,6 +39,8 @@ PAGINAS = [
      "descripcion": "Promedio diario de encuestas de las generales de 2026, día a día desde las elecciones de julio de 2023."},
     {"archivo": "sondeos.html", "plantilla": "listado", "titulo": "Listado de sondeos", "menu": "Sondeos", "scripts": ["assets/comun.js", "listado_sondeos.js", "assets/listado_sondeos.js"],
      "descripcion": "Listado de todas las encuestas publicadas para las generales de 2026, con enlace al informe o al artículo de prensa de cada una."},
+    {"archivo": "regionales.html", "plantilla": "regionales", "titulo": "Sondeos regionales", "menu": "Regionales", "scripts": ["assets/comun.js", "listado_regional.js", "assets/listado_regional.js"],
+     "descripcion": "Encuestas de las generales de 2026 por comunidad autónoma y provincia, con los porcentajes de voto y el enlace a la fuente de cada una."},
     {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "menu": "Provincias", "scripts": SCRIPTS_DE_PROVINCIAS,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
     {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "menu": "Comunidades", "scripts": SCRIPTS_DE_COMUNIDADES,

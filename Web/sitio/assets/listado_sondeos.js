@@ -40,7 +40,7 @@
       const valor = sondeo.valores[partido];
       return '<td class="num">' + (valor === undefined ? "" : formatoPorcentaje.format(valor)) + "</td>";
     }).join("");
-    return "<tr><td>" + escapar(sondeo.firma) + (sondeo.cliente ? '<br><span class="nota">' + escapar(sondeo.cliente) + "</span>" : "") + "</td>" +
+    return "<tr><td>" + escapar(sondeo.firma) + (sondeo.de_parte ? ' <span class="etiqueta-de-parte" title="Encargada o publicada por un partido o una entidad electoral, según la tabla de Wikipedia">de parte: ' + escapar(sondeo.de_parte) + "</span>" : "") + (sondeo.cliente ? '<br><span class="nota">' + escapar(sondeo.cliente) + "</span>" : "") + "</td>" +
       "<td>" + escapar(sondeo.campo) + "<br><span class=\"nota\">" + fechaCorta(sondeo.fin) + "</span></td>" +
       '<td class="num">' + (sondeo.muestra ? entero(sondeo.muestra) : "") + "</td>" + celdasPartidos +
       "<td>" + sondeo.fuentes.map(enlaceDeFuente).join("<br>") + "</td></tr>";

@@ -35,17 +35,26 @@ jobs:
       - name: Bajar las encuestas nuevas de Wikipedia (solo la próxima elección)
         run: python Sondeos/extraer_sondeos_wikipedia.py --solo-proxima
 
+      - name: Bajar las encuestas regionales y provinciales de Wikipedia
+        run: python Sondeos/extraer_sondeos_regionales.py
+
+      - name: Detectar cifras atípicas (casas con peso recortado)
+        run: python Sondeos/detectar_cifras_atipicas.py
+
       - name: Recalcular la serie diaria del promedio
         run: python Sondeos/serie_promedio_diaria.py
 
       - name: Actualizar el listado de sondeos con sus fuentes
         run: python Web/exportar_listado_sondeos.py
 
+      - name: Actualizar el listado de sondeos regionales
+        run: python Web/exportar_listado_regional.py
+
       - name: Guardar los cambios en el repositorio
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Sondeos/sondeos_wikipedia_largo.csv Web/sitio/serie_promedio.json Web/sitio/serie_promedio.js Web/sitio/encuestas_promedio.json Web/sitio/encuestas_promedio.js Web/sitio/listado_sondeos.json Web/sitio/listado_sondeos.js
+          git add Sondeos/sondeos_wikipedia_largo.csv Sondeos/sondeos_regionales_largo.csv Sondeos/casas_con_cifras_descartadas.csv Web/sitio/serie_promedio.json Web/sitio/serie_promedio.js Web/sitio/encuestas_promedio.json Web/sitio/encuestas_promedio.js Web/sitio/listado_sondeos.json Web/sitio/listado_sondeos.js Web/sitio/listado_regional.json Web/sitio/listado_regional.js
           if git diff --cached --quiet; then
             echo "Sin cambios hoy."
           else

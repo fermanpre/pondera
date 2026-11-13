@@ -26,6 +26,9 @@ from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
 
+import filtro_atipicos
+from encuestas_de_parte import promotor_de
+
 CARPETA = Path(__file__).resolve().parent  # Sondeos/ (en local y en GitHub)
 CARPETA_HISTORICO = CARPETA.parent / "Web" / "historico"
 ELECTORES_N = 39_000_000
@@ -44,9 +47,20 @@ DIAS_VIDA_MEDIA_CERCA = 30
 RATING_MINIMO = 0.2
 # Ajuste manual del peso de una firma (multiplica su peso final; 1,0 = sin ajuste). Clave: nombre normalizado de la firma, p. ej. "electomania", "cis".
 AJUSTE_MANUAL_DE_PESO = {}
-# Encuestas internas de partidos (Wikipedia las lista como «firma»): excluidas por ahora a petición del usuario (08/11/2026)
-FIRMAS_EXCLUIDAS = {"psoe", "vox", "sumar"}
+# Encuestas internas de partidos (Wikipedia las lista como «firma»): excluidas a petición del usuario el 08/11/2026; el 13/11/2026 el usuario decide incluirlas corregidas
+# (ver CORRECCION_DE_PARTE), con el rating de firma desconocida (0,2) mientras no tengan casa conocida. Para volver a excluirlas: {"psoe", "vox", "sumar"}.
+FIRMAS_EXCLUIDAS = set()
 RATING_FIRMA_DESCONOCIDA = 0.2
+# Corrección de las encuestas «de parte» (decisión del usuario, 13/11/2026): puntos que se restan al promotor, se suman al resto de su bloque y al bloque contrario.
+# Medido (Informes/encuestas_de_parte.md): promotor +1,1 a +1,3; bloque contrario -1,0 (izquierda promotora); resto del bloque propio -0,3 a -0,9. Se aplican importes redondeados por decisión del usuario.
+CORRECCION_DE_PARTE = {"activa": True, "promotor": 1.5, "propio": 0.5, "contrario": 1.0}
+# Filtro de cifras atípicas y recorte de peso de las casas que las publican (decisión del usuario, 13/11/2026): ver filtro_atipicos.py
+FILTRO_DE_ATIPICAS = {"activo": True}
+NOMBRES_DEL_PROMOTOR = {"PSOE": ["PSOE"], "PP": ["PP", "AP", "AP–PDP–PL"], "Vox": ["Vox"], "Podemos": ["Podemos", "Unidas Podemos", "Unidos Podemos", "Unidos Podemos–IU"],
+                        "Sumar": ["Sumar", "FA"], "IU": ["IU", "IU–LV", "IU–UPeC"]}
+IZQUIERDA = {"PSOE", "PCE", "IU", "IU–LV", "IU–UPeC", "Podemos", "Unidas Podemos", "Unidos Podemos", "Unidos Podemos–IU", "Sumar", "FA", "Más País"}
+DERECHA = {"PP", "AP", "AP–PDP–PL", "UCD", "Vox"}
+BLOQUE_DEL_PROMOTOR = {"PSOE": "izquierda", "Podemos": "izquierda", "Sumar": "izquierda", "IU": "izquierda", "PP": "derecha", "Vox": "derecha"}
 FORMULA_DE_PESO = "producto"  # "producto" (RatN × RatC) o "suma" (RatN + RatC, como el Excel original)
 RUTA_NOTAS = Path(r"P:\Claude Code\Elecciones\Sondeos\Fiabilidad encuestadoras (actualizado 2026-11).xlsx")
 ALIAS_NOTAS = {"hamalgama": "hamalgama metrica", "40db/myword": "40db", "myword": "40db", "sigmados": "sigma dos", "em-analytics": "electomania", "electopanel": "electomania"}
@@ -164,6 +178,32 @@ def calcular_fiabilidad():
     return rating, error_medio
 
 
+_ULTIMO_RESULTADO_NACIONAL = {}
+RUTA_ULTIMO_RESULTADO = CARPETA / "ultimo_resultado_nacional.csv"
+
+
+def ultimo_resultado_nacional():
+    """{nombre del partido en las encuestas: mayor cuota entre las generales de 2023 y las europeas de 2024}, para el filtro de cifras atípicas. Los partidos sin resultado quedan fuera (valen 0)."""
+    if _ULTIMO_RESULTADO_NACIONAL:
+        return _ULTIMO_RESULTADO_NACIONAL
+    if RUTA_ULTIMO_RESULTADO.exists():  # en GitHub no están los resultados completos de las elecciones: se lee la copia guardada
+        with open(RUTA_ULTIMO_RESULTADO, encoding="utf-8-sig", newline="") as fichero:
+            for fila in csv.DictReader(fichero, delimiter=";"):
+                _ULTIMO_RESULTADO_NACIONAL[fila["partido"]] = float(fila["resultado_pct"])
+        return _ULTIMO_RESULTADO_NACIONAL
+    for datos in ELECCIONES_DE_FIABILIDAD.values():
+        reales = leer_resultados_nacionales(datos["resultados"], set(datos["partidos_encuesta"].values()))
+        for nombre_en_encuesta, clave in datos["partidos_encuesta"].items():
+            if clave in reales:
+                _ULTIMO_RESULTADO_NACIONAL[nombre_en_encuesta] = max(_ULTIMO_RESULTADO_NACIONAL.get(nombre_en_encuesta, 0.0), reales[clave])
+    with open(RUTA_ULTIMO_RESULTADO, "w", encoding="utf-8-sig", newline="") as fichero:
+        escritor = csv.writer(fichero, delimiter=";")
+        escritor.writerow(["partido", "resultado_pct"])
+        for partido, resultado in sorted(_ULTIMO_RESULTADO_NACIONAL.items()):
+            escritor.writerow([partido, round(resultado, 3)])
+    return _ULTIMO_RESULTADO_NACIONAL
+
+
 def error_de_muestra(n):
     if not n or n < 2:
         return ERROR_SIN_MUESTRA
@@ -195,6 +235,41 @@ def vida_media_minima(dias_hasta_eleccion):
     return min(VIDA_MEDIA_MINIMA, VIDA_MEDIA_MINIMA_CERCA + fraccion * (VIDA_MEDIA_MINIMA - VIDA_MEDIA_MINIMA_CERCA))
 
 
+def corregir_encuesta_de_parte(encuesta):
+    """Copia de la encuesta con la corrección por ser «de parte», o la misma encuesta si no procede.
+
+    Decisión del usuario (13/11/2026), a partir de Informes/encuestas_de_parte.md: al partido promotor se le restan CORRECCION_DE_PARTE["promotor"] puntos; esos puntos se
+    reparten sumando "propio" al resto de su bloque y "contrario" al bloque contrario, cada cantidad proporcional al valor que tenía cada partido. La suma de la encuesta no cambia.
+    Solo para promotores de izquierda (PSOE, Podemos, Sumar, IU) o de derecha (PP, Vox); el resto de partidos (ERC, Junts, PNV…) no se toca."""
+    if not CORRECCION_DE_PARTE["activa"]:
+        return encuesta
+    promotor, _motivo = promotor_de(encuesta["firma_original"], encuesta["cliente"])
+    bloque_promotor = BLOQUE_DEL_PROMOTOR.get(promotor)
+    if not bloque_promotor:
+        return encuesta
+    propio = IZQUIERDA if bloque_promotor == "izquierda" else DERECHA
+    contrario = DERECHA if bloque_promotor == "izquierda" else IZQUIERDA
+    valores = dict(encuesta["valores"])
+    nombre_del_promotor = next((n for n in NOMBRES_DEL_PROMOTOR[promotor] if n in valores), None)
+    if nombre_del_promotor is None:
+        return encuesta
+    resta = min(CORRECCION_DE_PARTE["promotor"], valores[nombre_del_promotor])
+    valores[nombre_del_promotor] -= resta
+    for bloque_afectado, cantidad in ((propio - {nombre_del_promotor}, CORRECCION_DE_PARTE["propio"]), (contrario, CORRECCION_DE_PARTE["contrario"])):
+        presentes = [p for p in valores if p in bloque_afectado]
+        suma_presentes = sum(valores[p] for p in presentes)
+        if suma_presentes <= 0:
+            continue
+        for partido in presentes:
+            valores[partido] += cantidad * valores[partido] / suma_presentes
+    if "Sumar_con_FV" in valores and "Sumar" in valores and "Sumar_con_FV" in encuesta["valores"]:
+        valores["Sumar_con_FV"] = valores["Sumar"]  # mismo total que «Sumar» (ver leer_encuestas)
+    corregida = dict(encuesta)
+    corregida["valores"] = valores
+    corregida["corregida_de_parte"] = promotor
+    return corregida
+
+
 def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_eleccion=None, escribir=True, encuestas_leidas=None, pesos_por_encuesta=None):
     """Promedio a la fecha «hoy» (por defecto HOY) para unas elecciones en «fecha_eleccion». Con escribir=False no toca promedio_actual.csv.
     Con encuestas_leidas (resultado de leer_encuestas) no se vuelve a leer el CSV: sirve para calcular muchos días seguidos.
@@ -204,7 +279,15 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
     fecha_eleccion = fecha_eleccion or FECHA_ELECCION
     if encuestas_leidas is None:
         encuestas_leidas = leer_encuestas(convocatoria)
-    encuestas = [e for e in encuestas_leidas if e["fin"] <= hoy and e["firma"] not in FIRMAS_EXCLUIDAS]
+    encuestas = [corregir_encuesta_de_parte(e) for e in encuestas_leidas if e["fin"] <= hoy and e["firma"] not in FIRMAS_EXCLUIDAS]
+    if FILTRO_DE_ATIPICAS["activo"]:
+        # Solo se filtran las encuestas que pueden entrar o respaldar a otra (ventana del promedio más la ventana de respaldo): las anteriores no se usan y filtrarlas encarecería la serie diaria
+        limite = VENTANA_DIAS + filtro_atipicos.VENTANA_RESPALDO_DIAS
+        cercanas = [e for e in encuestas if (hoy - e["fin"]).days <= limite]
+        lejanas = [e for e in encuestas if (hoy - e["fin"]).days > limite]
+        cercanas, _descartes = filtro_atipicos.filtrar(cercanas, ultimo_resultado_nacional())
+        encuestas = cercanas + lejanas
+    casas_con_recorte = filtro_atipicos.casas_penalizadas(normalizar_firma) if FILTRO_DE_ATIPICAS["activo"] else set()
     encuestas.sort(key=lambda e: e["fin"], reverse=True)
     dias_hasta_eleccion = (fecha_eleccion - hoy).days
     ventana = 7 + 0.2 * dias_hasta_eleccion
@@ -229,9 +312,11 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
         saturacion = SATURACION_POR_FIRMA ** (posicion_en_firma[encuesta["firma"]] - 1)
         nota = rating_n * rating_c if FORMULA_DE_PESO == "producto" else rating_n + rating_c
         peso = nota * saturacion * 0.5 ** (antiguedad / vida_media) * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0)
+        recorte = filtro_atipicos.RECORTE_DE_PESO_DE_CASA if encuesta["firma"] in casas_con_recorte else 1.0
+        peso *= recorte
         usadas += 1
         if pesos_por_encuesta is not None:
-            pesos_por_encuesta.append((encuesta, peso, nota * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0)))
+            pesos_por_encuesta.append((encuesta, peso, nota * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0) * recorte))
         for partido, valor in encuesta["valores"].items():
             suma_ponderada[partido] += peso * valor
             suma_de_pesos[partido] += peso

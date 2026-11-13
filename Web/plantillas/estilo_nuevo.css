@@ -54,3 +54,9 @@
   /* Logos de partidos en el listado de sondeos: sobre fondo claro para que se lean también en el tema oscuro */
   .logo-partido { display: inline-flex; align-items: center; justify-content: center; background: #fff; border-radius: 4px; padding: 3px 5px; min-width: 48px; height: 36px; }
   .logo-partido img { max-height: 28px; max-width: 72px; width: auto; height: auto; display: block; }
+
+  /* Filas de resultado real en el listado de sondeos regionales */
+  .fila-resultado td { background: var(--fondo-suave, rgba(127,127,127,.10)); font-style: italic; }
+
+  /* Etiqueta «de parte» en los listados de sondeos */
+  .etiqueta-de-parte { display: inline-block; font-size: .72em; padding: 1px 6px; border: 1px solid var(--linea, #999); border-radius: 999px; vertical-align: 1px; white-space: nowrap; opacity: .85; }

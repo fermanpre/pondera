@@ -7,184 +7,198 @@
   <description>Actualizaciones reales de PONDERA: previsión de escaños de las elecciones generales de 2026.</description>
   <language>es-es</language>
   <item>
-    <title>Logos de los partidos en el listado de sondeos</title>
+    <title>Encuestas de parte corregidas y filtro de cifras atípicas</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
     <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-13-0</guid>
+    <pubDate>Fri, 13 Nov 2026 12:00:00 +0000</pubDate>
+    <description>Las encuestas en las que el cliente o la fuente es un partido ya no se excluyen: entran en el promedio con el peso de una firma sin historial y corregidas. En las 67 de la serie histórica, el partido promotor salía de media 1,2 puntos por encima de las encuestas independientes de fechas parecidas, y los de izquierda daban al bloque de derecha cerca de 1 punto menos; la corrección resta 1,5 puntos al promotor, suma 0,5 al resto de su bloque y 1,0 al bloque contrario. Además, una cifra que supera los 3 puntos, triplica el último resultado electoral del partido y no respalda ninguna otra encuesta independiente se descarta, y las casas que hayan publicado alguna cifra así pasan a pesar la mitad. Las páginas de sondeos marcan las encuestas de parte; son datos de la tabla de Wikipedia, no un juicio sobre ninguna casa.</description>
+  </item>
+  <item>
+    <title>Nueva página: sondeos regionales</title>
+    <link>https://fermanpre.github.io/pondera/changelog.html</link>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-13-1</guid>
+    <pubDate>Fri, 13 Nov 2026 12:00:00 +0000</pubDate>
+    <description>La pestaña Regionales recoge las encuestas de las generales de 2026 por comunidad autónoma y provincia (porcentajes y escaños de cada casa, con el enlace a la fuente y los resultados de 2023 y de las europeas de 2024 como referencia). Los datos son los de la página de Wikipedia «Sub-national opinion polling for the 2026 Spanish general election» (CC BY-SA 4.0) y se actualizan cada día con el promedio. Por ahora no entran en el modelo: sirven para contrastar el reparto por provincias.</description>
+  </item>
+  <item>
+    <title>Logos de los partidos en el listado de sondeos</title>
+    <link>https://fermanpre.github.io/pondera/changelog.html</link>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-13-2</guid>
     <pubDate>Fri, 13 Nov 2026 12:00:00 +0000</pubDate>
     <description>Las columnas del listado de sondeos llevan ahora el logo de cada partido en lugar de su nombre (con el nombre al pasar el cursor). Los logos proceden de Wikimedia Commons, donde constan como dominio público; siguen siendo marcas de sus titulares y se usan solo para identificar a cada formación.</description>
   </item>
   <item>
     <title>Nueva página: listado de sondeos</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-13-1</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-13-3</guid>
     <pubDate>Fri, 13 Nov 2026 12:00:00 +0000</pubDate>
     <description>La página Sondeos recoge todas las encuestas publicadas para las generales desde julio de 2023 (614 a día de hoy), con casa, medio, fechas de campo, muestra, voto estimado por partido y enlace a la fuente (informe en PDF o artículo de prensa). Se puede filtrar por casa, año o texto. Los datos y las fuentes son los de las tablas de Wikipedia (CC BY-SA 4.0) y se actualizan cada día junto con el promedio; PONDERA no aloja ni verifica los documentos enlazados.</description>
   </item>
   <item>
     <title>Corrección de los datos históricos por provincia</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-13-2</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-13-4</guid>
     <pubDate>Fri, 13 Nov 2026 12:00:00 +0000</pubDate>
     <description>El histórico de resultados por circunscripción tenía un fallo de lectura: los partidos regionales de algunas provincias aparecían con la etiqueta de otro (por ejemplo, Coalición Canaria como CiU o PNV). Corregido, el ruido provincial que simula el Monte Carlo para los partidos regionales baja mucho (de 0,28-0,34 a 0,05-0,14 según su tamaño en la provincia) y el de la izquierda alternativa algo (de 0,27 a 0,17-0,24). La mejora que atribuíamos a mezclar la base con 2019 era en gran parte un artefacto: el efecto real es de algo más de un 1 %. Además, con los datos corregidos se ve que el margen izquierda/derecha de las provincias con voto periférico fuerte se mueve en la historia igual que el de España, algo que el modelo actual no reproduce.</description>
   </item>
   <item>
     <title>Promedio más reactivo en el último mes</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-12-3</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-12-5</guid>
     <pubDate>Thu, 12 Nov 2026 12:00:00 +0000</pubDate>
     <description>El peso de una encuesta se reducía a la mitad, como mínimo, cada 7 días. Ese mínimo baja ahora de forma gradual desde 7 días (a dos meses de la votación) hasta 3 días (en el último mes), para que el promedio siga mejor los movimientos de campaña. A 26 días de las generales de 2008 a 2023, ese cambio reduce el error por bloque de 1,96 a 1,69 puntos, sobre todo por 2015 y 2023. Hoy mueve el PSOE de 26,85 a 27,07 y el PP de 31,29 a 31,24. En la tabla de sesgos de la página Resumen, Junts, PNV y Coalición Canaria pasan a contar en la derecha.</description>
   </item>
   <item>
     <title>Incertidumbre recalibrada y sesgo de cada provincia</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-12-4</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-12-6</guid>
     <pubDate>Thu, 12 Nov 2026 12:00:00 +0000</pubDate>
     <description>El Monte Carlo generaba bloques más dispersos y partidos grandes menos dispersos que lo medido en las 16 generales desde 1977. Ahora el error de bloque mueve el total del bloque y el error propio de cada partido solo reparte dentro de él, con parámetros ajustados para reproducir los errores históricos. Los rangos del PP y de Vox se estrechan algo y los del PSOE y Sumar se ensanchan. Además, la página Resumen incluye una tabla de diagnóstico con el sesgo izquierda/derecha y el peso de los partidos periféricos en cada provincia.</description>
   </item>
   <item>
     <title>Voto de 2019 de Cs, CUP y PRC por bloque</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-12-5</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-12-7</guid>
     <pubDate>Thu, 12 Nov 2026 12:00:00 +0000</pubDate>
     <description>En la base mezclada con 2019, el voto de las candidaturas que no continúan ya no se reparte en proporción entre todas, sino por bloque: Cs va a los partidos de derecha, la CUP a los de izquierda y el PRC a partes iguales entre ambos. Con el promedio actual cambian unos pocos escaños: Barcelona (PP +1, Junts −1), Cantabria (PP −1, PSOE +1) y A Coruña (BNG +1, PP −1).</description>
   </item>
   <item>
     <title>Base provincial mezclada con 2019</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-12-6</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-12-8</guid>
     <pubDate>Thu, 12 Nov 2026 12:00:00 +0000</pubDate>
     <description>La base de partida de cada provincia pasa de ser solo 2023 a un 75 % de 2023 más un 25 % de la media de las generales de 2019 (abril y noviembre). Con las elecciones de 1986 a 2023 y el mismo método de reparto, esa mezcla reduce el error del reparto provincial algo más de un 1 % (cifra corregida el 13 de noviembre; la publicada inicialmente, un 12 %, se debía a un fallo en los datos históricos). Con el promedio actual cambia poco: Cantabria y Ceuta cambian un escaño, el PSOE baja uno en el total y Vox sube uno.</description>
   </item>
   <item>
     <title>Vox en Santa Cruz de Tenerife</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-7</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-9</guid>
     <pubDate>Wed, 11 Nov 2026 12:00:00 +0000</pubDate>
     <description>Vox no concurrió a las generales de 2023 en Santa Cruz de Tenerife, y el modelo no podía darle voto ni escaños allí. Ahora la base incluye una estimación de lo que habría obtenido (un 11,5 % de los votos a candidaturas, entre 10,2 % y 12,7 %), calculada con su fuerza relativa frente a Las Palmas en las generales de 2019 y en las autonómicas de 2019 y 2023, y restada sobre todo al PP. Con ello Vox puede obtener un escaño en Santa Cruz, como en la mayoría de las encuestas.</description>
   </item>
   <item>
     <title>Escaños de 2026 por circunscripción: Madrid 38 y Cádiz 8</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-8</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-10</guid>
     <pubDate>Wed, 11 Nov 2026 12:00:00 +0000</pubDate>
     <description>El modelo partía de los escaños de 2023 en todas las provincias. Para estas elecciones Madrid gana un diputado (38) y Cádiz pierde uno (8); el total sigue siendo 350. Las previsiones, las tablas de provincias, comunidades y resumen y el simulador usan ya los escaños de 2026; las columnas de resultados de 2023 conservan los de entonces.</description>
   </item>
   <item>
     <title>Página de resumen y descargas</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-9</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-11</guid>
     <pubDate>Wed, 11 Nov 2026 12:00:00 +0000</pubDate>
     <description>Nueva página con dos tablas sencillas, escaños y porcentaje de voto (a un decimal) de cada partido en cada provincia, según el reparto central. Se pueden descargar en CSV (una fila por provincia y partido) y en XLSX (una hoja por tabla).</description>
   </item>
   <item>
     <title>Coalición UPN-PP en Navarra</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-10</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-12</guid>
     <pubDate>Wed, 11 Nov 2026 12:00:00 +0000</pubDate>
     <description>UPN y PP concurren juntos al Congreso en Navarra. El modelo trata la lista como una sola candidatura («UPN-PP»), con el voto de 2023 de ambos partidos sumado, y sigue la evolución nacional del PP porque las encuestas ya no estiman UPN. Los escaños de la coalición se reparten por orden de lista (UPN, PP, PP, UPN): con dos escaños, uno para cada partido. En la página de Navarra aparece una sola fila; en el total nacional, cada partido con los suyos.</description>
   </item>
   <item>
     <title>Página de comunidades autónomas</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-11</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-11-13</guid>
     <pubDate>Wed, 11 Nov 2026 12:00:00 +0000</pubDate>
     <description>Nueva página con la misma tabla que la de provincias, sumando las provincias de cada comunidad: voto previsto, escaños centrales, distribución de escaños y resultados de 2023 (votos, porcentaje y escaños), con el mismo desplegable para elegir dónde va el bloque de 2023.</description>
   </item>
   <item>
     <title>Resultados de 2023 en la página de provincias</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-12</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-14</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>La tabla de cada provincia incluye ahora los votos, el porcentaje y los escaños de 2023 (resultados definitivos del BOE, con voto CERA) de las candidaturas con al menos el 0,5 % de los votos y de PACMA. En la fila de Frente Amplio figura lo que obtuvo Sumar. Por defecto el bloque va a la izquierda del partido (pasado a la izquierda, previsión a la derecha); un desplegable permite moverlo entre el partido y la previsión o a la derecha, y el sitio recuerda la elección.</description>
   </item>
   <item>
     <title>SALF abreviado en toda la web</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-13</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-15</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>Se Acabó La Fiesta aparece como SALF en tablas, leyendas, barra de escaños y gráficos.</description>
   </item>
   <item>
     <title>Sin recálculos del CIS y tres columnas de peso</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-14</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-16</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>Se excluyen del promedio los recálculos de terceros sobre el CIS («CIS (Logoslab)», «CIS (SocioMétrica)» y similares), que no son encuestas; el CIS en sí se mantiene. En la tabla de encuestas del día, «Peso» pasa a «Peso relativo» y se añaden «Peso absoluto» (el rating total de la encuesta, igual todos los días) y «Peso actual» (el que tiene en el día marcado).</description>
   </item>
   <item>
     <title>Encuestas que entran en el promedio de cada día</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-15</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-17</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>En la página del promedio, una tabla muestra las encuestas que contribuyen al promedio del día marcado en el gráfico: encuestadora, trabajo de campo, entrevistados, peso y el valor de cada partido seleccionado. Se puede ordenar por cualquier columna.</description>
   </item>
   <item>
     <title>Gráfico de distribución de escaños por provincia</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-16</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-18</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>En la ficha por provincia, la lista de probabilidades se sustituye por un gráfico de distribución de escaños para cada partido, con su color. La altura de cada barra es la probabilidad de ese número de escaños y la banda oscura marca el reparto central. Además, la línea de Sumar del histórico se detiene el 14 de octubre, cuando empieza la de Frente Amplio.</description>
   </item>
   <item>
     <title>Sumar y Frente Amplio, por separado en el histórico</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-17</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-19</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>En el gráfico del promedio, la línea de Sumar se traza mientras haya encuestas que usen ese nombre y la de Frente Amplio empieza con las primeras encuestas que lo incluyen. En el resto de la web, «Sumar» se sustituye por «Frente Amplio» en leyendas, tablas y textos.</description>
   </item>
   <item>
     <title>Corregido un error al leer las encuestas de Wikipedia</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-18</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-20</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>Cuando una encuesta publicaba Frente Amplio y Front Valencià en una sola celda, los valores de los partidos siguientes se asignaban a la columna equivocada. Afectaba sobre todo a SALF y Coalición Canaria, que salían muy inflados (3,3 % y 0,9 %), y movía también a Sumar, ERC y otros. Corregido y recalculado todo: ahora SALF queda en el 1,8 % y Coalición Canaria en el 0,4 %.</description>
   </item>
   <item>
     <title>Coalición Existe en la previsión</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-19</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-21</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>Teruel Existe y Aragón Existe concurren juntas como Coalición Existe. Pasa a tener fila propia en el modelo, con el voto que obtuvo Teruel Existe en Teruel en 2023, que antes estaba dentro de «Otros».</description>
   </item>
   <item>
     <title>Colores de Frente Amplio y Front Valencià, y Frente Amplio sin lista en Teruel, Ceuta y Melilla</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-20</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-22</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>Frente Amplio y Front Valencià pasan a los colores de su logo y del mapa de candidaturas. Además, el modelo ya no da voto ni escaños a Frente Amplio en Teruel, Ceuta y Melilla, donde no presenta lista al Congreso; sus socios de Aragón, Baleares, Cataluña y Canarias siguen dentro de su fila.</description>
   </item>
   <item>
     <title>Nuevo orden en la barra de escaños</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-21</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-23</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>La barra del reparto de escaños ordena los partidos de izquierda a derecha así: Podemos, EH Bildu, BNG, ERC, Adelante Andalucía, FV, Sumar, PSOE, PNV, CC, Junts, UPN, PP y Vox, con SALF y PACMA al final.</description>
   </item>
   <item>
     <title>Páginas propias, acerca de, enlaces y historial de cambios</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-22</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-24</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>El sitio pasa de una sola página a varias, con cabecera común, tema claro, oscuro o automático y pie con avisos: Inicio, Promedio, Provincias, Simulador, Metodología, Acerca de, Sobre el autor, Enlaces y este historial de cambios. Se añaden el feed RSS, el mapa del sitio y la licencia.</description>
   </item>
   <item>
     <title>Promedio de encuestas día a día</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-23</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-25</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>Nuevo gráfico con el promedio que tocaba cada día desde las generales del 23 de julio de 2023, con selección de partidos, rangos de tiempo y detalle por día. Se recalcula entero cada día con las encuestas de Wikipedia y se publica solo, mediante una tarea automática de GitHub Actions.</description>
   </item>
   <item>
     <title>Sitio publicado como PONDERA</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-24</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-10-26</guid>
     <pubDate>Tue, 10 Nov 2026 12:00:00 +0000</pubDate>
     <description>La web se publica en GitHub Pages con el nombre provisional PONDERA.</description>
   </item>
   <item>
     <title>Primera versión de la previsión</title>
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
-    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-09-25</guid>
+    <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-09-27</guid>
     <pubDate>Mon, 09 Nov 2026 12:00:00 +0000</pubDate>
     <description>Previsión nacional con rangos y probabilidades de mayoría, simulador con deslizadores por partido y ficha por provincia. Todo se calcula en el navegador con un motor en JavaScript idéntico al de Python.</description>
   </item>

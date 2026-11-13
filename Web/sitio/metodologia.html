@@ -30,6 +30,7 @@
       <a href="index.html">Inicio</a>
       <a href="promedio.html">Promedio</a>
       <a href="sondeos.html">Sondeos</a>
+      <a href="regionales.html">Regionales</a>
       <a href="provincias.html">Provincias</a>
       <a href="comunidades.html">Comunidades</a>
       <a href="resumen.html">Resumen</a>
@@ -58,7 +59,8 @@
     <li>lo reciente que es: el peso se reduce a la mitad cada cierto número de días, que depende de cuánto falta para la elección y de cuántas encuestas recientes hay. Su mínimo es de 7 días hasta dos meses antes de la votación y baja de forma gradual hasta 3 días en el último mes, para seguir mejor los movimientos de campaña;</li>
     <li>una penalización de saturación, para que una casa que publica mucho no domine el promedio.</li>
   </ul>
-  <p>Las encuestas internas de partidos se excluyen. La serie diaria se recalcula entera cada vez, con la misma fórmula para todos los días.</p>
+  <p>Las encuestas «de parte», es decir, aquellas en las que la tabla de Wikipedia da como cliente o fuente a un partido, entran en el promedio con el peso de una firma sin historial (0,2) y corregidas. En las 67 encuestas de ese tipo de la serie histórica, el partido promotor salía de media 1,2 puntos por encima de las encuestas independientes de fechas parecidas (±7 días), y los partidos de izquierda promotores daban al bloque de derecha cerca de 1 punto menos. La corrección resta 1,5 puntos al promotor, suma 0,5 al resto de su bloque y 1,0 al bloque contrario, de modo que la suma de la encuesta no cambia. Es un dato de la tabla, no un juicio sobre la casa que la realizó.</p>
+  <p>Se descarta también una cifra que supera los 3 puntos, triplica el último resultado electoral de ese partido y no respalda ninguna otra encuesta independiente de otra casa en los 14 días siguientes o anteriores (se exige al menos la mitad de esa cifra); el resto de la encuesta se reescala para conservar la suma. La regla es la misma para todos los partidos y casas, y las casas que hayan publicado alguna cifra descartada pasan a pesar la mitad. La serie diaria se recalcula entera cada vez, con la misma fórmula para todos los días.</p>
 
   <h2>3. Del voto nacional al voto provincial</h2>
   <p>El porcentaje nacional de cada partido se reparte entre las 52 circunscripciones con un ajuste proporcional iterativo (raking) sobre la base de 2023: las provincias suman el 100 % y los partidos suman su total nacional. En los retrocesos con resultados históricos (generales de 2019 a 2023, andaluzas, catalanas) fue mejor que las alternativas probadas (modelos logit y mezclas).</p>

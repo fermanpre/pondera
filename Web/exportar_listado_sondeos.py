@@ -13,6 +13,7 @@ from pathlib import Path
 CARPETA_WEB = Path(__file__).resolve().parent
 sys.path.insert(0, str(CARPETA_WEB.parent / "Sondeos"))  # funciona igual en local y en el repositorio
 import extraer_sondeos_wikipedia as wiki  # noqa: E402
+from encuestas_de_parte import promotor_de  # noqa: E402
 
 CARPETA_SITIO = CARPETA_WEB / "sitio"
 CONVOCATORIA = "generales_proxima"
@@ -39,7 +40,8 @@ def main():
         clave = (fila["firma"], fila["cliente"], fila["fecha_texto"], fila["anio_inferido"], fila["muestra"])
         sondeo = sondeos.setdefault(clave, {
             "firma": fila["firma"], "cliente": fila["cliente"], "campo": fila["fecha_texto"], "fin": fila["fin_campo"],
-            "muestra": fila["muestra"] if fila["muestra"] != "" else None, "valores": {}, "fuentes": fila["enlaces"]})
+            "muestra": fila["muestra"] if fila["muestra"] != "" else None, "valores": {}, "fuentes": fila["enlaces"],
+            "de_parte": promotor_de(fila["firma"], fila["cliente"])[0]})
         sondeo["valores"][normalizar_partido(fila["partido"])] = fila["valor"]
     listado = sorted(sondeos.values(), key=lambda s: s["fin"], reverse=True)
     sin_fuente = sum(1 for s in listado if not s["fuentes"])
