@@ -12,6 +12,19 @@
   let filtrados = [];
   let mostradas = 0;
 
+  // Logos en assets/logos/ (Wikimedia Commons, dominio público; marcas de sus titulares). Si no hay logo, ficha de color y siglas.
+  const LOGOS = { "PP": "PP.png", "PSOE": "PSOE.svg", "Vox": "Vox.svg", "Sumar/FA": "FA.svg", "Podemos": "Podemos.svg", "ERC": "ERC.svg", "Junts": "Junts.svg", "EH Bildu": "Bildu.svg", "PNV": "PNV.svg", "BNG": "BNG.png", "SALF": "SALF.png", "CCa": "CCa.svg", "UPN": "UPN.svg", "FV": "FV.svg" };
+  const CLAVE_DE_COLOR = { "Vox": "VOX", "Sumar/FA": "SUMAR", "EH Bildu": "BILDU", "CCa": "CC", "Adelante Andalucía": "ADELANTE" };
+  const NOMBRE_LARGO = { "Sumar/FA": "Sumar / Frente Amplio", "CCa": "Coalición Canaria", "FV": "Front Valencià", "SALF": "Se Acabó La Fiesta" };
+  function cabeceraDePartido(partido) {
+    const nombre = NOMBRE_LARGO[partido] || partido;
+    if (LOGOS[partido]) {
+      return '<span class="logo-partido"><img src="assets/logos/' + LOGOS[partido] + '" alt="' + escapar(nombre) + '" title="' + escapar(nombre) + '" loading="lazy"></span>';
+    }
+    const color = (typeof COLORES !== "undefined" && COLORES[CLAVE_DE_COLOR[partido] || partido.toUpperCase()]) || "#7a7a75";
+    return '<span class="ficha" style="background:' + color + '"></span> ' + escapar(partido);
+  }
+
   const escapar = (texto) => String(texto).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const dominio = (url) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return "fuente"; } };
   const fechaCorta = (iso) => (iso ? iso.split("-").reverse().join("/") : "");
@@ -52,7 +65,7 @@
     pintarTramo();
   }
 
-  cabecera.innerHTML = "<tr><th>Casa / medio</th><th>Campo</th><th>Muestra</th>" + datos.partidos.map((p) => "<th>" + escapar(p) + "</th>").join("") + "<th>Fuentes</th></tr>";
+  cabecera.innerHTML = "<tr><th>Casa / medio</th><th>Campo</th><th>Muestra</th>" + datos.partidos.map((p) => "<th>" + cabeceraDePartido(p) + "</th>").join("") + "<th>Fuentes</th></tr>";
   [...new Set(datos.sondeos.map((s) => s.firma))].sort((a, b) => a.localeCompare(b, "es")).forEach((firma) => selectorFirma.insertAdjacentHTML("beforeend", '<option>' + escapar(firma) + "</option>"));
   [...new Set(datos.sondeos.map((s) => s.fin.slice(0, 4)))].sort().reverse().forEach((anio) => selectorAnio.insertAdjacentHTML("beforeend", "<option>" + anio + "</option>"));
   [selectorFirma, selectorAnio].forEach((elemento) => elemento.addEventListener("change", aplicarFiltros));

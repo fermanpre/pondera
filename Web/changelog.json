@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-13",
+    "titulo": "Logos de los partidos en el listado de sondeos",
+    "texto": "Las columnas del listado de sondeos llevan ahora el logo de cada partido en lugar de su nombre (con el nombre al pasar el cursor). Los logos proceden de Wikimedia Commons, donde constan como dominio público; siguen siendo marcas de sus titulares y se usan solo para identificar a cada formación."
+  },
+  {
+    "fecha": "2026-11-13",
     "titulo": "Nueva página: listado de sondeos",
     "texto": "La página Sondeos recoge todas las encuestas publicadas para las generales desde julio de 2023 (614 a día de hoy), con casa, medio, fechas de campo, muestra, voto estimado por partido y enlace a la fuente (informe en PDF o artículo de prensa). Se puede filtrar por casa, año o texto. Los datos y las fuentes son los de las tablas de Wikipedia (CC BY-SA 4.0) y se actualizan cada día junto con el promedio; PONDERA no aloja ni verifica los documentos enlazados."
   },

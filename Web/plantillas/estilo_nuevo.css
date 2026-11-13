@@ -50,3 +50,7 @@
   .tabla-resumen th:first-child, .tabla-resumen td:first-child { position: sticky; left: 0; background: var(--tarjeta); z-index: 1; }
   .tabla-resumen thead th:first-child { z-index: 3; }
   .tabla-resumen tfoot th { border-top: 2px solid var(--linea); }
+
+  /* Logos de partidos en el listado de sondeos: sobre fondo claro para que se lean también en el tema oscuro */
+  .logo-partido { display: inline-flex; align-items: center; justify-content: center; background: #fff; border-radius: 4px; padding: 3px 5px; min-width: 48px; height: 36px; }
+  .logo-partido img { max-height: 28px; max-width: 72px; width: auto; height: auto; display: block; }
