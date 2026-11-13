@@ -1,0 +1,457 @@
+{
+ "_nota": "Capa de mapeo entre las candidaturas históricas y las de 2026. Base de partida: resultados PROVISIONALES del Congreso 2023 (noche electoral, sin voto CERA), a escala del censo de residentes de 2026 (INE).",
+ "eleccion_base": "congreso_2023_prov",
+ "parametros": {
+  "ancla_cis": {"activa": true, "lambda": 0.5, "n0": 300, "descripcion": "Ancla de la forma provincial con el CIS 3584 (voto directo, pregunta 3R). Decisión del usuario, 13/11/2026: lambda 0,5 y n0 300. Ver ancla_cis.py."},
+  "sumar_podemos": {
+   "descripcion": "Perfil provincial de PODEMOS = el de las europeas de 2024 (votos de Podemos por provincia), con la masa total que resulta de repartir Sumar 2023 con la proporción Sumar/Podemos de las europeas. SUMAR recibe el resto del voto de Sumar 2023 en cada provincia. Donde Podemos no se presenta (Cataluña, Canarias, Comunitat Valenciana) su parte va a ERC o a SUMAR (ver fusiones).",
+   "eleccion_referencia": "europeas_2024"
+  },
+  "adelante_andalucia": {
+   "descripcion": "Cuota de partida = cuota de las andaluzas 2026 en cada provincia × factor. El resto de filas se normaliza después.",
+   "eleccion_referencia": "andaluzas_2026",
+   "factor_de_arrastre_a_generales": 0.7
+  },
+  "salf": {
+   "descripcion": "Partido nuevo en generales: forma provincial de las europeas de 2024, multiplicada por un factor para que no distorsione el resto de la base.",
+   "eleccion_referencia": "europeas_2024",
+   "factor_de_escala": 0.25
+  },
+  "coalicion_upn_pp": {
+   "provincia": "Navarra",
+   "columna": "UPN",
+   "socio": "PP",
+   "descuento_voto_upn": 0.0,
+   "descripcion": "Fracción del voto de UPN de 2023 que se pierde al concurrir en coalición (0 = ninguna). Se aplica antes de sumar el voto del PP.",
+   "orden_de_lista": [
+    "UPN",
+    "PP",
+    "PP",
+    "UPN",
+    "PP"
+   ]
+  },
+  "vox_santa_cruz": {
+   "descripcion": "Vox no concurrió a las generales de 2023 en Santa Cruz de Tenerife. La base añade el voto que habría sacado (cuota_vox, sobre votos a candidaturas) y se lo quita a quienes lo absorbieron en 2023 (reparto de absorcion: PP, abstención, blanco y nulo). Estimación: media de las razones Santa Cruz/Las Palmas de las generales de 2019-N y de las autonómicas de 2019 y 2023 aplicada al Vox de Las Palmas en 2023; reparto por diferencia de diferencias Santa Cruz-Las Palmas (2019-N a 2023). Ver Elecciones/Informes/vox_ausente_santa_cruz.md.",
+   "provincia": "Santa Cruz de Tenerife",
+   "cuota_vox": 0.1154,
+   "cuota_vox_minima": 0.1019,
+   "cuota_vox_maxima": 0.1271,
+   "absorcion": {
+    "PP": 0.7566,
+    "ABSTENCION": 0.1742,
+    "BLANCO": 0.0406,
+    "NULO": 0.0286
+   }
+  },
+  "mezcla_con_elecciones_previas": {
+   "descripcion": "Base provincial de partida = peso_ultima x (elección base, 2023) + (1 - peso_ultima) x media de las elecciones previas (generales de abril y noviembre de 2019), con las candidaturas de 2019 traducidas a las de 2026 (claves_previas). SALF, Adelante Andalucía y Front Valencià no se mezclan (su base no es de 2023). El peso se contrastó con el histórico (Informes/fundamentales_provinciales.md): con las 13 elecciones de 1986 a 2023 y con el método de reparto actual, mezclar las dos elecciones anteriores reduce el error provincial algo más de un 1 % (óptimo plano entre 0,75 y 0,9 para la última elección; con el histórico corregido el 12 % inicial resultó ser un artefacto, ver Informes/periferia_y_giros_nacionales.md).",
+   "peso_ultima": 0.75,
+   "elecciones": [
+    "congreso_2019a",
+    "congreso_2019n"
+   ],
+   "claves_previas": {
+    "PP": [
+     "PP"
+    ],
+    "PSOE": [
+     "PSOE"
+    ],
+    "VOX": [
+     "VOX"
+    ],
+    "ERC": [
+     "ERC"
+    ],
+    "JUNTS": [
+     "JUNTS",
+     "PDECAT"
+    ],
+    "BILDU": [
+     "BILDU"
+    ],
+    "PNV": [
+     "PNV"
+    ],
+    "BNG": [
+     "BNG"
+    ],
+    "CC": [
+     "CC"
+    ],
+    "NC": [
+     "NC"
+    ],
+    "UPN": [
+     "UPN",
+     "NAVARRA_SUMA"
+    ],
+    "PACMA": [
+     "PACMA"
+    ],
+    "EXISTE": [
+     "EXISTE"
+    ]
+   },
+   "izquierda_alternativa_previa": [
+    "UP_2019",
+    "MAS_PAIS_COMPROMIS"
+   ],
+   "reparto_de_desaparecidos": {
+    "activo": true,
+    "descripcion": "El voto de 2019 de las candidaturas que no continúan se reparte por bloque entre las candidaturas de 2026 de ese bloque, en proporción a su cuota de 2023 en la provincia (en lugar de repartirse en proporción entre todas al normalizar). Decisión del usuario (12/11/2026). El contraste con el histórico fue neutro (RMS 0,1889 frente a 0,1875 con peso 0,75; mejora en 2 de 8 elecciones): poner activo=false para volver al reparto proporcional.",
+    "claves": {
+     "CS": {
+      "DERECHA": 1.0
+     },
+     "CUP": {
+      "IZQUIERDA": 1.0
+     },
+     "PRC": {
+      "DERECHA": 0.5,
+      "IZQUIERDA": 0.5
+     }
+    },
+    "bloques": {
+     "DERECHA": [
+      "PP",
+      "VOX",
+      "UPN"
+     ],
+     "IZQUIERDA": [
+      "PSOE",
+      "SUMAR",
+      "PODEMOS",
+      "FV",
+      "ERC",
+      "BILDU",
+      "BNG"
+     ]
+    },
+    "eje_periferico": [
+     "CUP",
+     "PRC"
+    ]
+   }
+  },
+  "ejes": {
+   "descripcion": "Clasificación de las candidaturas en los ejes del diagnóstico de sesgos provinciales (calcular_sesgos_provinciales.py). Eje izquierda/derecha: los partidos periféricos se suman a su lado; Junts, PNV y CC van en la derecha (decisión del usuario, 12/11/2026); Existe, PACMA y Otros no se ubican. Eje periférico: partidos de ámbito no estatal con candidatura propia (UPN y Front Valencià, integrados en listas estatales, no cuentan).",
+   "izquierda": [
+    "PSOE",
+    "SUMAR",
+    "PODEMOS",
+    "FV",
+    "ADELANTE",
+    "ERC",
+    "BILDU",
+    "BNG"
+   ],
+   "derecha": [
+    "PP",
+    "VOX",
+    "UPN",
+    "SALF",
+    "JUNTS",
+    "PNV",
+    "CC"
+   ],
+   "periferico": [
+    "ERC",
+    "JUNTS",
+    "BILDU",
+    "PNV",
+    "BNG",
+    "CC",
+    "NC",
+    "ADELANTE",
+    "EXISTE"
+   ]
+  }
+ },
+ "candidaturas": [
+  {
+   "id": "PP",
+   "nombre": "Partido Popular",
+   "claves_2023": [
+    "PP"
+   ],
+   "ambito": "nacional"
+  },
+  {
+   "id": "PSOE",
+   "nombre": "PSOE (incluye PSC)",
+   "claves_2023": [
+    "PSOE"
+   ],
+   "ambito": "nacional"
+  },
+  {
+   "id": "VOX",
+   "nombre": "Vox",
+   "claves_2023": [
+    "VOX"
+   ],
+   "ambito": "nacional"
+  },
+  {
+   "id": "SUMAR",
+   "nombre": "Frente Amplio / Sumar (con sus socios territoriales)",
+   "claves_2023": [
+    "SUMAR"
+   ],
+   "reparto": "sumar_podemos",
+   "ambito": "nacional"
+  },
+  {
+   "id": "PODEMOS",
+   "nombre": "Podemos",
+   "claves_2023": [
+    "SUMAR"
+   ],
+   "reparto": "sumar_podemos",
+   "ambito": "nacional"
+  },
+  {
+   "id": "SALF",
+   "nombre": "Se Acabó La Fiesta",
+   "claves_2023": [],
+   "reparto": "salf",
+   "ambito": "nacional"
+  },
+  {
+   "id": "ADELANTE",
+   "nombre": "Adelante Andalucía",
+   "claves_2023": [],
+   "reparto": "adelante_andalucia",
+   "ambito": "regional",
+   "provincias": [
+    "Almería",
+    "Cádiz",
+    "Córdoba",
+    "Granada",
+    "Huelva",
+    "Jaén",
+    "Málaga",
+    "Sevilla"
+   ]
+  },
+  {
+   "id": "FV",
+   "nombre": "Front Valencià (Compromís, IU, Podemos y ERC)",
+   "claves_2023": [],
+   "ambito": "regional"
+  },
+  {
+   "id": "ERC",
+   "nombre": "ERC (con Podemos en Cataluña)",
+   "claves_2023": [
+    "ERC"
+   ],
+   "ambito": "regional"
+  },
+  {
+   "id": "JUNTS",
+   "nombre": "Junts",
+   "claves_2023": [
+    "JUNTS",
+    "PDECAT"
+   ],
+   "ambito": "regional"
+  },
+  {
+   "id": "BILDU",
+   "nombre": "EH Bildu",
+   "claves_2023": [
+    "BILDU"
+   ],
+   "ambito": "regional"
+  },
+  {
+   "id": "PNV",
+   "nombre": "PNV",
+   "claves_2023": [
+    "PNV"
+   ],
+   "ambito": "regional"
+  },
+  {
+   "id": "BNG",
+   "nombre": "BNG",
+   "claves_2023": [
+    "BNG"
+   ],
+   "ambito": "regional"
+  },
+  {
+   "id": "CC",
+   "nombre": "Coalición Canaria",
+   "claves_2023": [
+    "CC"
+   ],
+   "ambito": "regional"
+  },
+  {
+   "id": "NC",
+   "nombre": "Nueva Canarias",
+   "claves_2023": [
+    "NC"
+   ],
+   "ambito": "regional"
+  },
+  {
+   "id": "UPN",
+   "nombre": "UPN",
+   "claves_2023": [
+    "UPN"
+   ],
+   "ambito": "regional"
+  },
+  {
+   "id": "PACMA",
+   "nombre": "PACMA",
+   "claves_2023": [
+    "PACMA"
+   ],
+   "ambito": "nacional"
+  },
+  {
+   "id": "EXISTE",
+   "nombre": "Coalición Existe (Teruel Existe y Aragón Existe)",
+   "claves_2023": [
+    "EXISTE"
+   ],
+   "ambito": "regional",
+   "provincias": [
+    "Teruel"
+   ],
+   "nota": "Teruel Existe y Aragón Existe registraron la Coalición Existe el 16/10/2026. Base: Teruel Existe en Teruel (2023). Sin base en Huesca y Zaragoza, donde también concurre."
+  },
+  {
+   "id": "OTROS",
+   "nombre": "Otros (resto, incluye Cs y partidos locales que desaparecen)",
+   "claves_2023": "RESTO",
+   "ambito": "nacional"
+  }
+ ],
+ "desaparecen": [
+  "CS",
+  "NAVARRA_SUMA",
+  "PRC",
+  "MAS_PAIS_COMPROMIS",
+  "UP_2019",
+  "CUP"
+ ],
+ "fusiones": [
+  {
+   "region": "Cataluña",
+   "provincias": [
+    "Barcelona",
+    "Girona",
+    "Lleida",
+    "Tarragona"
+   ],
+   "mover": [
+    {
+     "de": "PODEMOS",
+     "a": "ERC"
+    }
+   ],
+   "nota": "Acuerdo Podemos-ERC: Podemos no se presenta como tal; su parte va a la fila ERC."
+  },
+  {
+   "region": "Comunitat Valenciana",
+   "provincias": [
+    "Alicante/Alacant",
+    "Castellón/Castelló",
+    "Valencia/València"
+   ],
+   "mover": [
+    {
+     "de": "PODEMOS",
+     "a": "FV"
+    },
+    {
+     "de": "ERC",
+     "a": "FV"
+    },
+    {
+     "de": "SUMAR",
+     "a": "FV"
+    }
+   ],
+   "nota": "Front Valencià (FV) incluye Compromís, IU, Podemos y ERC: toda esa izquierda va en la fila FV y Sumar no se presenta en la Comunitat Valenciana."
+  },
+  {
+   "region": "Canarias",
+   "provincias": [
+    "Palmas (Las)",
+    "Santa Cruz de Tenerife"
+   ],
+   "mover": [
+    {
+     "de": "PODEMOS",
+     "a": "SUMAR"
+    },
+    {
+     "de": "NC",
+     "a": "SUMAR"
+    }
+   ],
+   "nota": "Unidad del Pueblo Canario (Podemos, Nueva Canarias, IU): todo en la fila SUMAR."
+  },
+  {
+   "region": "Navarra",
+   "provincias": [
+    "Navarra"
+   ],
+   "mover": [
+    {
+     "de": "PP",
+     "a": "UPN"
+    }
+   ],
+   "nota": "UPN y PP concurren en coalición al Congreso en Navarra (11/11/2026): la fila UPN lleva el voto de ambos y el PP no tiene fila propia en Navarra. Los escaños de la coalición se reparten por orden de lista (UPN, PP, PP, UPN)."
+  }
+ ],
+ "etiquetas_regionales": {
+  "_nota": "Qué incluye cada fila por comunidad (solo para mostrar en la web). El voto de estos socios ya estaba dentro de Sumar en 2023, salvo lo indicado en fusiones.",
+  "SUMAR": {
+   "Andalucía": "Frente Amplio por Andalucía (con IPA y Verdes Equo)",
+   "Aragón": "Frente Amplio (con Chunta Aragonesista)",
+   "Asturias": "Frente Amplio (con Somos Asturies)",
+   "Baleares": "Frente Amplio (con Ara Més)",
+   "Canarias": "Unidad del Pueblo Canario (Podemos, Nueva Canarias, IU)",
+   "Comunitat Valenciana": "Compromís-Front Valencià (Compromís, IU, Podemos y ERC)",
+   "resto": "Frente Amplio"
+  },
+  "PODEMOS": {
+   "Cataluña": "sin fila propia: va con ERC",
+   "Canarias": "sin fila propia: en Unidad del Pueblo Canario",
+   "Comunitat Valenciana": "sin fila propia: en Compromís-Front Valencià",
+   "resto": "Podemos"
+  },
+  "ERC": {
+   "Cataluña": "Acuerdo Podemos-ERC",
+   "resto": "ERC"
+  }
+ },
+ "sin_candidatura": [
+  {
+   "partido": "SUMAR",
+   "provincias": [
+    "Teruel",
+    "Ceuta",
+    "Melilla"
+   ],
+   "nota": "Frente Amplio no presenta lista al Congreso en Teruel (CHA solo concurre en Zaragoza y Huesca), Ceuta ni Melilla (29/11/2026). Su cuota de 2023 se reparte en proporción entre el resto de candidaturas de esas provincias. Podemos sí concurre en las tres."
+  }
+ ],
+ "escanos_2026_distintos_de_la_base": {
+  "descripcion": "Escaños de 2026 en las circunscripciones donde cambian respecto a la elección de base (2023): Cádiz pierde uno y Madrid lo gana. El total sigue siendo 350.",
+  "provincias": {
+   "Cádiz": 8,
+   "Madrid": 38
+  }
+ }
+}

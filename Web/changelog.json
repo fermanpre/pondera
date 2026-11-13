@@ -1,5 +1,10 @@
 [
  {
+  "fecha": "2026-11-14",
+  "titulo": "La previsión se recalcula cada día con el promedio vivo",
+  "texto": "Los objetivos nacionales de la previsión de escaños (y, con ellos, el reparto por provincia, la página Resumen y los rangos del Monte Carlo) se actualizan ahora cada día con el mismo promedio de encuestas que muestra la página del Promedio, con el mismo código y los mismos pesos. Hasta ahora eran una instantánea del último despliegue manual. Las páginas de Inicio, Provincias y Comunidades indican la fecha del promedio usado. Con la veda de sondeos, el cálculo no pasa del 23 de noviembre."
+ },
+ {
   "fecha": "2026-11-13",
   "titulo": "Nueva página: mapa por provincia",
   "texto": "Mapa de España con el margen izquierda-derecha de cada provincia en 2023 y en la previsión central de 2026, en la misma escala (de I+40 a D+40, comprimida entre 40 y 10 puntos para que se vea púrpura lo que de verdad es equilibrado). La página incluye ficha por provincia, tabla de márgenes y la clasificación de partidos por lado, con los casos discutibles señalados. El mapa de provincias es «Provinces of Spain (Blank map)» de Wikimedia Commons (CC BY-SA 3.0), vectorizado y coloreado para PONDERA y distribuido bajo la misma licencia."

@@ -4,6 +4,15 @@ const modelo = MotorElectoral.prepararModelo(DATOS_MODELO);
 const K = modelo.numeroDePartidos;
 const P = modelo.numeroDeProvincias;
 let objetivosActuales = Object.assign({}, DATOS_MODELO.objetivos);
+
+// Fecha del promedio de encuestas con el que se calcularon los objetivos nacionales (se renueva cada día con el flujo de actualización)
+(function mostrarFechaDelPromedio() {
+  const elemento = document.getElementById("fecha-promedio");
+  if (!elemento || !DATOS_MODELO.fecha_promedio) return;
+  const fecha = new Date(DATOS_MODELO.fecha_promedio + "T12:00:00");
+  elemento.innerHTML = "Los objetivos nacionales son los del <a href=\"promedio.html\">promedio de encuestas</a> a " +
+    fecha.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" }) + ", y la previsión se recalcula cada día con él.";
+})();
 let ultimoResultado = null;
 let temporizador = null;
 const SORTEOS_POR_DEFECTO = 2000;
