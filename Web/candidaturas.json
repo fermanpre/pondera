@@ -2,7 +2,7 @@
  "_nota": "Capa de mapeo entre las candidaturas históricas y las de 2026. Base de partida: resultados PROVISIONALES del Congreso 2023 (noche electoral, sin voto CERA), a escala del censo de residentes de 2026 (INE).",
  "eleccion_base": "congreso_2023_prov",
  "parametros": {
-  "ancla_cis": {"activa": true, "lambda": 0.5, "n0": 300, "descripcion": "Ancla de la forma provincial con el CIS 3584 (voto directo, pregunta 3R). Decisión del usuario, 13/11/2026: lambda 0,5 y n0 300. Ver ancla_cis.py."},
+  "ancla_cis": {"activa": true, "lambda": 0.25, "n0": 300, "descripcion": "Ancla de la forma provincial con el CIS 3584 (voto directo, pregunta 3R). Decisión del usuario, 13/11/2026: lambda 0,25 y n0 300. Ver ancla_cis.py."},
   "sumar_podemos": {
    "descripcion": "Perfil provincial de PODEMOS = el de las europeas de 2024 (votos de Podemos por provincia), con la masa total que resulta de repartir Sumar 2023 con la proporción Sumar/Podemos de las europeas. SUMAR recibe el resto del voto de Sumar 2023 en cada provincia. Donde Podemos no se presenta (Cataluña, Canarias, Comunitat Valenciana) su parte va a ERC o a SUMAR (ver fusiones).",
    "eleccion_referencia": "europeas_2024"
