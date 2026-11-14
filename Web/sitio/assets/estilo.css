@@ -133,3 +133,14 @@ a.boton:hover { border-color: var(--acento); }
 .muestra-color { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; border: 1px solid var(--linea); }
 .tabla-bloques th, .tabla-bloques td { text-align: left; vertical-align: top; line-height: 1.6; white-space: normal; }
 #tabla-margenes-mapa th[data-orden] { user-select: none; }
+
+/* Probabilidades de mayoría absoluta */
+.mayorias { margin-top: 18px; }
+.mayorias h3 { margin: 0 0 6px; }
+.grupo-mayorias { margin: 10px 0 14px; }
+.grupo-mayorias h4 { margin: 0 0 4px; color: var(--suave); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.barra-prob { display: grid; grid-template-columns: minmax(150px, 38%) 1fr 64px; align-items: center; gap: 10px; padding: 3px 0; font-size: 0.92rem; }
+.barra-prob-pista { height: 14px; background: color-mix(in srgb, var(--texto) 8%, transparent); border-radius: 3px; overflow: hidden; }
+.barra-prob-relleno { display: block; height: 100%; border-radius: 3px; min-width: 0; }
+.barra-prob b { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .barra-prob { grid-template-columns: 1fr 60px; } .barra-prob-nombre { grid-column: 1 / -1; } .barra-prob-pista { grid-column: 1; } }

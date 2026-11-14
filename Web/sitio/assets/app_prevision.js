@@ -58,6 +58,55 @@ function escanosCentrales() {
   return total;
 }
 
+/* ---------- Probabilidad de mayoría absoluta de cada combinación ---------- */
+
+// Cada combinación suma los escaños de sus partidos en cada sorteo del Monte Carlo; se cuenta la proporción de sorteos con 176 o más.
+// UPN va con el PP porque concurren en coalición en Navarra (los escaños de esa lista se reparten por orden entre ambos).
+const IZQUIERDA_ESTATAL = ["PSOE", "SUMAR", "FV"];
+const NACIONALISTAS_DE_IZQUIERDA = ["ERC", "BILDU", "BNG", "ADELANTE"];
+const GRUPOS_DE_MAYORIAS = [
+  { titulo: "Derecha", color: "#1d6fb8", combinaciones: [
+    { nombre: "PP (con UPN) solo", partidos: ["PP", "UPN"] },
+    { nombre: "PP + Vox", partidos: ["PP", "UPN", "VOX"] },
+    { nombre: "Derecha ampliada: PP + Vox + CC + SALF", partidos: ["PP", "UPN", "VOX", "CC", "SALF"] },
+  ] },
+  { titulo: "Izquierda", color: "#d4141c", combinaciones: [
+    { nombre: "PSOE solo", partidos: ["PSOE"] },
+    { nombre: "PSOE + Frente Amplio + FV", partidos: IZQUIERDA_ESTATAL },
+    { nombre: "… + Podemos", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"]) },
+    { nombre: "… + nacionalistas de izquierda (ERC, Bildu, BNG, Adelante)", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"], NACIONALISTAS_DE_IZQUIERDA) },
+    { nombre: "… + PNV (sin Junts)", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV"], NACIONALISTAS_DE_IZQUIERDA) },
+    { nombre: "Todo el bloque de 2023: … + PNV y Junts", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV", "JUNTS"], NACIONALISTAS_DE_IZQUIERDA) },
+  ] },
+  { titulo: "Otras", color: "#7b3f9e", combinaciones: [
+    { nombre: "PP + PSOE", partidos: ["PP", "UPN", "PSOE"] },
+  ] },
+];
+
+function textoDeProbabilidad(p) {
+  if (p === 0) return "0 %";
+  if (p < 0.001) return "< 0,1 %";
+  return porcentaje(100 * p);
+}
+
+function pintarMayorias() {
+  const contenedor = document.getElementById("mayorias");
+  if (!contenedor) return;
+  let html = '<h3>Probabilidad de mayoría absoluta (176 escaños o más)</h3>';
+  GRUPOS_DE_MAYORIAS.forEach(function (grupo) {
+    html += '<div class="grupo-mayorias"><h4>' + grupo.titulo + '</h4>';
+    grupo.combinaciones.forEach(function (c) {
+      const p = MotorElectoral.probabilidadDeSuma(modelo, ultimoResultado.simulacion, c.partidos);
+      html += '<div class="barra-prob" title="' + c.partidos.map(function (x) { return NOMBRES[x] || x; }).join(" + ") + '">' +
+        '<span class="barra-prob-nombre">' + c.nombre + '</span>' +
+        '<span class="barra-prob-pista"><span class="barra-prob-relleno" style="width:' + (100 * p).toFixed(2) + '%;background:' + grupo.color + '"></span></span>' +
+        '<b>' + textoDeProbabilidad(p) + '</b></div>';
+    });
+    html += '</div>';
+  });
+  contenedor.innerHTML = html;
+}
+
 function pintarNacional() {
   if (!document.getElementById("barra-escanos")) return;
   const resumen = MotorElectoral.resumirNacional(modelo, ultimoResultado.simulacion);
@@ -81,13 +130,7 @@ function pintarNacional() {
   barra.appendChild(marca);
   document.getElementById("leyenda176").textContent = "Línea discontinua: mayoría absoluta (176 escaños). Barra: reparto central, sin ruido.";
 
-  const pDerecha3 = MotorElectoral.probabilidadDeSuma(modelo, ultimoResultado.simulacion, ["PP", "VOX", "UPN"]);
-  const pDerecha = MotorElectoral.probabilidadDeSuma(modelo, ultimoResultado.simulacion, DERECHA_AMPLIADA);
-  const pIzquierda = MotorElectoral.probabilidadDeSuma(modelo, ultimoResultado.simulacion, IZQUIERDA_Y_NACIONALISTAS);
-  document.getElementById("mayorias").innerHTML =
-    '<div class="dato"><b>' + porcentaje(100 * pDerecha3) + '</b><span>PP + Vox + UPN suman 176 o más</span></div>' +
-    '<div class="dato"><b>' + porcentaje(100 * pDerecha) + '</b><span>Derecha ampliada (PP, Vox, UPN, CC y SALF) suma 176 o más</span></div>' +
-    '<div class="dato"><b>' + porcentaje(100 * pIzquierda) + '</b><span>Izquierda y nacionalistas (PSOE, Frente Amplio, Podemos, FV, Adelante, ERC, Junts, Bildu, PNV, BNG) suman 176 o más</span></div>';
+  pintarMayorias();
 
   const cuerpo = document.querySelector("#tabla-nacional tbody");
   cuerpo.innerHTML = "";

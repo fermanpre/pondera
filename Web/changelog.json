@@ -1,6 +1,11 @@
 [
  {
   "fecha": "2026-11-14",
+  "titulo": "Probabilidad de mayoría de más combinaciones, en gráfico de barras",
+  "texto": "En Inicio y en el Simulador, las tres probabilidades de mayoría absoluta pasan a un gráfico de barras debajo de la tabla, con más combinaciones: PP (con UPN) solo, PP + Vox, derecha ampliada, PSOE solo, PSOE + Frente Amplio + FV, con Podemos, con los nacionalistas de izquierda (ERC, Bildu, BNG y Adelante), con el PNV (sin Junts), el bloque completo de 2023 (con Junts) y PP + PSOE. Cada barra es la proporción de sorteos del Monte Carlo con 176 escaños o más."
+ },
+ {
+  "fecha": "2026-11-14",
   "titulo": "La previsión se recalcula cada día con el promedio vivo",
   "texto": "Los objetivos nacionales de la previsión de escaños (y, con ellos, el reparto por provincia, la página Resumen y los rangos del Monte Carlo) se actualizan ahora cada día con el mismo promedio de encuestas que muestra la página del Promedio, con el mismo código y los mismos pesos. Hasta ahora eran una instantánea del último despliegue manual. Las páginas de Inicio, Provincias y Comunidades indican la fecha del promedio usado. Con la veda de sondeos, el cálculo no pasa del 23 de noviembre."
  },
