@@ -23,7 +23,7 @@ import math
 import sys
 import unicodedata
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import filtro_atipicos
@@ -101,7 +101,7 @@ def normalizar_firma(nombre):
     return EQUIVALENCIAS_DE_FIRMA.get(sin_tildes, sin_tildes)
 
 
-def leer_encuestas(convocatoria, fusionar_frente_amplio_en_sumar=True):
+def leer_encuestas_acumuladas(convocatoria, fusionar_frente_amplio_en_sumar=True):
     """Devuelve {clave de encuesta: {'firma', 'fin', 'muestra', 'valores': {partido: valor}}} de una convocatoria."""
     encuestas = {}
     with open(CARPETA / "sondeos_wikipedia_largo.csv", encoding="utf-8-sig") as fichero:
@@ -143,6 +143,44 @@ def leer_encuestas(convocatoria, fusionar_frente_amplio_en_sumar=True):
             encuesta["valores"]["Sumar"] = total
             encuesta["valores"]["Sumar_con_FV"] = total
     return list(encuestas.values())
+
+
+# Trackings que publican entregas ACUMULADAS desde un mismo día de inicio (40dB: 10-12, 10-13, 10-14 y 10-15 de noviembre, con 1.000, 1.500, 2.000 y 2.500 entrevistas).
+# Para estas casas cada entrega se sustituye por lo que añade a la anterior: las entrevistas nuevas y sus porcentajes, restando muestra × porcentaje. Decisión del usuario, 16/11/2026.
+# Solo se aplica donde la resta sale limpia (40dB). SocioMétrica queda fuera: su acumulado se repondera entero y los incrementos salen incoherentes (PSOE 25,8 → 37,2 → 29,0; SALF negativo).
+CASAS_A_DESACUMULAR = {"40db"}
+
+
+def desacumular_entregas(encuestas):
+    """Sustituye las entregas acumuladas de CASAS_A_DESACUMULAR por sus incrementos: cada una pasa a cubrir desde el día siguiente a la entrega anterior,
+    con las entrevistas nuevas (n1 - n0) y el porcentaje de esas entrevistas (n1·p1 - n0·p0) / (n1 - n0). Las entregas con un solo inicio y una sola muestra no cambian."""
+    grupos = defaultdict(list)
+    for encuesta in encuestas:
+        if encuesta["firma"] in CASAS_A_DESACUMULAR and encuesta["muestra"]:
+            grupos[(encuesta["firma"], encuesta["inicio"])].append(encuesta)
+    for entregas in grupos.values():
+        entregas.sort(key=lambda e: e["fin"])
+        anterior_original = None
+        for entrega in entregas:
+            original = {"fin": entrega["fin"], "muestra": entrega["muestra"], "valores": dict(entrega["valores"])}
+            if anterior_original is not None and entrega["fin"] > anterior_original["fin"] and entrega["muestra"] > anterior_original["muestra"]:
+                nuevas = entrega["muestra"] - anterior_original["muestra"]
+                incrementos = {}
+                for partido, valor in original["valores"].items():
+                    if partido in anterior_original["valores"]:
+                        porcentaje = (original["muestra"] * valor - anterior_original["muestra"] * anterior_original["valores"][partido]) / nuevas
+                        incrementos[partido] = max(0.0, porcentaje)
+                entrega["valores"] = incrementos
+                entrega["muestra"] = nuevas
+                entrega["inicio"] = anterior_original["fin"] + timedelta(days=1)
+                entrega["medio"] = (entrega["inicio"].toordinal() + entrega["fin"].toordinal()) / 2
+            anterior_original = original
+    return encuestas
+
+
+def leer_encuestas(convocatoria, fusionar_frente_amplio_en_sumar=True):
+    """Igual que leer_encuestas_acumuladas, con los trackings acumulados de CASAS_A_DESACUMULAR convertidos en entregas independientes."""
+    return desacumular_entregas(leer_encuestas_acumuladas(convocatoria, fusionar_frente_amplio_en_sumar))
 
 
 def leer_resultados_nacionales(etiqueta, claves_de_partido):
