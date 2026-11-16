@@ -159,6 +159,13 @@ def main():
             total_clave = nacional.setdefault(clave, {"votos": 0, "escanos": 0})
             total_clave["votos"] += acumulado["votos"]
             total_clave["escanos"] += acumulado["escanos"]
+    # Los votos siguen la agrupación del modelo (el PP de Navarra va con UPN), pero los escaños de cada partido son los oficiales (PP 137, UPN 1)
+    for total_clave in nacional.values():
+        total_clave["escanos"] = 0
+    for (provincia, nombre_original), cantidad_de_escanos in escanos.items():
+        clave_oficial, _siglas = clave_y_nombre(nombre_original)
+        if clave_oficial in nacional:
+            nacional[clave_oficial]["escanos"] += cantidad_de_escanos
     texto_nacional = json.dumps(nacional, ensure_ascii=False, separators=(",", ":"))
     texto = json.dumps(resultado, ensure_ascii=False, separators=(",", ":"))
     texto_comunidades = json.dumps(resultado_comunidades, ensure_ascii=False, separators=(",", ":"))
