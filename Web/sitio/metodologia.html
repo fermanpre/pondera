@@ -20,7 +20,7 @@
 <meta name="twitter:description" content="Cómo se calcula el promedio de encuestas, el reparto por provincia, los escaños y la incertidumbre.">
 <meta name="twitter:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
 <link rel="stylesheet" href="assets/estilo.css">
-<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script><script async src="https://www.googletagmanager.com/gtag/js?id=G-EPHEWLQSRW"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-EPHEWLQSRW');</script>
+<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>
 </head>
 <body>
 <header class="cabecera-sitio">
@@ -63,6 +63,8 @@
   <p>Las encuestas «de parte», es decir, aquellas en las que la tabla de Wikipedia da como cliente o fuente a un partido, entran en el promedio con el peso de una firma sin historial (0,2) y corregidas. En las 67 encuestas de ese tipo de la serie histórica, el partido promotor salía de media 1,2 puntos por encima de las encuestas independientes de fechas parecidas (±7 días), y los partidos de izquierda promotores daban al bloque de derecha cerca de 1 punto menos. La corrección resta 1,5 puntos al promotor, suma 0,5 al resto de su bloque y 1,0 al bloque contrario, de modo que la suma de la encuesta no cambia. Es un dato de la tabla, no un juicio sobre la casa que la realizó.</p>
   <p>Se descarta también una cifra que supera los 3 puntos, triplica el último resultado electoral de ese partido y no respalda ninguna otra encuesta independiente de otra casa en los 14 días siguientes o anteriores (se exige al menos la mitad de esa cifra); el resto de la encuesta se reescala para conservar la suma. La regla es la misma para todos los partidos y casas, y las casas que hayan publicado alguna cifra descartada pasan a pesar la mitad. La serie diaria se recalcula entera cada vez, con la misma fórmula para todos los días.</p>
 
+  <p><strong>Trackings y entregas solapadas.</strong> Algunas casas publican a diario con un campo acumulado o móvil (por ejemplo, un acumulado desde el 26 de octubre que crece cada día, o ventanas de cuatro días). Una entrega cuyo campo ya ha vuelto a medir una entrega posterior de la misma casa no aporta información nueva, así que su peso se multiplica por la parte de su campo que ninguna entrega posterior ha repetido (cero en un acumulado, donde solo cuenta la última entrega). Las entregas de una misma casa que terminan en un plazo de cuatro días sin solape en las fechas se agrupan y cada una pesa 1/N del grupo. Así una casa con un tracking diario no pesa varias veces en el promedio.</p>
+
   <h2>3. Del voto nacional al voto provincial</h2>
   <p>El porcentaje nacional de cada partido se reparte entre las 52 circunscripciones con un ajuste proporcional iterativo (raking) sobre la base de 2023: las provincias suman el 100 % y los partidos suman su total nacional. En los retrocesos con resultados históricos (generales de 2019 a 2023, andaluzas, catalanas) fue mejor que las alternativas probadas (modelos logit y mezclas).</p>
   <p>La base de partida de cada provincia se ancla en parte a la forma provincial del preelectoral del CIS de 2026 (estudio 3584, 45.074 entrevistas): por cada bloque principal (PP, PSOE, Vox, izquierda alternativa, ERC, Junts, Bildu, PNV, BNG, Coalición Canaria y UPN-PP), la cuota de partida es una mezcla entre la base y la cuota del voto directo del CIS dentro de esa provincia. El peso del CIS es w = 0,25 × n / (n + 300), siendo n las entrevistas de la provincia. De este modo el CIS solo aporta cómo se reparte el voto entre provincias; el nivel nacional de cada partido lo sigue fijando el promedio de encuestas, y el sesgo de la muestra del CIS (que sobrerrepresenta al PSOE) no entra. Se contrastó con los preelectorales de cinco elecciones (2015, 2016, abril y noviembre de 2019 y 2023): cuando la base tiene tres años o más (2015, abril de 2019 y 2023), la mezcla reduce entre un 29 % y un 42 % el error de cuota provincial de los partidos principales, con una mejora pequeña en escaños; cuando la base tiene seis meses (2016 y noviembre de 2019), no mejora. El peso óptimo era plano entre 0,25 y 0,75; se usa el extremo bajo (0,25) para limitar la parte del sesgo de la muestra del CIS que sí varía de una provincia a otra. Son pruebas con el mismo método, no una garantía.</p>
@@ -102,6 +104,8 @@
   <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
   <nav aria-label="Pie">
     <a href="LICENSE">Licencia</a>
+    <a href="privacidad.html">Privacidad y cookies</a>
+    <a href="#" id="abrir-cookies">Preferencias de cookies</a>
     <a href="changelog.html">Historial de cambios</a>
     <a href="feed.xml">RSS</a>
     <a href="acerca.html">Acerca de</a>
@@ -112,5 +116,6 @@
   </nav>
 </footer>
 <script src="assets/tema.js"></script>
+<script src="assets/cookies.js"></script>
 </body>
 </html>

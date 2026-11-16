@@ -6,7 +6,7 @@
  */
 const BLOQUES_DEL_MAPA = {
   izquierda: ["PSOE", "SUMAR", "PODEMOS", "FV", "ADELANTE", "BILDU", "ERC", "BNG", "PACMA"],
-  derecha: ["PP", "VOX", "UPN", "JUNTS", "PNV", "CC"],
+  derecha: ["PP", "VOX", "UPN", "SALF", "JUNTS", "PNV", "CC"],
 };
 const LIMITE_DE_ESCALA = 40;
 const CODO_DE_ESCALA = 10;

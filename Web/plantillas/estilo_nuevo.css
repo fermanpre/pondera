@@ -97,3 +97,10 @@
   .barra-prob-relleno { display: block; height: 100%; border-radius: 3px; min-width: 0; }
   .barra-prob b { text-align: right; font-variant-numeric: tabular-nums; }
   @media (max-width: 560px) { .barra-prob { grid-template-columns: 1fr 60px; } .barra-prob-nombre { grid-column: 1 / -1; } .barra-prob-pista { grid-column: 1; } }
+
+  /* Aviso de cookies */
+  #aviso-cookies { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 50; max-width: 760px; margin: 0 auto; background: var(--tarjeta); color: var(--texto); border: 1px solid var(--linea); border-radius: 10px; box-shadow: 0 4px 18px rgba(0,0,0,.25); padding: 12px 16px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  #aviso-cookies p { margin: 0; flex: 1 1 320px; font-size: 0.9rem; }
+  #aviso-cookies .botones-cookies { display: flex; gap: 8px; }
+  #aviso-cookies button { font: inherit; padding: 7px 16px; border-radius: 6px; border: 1px solid var(--acento); background: var(--tarjeta); color: var(--acento); cursor: pointer; }
+  #aviso-cookies button:hover, #aviso-cookies button:focus { background: var(--acento); color: var(--tarjeta); }

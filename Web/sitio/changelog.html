@@ -20,7 +20,7 @@
 <meta name="twitter:description" content="Registro de las actualizaciones reales de PONDERA.">
 <meta name="twitter:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
 <link rel="stylesheet" href="assets/estilo.css">
-<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script><script async src="https://www.googletagmanager.com/gtag/js?id=G-EPHEWLQSRW"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-EPHEWLQSRW');</script>
+<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>
 </head>
 <body>
 <header class="cabecera-sitio">
@@ -49,6 +49,7 @@
   <p class="subtitulo">Registro de las actualizaciones reales del sitio, de la más reciente a la más antigua. Las actualizaciones diarias automáticas del promedio no se anotan aquí. <a href="feed.xml">RSS</a>.</p>
 </div>
 <section id="cambios">
+  <article class="entrada-cambio"><time datetime="2026-11-16">16 de noviembre de 2026</time><h3>Solape de trackings, aviso de cookies y clasificación del mapa</h3><p>El promedio ya no cuenta varias veces las entregas solapadas de una misma casa (acumulados de SW Demoscopia, el tracking de 40dB, ventanas móviles de Sigma Dos y SocioMétrica): cada entrega pesa por la parte de su campo que ninguna entrega posterior repite. Google Analytics solo se carga si el visitante lo acepta en el aviso de cookies, y hay una página de Privacidad y cookies. En el mapa, SALF y Geroa Bai pasan al lado derecho y Frente Obrero queda sin lado.</p></article>
   <article class="entrada-cambio"><time datetime="2026-11-14">14 de noviembre de 2026</time><h3>El ancla del CIS baja a la mitad de peso</h3><p>El peso máximo del preelectoral del CIS en la base provincial pasa de 0,5 a 0,25 (w = 0,25 × n / (n + 300)). Los contrastes con cinco elecciones mostraron que el óptimo es plano entre 0,25 y 0,75, y el valor bajo reduce la parte del sesgo de la muestra del CIS que varía entre provincias.</p></article>
   <article class="entrada-cambio"><time datetime="2026-11-14">14 de noviembre de 2026</time><h3>Probabilidad de mayoría de más combinaciones, en gráfico de barras</h3><p>En Inicio y en el Simulador, las tres probabilidades de mayoría absoluta pasan a un gráfico de barras debajo de la tabla, con más combinaciones: PP (con UPN) solo, PP + Vox, derecha ampliada, PSOE solo, PSOE + Frente Amplio + FV, con Podemos, con los nacionalistas de izquierda (ERC, Bildu, BNG y Adelante), con el PNV (sin Junts), el bloque completo de 2023 (con Junts) y PP + PSOE. Cada barra es la proporción de sorteos del Monte Carlo con 176 escaños o más.</p></article>
   <article class="entrada-cambio"><time datetime="2026-11-14">14 de noviembre de 2026</time><h3>La previsión se recalcula cada día con el promedio vivo</h3><p>Los objetivos nacionales de la previsión de escaños (y, con ellos, el reparto por provincia, la página Resumen y los rangos del Monte Carlo) se actualizan ahora cada día con el mismo promedio de encuestas que muestra la página del Promedio, con el mismo código y los mismos pesos. Hasta ahora eran una instantánea del último despliegue manual. Las páginas de Inicio, Provincias y Comunidades indican la fecha del promedio usado. Con la veda de sondeos, el cálculo no pasa del 23 de noviembre.</p></article>
@@ -88,6 +89,8 @@
   <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
   <nav aria-label="Pie">
     <a href="LICENSE">Licencia</a>
+    <a href="privacidad.html">Privacidad y cookies</a>
+    <a href="#" id="abrir-cookies">Preferencias de cookies</a>
     <a href="changelog.html">Historial de cambios</a>
     <a href="feed.xml">RSS</a>
     <a href="acerca.html">Acerca de</a>
@@ -98,5 +101,6 @@
   </nav>
 </footer>
 <script src="assets/tema.js"></script>
+<script src="assets/cookies.js"></script>
 </body>
 </html>

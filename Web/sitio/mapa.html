@@ -20,7 +20,7 @@
 <meta name="twitter:description" content="Mapa de España por provincias con el margen izquierda-derecha de las generales de 2023 y el previsto para 2026, en una misma escala.">
 <meta name="twitter:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
 <link rel="stylesheet" href="assets/estilo.css">
-<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script><script async src="https://www.googletagmanager.com/gtag/js?id=G-EPHEWLQSRW"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-EPHEWLQSRW');</script>
+<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>
 </head>
 <body>
 <header class="cabecera-sitio">
@@ -71,7 +71,7 @@
 <section id="que-se-muestra">
   <h2>Qué se muestra</h2>
   <p>El color de cada provincia es su <strong>margen</strong>: el porcentaje de voto de los partidos de izquierda menos el de los de derecha, sobre los votos a candidaturas (sin blancos ni nulos). «I+10» significa que la izquierda saca 10 puntos más que la derecha; «D+10», que los saca la derecha. El púrpura es el empate. La escala es la misma en los dos mapas, de I+40 a D+40, y está comprimida a propósito: del tramo de 40 a 10 puntos el color cambia despacio y de 10 a 0 cambia deprisa, de modo que se ve púrpura lo que de verdad es una provincia equilibrada, y da igual, a efectos del mapa, que una provincia sea de izquierdas por 40 o por 20.</p>
-  <p>Los partidos que no están en ninguno de los dos lados (por ejemplo Existe, SALF o las candidaturas locales) no suman a ninguno, pero sí cuentan en el total; por eso, en provincias donde pesan, el margen sale más pequeño que si se repartieran. La ficha de cada provincia muestra los tres porcentajes.</p>
+  <p>Los partidos que no están en ninguno de los dos lados (por ejemplo Existe, Frente Obrero o las candidaturas locales) no suman a ninguno, pero sí cuentan en el total; por eso, en provincias donde pesan, el margen sale más pequeño que si se repartieran. La ficha de cada provincia muestra los tres porcentajes.</p>
   <p><strong>Cómo leer el mapa de 2026.</strong> Es la previsión central del modelo (la de las páginas de <a href="provincias.html">Provincias</a> y <a href="comunidades.html">Comunidades</a>), no una encuesta por provincia. El modelo reparte el voto nacional estimado entre las provincias partiendo de los resultados anteriores y, en parte, de la forma provincial del preelectoral del CIS (véase la <a href="metodologia.html">metodología</a>); por eso la mayor parte de la diferencia entre los dos mapas es el giro nacional aplicado a cada provincia. Hay una excepción conocida: donde pesan los partidos de un solo territorio (Euskadi, Cataluña, Galicia, Canarias), el modelo reparte entre provincias el voto que las encuestas dan a esos partidos en toda España, y el resultado puede moverse distinto del resto (por ejemplo, el PNV baja en las encuestas y eso hace que Euskadi se mueva hacia la izquierda en el mapa, porque el PNV figura en la derecha). Es una limitación del modelo, no un dato.</p>
 </section>
 
@@ -83,14 +83,14 @@
       <thead><tr><th>Izquierda</th><th>Derecha</th><th>Sin lado (cuentan en el total)</th></tr></thead>
       <tbody>
         <tr>
-          <td>PSOE<br>Frente Amplio (Sumar en 2023)<br>Podemos<br>Front Valencià (Compromís)<br>Adelante Andalucía<br>EH Bildu<br>ERC*<br>BNG*<br>CUP*<br>PACMA*<br>Frente Obrero</td>
-          <td>PP (con UPN en Navarra)<br>Vox<br>UPN<br>Junts* (en 2023 también PDeCAT)<br>PNV*<br>Coalición Canaria* (en 2023 también Nueva Canarias)</td>
-          <td>Existe (Teruel Existe y Aragón Existe)<br>SALF<br>Geroa Bai<br>UPL<br>Fuerza Cívica<br>Recortes Cero<br>Coalición por Melilla<br>y el resto de candidaturas</td>
+          <td>PSOE<br>Frente Amplio (Sumar en 2023)<br>Podemos<br>Front Valencià (Compromís)<br>Adelante Andalucía<br>EH Bildu<br>ERC*<br>BNG*<br>CUP*<br>PACMA*</td>
+          <td>PP (con UPN en Navarra)<br>Vox<br>UPN<br>SALF<br>Geroa Bai* (en 2023)<br>Junts* (en 2023 también PDeCAT)<br>PNV*<br>Coalición Canaria* (en 2023 también Nueva Canarias)</td>
+          <td>Existe (Teruel Existe y Aragón Existe)<br>Frente Obrero<br>UPL<br>Fuerza Cívica<br>Recortes Cero<br>Coalición por Melilla<br>y el resto de candidaturas</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <p class="nota">* Partidos nacionalistas o regionalistas cuyo encaje en el eje izquierda-derecha es discutible. ERC, Bildu, BNG y CUP van a la izquierda; Junts, PNV y Coalición Canaria, a la derecha, por el espacio que ocupan en el voto de su territorio. Con los porcentajes de cada partido por provincia (páginas <a href="provincias.html">Provincias</a> y <a href="resumen.html">Resumen</a>) cualquiera puede rehacer el mapa con otra clasificación. Esta solo se usa en el mapa: no afecta al modelo ni a los escaños.</p>
+  <p class="nota">* Partidos nacionalistas o regionalistas cuyo encaje en el eje izquierda-derecha es discutible. ERC, Bildu, BNG y CUP van a la izquierda; Junts, PNV, Geroa Bai (la marca navarra del PNV, solo en 2023) y Coalición Canaria, a la derecha, por el espacio que ocupan en el voto de su territorio. SALF cuenta en la derecha y Frente Obrero, por ser inclasificable, queda sin lado. Con los porcentajes de cada partido por provincia (páginas <a href="provincias.html">Provincias</a> y <a href="resumen.html">Resumen</a>) cualquiera puede rehacer el mapa con otra clasificación. Esta solo se usa en el mapa: no afecta al modelo ni a los escaños.</p>
 </section>
 
 <section id="tabla-margenes">
@@ -337,6 +337,8 @@
   <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
   <nav aria-label="Pie">
     <a href="LICENSE">Licencia</a>
+    <a href="privacidad.html">Privacidad y cookies</a>
+    <a href="#" id="abrir-cookies">Preferencias de cookies</a>
     <a href="changelog.html">Historial de cambios</a>
     <a href="feed.xml">RSS</a>
     <a href="acerca.html">Acerca de</a>
@@ -347,6 +349,7 @@
   </nav>
 </footer>
 <script src="assets/tema.js"></script>
+<script src="assets/cookies.js"></script>
 <script src="datos_modelo.js"></script>
 <script src="datos_mapa_2023.js"></script>
 <script src="assets/comun.js"></script>

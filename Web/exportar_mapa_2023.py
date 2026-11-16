@@ -17,8 +17,8 @@ import normalizar_historico
 
 CARPETA_HISTORICO = Path(r"C:\Trabajo_Claude\Elecciones\Web\historico")
 CARPETA_SITIO = Path(__file__).resolve().parent / "sitio"
-CLAVES_DE_IZQUIERDA = {"PSOE", "SUMAR", "ERC", "BILDU", "BNG", "CUP", "ADELANTE_ANDALUCIA", "PACMA", "FRENTE_OBRERO", "PODEMOS"}
-CLAVES_DE_DERECHA = {"PP", "VOX", "JUNTS", "PDECAT", "PNV", "CC", "NC", "UPN"}
+CLAVES_DE_IZQUIERDA = {"PSOE", "SUMAR", "ERC", "BILDU", "BNG", "CUP", "ADELANTE_ANDALUCIA", "PACMA", "PODEMOS"}
+CLAVES_DE_DERECHA = {"PP", "VOX", "JUNTS", "PDECAT", "PNV", "CC", "NC", "UPN", "GEROA_BAI"}
 FILAS_DE_TOTAL = ("Total estatal", "Total andaluz")
 
 

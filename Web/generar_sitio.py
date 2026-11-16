@@ -61,15 +61,15 @@ PAGINAS = [
      "descripcion": "Sobre el autor de PONDERA."},
     {"archivo": "enlaces.html", "plantilla": "enlaces", "titulo": "Enlaces", "menu": "Enlaces", "scripts": [],
      "descripcion": "Fuentes de los datos de PONDERA y otros sitios relacionados."},
+    {"archivo": "privacidad.html", "plantilla": "privacidad", "titulo": "Privacidad y cookies", "menu": None, "scripts": [],
+     "descripcion": "Qué datos guarda PONDERA y cómo controlar las cookies."},
     {"archivo": "cerveza.html", "plantilla": "cerveza", "titulo": "Invítame a una cerveza", "menu": None, "scripts": [],
      "descripcion": "Una opción, sin expectativas, para invitar al autor a una cerveza."},
 ]
 
 ID_DE_MEDICION_DE_GOOGLE_ANALYTICS = "G-EPHEWLQSRW"
-ETIQUETA_DE_GOOGLE_ANALYTICS = (
-    '<script async src="https://www.googletagmanager.com/gtag/js?id=%s"></script>'
-    "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','%s');</script>"
-) % (ID_DE_MEDICION_DE_GOOGLE_ANALYTICS, ID_DE_MEDICION_DE_GOOGLE_ANALYTICS)
+# Google Analytics ya no se carga en la cabecera: lo carga assets/cookies.js solo si el visitante acepta (el identificador está en ese fichero).
+ETIQUETA_DE_GOOGLE_ANALYTICS = ""
 
 SCRIPT_DE_TEMA_EN_CABECERA = (
     "<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>"
@@ -109,7 +109,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
             continue
         actual = ' aria-current="page"' if otra["archivo"] == pagina["archivo"] else ""
         enlaces_del_menu.append('<a href="%s%s"%s>%s</a>' % (prefijo, otra["archivo"], actual, escapar(otra["menu"])))
-    scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js"] + pagina["scripts"])
+    scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js", "assets/cookies.js"] + pagina["scripts"])
 
     return """<!doctype html>
 <html lang="es">
@@ -152,6 +152,8 @@ def construir_pagina(pagina, contenido, prefijo=""):
   <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
   <nav aria-label="Pie">
     <a href="{prefijo}LICENSE">Licencia</a>
+    <a href="{prefijo}privacidad.html">Privacidad y cookies</a>
+    <a href="#" id="abrir-cookies">Preferencias de cookies</a>
     <a href="{prefijo}changelog.html">Historial de cambios</a>
     <a href="{prefijo}feed.xml">RSS</a>
     <a href="{prefijo}acerca.html">Acerca de</a>

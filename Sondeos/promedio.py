@@ -27,6 +27,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 import filtro_atipicos
+import solapamiento_de_campo
 from encuestas_de_parte import promotor_de
 
 CARPETA = Path(__file__).resolve().parent  # Sondeos/ (en local y en GitHub)
@@ -56,6 +57,9 @@ RATING_FIRMA_DESCONOCIDA = 0.2
 CORRECCION_DE_PARTE = {"activa": True, "promotor": 1.5, "propio": 0.5, "contrario": 1.0}
 # Filtro de cifras atípicas y recorte de peso de las casas que las publican (decisión del usuario, 13/11/2026): ver filtro_atipicos.py
 FILTRO_DE_ATIPICAS = {"activo": True}
+# Solapamiento del trabajo de campo (trackings acumulados o móviles de una misma casa: SW Demoscopia, 40dB, SocioMétrica, Sigma Dos, Electomanía): el peso de una encuesta
+# se multiplica por la parte de su campo que ninguna entrega posterior de la misma casa ha vuelto a medir (ver solapamiento_de_campo.py). Activado por decisión del usuario el 16/11/2026, con la regla de agrupación de entregas que terminan en 4 días o menos.
+SOLAPAMIENTO_DE_CAMPO = {"activo": True}
 NOMBRES_DEL_PROMOTOR = {"PSOE": ["PSOE"], "PP": ["PP", "AP", "AP–PDP–PL"], "Vox": ["Vox"], "Podemos": ["Podemos", "Unidas Podemos", "Unidos Podemos", "Unidos Podemos–IU"],
                         "Sumar": ["Sumar", "FA"], "IU": ["IU", "IU–LV", "IU–UPeC"]}
 IZQUIERDA = {"PSOE", "PCE", "IU", "IU–LV", "IU–UPeC", "Podemos", "Unidas Podemos", "Unidos Podemos", "Unidos Podemos–IU", "Sumar", "FA", "Más País"}
@@ -297,23 +301,30 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
     if numero_recientes > 0:
         vida_media = max(minimo_de_vida_media, min(ventana, dias_hasta_eleccion / numero_recientes))
     error_de_referencia = error_de_muestra(MUESTRA_DE_REFERENCIA)
+    factor_de_solapamiento = {}
+    if SOLAPAMIENTO_DE_CAMPO["activo"]:
+        # Solo cuentan las entregas dentro de la ventana: las posteriores a una encuesta de la ventana también están dentro
+        factor_de_solapamiento = solapamiento_de_campo.factores_de_solapamiento([e for e in encuestas if (hoy - e["fin"]).days <= VENTANA_DIAS], lambda e: normalizar_firma(e["firma"]))
     posicion_en_firma = defaultdict(int)
     suma_ponderada = defaultdict(float)
     suma_de_pesos = defaultdict(float)
     cuenta = defaultdict(int)
     usadas = 0
     for encuesta in encuestas:
-        posicion_en_firma[encuesta["firma"]] += 1
         antiguedad = (hoy - encuesta["fin"]).days
-        if antiguedad > VENTANA_DIAS:
+        factor = factor_de_solapamiento.get(id(encuesta), 1.0)
+        if antiguedad > VENTANA_DIAS or (factor_de_solapamiento and factor <= 0):
+            if factor > 0 or not factor_de_solapamiento:
+                posicion_en_firma[encuesta["firma"]] += 1
             continue
+        posicion_en_firma[encuesta["firma"]] += 1
         rating_n = min(1.0, error_de_referencia / error_de_muestra(encuesta["muestra"]))
         rating_c = rating.get(encuesta["firma"], RATING_FIRMA_DESCONOCIDA)
         saturacion = SATURACION_POR_FIRMA ** (posicion_en_firma[encuesta["firma"]] - 1)
         nota = rating_n * rating_c if FORMULA_DE_PESO == "producto" else rating_n + rating_c
         peso = nota * saturacion * 0.5 ** (antiguedad / vida_media) * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0)
         recorte = filtro_atipicos.RECORTE_DE_PESO_DE_CASA if encuesta["firma"] in casas_con_recorte else 1.0
-        peso *= recorte
+        peso *= recorte * factor
         usadas += 1
         if pesos_por_encuesta is not None:
             pesos_por_encuesta.append((encuesta, peso, nota * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0) * recorte))

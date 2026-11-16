@@ -1,5 +1,10 @@
 [
  {
+  "fecha": "2026-11-16",
+  "titulo": "Solape de trackings, aviso de cookies y clasificación del mapa",
+  "texto": "El promedio ya no cuenta varias veces las entregas solapadas de una misma casa (acumulados de SW Demoscopia, el tracking de 40dB, ventanas móviles de Sigma Dos y SocioMétrica): cada entrega pesa por la parte de su campo que ninguna entrega posterior repite. Google Analytics solo se carga si el visitante lo acepta en el aviso de cookies, y hay una página de Privacidad y cookies. En el mapa, SALF y Geroa Bai pasan al lado derecho y Frente Obrero queda sin lado."
+ },
+ {
   "fecha": "2026-11-14",
   "titulo": "El ancla del CIS baja a la mitad de peso",
   "texto": "El peso máximo del preelectoral del CIS en la base provincial pasa de 0,5 a 0,25 (w = 0,25 × n / (n + 300)). Los contrastes con cinco elecciones mostraron que el óptimo es plano entre 0,25 y 0,75, y el valor bajo reduce la parte del sesgo de la muestra del CIS que varía entre provincias."
