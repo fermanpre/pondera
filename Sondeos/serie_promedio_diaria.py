@@ -43,7 +43,7 @@ def calcular_serie(dias, encuestas_leidas, pesos_de_firmas):
         # Si en los 30 días anteriores no hay ninguna encuesta, calcular_promedio devuelve un promedio vacío
         pesos_del_dia = []
         promedio_del_dia, _cuenta, usadas, _vida, _recientes = promedio.calcular_promedio(
-            pesos_de_firmas, hoy=dia, escribir=False, encuestas_leidas=encuestas_leidas, pesos_por_encuesta=pesos_del_dia)
+            pesos_de_firmas, hoy=dia, escribir=False, encuestas_leidas=encuestas_leidas, pesos_por_encuesta=pesos_del_dia, solo_terminadas=False)
         serie.append((dia, promedio_del_dia if promedio_del_dia else None, usadas))
         detalle_por_dia.append(pesos_del_dia)
     return serie, detalle_por_dia

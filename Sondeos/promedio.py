@@ -60,6 +60,10 @@ FILTRO_DE_ATIPICAS = {"activo": True}
 # Solapamiento del trabajo de campo (trackings acumulados o móviles de una misma casa: SW Demoscopia, 40dB, SocioMétrica, Sigma Dos, Electomanía): el peso de una encuesta
 # se multiplica por la parte de su campo que ninguna entrega posterior de la misma casa ha vuelto a medir (ver solapamiento_de_campo.py). Activado por decisión del usuario el 16/11/2026, con la regla de agrupación de entregas que terminan en 4 días o menos.
 SOLAPAMIENTO_DE_CAMPO = {"activo": True}
+# Fecha de un sondeo para el peso temporal (decisión del usuario, 16/11/2026): el día MEDIO de su trabajo de campo, no el último, como en el Excel del autor (hoja «Peso sondeos»:
+# «Media campo» = inicio + (fin - inicio) / 2, y la antigüedad se mide desde ahí). El sondeo empieza a pesar su primer día de campo, pesa más en el día medio y decae por los dos lados
+# con la vida media; un tracking de dos meses y medio pesa, por tanto, como lo que es. La ventana de 30 días y el orden por casa (saturación) también usan el día medio.
+FECHA_MEDIA_DE_CAMPO = {"activo": True}
 NOMBRES_DEL_PROMOTOR = {"PSOE": ["PSOE"], "PP": ["PP", "AP", "AP–PDP–PL"], "Vox": ["Vox"], "Podemos": ["Podemos", "Unidas Podemos", "Unidos Podemos", "Unidos Podemos–IU"],
                         "Sumar": ["Sumar", "FA"], "IU": ["IU", "IU–LV", "IU–UPeC"]}
 IZQUIERDA = {"PSOE", "PCE", "IU", "IU–LV", "IU–UPeC", "Podemos", "Unidas Podemos", "Unidos Podemos", "Unidos Podemos–IU", "Sumar", "FA", "Más País"}
@@ -107,10 +111,14 @@ def leer_encuestas(convocatoria, fusionar_frente_amplio_en_sumar=True):
             if RECALCULO_DEL_CIS.match(fila["firma"]):
                 continue  # «CIS (Logoslab)», «CIS (SocioMétrica)»…: recálculos de terceros sobre el CIS, no son encuestas
             clave = (fila["tabla"], fila["firma"], fila["cliente"], fila["fin_campo"], fila["muestra"])
+            fin_de_campo = datetime.strptime(fila["fin_campo"], "%Y-%m-%d").date()
+            inicio_de_campo = solapamiento_de_campo.inicio_de_campo(fila["fecha_texto"], fin_de_campo)
             encuesta = encuestas.setdefault(clave, {
                 "firma": normalizar_firma(fila["firma"]),
                 "firma_original": fila["firma"],
-                "fin": datetime.strptime(fila["fin_campo"], "%Y-%m-%d").date(),
+                "fin": fin_de_campo,
+                "inicio": inicio_de_campo,
+                "medio": (inicio_de_campo.toordinal() + fin_de_campo.toordinal()) / 2,  # número de día (acaba en .5 si la duración es par)
                 "muestra": int(float(fila["muestra"])) if fila["muestra"] else None,
                 "clave": clave, "cliente": fila["cliente"], "fecha_texto": fila["fecha_texto"],
                 "valores": {},
@@ -274,16 +282,29 @@ def corregir_encuesta_de_parte(encuesta):
     return corregida
 
 
-def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_eleccion=None, escribir=True, encuestas_leidas=None, pesos_por_encuesta=None):
+def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_eleccion=None, escribir=True, encuestas_leidas=None, pesos_por_encuesta=None, solo_terminadas=True):
     """Promedio a la fecha «hoy» (por defecto HOY) para unas elecciones en «fecha_eleccion». Con escribir=False no toca promedio_actual.csv.
     Con encuestas_leidas (resultado de leer_encuestas) no se vuelve a leer el CSV: sirve para calcular muchos días seguidos.
     Si se pasa una lista en pesos_por_encuesta, se le añade (encuesta, peso, nota) de cada encuesta que entra en el promedio: «peso» es el real de ese día
-    (nota × saturación × caída temporal) y «nota» el rating total de la encuesta (rating de muestra × rating de la firma × ajuste manual), sin saturación ni caída."""
+    (nota × saturación × caída temporal) y «nota» el rating total de la encuesta (rating de muestra × rating de la firma × ajuste manual), sin saturación ni caída.
+    Con solo_terminadas=True (por defecto, también en las pruebas hacia atrás) solo entran las encuestas con el campo terminado en «hoy»; con False (la serie diaria de la web) entra desde su primer día de campo."""
     hoy = hoy or HOY
     fecha_eleccion = fecha_eleccion or FECHA_ELECCION
     if encuestas_leidas is None:
         encuestas_leidas = leer_encuestas(convocatoria)
-    encuestas = [corregir_encuesta_de_parte(e) for e in encuestas_leidas if e["fin"] <= hoy and e["firma"] not in FIRMAS_EXCLUIDAS]
+    por_fecha_media = FECHA_MEDIA_DE_CAMPO["activo"]
+    hoy_en_dias = hoy.toordinal()
+
+    def antiguedad_de(encuesta):
+        """Días desde el día medio del campo (negativa si «hoy» es anterior a ese día medio); con la fecha media desactivada, desde el último día de campo."""
+        return hoy_en_dias - encuesta["medio"] if por_fecha_media else (hoy - encuesta["fin"]).days
+
+    def disponible(encuesta):
+        if por_fecha_media and not solo_terminadas:
+            return encuesta["inicio"] <= hoy
+        return encuesta["fin"] <= hoy
+
+    encuestas = [corregir_encuesta_de_parte(e) for e in encuestas_leidas if disponible(e) and e["firma"] not in FIRMAS_EXCLUIDAS]
     if FILTRO_DE_ATIPICAS["activo"]:
         # Solo se filtran las encuestas que pueden entrar o respaldar a otra (ventana del promedio más la ventana de respaldo): las anteriores no se usan y filtrarlas encarecería la serie diaria
         limite = VENTANA_DIAS + filtro_atipicos.VENTANA_RESPALDO_DIAS
@@ -292,10 +313,10 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
         cercanas, _descartes = filtro_atipicos.filtrar(cercanas, ultimo_resultado_nacional())
         encuestas = cercanas + lejanas
     casas_con_recorte = filtro_atipicos.casas_penalizadas(normalizar_firma) if FILTRO_DE_ATIPICAS["activo"] else set()
-    encuestas.sort(key=lambda e: e["fin"], reverse=True)
+    encuestas.sort(key=lambda e: e["medio"] if por_fecha_media else e["fin"].toordinal(), reverse=True)
     dias_hasta_eleccion = (fecha_eleccion - hoy).days
     ventana = 7 + 0.2 * dias_hasta_eleccion
-    numero_recientes = sum(1 for e in encuestas if (hoy - e["fin"]).days < ventana)
+    numero_recientes = sum(1 for e in encuestas if antiguedad_de(e) < ventana)
     minimo_de_vida_media = vida_media_minima(dias_hasta_eleccion)
     vida_media = minimo_de_vida_media
     if numero_recientes > 0:
@@ -304,14 +325,14 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
     factor_de_solapamiento = {}
     if SOLAPAMIENTO_DE_CAMPO["activo"]:
         # Solo cuentan las entregas dentro de la ventana: las posteriores a una encuesta de la ventana también están dentro
-        factor_de_solapamiento = solapamiento_de_campo.factores_de_solapamiento([e for e in encuestas if (hoy - e["fin"]).days <= VENTANA_DIAS], lambda e: normalizar_firma(e["firma"]))
+        factor_de_solapamiento = solapamiento_de_campo.factores_de_solapamiento([e for e in encuestas if antiguedad_de(e) <= VENTANA_DIAS], lambda e: normalizar_firma(e["firma"]))
     posicion_en_firma = defaultdict(int)
     suma_ponderada = defaultdict(float)
     suma_de_pesos = defaultdict(float)
     cuenta = defaultdict(int)
     usadas = 0
     for encuesta in encuestas:
-        antiguedad = (hoy - encuesta["fin"]).days
+        antiguedad = antiguedad_de(encuesta)
         factor = factor_de_solapamiento.get(id(encuesta), 1.0)
         if antiguedad > VENTANA_DIAS or (factor_de_solapamiento and factor <= 0):
             if factor > 0 or not factor_de_solapamiento:
@@ -322,7 +343,7 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
         rating_c = rating.get(encuesta["firma"], RATING_FIRMA_DESCONOCIDA)
         saturacion = SATURACION_POR_FIRMA ** (posicion_en_firma[encuesta["firma"]] - 1)
         nota = rating_n * rating_c if FORMULA_DE_PESO == "producto" else rating_n + rating_c
-        peso = nota * saturacion * 0.5 ** (antiguedad / vida_media) * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0)
+        peso = nota * saturacion * 0.5 ** (abs(antiguedad) / vida_media) * AJUSTE_MANUAL_DE_PESO.get(encuesta["firma"], 1.0)
         recorte = filtro_atipicos.RECORTE_DE_PESO_DE_CASA if encuesta["firma"] in casas_con_recorte else 1.0
         peso *= recorte * factor
         usadas += 1

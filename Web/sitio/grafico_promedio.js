@@ -171,8 +171,8 @@
     });
 
     document.getElementById("resumen-encuestas-dia").textContent = filas.length
-      ? textoDeFecha(indice) + ": " + filas.length + " encuestas con fin de campo en los 30 días anteriores. Pulsa una cabecera para ordenar."
-      : textoDeFecha(indice) + ": ninguna encuesta con fin de campo en los 30 días anteriores.";
+      ? textoDeFecha(indice) + ": " + filas.length + " encuestas con el día medio de campo en los 30 días anteriores o ya empezadas. Pulsa una cabecera para ordenar."
+      : textoDeFecha(indice) + ": ninguna encuesta con el día medio de campo en los 30 días anteriores.";
 
     const cabeceras = [["firma", "Encuestadora"], ["campo", "Trabajo de campo"], ["muestra", "Entrevistados"], ["absoluto", "Peso absoluto"], ["actual", "Peso actual"], ["peso", "Peso relativo"]]
       .concat(partidosElegidos.map((serie) => [serie.id, nombreDe(serie.id)]));
@@ -232,7 +232,7 @@
     });
     marcarBotones();
     document.getElementById("nota-promedio").textContent =
-      "Actualizado el " + SERIE_PROMEDIO.generado + ". Cada día se calcula solo con las encuestas cuyo trabajo de campo había terminado ese día. " +
+      "Actualizado el " + SERIE_PROMEDIO.generado + ". Cada encuesta cuenta desde el primer día de su trabajo de campo, pesa más en el día medio de ese campo y menos cuanto más se aleja de él. " +
       "La línea de Sumar se detiene el día en que empieza la de Frente Amplio, con las primeras encuestas que usan ese nombre; Frente Amplio suma Front Valencià cuando la encuesta los separa. " + SERIE_PROMEDIO.fuente +
       (SERIE_PROMEDIO.ultimo_dia >= SERIE_PROMEDIO.ultimo_dia_publicable ? " Serie congelada: la ley electoral prohíbe publicar sondeos en los cinco días previos a la votación." : "");
   }
