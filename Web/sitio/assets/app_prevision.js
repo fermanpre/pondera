@@ -10,7 +10,7 @@ let objetivosActuales = Object.assign({}, DATOS_MODELO.objetivos);
   const elemento = document.getElementById("fecha-promedio");
   if (!elemento || !DATOS_MODELO.fecha_promedio) return;
   const fecha = new Date(DATOS_MODELO.fecha_promedio + "T12:00:00");
-  elemento.innerHTML = "Los objetivos nacionales son los del <a href=\"promedio.html\">promedio de encuestas</a> a " +
+  elemento.innerHTML = "Los objetivos nacionales son los del <a href=\"index.html#promedio\">promedio de encuestas</a> a " +
     fecha.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" }) + ", y la previsión se recalcula cada día con él.";
 })();
 let ultimoResultado = null;

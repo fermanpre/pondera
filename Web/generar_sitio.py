@@ -30,40 +30,43 @@ URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
 SCRIPTS_DE_PROVINCIAS = ["datos_modelo.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
 SCRIPTS_DE_COMUNIDADES = SCRIPTS_DE_PROVINCIAS
-SCRIPTS_DE_MAPA = ["datos_modelo.js", "datos_mapa_2023.js", "assets/comun.js", "motor.js", "assets/app_mapa.js"]
-SCRIPTS_DE_PROMEDIO = ["assets/comun.js", "serie_promedio.js", "encuestas_promedio.js", "grafico_promedio.js"]
+# Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
+SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "assets/comun.js", "motor.js", "assets/app_prevision.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js"]
 
-# archivo, plantilla, título, descripción, texto del menú (None = no aparece en el menú), scripts de la página
+# Cinta principal (grupo, texto, página a la que lleva) y segunda cinta de cada grupo (texto, destino; «#...» = sección de la misma página)
+MENU_PRINCIPAL = [("prevision", "Previsión", "index.html"), ("territorio", "Territorio", "provincias.html"), ("simulador", "Simulador", "simulador.html"),
+                  ("metodologia", "Metodología", "metodologia.html"), ("acerca", "Acerca de", "acerca.html")]
+SUBMENUS = {
+    "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos")],
+    "territorio": [("Provincias", "provincias.html"), ("Comunidades", "comunidades.html"), ("Resumen", "resumen.html")],
+    "acerca": [("Acerca de", "acerca.html"), ("Enlaces", "enlaces.html"), ("Sobre el autor", "autor.html"), ("Privacidad y cookies", "privacidad.html"), ("Historial de cambios", "changelog.html")],
+}
+# Páginas que se integraron en Inicio: se conservan como redirecciones para que los enlaces antiguos sigan funcionando
+REDIRECCIONES = {"promedio.html": "index.html#promedio", "sondeos.html": "index.html#sondeos", "regionales.html": "index.html#sondeos-subnacionales", "mapa.html": "index.html#mapa"}
+
+# archivo, plantilla, título, descripción, grupo de la cinta principal, scripts de la página
 PAGINAS = [
-    {"archivo": "index.html", "plantilla": "inicio", "titulo": "Previsión de escaños", "menu": "Inicio", "scripts": SCRIPTS_DE_PREVISION,
-     "descripcion": "Previsión de escaños de las elecciones generales de España del 29 de noviembre de 2026, con rangos, probabilidades de mayoría y reparto por provincia."},
-    {"archivo": "promedio.html", "plantilla": "promedio", "titulo": "Promedio de encuestas", "menu": "Promedio", "scripts": SCRIPTS_DE_PROMEDIO,
-     "descripcion": "Promedio diario de encuestas de las generales de 2026, día a día desde las elecciones de julio de 2023."},
-    {"archivo": "sondeos.html", "plantilla": "listado", "titulo": "Listado de sondeos", "menu": "Sondeos", "scripts": ["assets/comun.js", "listado_sondeos.js", "assets/listado_sondeos.js"],
-     "descripcion": "Listado de todas las encuestas publicadas para las generales de 2026, con enlace al informe o al artículo de prensa de cada una."},
-    {"archivo": "regionales.html", "plantilla": "regionales", "titulo": "Sondeos regionales", "menu": "Regionales", "scripts": ["assets/comun.js", "listado_regional.js", "assets/listado_regional.js"],
-     "descripcion": "Encuestas de las generales de 2026 por comunidad autónoma y provincia, con los porcentajes de voto y el enlace a la fuente de cada una."},
-    {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "menu": "Provincias", "scripts": SCRIPTS_DE_PROVINCIAS,
+    {"archivo": "index.html", "plantilla": "inicio", "titulo": "Previsión de escaños", "grupo": "prevision", "scripts": SCRIPTS_DE_INICIO,
+     "descripcion": "Previsión de escaños de las elecciones generales de España del 29 de noviembre de 2026: promedio de encuestas, mapa por provincia, rangos y probabilidades de mayoría."},
+    {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "grupo": "territorio", "scripts": SCRIPTS_DE_PROVINCIAS,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
-    {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "menu": "Comunidades", "scripts": SCRIPTS_DE_COMUNIDADES,
+    {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "grupo": "territorio", "scripts": SCRIPTS_DE_COMUNIDADES,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en cada comunidad autónoma de las generales de 2026, con los resultados de 2023."},
-    {"archivo": "mapa.html", "plantilla": "mapa", "titulo": "Mapa por provincia", "menu": "Mapa", "scripts": SCRIPTS_DE_MAPA,
-     "descripcion": "Mapa de España por provincias con el margen izquierda-derecha de las generales de 2023 y el previsto para 2026, en una misma escala."},
-    {"archivo": "resumen.html", "plantilla": "resumen", "titulo": "Resumen por provincia", "menu": "Resumen", "scripts": [],
+    {"archivo": "resumen.html", "plantilla": "resumen", "titulo": "Resumen por provincia", "grupo": "territorio", "scripts": [],
      "descripcion": "Escaños y porcentaje de voto previstos de cada partido en cada provincia, con descarga en CSV y XLSX."},
-    {"archivo": "simulador.html", "plantilla": "simulador", "titulo": "Simulador", "menu": "Simulador", "scripts": SCRIPTS_DE_PREVISION,
+    {"archivo": "simulador.html", "plantilla": "simulador", "titulo": "Simulador", "grupo": "simulador", "scripts": SCRIPTS_DE_PREVISION,
      "descripcion": "Simulador de escaños: fija el voto de cada partido y mira cómo cambia el reparto en España y en cada provincia."},
-    {"archivo": "metodologia.html", "plantilla": "metodologia", "titulo": "Metodología", "menu": "Metodología", "scripts": [],
+    {"archivo": "metodologia.html", "plantilla": "metodologia", "titulo": "Metodología", "grupo": "metodologia", "scripts": [],
      "descripcion": "Cómo se calcula el promedio de encuestas, el reparto por provincia, los escaños y la incertidumbre."},
-    {"archivo": "acerca.html", "plantilla": "acerca", "titulo": "Acerca de PONDERA", "menu": "Acerca de", "scripts": [],
+    {"archivo": "acerca.html", "plantilla": "acerca", "titulo": "Acerca de PONDERA", "grupo": "acerca", "scripts": [],
      "descripcion": "Qué es PONDERA, qué contiene y cómo se mantiene."},
-    {"archivo": "autor.html", "plantilla": "autor", "titulo": "Sobre el autor", "menu": None, "scripts": [],
+    {"archivo": "autor.html", "plantilla": "autor", "titulo": "Sobre el autor", "grupo": "acerca", "scripts": [],
      "descripcion": "Sobre el autor de PONDERA."},
-    {"archivo": "enlaces.html", "plantilla": "enlaces", "titulo": "Enlaces", "menu": "Enlaces", "scripts": [],
+    {"archivo": "enlaces.html", "plantilla": "enlaces", "titulo": "Enlaces", "grupo": "acerca", "scripts": [],
      "descripcion": "Fuentes de los datos de PONDERA y otros sitios relacionados."},
-    {"archivo": "privacidad.html", "plantilla": "privacidad", "titulo": "Privacidad y cookies", "menu": None, "scripts": [],
+    {"archivo": "privacidad.html", "plantilla": "privacidad", "titulo": "Privacidad y cookies", "grupo": "acerca", "scripts": [],
      "descripcion": "Qué datos guarda PONDERA y cómo controlar las cookies."},
-    {"archivo": "cerveza.html", "plantilla": "cerveza", "titulo": "Invítame a una cerveza", "menu": None, "scripts": [],
+    {"archivo": "cerveza.html", "plantilla": "cerveza", "titulo": "Invítame a una cerveza", "grupo": "acerca", "scripts": [],
      "descripcion": "Una opción, sin expectativas, para invitar al autor a una cerveza."},
 ]
 
@@ -104,11 +107,17 @@ def construir_pagina(pagina, contenido, prefijo=""):
     titulo_completo = "%s · %s" % (pagina["titulo"], NOMBRE_SITIO)
     url_canonica = "%s/%s" % (BASE_URL, "" if pagina["archivo"] == "index.html" else pagina["archivo"])
     enlaces_del_menu = []
-    for otra in PAGINAS:
-        if not otra["menu"]:
-            continue
-        actual = ' aria-current="page"' if otra["archivo"] == pagina["archivo"] else ""
-        enlaces_del_menu.append('<a href="%s%s"%s>%s</a>' % (prefijo, otra["archivo"], actual, escapar(otra["menu"])))
+    for grupo, rotulo, destino in MENU_PRINCIPAL:
+        actual = ' aria-current="page"' if pagina.get("grupo") == grupo else ""
+        enlaces_del_menu.append('<a href="%s%s"%s>%s</a>' % (prefijo, destino, actual, escapar(rotulo)))
+    segunda_cinta = ""
+    if pagina.get("grupo") in SUBMENUS:
+        enlaces = []
+        for rotulo, destino in SUBMENUS[pagina["grupo"]]:
+            enlace = destino if destino.startswith("#") else prefijo + destino
+            actual = ' aria-current="page"' if destino == pagina["archivo"] else ""
+            enlaces.append('<a href="%s"%s>%s</a>' % (enlace, actual, escapar(rotulo)))
+        segunda_cinta = '<nav class="subnav" aria-label="Secciones de esta página"><div class="interior">%s</div></nav>' % "".join(enlaces)
     scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js", "assets/cookies.js"] + pagina["scripts"])
 
     return """<!doctype html>
@@ -145,6 +154,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
     <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
   </div>
 </header>
+{segunda_cinta}
 <main class="contenedor">
 {contenido}
 </main>
@@ -169,7 +179,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
 """.format(
         titulo_completo=escapar(titulo_completo), descripcion=escapar(pagina["descripcion"]), url_canonica=url_canonica, prefijo=prefijo,
         nombre=NOMBRE_SITIO, lema=escapar(LEMA), base_url=BASE_URL, script_de_tema=SCRIPT_DE_TEMA_EN_CABECERA + ETIQUETA_DE_GOOGLE_ANALYTICS, menu="\n      ".join(enlaces_del_menu),
-        contenido=contenido, scripts=scripts, url_repositorio=URL_REPOSITORIO)
+        contenido=contenido, scripts=scripts, url_repositorio=URL_REPOSITORIO, segunda_cinta=segunda_cinta)
 
 
 def contenido_del_changelog(entradas):
@@ -262,6 +272,31 @@ def unir_estilos():
     (CARPETA_SITIO / "assets" / "estilo.css").write_text(texto, encoding="utf-8")
 
 
+def incluir_fragmentos(contenido):
+    """Sustituye cada «<!--INCLUIR nombre-->» por el contenido de plantillas/parciales/nombre.html."""
+    def leer_fragmento(coincidencia):
+        return (CARPETA_PLANTILLAS / "parciales" / (coincidencia.group(1) + ".html")).read_text(encoding="utf-8").strip()
+    return re.sub(r"<!--INCLUIR (\w+)-->", leer_fragmento, contenido)
+
+
+def pagina_de_redireccion(destino):
+    return """<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Esta página se ha integrado en Previsión · PONDERA</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="%s/%s">
+<meta http-equiv="refresh" content="0; url=%s">
+<script>location.replace(%s);</script>
+</head>
+<body>
+<p>Esta página se ha integrado en <a href="%s">la página de Previsión</a>.</p>
+</body>
+</html>
+""" % (BASE_URL, destino, destino, json.dumps(destino), destino)
+
+
 def svg_de_provincias_para_incrustar():
     """El SVG de provincias sin cabecera XML, sin estilo propio (lo da estilo.css) y sin los textos de título y descripción generales."""
     texto = (CARPETA / "Mapa_provincias" / "provincias_espana.svg").read_text(encoding="utf-8")
@@ -280,15 +315,19 @@ def main():
 
     for pagina in PAGINAS:
         contenido = (CARPETA_PLANTILLAS / (pagina["plantilla"] + ".html")).read_text(encoding="utf-8").rstrip()
+        contenido = incluir_fragmentos(contenido)
         if "<!--SVG_PROVINCIAS-->" in contenido:
             contenido = contenido.replace("<!--SVG_PROVINCIAS-->", svg_de_provincias_para_incrustar())
         (CARPETA_SITIO / pagina["archivo"]).write_text(construir_pagina(pagina, contenido), encoding="utf-8")
 
-    pagina_changelog = {"archivo": "changelog.html", "titulo": "Historial de cambios", "menu": None, "scripts": [],
+    for archivo_antiguo, destino in REDIRECCIONES.items():
+        (CARPETA_SITIO / archivo_antiguo).write_text(pagina_de_redireccion(destino), encoding="utf-8")
+
+    pagina_changelog = {"archivo": "changelog.html", "titulo": "Historial de cambios", "grupo": "acerca", "scripts": [],
                         "descripcion": "Registro de las actualizaciones reales de PONDERA."}
     (CARPETA_SITIO / "changelog.html").write_text(construir_pagina(pagina_changelog, contenido_del_changelog(entradas)), encoding="utf-8")
 
-    pagina_404 = {"archivo": "404.html", "titulo": "Página no encontrada", "menu": None, "scripts": [], "descripcion": "La página que buscas no existe."}
+    pagina_404 = {"archivo": "404.html", "titulo": "Página no encontrada", "grupo": None, "scripts": [], "descripcion": "La página que buscas no existe."}
     contenido_404 = '<div class="cabecera-pagina"><h1>Página no encontrada</h1><p class="subtitulo">Esa dirección no existe. <a href="%s/">Vuelve al inicio</a>.</p></div>' % BASE_URL
     (CARPETA_SITIO / "404.html").write_text(construir_pagina(pagina_404, contenido_404, prefijo=BASE_URL + "/"), encoding="utf-8")
 

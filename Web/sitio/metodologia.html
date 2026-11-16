@@ -27,22 +27,16 @@
   <div class="interior">
     <a class="marca" href="index.html">PONDERA<small>Elecciones generales 2026</small></a>
     <nav class="principal" aria-label="Principal">
-      <a href="index.html">Inicio</a>
-      <a href="promedio.html">Promedio</a>
-      <a href="sondeos.html">Sondeos</a>
-      <a href="regionales.html">Regionales</a>
-      <a href="provincias.html">Provincias</a>
-      <a href="comunidades.html">Comunidades</a>
-      <a href="mapa.html">Mapa</a>
-      <a href="resumen.html">Resumen</a>
+      <a href="index.html">Previsión</a>
+      <a href="provincias.html">Territorio</a>
       <a href="simulador.html">Simulador</a>
       <a href="metodologia.html" aria-current="page">Metodología</a>
       <a href="acerca.html">Acerca de</a>
-      <a href="enlaces.html">Enlaces</a>
     </nav>
     <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
   </div>
 </header>
+
 <main class="contenedor">
 <div class="cabecera-pagina">
   <h1>Metodología</h1>
@@ -69,7 +63,7 @@
   <p>El porcentaje nacional de cada partido se reparte entre las 52 circunscripciones con un ajuste proporcional iterativo (raking) sobre la base de 2023: las provincias suman el 100 % y los partidos suman su total nacional. En los retrocesos con resultados históricos (generales de 2019 a 2023, andaluzas, catalanas) fue mejor que las alternativas probadas (modelos logit y mezclas).</p>
   <p>La base de partida de cada provincia se ancla en parte a la forma provincial del preelectoral del CIS de 2026 (estudio 3584, 45.074 entrevistas): por cada bloque principal (PP, PSOE, Vox, izquierda alternativa, ERC, Junts, Bildu, PNV, BNG, Coalición Canaria y UPN-PP), la cuota de partida es una mezcla entre la base y la cuota del voto directo del CIS dentro de esa provincia. El peso del CIS es w = 0,25 × n / (n + 300), siendo n las entrevistas de la provincia. De este modo el CIS solo aporta cómo se reparte el voto entre provincias; el nivel nacional de cada partido lo sigue fijando el promedio de encuestas, y el sesgo de la muestra del CIS (que sobrerrepresenta al PSOE) no entra. Se contrastó con los preelectorales de cinco elecciones (2015, 2016, abril y noviembre de 2019 y 2023): cuando la base tiene tres años o más (2015, abril de 2019 y 2023), la mezcla reduce entre un 29 % y un 42 % el error de cuota provincial de los partidos principales, con una mejora pequeña en escaños; cuando la base tiene seis meses (2016 y noviembre de 2019), no mejora. El peso óptimo era plano entre 0,25 y 0,75; se usa el extremo bajo (0,25) para limitar la parte del sesgo de la muestra del CIS que sí varía de una provincia a otra. Son pruebas con el mismo método, no una garantía.</p>
 
-  <p><strong>Mapa izquierda-derecha.</strong> La <a href="mapa.html">página del mapa</a> agrupa los partidos en izquierda, derecha y sin lado (la clasificación está en la propia página) y colorea cada provincia según la diferencia de porcentaje entre los dos lados sobre los votos a candidaturas. Para 2023 usa los resultados definitivos del BOE; para 2026, el reparto central de este modelo. La clasificación solo se usa en el mapa: no interviene en el modelo ni en los escaños.</p>
+  <p><strong>Mapa izquierda-derecha.</strong> La <a href="index.html#mapa">página del mapa</a> agrupa los partidos en izquierda, derecha y sin lado (la clasificación está en la propia página) y colorea cada provincia según la diferencia de porcentaje entre los dos lados sobre los votos a candidaturas. Para 2023 usa los resultados definitivos del BOE; para 2026, el reparto central de este modelo. La clasificación solo se usa en el mapa: no interviene en el modelo ni en los escaños.</p>
 
   <h2>4. Escaños</h2>
   <p>En cada provincia se aplica la regla D'Hondt con una barrera del 3 % de los votos válidos. Ceuta y Melilla reparten un escaño cada una.</p>

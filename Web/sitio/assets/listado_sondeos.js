@@ -1,5 +1,6 @@
 "use strict";
 (function () {
+  const FILAS_INICIALES = 15;
   const FILAS_POR_TRAMO = 100;
   const datos = LISTADO_SONDEOS;
   const cuerpo = document.querySelector("#tabla-listado tbody");
@@ -47,7 +48,7 @@
   }
 
   function pintarTramo() {
-    const hasta = Math.min(mostradas + FILAS_POR_TRAMO, filtrados.length);
+    const hasta = Math.min(mostradas + (mostradas === 0 ? FILAS_INICIALES : FILAS_POR_TRAMO), filtrados.length);
     cuerpo.insertAdjacentHTML("beforeend", filtrados.slice(mostradas, hasta).map(fila).join(""));
     mostradas = hasta;
     botonMas.hidden = mostradas >= filtrados.length;

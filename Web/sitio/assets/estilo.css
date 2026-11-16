@@ -160,3 +160,24 @@ a.boton:hover { border-color: var(--acento); }
 
 /* Cabecera en pantallas estrechas: marca y tema arriba, menú debajo en varias líneas */
 @media (max-width: 700px) { .cabecera-sitio .interior { flex-direction: column; align-items: flex-start; } nav.principal { flex: none; } #boton-tema { align-self: flex-start; } }
+
+/* Segunda cinta (secciones de la página o páginas del grupo), pestañas, bloques plegables y secciones de Previsión */
+html { scroll-behavior: smooth; }
+.subnav { position: sticky; top: 0; z-index: 40; background: var(--tarjeta); border-bottom: 1px solid var(--linea); }
+.subnav .interior { max-width: 1680px; margin: 0 auto; padding: 4px clamp(16px, 2vw, 32px); display: flex; gap: 4px; overflow-x: auto; white-space: nowrap; }
+.subnav a { padding: 7px 12px; border-radius: 6px; color: var(--suave); text-decoration: none; font-size: 0.92rem; border-bottom: 2px solid transparent; }
+.subnav a:hover { color: var(--texto); background: var(--fondo); }
+.subnav a[aria-current] { color: var(--acento); font-weight: 600; border-bottom-color: var(--acento); border-radius: 6px 6px 0 0; }
+main section[id], main div[id="mayorias"] { scroll-margin-top: 56px; }
+#promedio, #sondeos { min-height: 520px; }
+.cargando { color: var(--suave); }
+.pestanas { display: flex; gap: 6px; margin: 4px 0 12px; }
+.pestanas button { font: inherit; padding: 7px 16px; border-radius: 6px 6px 0 0; border: 1px solid var(--linea); border-bottom: 2px solid transparent; background: var(--tarjeta); color: var(--suave); cursor: pointer; }
+.pestanas button[aria-selected="true"] { color: var(--acento); border-bottom-color: var(--acento); font-weight: 600; }
+details.plegable { margin: 14px 0; border: 1px solid var(--linea); border-radius: 8px; background: var(--tarjeta); }
+details.plegable > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; }
+details.plegable[open] > summary { border-bottom: 1px solid var(--linea); }
+details.plegable > div, details.plegable > ul, details.plegable > p { margin: 10px 14px; }
+.tarjetas-titulo { margin: 28px 0 0; font-size: 1.1rem; }
+/* Las secciones anidadas dentro de una sección de Previsión no llevan marco propio */
+#sondeos section, #promedio section { background: none; border: 0; padding: 0; margin: 0; box-shadow: none; }

@@ -1,6 +1,11 @@
 [
  {
   "fecha": "2026-11-16",
+  "titulo": "Menú reorganizado: de 12 a 5 apartados",
+  "texto": "La cinta principal pasa a cinco apartados (Previsión, Territorio, Simulador, Metodología y Acerca de) y cada uno tiene una segunda cinta. Previsión reúne en una sola página los escaños y las probabilidades de mayoría, el mapa, el promedio de encuestas y los sondeos, con enlaces a cada sección; los sondeos regionales pasan a ser la pestaña «Subnacionales». Territorio agrupa Provincias, Comunidades y Resumen, y Acerca de agrupa Enlaces, Sobre el autor, Privacidad y cookies y el Historial de cambios. Las direcciones antiguas de Promedio, Sondeos, Regionales y Mapa redirigen a su sección."
+ },
+ {
+  "fecha": "2026-11-16",
   "titulo": "Diseño adaptado a pantallas anchas",
   "texto": "La web usa ahora todo el ancho de una pantalla 16:9 (hasta 1.680 píxeles en lugar de 1.100): en Inicio, la tabla de escaños y las probabilidades de mayoría van lado a lado; el gráfico del promedio es más alto en pantallas grandes, y el texto largo mantiene una línea legible. En móvil, el menú pasa a ocupar menos altura."
  },
