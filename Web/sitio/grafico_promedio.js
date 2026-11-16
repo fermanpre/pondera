@@ -59,7 +59,7 @@
 
   function dibujar() {
     const anchura = Math.max(320, contenedor.clientWidth);
-    const altura = anchura < 600 ? 300 : 380;
+    const altura = anchura < 600 ? 300 : (anchura > 1300 ? 500 : 380);
     const [desde, hasta] = indicesVisibles();
     const visibles = series.filter((serie) => estado.seleccion.has(serie.id));
     let maximo = 5;

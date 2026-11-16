@@ -1,6 +1,11 @@
 [
  {
   "fecha": "2026-11-16",
+  "titulo": "Diseño adaptado a pantallas anchas",
+  "texto": "La web usa ahora todo el ancho de una pantalla 16:9 (hasta 1.680 píxeles en lugar de 1.100): en Inicio, la tabla de escaños y las probabilidades de mayoría van lado a lado; el gráfico del promedio es más alto en pantallas grandes, y el texto largo mantiene una línea legible. En móvil, el menú pasa a ocupar menos altura."
+ },
+ {
+  "fecha": "2026-11-16",
   "titulo": "Solape de trackings, aviso de cookies y clasificación del mapa",
   "texto": "El promedio ya no cuenta varias veces las entregas solapadas de una misma casa (acumulados de SW Demoscopia, el tracking de 40dB, ventanas móviles de Sigma Dos y SocioMétrica): cada entrega pesa por la parte de su campo que ninguna entrega posterior repite. Google Analytics solo se carga si el visitante lo acepta en el aviso de cookies, y hay una página de Privacidad y cookies. En el mapa, SALF y Geroa Bai pasan al lado derecho y Frente Obrero queda sin lado."
  },
