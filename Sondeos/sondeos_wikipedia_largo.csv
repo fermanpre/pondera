@@ -29219,13 +29219,6 @@ generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SocioM
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SocioMétrica;El Español;1 Sep–15 Nov;2026;2026-11-15;5923;Adelante Andalucía (2021);1.6;1.6
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SocioMétrica;El Español;1 Sep–15 Nov;2026;2026-11-15;5923;Podemos;1.2;1.2
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SocioMétrica;El Español;1 Sep–15 Nov;2026;2026-11-15;5923;SALF;2.2;2.2
-generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;PP;31.4;31.4
-generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;PSOE;29.9;29.9
-generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;Vox;18.3;18.3
-generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;FA;4.2;4.2
-generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;FV;1.2;1.2
-generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;Podemos;1.3;1.3
-generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;SALF;1.8;1.8
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Sondaxe;La Voz de Galicia;10–14 Nov;2026;2026-11-14;1000;PP;30.2;30.2
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Sondaxe;La Voz de Galicia;10–14 Nov;2026;2026-11-14;1000;PSOE;26.7;26.7
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Sondaxe;La Voz de Galicia;10–14 Nov;2026;2026-11-14;1000;Vox;17.6;17.6
@@ -29239,6 +29232,13 @@ generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Sondax
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Sondaxe;La Voz de Galicia;10–14 Nov;2026;2026-11-14;1000;CCa;0.4;0.4
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Sondaxe;La Voz de Galicia;10–14 Nov;2026;2026-11-14;1000;Adelante Andalucía (2021);1.8;1.8
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Sondaxe;La Voz de Galicia;10–14 Nov;2026;2026-11-14;1000;Podemos;2.2;2.2
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;PP;31.4;31.4
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;PSOE;29.9;29.9
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;Vox;18.3;18.3
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;FA;4.2;4.2
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;FV;1.2;1.2
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;Podemos;1.3;1.3
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–14 Nov;2026;2026-11-14;2000;SALF;1.8;1.8
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;EM-Analytics;Electomanía;9–14 Nov;2026;2026-11-14;2617;PP;30.7;30.7
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;EM-Analytics;Electomanía;9–14 Nov;2026;2026-11-14;2617;PSOE;26.7;26.7
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;EM-Analytics;Electomanía;9–14 Nov;2026;2026-11-14;2617;Vox;19.0;19.0
@@ -29266,6 +29266,19 @@ generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Dem
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Demoscopia;La Séptima;26 Oct–14 Nov;2026;2026-11-14;8500;Adelante Andalucía (2021);1.5;1.5
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Demoscopia;La Séptima;26 Oct–14 Nov;2026;2026-11-14;8500;Podemos;1.7;1.7
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Demoscopia;La Séptima;26 Oct–14 Nov;2026;2026-11-14;8500;SALF;2.0;2.0
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;PP;31.5;31.5
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;PSOE;26.9;26.9
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;Vox;19.0;19.0
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;FA;6.9;6.9
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;ERC;2.9;2.9
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;Junts;1.1;1.1
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;EH Bildu;1.7;1.7
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;PNV;0.9;0.9
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;BNG;1.3;1.3
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;CCa;0.5;0.5
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;Adelante Andalucía (2021);2.2;2.2
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;Podemos;0.9;0.9
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;IMOP;El Confidencial;10–13 Nov;2026;2026-11-13;1000;SALF;1.6;1.6
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–13 Nov;2026;2026-11-13;1500;PP;31.1;31.1
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–13 Nov;2026;2026-11-13;1500;PSOE;29.8;29.8
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–13 Nov;2026;2026-11-13;1500;Vox;18.5;18.5
@@ -29316,6 +29329,24 @@ generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Dem
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Demoscopia;La Séptima;26 Oct–13 Nov;2026;2026-11-13;8000;Adelante Andalucía (2021);1.5;1.5
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Demoscopia;La Séptima;26 Oct–13 Nov;2026;2026-11-13;8000;Podemos;1.7;1.7
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Demoscopia;La Séptima;26 Oct–13 Nov;2026;2026-11-13;8000;SALF;2.0;2.0
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Target Point;El Debate;12 Nov;2026;2026-11-12;1013;PP;30.6;30.6
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Target Point;El Debate;12 Nov;2026;2026-11-12;1013;PSOE;27.0;27.0
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Target Point;El Debate;12 Nov;2026;2026-11-12;1013;Vox;18.7;18.7
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Target Point;El Debate;12 Nov;2026;2026-11-12;1013;FA;7.3;7.3
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Target Point;El Debate;12 Nov;2026;2026-11-12;1013;Podemos;1.6;1.6
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Target Point;El Debate;12 Nov;2026;2026-11-12;1013;SALF;2.1;2.1
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;PP;32.0;32.0
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;PSOE;25.5;25.5
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;Vox;20.4;20.4
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;FA;6.7;6.7
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;ERC;2.4;2.4
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;Junts;1.4;1.4
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;EH Bildu;1.3;1.3
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;PNV;0.7;0.7
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;BNG;0.9;0.9
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;CCa;0.4;0.4
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;Adelante Andalucía (2021);1.7;1.7
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;11–12 Nov;2026;2026-11-12;1500;Podemos;2.1;2.1
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–12 Nov;2026;2026-11-12;1000;PP;31.5;31.5
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–12 Nov;2026;2026-11-12;1000;PSOE;29.4;29.4
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;40dB;Prisa;10–12 Nov;2026;2026-11-12;1000;Vox;18.8;18.8
@@ -29657,7 +29688,7 @@ generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Dem
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Demoscopia;La Séptima;26 Oct–4 Nov;2026;2026-11-04;3500;Adelante Andalucía (2021);1.4;1.4
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Demoscopia;La Séptima;26 Oct–4 Nov;2026;2026-11-04;3500;Podemos;1.2;1.2
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;SW Demoscopia;La Séptima;26 Oct–4 Nov;2026;2026-11-04;3500;SALF;2.0;2.0
-generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;2–3 Nov;2026;2026-11-03;1500;PP;32.4;32.4
+generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;2–3 Nov;2026;2026-11-03;1500;PP;32.7;32.7
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;2–3 Nov;2026;2026-11-03;1500;PSOE;24.7;24.7
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;2–3 Nov;2026;2026-11-03;1500;Vox;19.8;19.8
 generales_proxima;Opinion_polling_for_the_next_Spanish_general_election;1;Data10;Okdiario;2–3 Nov;2026;2026-11-03;1500;FA;6.9;6.9
