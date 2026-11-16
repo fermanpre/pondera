@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-17",
+    "titulo": "Simulador: topes de voto para los partidos regionales y tablas de territorio más estrechas",
+    "texto": "En el simulador, un partido que solo se presenta en parte de España no puede pasar de los votos de esa parte: Adelante Andalucía, 17,7%; ERC y Junts, 14,4%; Front Valencià, 10,8%; BNG, 6,4%; EH Bildu, 6,0%; PNV, 4,6%; Coalición Canaria, 4,2%; Existe, 2,8%; y UPN, 1,3%. Si al mover otro partido el reajuste proporcional empujara a uno por encima de su tope, se queda en el tope y el sobrante se reparte entre los demás. En las tablas de Provincias, Comunidades y Simulador, las cabeceras pasan a «Escaños», «Más probable» y «Distribución (oscuro: central)», y los porcentajes de las barras se escriben sin espacio."
+  },
+  {
+    "fecha": "2026-11-17",
     "titulo": "Mapa de cambio desde 2023, bloque de 2023 sin Adelante y ajustes de tablas",
     "texto": "El mapa de 2023 se sustituye por un mapa de cambio: cada provincia se pinta por lo que se ha movido su margen izquierda-derecha entre 2023 y 2026 (azul si se mueve hacia la derecha, rojo si lo hace hacia la izquierda), junto al mapa de 2026. En las mayorías, el bloque de 2023 ya no incluye a Adelante Andalucía, que no tuvo representación en 2023 y no pudo apoyar la investidura; sus variantes aparecen aparte («+ Adelante»). La tabla nacional pone 2023 a la izquierda de 2026, los porcentajes se escriben sin espacio y la tabla de encuestas del día ordena los partidos por su resultado de 2023, resume el campo sin el año y llama «Front Valencià» al partido en la leyenda."
   },

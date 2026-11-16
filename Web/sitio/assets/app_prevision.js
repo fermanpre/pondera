@@ -202,15 +202,62 @@ function pintarNacional() {
 
 /* ---------- Deslizadores ---------- */
 
+// Tope de voto de cada partido: no puede sumar más que los votos a candidaturas de las provincias donde se presenta (en 2023, como proporción del total nacional).
+// Un partido regional, como ERC o Adelante, queda así limitado al voto de su comunidad: 14,4% y 17,7% como máximo, y no el 30% de toda España.
+const TOPE_DE_VOTO = (function () {
+  let total = 0;
+  DATOS_MODELO.provincias.forEach(function (provincia) { total += provincia.peso; });
+  const topes = {};
+  DATOS_MODELO.partidos.forEach(function (partido) {
+    let suma = 0;
+    DATOS_MODELO.provincias.forEach(function (provincia) { if ((provincia.cuotas[partido] || 0) > 0) suma += provincia.peso; });
+    topes[partido] = suma / total;
+  });
+  return topes;
+})();
+const MAXIMO_DEL_DESLIZADOR = 45;
+
+function topeEnPorcentaje(partido) {
+  return Math.min(MAXIMO_DEL_DESLIZADOR, Math.floor(1000 * TOPE_DE_VOTO[partido]) / 10);
+}
+
+// Si el reajuste proporcional empuja a algún partido por encima de su tope, se le deja en el tope y el sobrante se reparte, en proporción, entre los que aún tienen margen (sin tocar al partido que mueve el visitante).
+function aplicarTopes(partidoFijo) {
+  for (let ronda = 0; ronda < 12; ronda++) {
+    let sobrante = 0;
+    const conMargen = [];
+    modelo.partidos.forEach(function (partido) {
+      if (partido === partidoFijo) return;
+      const tope = TOPE_DE_VOTO[partido];
+      if (objetivosActuales[partido] > tope) { sobrante += objetivosActuales[partido] - tope; objetivosActuales[partido] = tope; }
+      else if (objetivosActuales[partido] < tope - 1e-9) conMargen.push(partido);
+    });
+    if (sobrante < 1e-9) return;
+    let sumaConMargen = 0;
+    conMargen.forEach(function (partido) { sumaConMargen += objetivosActuales[partido]; });
+    if (!conMargen.length || sumaConMargen <= 0) return;
+    conMargen.forEach(function (partido) { objetivosActuales[partido] += sobrante * objetivosActuales[partido] / sumaConMargen; });
+  }
+}
+
+function notaDeTopes() {
+  const regionales = modelo.partidos.filter(function (partido) { return TOPE_DE_VOTO[partido] < 0.5; })
+    .sort(function (a, b) { return TOPE_DE_VOTO[b] - TOPE_DE_VOTO[a]; });
+  return "Un partido que solo se presenta en parte de España no puede pasar de los votos de esa parte. Topes de voto nacional: " +
+    regionales.map(function (partido) { return NOMBRES[partido] + " " + porcentaje(Math.floor(1000 * TOPE_DE_VOTO[partido]) / 10); }).join(", ") + ".";
+}
+
 function crearDeslizadores() {
   const contenedor = document.getElementById("deslizadores");
   if (!contenedor) return;
   contenedor.innerHTML = "";
+  const notaTopes = document.getElementById("nota-topes");
+  if (notaTopes) notaTopes.textContent = notaDeTopes();
   partidosPorVoto().forEach(function (partido) {
     const bloque = document.createElement("div");
     bloque.className = "deslizador";
     bloque.innerHTML = '<label for="d-' + partido + '">' + ficha(partido) + NOMBRES[partido] + '</label>' +
-      '<input type="range" id="d-' + partido + '" min="0" max="45" step="0.1" value="' + (100 * objetivosActuales[partido]).toFixed(1) + '">' +
+      '<input type="range" id="d-' + partido + '" min="0" max="' + topeEnPorcentaje(partido) + '" step="0.1" value="' + (100 * objetivosActuales[partido]).toFixed(1) + '">' +
       '<output id="v-' + partido + '">' + porcentaje(100 * objetivosActuales[partido]) + '</output>';
     contenedor.appendChild(bloque);
     bloque.querySelector("input").addEventListener("input", function (evento) {
@@ -220,7 +267,7 @@ function crearDeslizadores() {
 }
 
 function moverPartido(partido, nuevoPorcentaje) {
-  const nuevo = nuevoPorcentaje / 100;
+  const nuevo = Math.min(nuevoPorcentaje / 100, TOPE_DE_VOTO[partido]);
   const anterior = objetivosActuales[partido];
   const restoAntes = 1 - anterior;
   const restoDespues = 1 - nuevo;
@@ -229,6 +276,7 @@ function moverPartido(partido, nuevoPorcentaje) {
     if (otro !== partido) objetivosActuales[otro] = objetivosActuales[otro] * restoDespues / restoAntes;
   });
   objetivosActuales[partido] = nuevo;
+  aplicarTopes(partido);
   modelo.partidos.forEach(function (otro) {
     document.getElementById("d-" + otro).value = (100 * objetivosActuales[otro]).toFixed(1);
     document.getElementById("v-" + otro).textContent = porcentaje(100 * objetivosActuales[otro]);
@@ -414,7 +462,7 @@ function histogramaDeEscanos(f, sorteos) {
     svg += '<rect x="' + (x + 0.5).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura).toFixed(1) + '" width="' + Math.max(1, anchoDeBarra - 1).toFixed(1) + '" height="' + altura.toFixed(1) +
       '" fill="' + color + '" opacity="0.9"><title>' + n + " escaños: " + porcentaje(100 * probabilidad) + '</title></rect>';
     if (n === f.masProbable) {
-      etiquetaDeLaMasProbable = '<text x="' + (x + anchoDeBarra / 2).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura - 2).toFixed(1) + '" text-anchor="middle" font-size="10" fill="var(--suave)">' + entero(100 * probabilidad) + ' %</text>';
+      etiquetaDeLaMasProbable = '<text x="' + (x + anchoDeBarra / 2).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura - 2).toFixed(1) + '" text-anchor="middle" font-size="10" fill="var(--suave)">' + entero(100 * probabilidad) + '%</text>';
     }
   }
   const bandaCentral = (f.central - desde) * anchoDeBarra;
@@ -444,7 +492,7 @@ function construirCabeceraConPasado(tabla, orden) {
   const grupoPasado = '<th colspan="3" class="grupo2023' + marcaDeInicio + ' borde-der">Resultado de 2023 (definitivo)</th>';
   const subPasado = '<th class="' + marcaDeInicio.trim() + '">Votos</th><th>%</th><th class="borde-der">Escaños</th>';
   const grupoPrevision = '<th colspan="4" style="text-align:center">Previsión 2026</th>';
-  const subPrevision = '<th>Voto previsto</th><th>Escaños (reparto central)</th><th>Escaños más probable</th><th style="text-align:left">Distribución de escaños (banda oscura: reparto central)</th>';
+  const subPrevision = '<th>Voto previsto</th><th>Escaños</th><th>Más probable</th><th style="text-align:left">Distribución (oscuro: central)</th>';
   const partido = '<th rowspan="2" class="col-partido">Partido</th>';
   let primeraFila, segundaFila;
   if (orden === "antes") { primeraFila = grupoPasado + partido + grupoPrevision; segundaFila = subPasado + subPrevision; }
