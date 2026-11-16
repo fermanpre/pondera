@@ -64,24 +64,22 @@ function escanosCentrales() {
 // UPN va con el PP porque concurren en coalición en Navarra (los escaños de esa lista se reparten por orden entre ambos).
 const IZQUIERDA_ESTATAL = ["PSOE", "SUMAR", "FV"];
 const NACIONALISTAS_DE_IZQUIERDA = ["ERC", "BILDU", "BNG", "ADELANTE"];
-const GRUPOS_DE_MAYORIAS = [
-  { titulo: "Derecha", color: "#1d6fb8", combinaciones: [
-    { nombre: "PP (con UPN) solo", partidos: ["PP", "UPN"] },
-    { nombre: "PP + Vox", partidos: ["PP", "UPN", "VOX"] },
-    { nombre: "Derecha ampliada: PP + Vox + CC + SALF", partidos: ["PP", "UPN", "VOX", "CC", "SALF"] },
-  ] },
-  { titulo: "Izquierda", color: "#d4141c", combinaciones: [
-    { nombre: "PSOE solo", partidos: ["PSOE"] },
-    { nombre: "PSOE + Frente Amplio + FV", partidos: IZQUIERDA_ESTATAL },
-    { nombre: "… + Podemos", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"]) },
-    { nombre: "… + nacionalistas de izquierda (ERC, Bildu, BNG, Adelante)", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"], NACIONALISTAS_DE_IZQUIERDA) },
-    { nombre: "… + PNV (sin Junts)", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV"], NACIONALISTAS_DE_IZQUIERDA) },
-    { nombre: "Todo el bloque de 2023: … + PNV y Junts", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV", "JUNTS"], NACIONALISTAS_DE_IZQUIERDA) },
-  ] },
-  { titulo: "Otras", color: "#7b3f9e", combinaciones: [
-    { nombre: "PP + PSOE", partidos: ["PP", "UPN", "PSOE"] },
-  ] },
+const COLOR_DERECHA = "#1d6fb8";
+const COLOR_IZQUIERDA = "#d4141c";
+const COLOR_OTRAS = "#7b3f9e";
+const PROBABILIDAD_MINIMA_DE_MAYORIA = 0.001;
+const COMBINACIONES_DE_MAYORIA = [
+  { nombre: "PP (con UPN) solo", partidos: ["PP", "UPN"], color: COLOR_DERECHA },
+  { nombre: "PP + Vox", partidos: ["PP", "UPN", "VOX"], color: COLOR_DERECHA },
+  { nombre: "Derecha ampliada: PP + Vox + CC + SALF", partidos: ["PP", "UPN", "VOX", "CC", "SALF"], color: COLOR_DERECHA },
+  { nombre: "PSOE solo", partidos: ["PSOE"], color: COLOR_IZQUIERDA },
+  { nombre: "Izquierda estatal: PSOE + Frente Amplio + FV", partidos: IZQUIERDA_ESTATAL, color: COLOR_IZQUIERDA },
+  { nombre: "Izquierda estatal con Podemos", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"]), color: COLOR_IZQUIERDA },
+  { nombre: "Izquierda estatal con Podemos y nacionalistas de izquierda (ERC, Bildu, BNG, Adelante)", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"], NACIONALISTAS_DE_IZQUIERDA), color: COLOR_IZQUIERDA },
+  { nombre: "Bloque de 2023 sin Junts", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV"], NACIONALISTAS_DE_IZQUIERDA), color: COLOR_IZQUIERDA },
+  { nombre: "Bloque de 2023 completo", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV", "JUNTS"], NACIONALISTAS_DE_IZQUIERDA), color: COLOR_IZQUIERDA },
 ];
+const COMBINACION_OTRAS = { nombre: "PP + PSOE", partidos: ["PP", "UPN", "PSOE"], color: COLOR_OTRAS };
 
 function textoDeProbabilidad(p) {
   if (p === 0) return "0 %";
@@ -89,22 +87,62 @@ function textoDeProbabilidad(p) {
   return porcentaje(100 * p);
 }
 
+function filaDeMayoria(combinacion, p) {
+  return '<div class="barra-prob" title="' + combinacion.partidos.map(function (x) { return NOMBRES[x] || x; }).join(" + ") + '">' +
+    '<span class="barra-prob-nombre">' + combinacion.nombre + '</span>' +
+    '<span class="barra-prob-pista"><span class="barra-prob-relleno" style="width:' + (100 * p).toFixed(2) + '%;background:' + combinacion.color + '"></span></span>' +
+    '<b>' + textoDeProbabilidad(p) + '</b></div>';
+}
+
 function pintarMayorias() {
   const contenedor = document.getElementById("mayorias");
   if (!contenedor) return;
-  let html = '<h3>Probabilidad de mayoría absoluta (176 escaños o más)</h3>';
-  GRUPOS_DE_MAYORIAS.forEach(function (grupo) {
-    html += '<div class="grupo-mayorias"><h4>' + grupo.titulo + '</h4>';
-    grupo.combinaciones.forEach(function (c) {
-      const p = MotorElectoral.probabilidadDeSuma(modelo, ultimoResultado.simulacion, c.partidos);
-      html += '<div class="barra-prob" title="' + c.partidos.map(function (x) { return NOMBRES[x] || x; }).join(" + ") + '">' +
-        '<span class="barra-prob-nombre">' + c.nombre + '</span>' +
-        '<span class="barra-prob-pista"><span class="barra-prob-relleno" style="width:' + (100 * p).toFixed(2) + '%;background:' + grupo.color + '"></span></span>' +
-        '<b>' + textoDeProbabilidad(p) + '</b></div>';
-    });
-    html += '</div>';
-  });
+  const probabilidad = function (combinacion) { return MotorElectoral.probabilidadDeSuma(modelo, ultimoResultado.simulacion, combinacion.partidos); };
+  const calculadas = COMBINACIONES_DE_MAYORIA.map(function (combinacion) { return { combinacion: combinacion, p: probabilidad(combinacion) }; });
+  const visibles = calculadas.filter(function (elemento) { return elemento.p >= PROBABILIDAD_MINIMA_DE_MAYORIA; })
+    .sort(function (a, b) { return b.p - a.p; });
+  let html = '<h3>Probabilidad de mayoría absoluta (176 escaños o más)</h3><div class="grupo-mayorias">';
+  visibles.forEach(function (elemento) { html += filaDeMayoria(elemento.combinacion, elemento.p); });
+  html += '</div>';
+  if (visibles.length < calculadas.length) {
+    html += '<p class="nota">Todas las demás mayorías razonablemente posibles no alcanzan el 0,1 % de las simulaciones.</p>';
+  }
+  html += '<div class="grupo-mayorias"><h4>Otras</h4>' + filaDeMayoria(COMBINACION_OTRAS, probabilidad(COMBINACION_OTRAS)) + '</div>';
   contenedor.innerHTML = html;
+}
+
+/* ---------- Tabla nacional: 2026 frente a 2023 ---------- */
+
+// Clave de cada partido del modelo en resultados_2023.js. Podemos, SALF y Front Valencià no tuvieron candidatura propia en 2023 (Podemos y Compromís iban dentro de Sumar).
+const CLAVE_EN_2023 = { PP: "PP", PSOE: "PSOE", VOX: "VOX", SUMAR: "SUMAR", ERC: "ERC", JUNTS: "JUNTS", BILDU: "BILDU", PNV: "PNV", BNG: "BNG", CC: "CC", UPN: "UPN", EXISTE: "EXISTE", ADELANTE: "ADELANTE", PACMA: "PACMA" };
+
+function resultadosNacionalesDe2023() {
+  if (typeof RESULTADOS_2023_NACIONAL === "undefined" || typeof MAPA_2023 === "undefined") return null;
+  const votos = {};
+  const escanos = {};
+  Object.keys(RESULTADOS_2023_NACIONAL).forEach(function (clave) {
+    votos[clave] = RESULTADOS_2023_NACIONAL[clave].votos;
+    escanos[clave] = RESULTADOS_2023_NACIONAL[clave].escanos;
+  });
+  let total = 0;
+  Object.keys(MAPA_2023).forEach(function (provincia) { total += MAPA_2023[provincia].total; });
+  return { votos: votos, escanos: escanos, total: total };
+}
+
+function conSigno(valor, decimales) {
+  const redondeado = Math.round(valor * Math.pow(10, decimales)) / Math.pow(10, decimales);
+  if (redondeado === 0) return decimales ? formatoPorcentaje.format(0) : "0";
+  const texto = decimales ? formatoPorcentaje.format(Math.abs(redondeado)) : entero(Math.abs(redondeado));
+  return (redondeado > 0 ? "+" : "−") + texto;
+}
+
+function textoDeRango(minimo, maximo) {
+  return minimo === maximo ? entero(minimo) : entero(minimo) + "-" + entero(maximo);
+}
+
+function cabeceraDeLaTablaNacional() {
+  return '<tr><th rowspan="2">Partido</th><th colspan="3" class="grupo-columnas">Voto (%)</th><th colspan="3" class="grupo-columnas">Escaños</th><th colspan="2" class="grupo-columnas">Rango de escaños</th></tr>' +
+    '<tr><th>2026</th><th>2023</th><th>Dif.</th><th>2026</th><th>2023</th><th>Dif.</th><th>80 %</th><th>95 %</th></tr>';
 }
 
 function pintarNacional() {
@@ -132,14 +170,27 @@ function pintarNacional() {
 
   pintarMayorias();
 
+  document.querySelector("#tabla-nacional thead").innerHTML = cabeceraDeLaTablaNacional();
   const cuerpo = document.querySelector("#tabla-nacional tbody");
   cuerpo.innerHTML = "";
+  const de2023 = resultadosNacionalesDe2023();
   partidosPorVoto().forEach(function (partido) {
     if (partido === "OTROS") return;
     const r = resumen[partido];
+    const voto = 100 * objetivosActuales[partido];
+    const escanos = centrales[partido] || 0;
+    const clave = CLAVE_EN_2023[partido];
+    let celdasDe2023 = ["–", "–", "–", "–"];
+    if (de2023 && clave) {
+      const voto2023 = 100 * (de2023.votos[clave] || 0) / de2023.total;
+      const escanos2023 = de2023.escanos[clave] || 0;
+      celdasDe2023 = [porcentaje(voto2023), conSigno(voto - voto2023, 1), entero(escanos2023), conSigno(escanos - escanos2023, 0)];
+    }
     const fila = document.createElement("tr");
-    fila.innerHTML = '<td>' + ficha(partido) + NOMBRES[partido] + '</td><td>' + porcentaje(100 * objetivosActuales[partido]) + '</td><td>' + entero(r.mediana) +
-      '</td><td>' + entero(r.p10) + " a " + entero(r.p90) + '</td><td>' + entero(r.p025) + " a " + entero(r.p975) + '</td><td>' + porcentaje(100 * r.pAlMenos1) + '</td>';
+    // Orden de columnas: voto 2026, voto 2023, dif. voto, escaños 2026, escaños 2023, dif. escaños, rango 80 %, rango 95 %
+    fila.innerHTML = '<td>' + ficha(partido) + NOMBRES[partido] + '</td><td>' + porcentaje(voto) + '</td><td>' + celdasDe2023[0] + '</td><td>' + celdasDe2023[1] + '</td>' +
+      '<td>' + entero(escanos) + '</td><td>' + celdasDe2023[2] + '</td><td>' + celdasDe2023[3] + '</td>' +
+      '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td>';
     cuerpo.appendChild(fila);
   });
   document.getElementById("nota-sorteos").textContent = entero(ultimoResultado.sorteos) + " sorteos. Los rangos del 80 % y del 95 % dejan fuera el 10 % y el 2,5 % de los sorteos por cada extremo.";

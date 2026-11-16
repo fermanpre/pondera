@@ -27,11 +27,11 @@ NOMBRE_SITIO = "PONDERA"
 LEMA = "Elecciones generales 2026"
 URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
-SCRIPTS_DE_PREVISION = ["datos_modelo.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
+SCRIPTS_DE_PREVISION = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
 SCRIPTS_DE_PROVINCIAS = ["datos_modelo.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/app_prevision.js"]
 SCRIPTS_DE_COMUNIDADES = SCRIPTS_DE_PROVINCIAS
 # Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
-SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "assets/comun.js", "motor.js", "assets/app_prevision.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js"]
+SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/app_prevision.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js"]
 
 # Cinta principal (grupo, texto, página a la que lleva) y segunda cinta de cada grupo (texto, destino; «#...» = sección de la misma página)
 MENU_PRINCIPAL = [("prevision", "Previsión", "index.html"), ("territorio", "Territorio", "provincias.html"), ("simulador", "Simulador", "simulador.html"),

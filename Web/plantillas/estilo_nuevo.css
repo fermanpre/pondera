@@ -107,8 +107,8 @@
 
   /* Pantallas anchas: el texto corrido mantiene una línea legible y las secciones de datos usan dos columnas */
   .contenedor p, .contenedor li { max-width: 125ch; }
-  .dos-columnas { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 28px; align-items: start; }
-  @media (max-width: 1199px) { .dos-columnas { grid-template-columns: minmax(0, 1fr); } }
+  .dos-columnas { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+  @media (max-width: 1399px) { .dos-columnas { grid-template-columns: minmax(0, 1fr); } }
   .dos-columnas .mayorias { margin-top: 0; }
 
   /* Cabecera en pantallas estrechas: marca y tema arriba, menú debajo en varias líneas */
@@ -134,3 +134,6 @@
   .tarjetas-titulo { margin: 28px 0 0; font-size: 1.1rem; }
   /* Las secciones anidadas dentro de una sección de Previsión no llevan marco propio */
   #sondeos section, #promedio section { background: none; border: 0; padding: 0; margin: 0; box-shadow: none; }
+  /* Tabla nacional con cabecera de dos filas */
+  #tabla-nacional th.grupo-columnas { text-align: center; border-bottom: 1px solid var(--linea); }
+  #tabla-nacional th[rowspan] { vertical-align: bottom; }

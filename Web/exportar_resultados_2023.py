@@ -152,10 +152,18 @@ def main():
             print("AVISO: escaños de %s: suman %d y el total es %d" % (comunidad, suma_escanos, escanos_por_comunidad[comunidad]))
         resultado_comunidades[comunidad] = {"validos": validos_por_comunidad[comunidad], "escanos": escanos_por_comunidad[comunidad], "candidaturas": lista}
 
+    # Total nacional por clave con TODAS las candidaturas (sin el umbral del 0,5 % por circunscripción): lo usa la tabla nacional de la portada
+    nacional = {}
+    for por_clave in votos_por_comunidad.values():
+        for clave, acumulado in por_clave.items():
+            total_clave = nacional.setdefault(clave, {"votos": 0, "escanos": 0})
+            total_clave["votos"] += acumulado["votos"]
+            total_clave["escanos"] += acumulado["escanos"]
+    texto_nacional = json.dumps(nacional, ensure_ascii=False, separators=(",", ":"))
     texto = json.dumps(resultado, ensure_ascii=False, separators=(",", ":"))
     texto_comunidades = json.dumps(resultado_comunidades, ensure_ascii=False, separators=(",", ":"))
     (CARPETA_SITIO / "resultados_2023.json").write_text(json.dumps({"provincias": resultado, "comunidades": resultado_comunidades}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    (CARPETA_SITIO / "resultados_2023.js").write_text("const RESULTADOS_2023 = " + texto + ";" + chr(10) + "const RESULTADOS_2023_COMUNIDADES = " + texto_comunidades + ";" + chr(10), encoding="utf-8")
+    (CARPETA_SITIO / "resultados_2023.js").write_text("const RESULTADOS_2023 = " + texto + ";" + chr(10) + "const RESULTADOS_2023_COMUNIDADES = " + texto_comunidades + ";" + chr(10) + "const RESULTADOS_2023_NACIONAL = " + texto_nacional + ";" + chr(10), encoding="utf-8")
     print("Provincias: %d | %.0f kB" % (len(resultado), len(texto.encode("utf-8")) / 1024))
     extras = sorted({entrada["siglas"] for datos in resultado.values() for entrada in datos["candidaturas"] if "siglas" in entrada})
     print("Candidaturas sin clave del modelo mostradas:", ", ".join(extras))

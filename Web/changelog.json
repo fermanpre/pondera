@@ -1,6 +1,11 @@
 [
  {
   "fecha": "2026-11-16",
+  "titulo": "Tabla de escaños con 2023 y diferencias; mayorías ordenadas",
+  "texto": "La tabla nacional de Previsión y del Simulador muestra ahora el voto y los escaños de 2026 y de 2023 con su diferencia, y los rangos de escaños en formato «111-151». Los escaños de 2026 son los del reparto central (el mismo de la barra), no la mediana de las simulaciones. Se quitan la mediana y la probabilidad de al menos un escaño. El gráfico de mayorías absolutas se ordena de más a menos probable, oculta las que no llegan al 0,1 % de las simulaciones y mantiene aparte PP + PSOE."
+ },
+ {
+  "fecha": "2026-11-16",
   "titulo": "Menú reorganizado: de 12 a 5 apartados",
   "texto": "La cinta principal pasa a cinco apartados (Previsión, Territorio, Simulador, Metodología y Acerca de) y cada uno tiene una segunda cinta. Previsión reúne en una sola página los escaños y las probabilidades de mayoría, el mapa, el promedio de encuestas y los sondeos, con enlaces a cada sección; los sondeos regionales pasan a ser la pestaña «Subnacionales». Territorio agrupa Provincias, Comunidades y Resumen, y Acerca de agrupa Enlaces, Sobre el autor, Privacidad y cookies y el Historial de cambios. Las direcciones antiguas de Promedio, Sondeos, Regionales y Mapa redirigen a su sección."
  },
