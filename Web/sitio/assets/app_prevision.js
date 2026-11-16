@@ -64,6 +64,7 @@ function escanosCentrales() {
 // UPN va con el PP porque concurren en coalición en Navarra (los escaños de esa lista se reparten por orden entre ambos).
 const IZQUIERDA_ESTATAL = ["PSOE", "SUMAR", "FV"];
 const NACIONALISTAS_DE_IZQUIERDA = ["ERC", "BILDU", "BNG", "ADELANTE"];
+const BLOQUE_DE_2023_SIN_JUNTS = IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV", "ERC", "BILDU", "BNG"]);
 const COLOR_DERECHA = "#1d6fb8";
 const COLOR_IZQUIERDA = "#d4141c";
 const COLOR_OTRAS = "#7b3f9e";
@@ -76,14 +77,17 @@ const COMBINACIONES_DE_MAYORIA = [
   { nombre: "Izquierda estatal: PSOE + Frente Amplio + FV", partidos: IZQUIERDA_ESTATAL, color: COLOR_IZQUIERDA },
   { nombre: "Izquierda estatal con Podemos", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"]), color: COLOR_IZQUIERDA },
   { nombre: "Izquierda estatal con Podemos y nacionalistas de izquierda (ERC, Bildu, BNG, Adelante)", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"], NACIONALISTAS_DE_IZQUIERDA), color: COLOR_IZQUIERDA },
-  { nombre: "Bloque de 2023 sin Junts", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV"], NACIONALISTAS_DE_IZQUIERDA), color: COLOR_IZQUIERDA },
-  { nombre: "Bloque de 2023 completo", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV", "JUNTS"], NACIONALISTAS_DE_IZQUIERDA), color: COLOR_IZQUIERDA },
+  // Adelante Andalucía no obtuvo representación en 2023 y no pudo apoyar la investidura: el «bloque de 2023» no la incluye, y las variantes con Adelante se muestran aparte.
+  { nombre: "Bloque de 2023 sin Junts", partidos: BLOQUE_DE_2023_SIN_JUNTS, color: COLOR_IZQUIERDA },
+  { nombre: "Bloque de 2023 sin Junts + Adelante", partidos: BLOQUE_DE_2023_SIN_JUNTS.concat(["ADELANTE"]), color: COLOR_IZQUIERDA },
+  { nombre: "Bloque de 2023 completo", partidos: BLOQUE_DE_2023_SIN_JUNTS.concat(["JUNTS"]), color: COLOR_IZQUIERDA },
+  { nombre: "Bloque de 2023 completo + Adelante", partidos: BLOQUE_DE_2023_SIN_JUNTS.concat(["JUNTS", "ADELANTE"]), color: COLOR_IZQUIERDA },
 ];
 const COMBINACION_OTRAS = { nombre: "PP + PSOE", partidos: ["PP", "UPN", "PSOE"], color: COLOR_OTRAS };
 
 function textoDeProbabilidad(p) {
-  if (p === 0) return "0 %";
-  if (p < 0.001) return "< 0,1 %";
+  if (p === 0) return "0%";
+  if (p < 0.001) return "< 0,1%";
   return porcentaje(100 * p);
 }
 
@@ -105,7 +109,7 @@ function pintarMayorias() {
   visibles.forEach(function (elemento) { html += filaDeMayoria(elemento.combinacion, elemento.p); });
   html += '</div>';
   if (visibles.length < calculadas.length) {
-    html += '<p class="nota">Todas las demás mayorías razonablemente posibles no alcanzan el 0,1 % de las simulaciones.</p>';
+    html += '<p class="nota">Todas las demás mayorías razonablemente posibles no alcanzan el 0,1% de las simulaciones.</p>';
   }
   html += '<div class="grupo-mayorias"><h4>Otras</h4>' + filaDeMayoria(COMBINACION_OTRAS, probabilidad(COMBINACION_OTRAS)) + '</div>';
   contenedor.innerHTML = html;
@@ -142,7 +146,7 @@ function textoDeRango(minimo, maximo) {
 
 function cabeceraDeLaTablaNacional() {
   return '<tr><th rowspan="2">Partido</th><th colspan="3" class="grupo-columnas">Voto (%)</th><th colspan="3" class="grupo-columnas">Escaños</th><th colspan="2" class="grupo-columnas">Rango de escaños</th></tr>' +
-    '<tr><th>2026</th><th>2023</th><th>Dif.</th><th>2026</th><th>2023</th><th>Dif.</th><th>80 %</th><th>95 %</th></tr>';
+    '<tr><th>2023</th><th>2026</th><th>Dif.</th><th>2023</th><th>2026</th><th>Dif.</th><th>80%</th><th>95%</th></tr>';
 }
 
 function pintarNacional() {
@@ -180,20 +184,20 @@ function pintarNacional() {
     const voto = 100 * objetivosActuales[partido];
     const escanos = centrales[partido] || 0;
     const clave = CLAVE_EN_2023[partido];
-    let celdasDe2023 = ["–", "–", "–", "–"];
+    let celdasDe2023 = ["–", "–", "–", "–"];  // voto 2023, dif. de voto, escaños 2023, dif. de escaños
     if (de2023 && clave) {
       const voto2023 = 100 * (de2023.votos[clave] || 0) / de2023.total;
       const escanos2023 = de2023.escanos[clave] || 0;
       celdasDe2023 = [porcentaje(voto2023), conSigno(voto - voto2023, 1), entero(escanos2023), conSigno(escanos - escanos2023, 0)];
     }
     const fila = document.createElement("tr");
-    // Orden de columnas: voto 2026, voto 2023, dif. voto, escaños 2026, escaños 2023, dif. escaños, rango 80 %, rango 95 %
-    fila.innerHTML = '<td>' + ficha(partido) + NOMBRES[partido] + '</td><td>' + porcentaje(voto) + '</td><td>' + celdasDe2023[0] + '</td><td>' + celdasDe2023[1] + '</td>' +
-      '<td>' + entero(escanos) + '</td><td>' + celdasDe2023[2] + '</td><td>' + celdasDe2023[3] + '</td>' +
+    // Orden de columnas: voto 2023, voto 2026, dif. voto, escaños 2023, escaños 2026, dif. escaños, rango 80%, rango 95%
+    fila.innerHTML = '<td>' + ficha(partido) + NOMBRES[partido] + '</td><td>' + celdasDe2023[0] + '</td><td>' + porcentaje(voto) + '</td><td>' + celdasDe2023[1] + '</td>' +
+      '<td>' + celdasDe2023[2] + '</td><td>' + entero(escanos) + '</td><td>' + celdasDe2023[3] + '</td>' +
       '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td>';
     cuerpo.appendChild(fila);
   });
-  document.getElementById("nota-sorteos").textContent = entero(ultimoResultado.sorteos) + " sorteos. Los rangos del 80 % y del 95 % dejan fuera el 10 % y el 2,5 % de los sorteos por cada extremo.";
+  document.getElementById("nota-sorteos").textContent = entero(ultimoResultado.sorteos) + " sorteos. Los rangos del 80% y del 95% dejan fuera el 10% y el 2,5% de los sorteos por cada extremo.";
 }
 
 /* ---------- Deslizadores ---------- */

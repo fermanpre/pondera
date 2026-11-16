@@ -13,6 +13,6 @@ const IZQUIERDA_Y_NACIONALISTAS = ["PSOE", "SUMAR", "PODEMOS", "FV", "ADELANTE",
 
 const formatoPorcentaje = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const formatoEntero = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 });
-const porcentaje = (valor) => formatoPorcentaje.format(valor) + " %";
+const porcentaje = (valor) => formatoPorcentaje.format(valor) + "%";
 const entero = (valor) => formatoEntero.format(valor);
 const ficha = (partido) => '<span class="ficha" style="background:' + COLORES[partido] + '"></span>';

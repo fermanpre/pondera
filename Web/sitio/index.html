@@ -57,7 +57,7 @@
       </table>
     </div>
     <p class="nota" id="nota-sorteos"></p>
-  <p class="nota" id="nota-tabla-2023">Escaños 2026: el reparto central (sin ruido), el mismo de la barra. Voto: porcentaje sobre los votos a candidaturas, igual que en 2023. En 2023 Sumar concurrió con Podemos y con Compromís (parte de Front Valencià): esas dos filas no tienen dato de 2023 y la diferencia de Frente Amplio no es comparable. En la fila de UPN, el voto de 2023 incluye al del PP de Navarra (que concurre en coalición en 2026); los escaños de 2023 son los oficiales de cada partido (PP 137 y UPN 1). El «bloque de 2023» de las mayorías es el que apoyó la investidura: PSOE, Frente Amplio, FV, Podemos, ERC, Bildu, BNG, Adelante, PNV y Junts.</p>
+  <p class="nota" id="nota-tabla-2023">Escaños 2026: el reparto central (sin ruido), el mismo de la barra. Voto: porcentaje sobre los votos a candidaturas, igual que en 2023. En 2023 Sumar concurrió con Podemos y con Compromís (parte de Front Valencià): esas dos filas no tienen dato de 2023 y la diferencia de Frente Amplio no es comparable. En la fila de UPN, el voto de 2023 incluye al del PP de Navarra (que concurre en coalición en 2026); los escaños de 2023 son los oficiales de cada partido (PP 137 y UPN 1). El «bloque de 2023» de las mayorías es el que apoyó la investidura: PSOE, Frente Amplio, FV, Podemos, ERC, Bildu, BNG, PNV y Junts. Adelante Andalucía no obtuvo representación en 2023 y no pudo apoyar la investidura, por lo que sus variantes se muestran aparte («+ Adelante»).</p>
     </div>
     <div>
     <div class="mayorias" id="mayorias"></div>
@@ -68,20 +68,20 @@
 
 <section id="mapa">
   <h2>Mapa por provincia</h2>
-  <p class="subtitulo">Cómo votó cada provincia en 2023 y cómo la prevé el modelo para 2026, en una misma escala.</p>
+  <p class="subtitulo">Cómo prevé el modelo que votará cada provincia en 2026 (mapa absoluto) y cuánto se ha movido desde 2023 (mapa de cambio).</p>
   <div id="mapas">
   <div class="mapas-pareja">
     <figure class="figura-mapa">
-      <figcaption>Generales de 2023 <span class="nota">(resultado)</span></figcaption>
-      <div id="mapa-2023" class="mapa" aria-label="Mapa de España con el margen izquierda-derecha de 2023"></div>
+      <figcaption>Cambio desde 2023 <span class="nota">(2026 menos 2023)</span></figcaption>
+      <div id="mapa-cambio" class="mapa" aria-label="Mapa de España con el cambio del margen izquierda-derecha entre 2023 y 2026"></div>
+      <div id="leyenda-mapa-cambio" class="leyenda-mapa" aria-hidden="true"></div>
     </figure>
     <figure class="figura-mapa">
       <figcaption>Generales de 2026 <span class="nota">(previsión central)</span></figcaption>
       <div id="mapa-2026" class="mapa" aria-label="Mapa de España con el margen izquierda-derecha previsto para 2026"></div>
+      <div id="leyenda-mapa-2026" class="leyenda-mapa" aria-hidden="true"></div>
     </figure>
   </div>
-
-  <div id="leyenda-mapa" class="leyenda-mapa" aria-hidden="true"></div>
 
   <div id="ficha-provincia" class="ficha-provincia" aria-live="polite">
     <p class="nota">Pasa el ratón (o toca) una provincia para ver sus cifras.</p>
@@ -91,7 +91,8 @@
   <details class="plegable">
     <summary>Qué se muestra y qué partido va en cada lado</summary>
     <div id="que-se-muestra">
-  <p>El color de cada provincia es su <strong>margen</strong>: el porcentaje de voto de los partidos de izquierda menos el de los de derecha, sobre los votos a candidaturas (sin blancos ni nulos). «I+10» significa que la izquierda saca 10 puntos más que la derecha; «D+10», que los saca la derecha. El púrpura es el empate. La escala es la misma en los dos mapas, de I+40 a D+40, y está comprimida a propósito: del tramo de 40 a 10 puntos el color cambia despacio y de 10 a 0 cambia deprisa, de modo que se ve púrpura lo que de verdad es una provincia equilibrada, y da igual, a efectos del mapa, que una provincia sea de izquierdas por 40 o por 20.</p>
+  <p>El color de cada provincia es su <strong>margen</strong>: el porcentaje de voto de los partidos de izquierda menos el de los de derecha, sobre los votos a candidaturas (sin blancos ni nulos). «I+10» significa que la izquierda saca 10 puntos más que la derecha; «D+10», que los saca la derecha. El púrpura es el empate. La escala va de I+40 a D+40 y está comprimida a propósito: del tramo de 40 a 10 puntos el color cambia despacio y de 10 a 0 cambia deprisa, de modo que se ve púrpura lo que de verdad es una provincia equilibrada, y da igual, a efectos del mapa, que una provincia sea de izquierdas por 40 o por 20.</p>
+  <p><strong>Cómo leer el mapa de cambio.</strong> Cada provincia se pinta por lo que se ha movido su margen entre 2023 y 2026 (margen previsto menos margen de 2023), con una escala lineal de 20 puntos en cada sentido: azul si se mueve hacia la derecha, rojo si lo hace hacia la izquierda y púrpura si no cambia. Como el promedio de encuestas está bastante más a la derecha que el resultado de 2023, casi todo el mapa sale azul; lo que interesa es qué provincias se apartan de ese movimiento general (las más claras se mueven menos que la media). El mapa de 2026 muestra dónde queda cada provincia y el de cambio, cuánto ha recorrido para llegar ahí.</p>
   <p>Los partidos que no están en ninguno de los dos lados (por ejemplo Existe, Frente Obrero o las candidaturas locales) no suman a ninguno, pero sí cuentan en el total; por eso, en provincias donde pesan, el margen sale más pequeño que si se repartieran. La ficha de cada provincia muestra los tres porcentajes.</p>
   <p><strong>Cómo leer el mapa de 2026.</strong> Es la previsión central del modelo (la de las páginas de <a href="provincias.html">Provincias</a> y <a href="comunidades.html">Comunidades</a>), no una encuesta por provincia. El modelo reparte el voto nacional estimado entre las provincias partiendo de los resultados anteriores y, en parte, de la forma provincial del preelectoral del CIS (véase la <a href="metodologia.html">metodología</a>); por eso la mayor parte de la diferencia entre los dos mapas es el giro nacional aplicado a cada provincia. Hay una excepción conocida: donde pesan los partidos de un solo territorio (Euskadi, Cataluña, Galicia, Canarias), el modelo reparte entre provincias el voto que las encuestas dan a esos partidos en toda España, y el resultado puede moverse distinto del resto (por ejemplo, el PNV baja en las encuestas y eso hace que Euskadi se mueva hacia la izquierda en el mapa, porque el PNV figura en la derecha). Es una limitación del modelo, no un dato.</p>
 </div>

@@ -13,7 +13,10 @@
     SALF: "SALF", CCa: "CC", UPN: "UPN", "Adelante Andalucía": "ADELANTE", FV: "FV",
   };
   const SELECCION_INICIAL = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "PODEMOS", "SALF"];
-  const NOMBRES_EN_GRAFICO = { SUMAR: "Frente Amplio", SUMAR_ANTIGUO: "Sumar", FV: "Front Valencià (incluido en Frente Amplio)" };
+  const NOMBRES_EN_GRAFICO = { SUMAR: "Frente Amplio", SUMAR_ANTIGUO: "Sumar", FV: "Front Valencià" };
+  // Orden de las columnas de partido en la tabla de encuestas: por su resultado en las generales de 2023 (Frente Amplio, que sucede a Sumar, va justo detrás); los que no tuvieron resultado propio, al final
+  const ORDEN_POR_2023 = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE", "PODEMOS", "SALF", "FV"];
+  const posicionEn2023 = (id) => { const posicion = ORDEN_POR_2023.indexOf(id); return posicion < 0 ? ORDEN_POR_2023.length : posicion; };
   const ELECCIONES_MARCADAS = [{ fecha: "2024-06-09", texto: "Europeas" }];
   const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   const MARGEN = { izquierda: 40, derecha: 12, arriba: 12, abajo: 28 };
@@ -77,7 +80,7 @@
     let svg = '<svg viewBox="0 0 ' + anchura + " " + altura + '" width="' + anchura + '" height="' + altura + '" role="img" aria-label="Evolución del promedio de encuestas">';
     for (let valor = 0; valor <= maximo; valor += 5) {
       svg += '<line x1="' + MARGEN.izquierda + '" x2="' + (anchura - MARGEN.derecha) + '" y1="' + y(valor) + '" y2="' + y(valor) + '" stroke="var(--linea)" />';
-      svg += '<text x="' + (MARGEN.izquierda - 6) + '" y="' + (y(valor) + 4) + '" text-anchor="end" font-size="11" fill="var(--suave)">' + valor + " %</text>";
+      svg += '<text x="' + (MARGEN.izquierda - 6) + '" y="' + (y(valor) + 4) + '" text-anchor="end" font-size="11" fill="var(--suave)">' + valor + "%</text>";
     }
     marcasDelEjeX(desde, hasta).forEach((marca) => {
       svg += '<text x="' + x(marca.indice) + '" y="' + (altura - 8) + '" text-anchor="middle" font-size="11" fill="var(--suave)">' + marca.texto + "</text>";
@@ -133,12 +136,12 @@
       .sort((a, b) => b.valor - a.valor);
     let texto = "<b>" + textoDeFecha(indice) + "</b> · " + encuestas + " encuestas en la ventana de 30 días";
     texto += '<div class="valores-promedio">' + filas.map((fila) =>
-      '<span><span class="ficha" style="background:' + COLORES[fila.id] + '"></span>' + nombreDe(fila.id) + " <b>" + formato.format(fila.valor) + " %</b></span>").join("") + "</div>";
+      '<span><span class="ficha" style="background:' + COLORES[fila.id] + '"></span>' + nombreDe(fila.id) + " <b>" + formato.format(fila.valor) + "%</b></span>").join("") + "</div>";
     document.getElementById("detalle-promedio").innerHTML = texto;
     pintarEncuestas();
   }
 
-  /* Tabla de las encuestas que entran en el promedio del día marcado: encuestadora, trabajo de campo, entrevistados, peso (parte del peso total del día)
+  /* Tabla de las encuestas que entran en el promedio del día marcado: encuestadora, campo, entrevistados, peso (parte del peso total del día)
      y el valor de cada partido seleccionado. Se puede ordenar pulsando en la cabecera. */
   function pintarEncuestas() {
     const tabla = document.getElementById("tabla-encuestas-dia");
@@ -146,7 +149,7 @@
     const indice = estado.indiceMarcado;
     const entradas = ENCUESTAS_PROMEDIO.dias[indice] || [];
     const pesoTotal = entradas.reduce((suma, par) => suma + par[1], 0);
-    const partidosElegidos = series.filter((serie) => estado.seleccion.has(serie.id));
+    const partidosElegidos = series.filter((serie) => estado.seleccion.has(serie.id)).sort((a, b) => posicionEn2023(a.id) - posicionEn2023(b.id));
     const filas = entradas.map((par) => {
       const encuesta = ENCUESTAS_PROMEDIO.encuestas[par[0]];
       return { encuesta: encuesta, pesoActual: par[1], peso: pesoTotal > 0 ? par[1] / pesoTotal : 0 };
@@ -174,7 +177,7 @@
       ? textoDeFecha(indice) + ": " + filas.length + " encuestas con el día medio de campo en los 30 días anteriores o ya empezadas. Pulsa una cabecera para ordenar."
       : textoDeFecha(indice) + ": ninguna encuesta con el día medio de campo en los 30 días anteriores.";
 
-    const cabeceras = [["firma", "Encuestadora"], ["campo", "Trabajo de campo"], ["muestra", "Entrevistados"], ["absoluto", "Peso absoluto"], ["actual", "Peso actual"], ["peso", "Peso relativo"]]
+    const cabeceras = [["firma", "Encuestadora"], ["campo", "Campo"], ["muestra", "Entrevistados"], ["absoluto", "Peso absoluto"], ["actual", "Peso actual"], ["peso", "Peso relativo"]]
       .concat(partidosElegidos.map((serie) => [serie.id, nombreDe(serie.id)]));
     const flecha = (columna) => (estado.orden.columna === columna ? (estado.orden.descendente ? " ▼" : " ▲") : "");
     tabla.querySelector("thead").innerHTML = "<tr>" + cabeceras.map((par) =>
@@ -195,9 +198,9 @@
         const valor = encuesta.valores[serie.nombre];
         return "<td>" + (valor === undefined ? "–" : formato.format(valor)) + "</td>";
       }).join("");
-      return "<tr><td>" + escaparHtml(encuesta.firma) + cliente + '</td><td style="text-align:left">' + escaparHtml(encuesta.campo) + "</td><td>" +
+      return "<tr><td>" + escaparHtml(encuesta.firma) + cliente + '</td><td style="text-align:left">' + escaparHtml(encuesta.campo.replace(/\s\d{4}$/, "")) + "</td><td>" +
         (encuesta.muestra === null ? "–" : formatoEntero.format(encuesta.muestra)) + "</td><td>" + formatoPeso.format(encuesta.absoluto) + "</td><td>" + formatoPeso.format(fila.pesoActual) +
-        "</td><td>" + barra + formato.format(100 * fila.peso) + " %</td>" + celdasDePartidos + "</tr>";
+        "</td><td>" + barra + formato.format(100 * fila.peso) + "%</td>" + celdasDePartidos + "</tr>";
     }).join("");
   }
 

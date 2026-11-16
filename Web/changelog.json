@@ -1,5 +1,10 @@
 [
   {
+    "fecha": "2026-11-17",
+    "titulo": "Mapa de cambio desde 2023, bloque de 2023 sin Adelante y ajustes de tablas",
+    "texto": "El mapa de 2023 se sustituye por un mapa de cambio: cada provincia se pinta por lo que se ha movido su margen izquierda-derecha entre 2023 y 2026 (azul si se mueve hacia la derecha, rojo si lo hace hacia la izquierda), junto al mapa de 2026. En las mayorías, el bloque de 2023 ya no incluye a Adelante Andalucía, que no tuvo representación en 2023 y no pudo apoyar la investidura; sus variantes aparecen aparte («+ Adelante»). La tabla nacional pone 2023 a la izquierda de 2026, los porcentajes se escriben sin espacio y la tabla de encuestas del día ordena los partidos por su resultado de 2023, resume el campo sin el año y llama «Front Valencià» al partido en la leyenda."
+  },
+  {
     "fecha": "2026-11-16",
     "titulo": "Los trackings acumulados de 40dB entran como entregas independientes",
     "texto": "40dB publica cada día una entrega acumulada desde el mismo día de inicio (10-12, 10-13, 10-14 y 10-15 de noviembre, con 1.000, 1.500, 2.000 y 2.500 entrevistas). En lugar de contar cada entrega entera, el promedio usa ahora lo que cada una añade a la anterior: las entrevistas nuevas y su porcentaje, calculado restando muestra por porcentaje. Así la señal de los últimos días no queda diluida en el acumulado. Con los datos de hoy el PSOE sube 0,1 puntos en el promedio y Vox baja 0,2. Solo se aplica a 40dB; los acumulados de otras casas, como SocioMétrica, quedan sin cambios porque su resta sale incoherente."
