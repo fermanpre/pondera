@@ -37,6 +37,7 @@ function recalcular() {
     pintarNacional();
     pintarProvincia();
     pintarComunidad();
+    if (typeof alTerminarElCalculo === "function") alTerminarElCalculo();
   }, 20);
 }
 
@@ -166,6 +167,7 @@ function pintarNacional() {
     trozo.textContent = cantidad >= 8 ? cantidad : "";
     barra.appendChild(trozo);
   });
+  if (typeof pintarHemiciclo === "function") pintarHemiciclo(document.getElementById("hemiciclo"), centrales);
   const marca = document.createElement("div");
   marca.className = "linea176";
   marca.style.left = (100 * 176 / 350) + "%";

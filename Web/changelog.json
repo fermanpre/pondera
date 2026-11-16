@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-17",
+    "titulo": "Hemiciclo del Congreso y «Crea tu propio promedio» en el simulador",
+    "texto": "La portada y el simulador muestran el reparto central de escaños como un hemiciclo de 350 asientos, con los partidos de izquierda a derecha. En el simulador, la nueva sección «Crea tu propio promedio» enseña la encuesta más reciente de cada encuestadora de los últimos 90 días: puedes dar a cada una el peso que quieras (siempre suman 100) o excluirla, y al pulsar el botón se calcula tu promedio, se traduce a voto por candidatura con el mismo método que el del modelo y se recalculan el reparto, las simulaciones y las mayorías con el número de simulaciones que elijas. Los pesos iniciales son los que da hoy el modelo."
+  },
+  {
+    "fecha": "2026-11-17",
     "titulo": "Simulador: topes de voto para los partidos regionales y tablas de territorio más estrechas",
     "texto": "En el simulador, un partido que solo se presenta en parte de España no puede pasar de los votos de esa parte: Adelante Andalucía, 17,7%; ERC y Junts, 14,4%; Front Valencià, 10,8%; BNG, 6,4%; EH Bildu, 6,0%; PNV, 4,6%; Coalición Canaria, 4,2%; Existe, 2,8%; y UPN, 1,3%. Si al mover otro partido el reajuste proporcional empujara a uno por encima de su tope, se queda en el tope y el sobrante se reparte entre los demás. En las tablas de Provincias, Comunidades y Simulador, las cabeceras pasan a «Escaños», «Más probable» y «Distribución (oscuro: central)», y los porcentajes de las barras se escriben sin espacio."
   },

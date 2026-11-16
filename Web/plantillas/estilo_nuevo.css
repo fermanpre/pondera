@@ -137,3 +137,22 @@
   /* Tabla nacional con cabecera de dos filas */
   #tabla-nacional th.grupo-columnas { text-align: center; border-bottom: 1px solid var(--linea); }
   #tabla-nacional th[rowspan] { vertical-align: bottom; }
+
+  /* Hemiciclo del Congreso */
+  .hemiciclo { margin: 6px auto 14px; max-width: 760px; }
+  .hemiciclo svg { display: block; width: 100%; height: auto; }
+  .hemiciclo .hemiciclo-total { font-size: 46px; font-weight: 700; fill: var(--texto); }
+  .hemiciclo .hemiciclo-nota { font-size: 13px; fill: var(--suave); }
+  .hemiciclo-leyenda { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; margin-top: 4px; font-size: 0.9rem; }
+  .hemiciclo-partido { white-space: nowrap; }
+
+  /* Crea tu propio promedio */
+  .tabla-promedio-propio th, .tabla-promedio-propio td { white-space: nowrap; }
+  .tabla-promedio-propio tr.excluida td { opacity: 0.45; }
+  .tabla-promedio-propio tr.excluida td:first-child { opacity: 1; }
+  .tabla-promedio-propio input.peso-propio { width: 4.6em; text-align: right; }
+  .tabla-promedio-propio tfoot th { text-align: left; }
+  #pp-resultado { margin-top: 14px; }
+  button.principal { font-weight: 600; }
+  .tabla-promedio-propio th:nth-child(2), .tabla-promedio-propio td:nth-child(2), .tabla-promedio-propio th:nth-child(3), .tabla-promedio-propio td:nth-child(3) { text-align: left; }
+  .tabla-promedio-propio th:first-child, .tabla-promedio-propio td:first-child { text-align: center; }

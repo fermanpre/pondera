@@ -3,6 +3,32 @@
   <p class="subtitulo">Fija tú el voto de cada partido y mira qué pasa con los escaños, en España y en cada provincia.</p>
 </div>
 
+<section id="promedio-propio">
+  <h2>Crea tu propio promedio</h2>
+  <p class="nota">La encuesta más reciente de cada encuestadora de los últimos 90 días, tal como se publicó. Da a cada una el peso que quieras, o exclúyela: los pesos suman siempre 100 y, al cambiar uno, el resto se reajusta en proporción. Al pulsar el botón se calcula tu promedio de cada partido, se traduce a voto por candidatura con el mismo método que el promedio del modelo y se calculan el reparto de escaños y las simulaciones. Los pesos iniciales son los que da hoy el modelo (según la fiabilidad de la encuestadora, el tamaño de la muestra y lo reciente que es la encuesta).</p>
+  <div class="controles">
+    <button id="pp-modelo" type="button">Pesos del modelo</button>
+    <button id="pp-iguales" type="button">Pesos iguales</button>
+    <label><input type="checkbox" id="pp-correccion" checked> Corregir las encuestas «de parte», como hace el modelo</label>
+  </div>
+  <div class="tabla-ancha">
+    <table id="tabla-promedio-propio" class="tabla-promedio-propio">
+      <thead></thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+  <div class="controles">
+    <label>Simulaciones
+      <select id="pp-sorteos"><option value="500">500</option><option value="2000" selected>2.000</option><option value="10000">10.000</option></select>
+    </label>
+    <button id="pp-calcular" type="button" class="principal">Calcular promedio y proyección</button>
+    <span class="nota" id="pp-estado"></span>
+  </div>
+  <div id="pp-resultado"></div>
+  <p class="nota">Tu promedio no aplica el filtro de cifras atípicas del modelo ni descuenta las encuestas repetidas de una misma casa: usa solo la última de cada encuestadora, con el peso que tú le des. Una encuesta acumulada, como las de SocioMétrica o SW Demoscopia, cuenta con su muestra total. El promedio de Frente Amplio incluye a Front Valencià; el modelo los separa al traducir el promedio a voto por candidatura.</p>
+</section>
+
 <section id="simulador">
   <h2>Voto por partido</h2>
   <p class="nota">Mueve el voto de un partido y el resto se reajusta en proporción para sumar 100%. El reparto por provincia se recalcula con el mismo método que la previsión.</p>
@@ -19,6 +45,7 @@
 
 <section id="nacional">
   <h2>Resultado nacional</h2>
+  <div id="hemiciclo" class="hemiciclo"></div>
   <div id="barra-escanos" class="barra" aria-label="Escaños previstos por partido"></div>
   <div class="leyenda176" id="leyenda176"></div>
   <div class="mayorias" id="mayorias"></div>
