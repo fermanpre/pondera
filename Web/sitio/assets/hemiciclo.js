@@ -5,7 +5,8 @@
  * para dar a cada partido una cuña continua (la disposición clásica de los gráficos de parlamentos).
  * Uso: pintarHemiciclo(elemento, { PP: 132, PSOE: 111, ... }).
  */
-const HEMICICLO = { ancho: 720, alto: 392, centroX: 360, centroY: 360, radioExterior: 340, radioInterior: 128, filas: 11, proporcionDelRadio: 0.44 };
+const MAYORIA_ABSOLUTA = 176;
+const HEMICICLO = { ancho: 720, alto: 400, centroX: 360, centroY: 368, radioExterior: 340, radioInterior: 128, filas: 11, proporcionDelRadio: 0.44 };
 
 // Asientos del hemiciclo: [{ x, y, angulo, fila }] ordenados de izquierda a derecha
 function asientosDelHemiciclo(total) {
@@ -52,6 +53,14 @@ function pintarHemiciclo(contenedor, escanosPorPartido) {
       svg += '<circle cx="' + asiento.x.toFixed(1) + '" cy="' + asiento.y.toFixed(1) + '" r="' + disposicion.radioDelAsiento.toFixed(1) + '" fill="' + (COLORES[partido] || "#9a9a94") + '"><title>' + nombre + ": " + cantidad + ' escaños</title></circle>';
     }
   });
+  // Marcador de la mayoría absoluta: una línea radial entre el asiento 176 (contando desde la izquierda) y el siguiente, con la etiqueta «176» fuera del arco
+  if (disposicion.asientos.length > MAYORIA_ABSOLUTA) {
+    const angulo = (disposicion.asientos[MAYORIA_ABSOLUTA - 1].angulo + disposicion.asientos[MAYORIA_ABSOLUTA].angulo) / 2;
+    const interior = HEMICICLO.radioInterior - 14, exterior = HEMICICLO.radioExterior + 12;
+    svg += '<line class="hemiciclo-marcador" x1="' + (HEMICICLO.centroX + interior * Math.cos(angulo)).toFixed(1) + '" y1="' + (HEMICICLO.centroY - interior * Math.sin(angulo)).toFixed(1) +
+      '" x2="' + (HEMICICLO.centroX + exterior * Math.cos(angulo)).toFixed(1) + '" y2="' + (HEMICICLO.centroY - exterior * Math.sin(angulo)).toFixed(1) + '"/>';
+    svg += '<text class="hemiciclo-etiqueta" text-anchor="middle" x="' + (HEMICICLO.centroX + (exterior + 10) * Math.cos(angulo)).toFixed(1) + '" y="' + (HEMICICLO.centroY - (exterior + 10) * Math.sin(angulo) + 4).toFixed(1) + '">176</text>';
+  }
   svg += '<text x="' + HEMICICLO.centroX + '" y="' + (HEMICICLO.centroY - 40) + '" text-anchor="middle" class="hemiciclo-total">' + total + '</text>';
   svg += '<text x="' + HEMICICLO.centroX + '" y="' + (HEMICICLO.centroY - 12) + '" text-anchor="middle" class="hemiciclo-nota">escaños · mayoría absoluta: 176</text>';
   svg += "</svg>";

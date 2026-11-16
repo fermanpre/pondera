@@ -156,3 +156,7 @@
   button.principal { font-weight: 600; }
   .tabla-promedio-propio th:nth-child(2), .tabla-promedio-propio td:nth-child(2), .tabla-promedio-propio th:nth-child(3), .tabla-promedio-propio td:nth-child(3) { text-align: left; }
   .tabla-promedio-propio th:first-child, .tabla-promedio-propio td:first-child { text-align: center; }
+  .tabla-promedio-propio td.celda-peso { white-space: nowrap; text-align: right; }
+  .tabla-promedio-propio input.deslizador-peso { width: 120px; vertical-align: middle; margin: 0 6px 0 0; }
+  .hemiciclo .hemiciclo-marcador { stroke: var(--texto); stroke-width: 1.6; stroke-dasharray: 5 4; opacity: 0.75; }
+  .hemiciclo .hemiciclo-etiqueta { font-size: 14px; font-weight: 700; fill: var(--texto); }

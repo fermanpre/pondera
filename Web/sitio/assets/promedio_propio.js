@@ -145,7 +145,8 @@
       const deParte = encuesta.de_parte ? ' <span class="nota">(de parte)</span>' : "";
       return '<tr' + (fila.incluida ? "" : ' class="excluida"') + '><td><input type="checkbox" data-incluir="' + indice + '"' + (fila.incluida ? " checked" : "") + ' aria-label="Incluir la encuesta de ' + encuesta.firma + '"></td>' +
         "<td>" + encuesta.firma + cliente + deParte + "</td><td>" + textoDeCampo(encuesta.campo) + '</td><td class="num">' + (encuesta.muestra ? formatoEntero.format(encuesta.muestra) : "–") + "</td>" +
-        '<td class="num">' + formato.format(encuesta.peso_modelo) + '</td><td class="num"><input type="number" class="peso-propio" data-peso="' + indice + '" min="0" max="100" step="0.1" value="' + fila.peso.toFixed(1) +
+        '<td class="num">' + formato.format(encuesta.peso_modelo) + '</td><td class="celda-peso"><input type="range" class="deslizador-peso" data-deslizador="' + indice + '" min="0" max="100" step="0.1" value="' + fila.peso.toFixed(1) +
+        '"' + (fila.incluida ? "" : " disabled") + ' aria-label="Deslizador del peso de la encuesta de ' + encuesta.firma + '"> <input type="number" class="peso-propio" data-peso="' + indice + '" min="0" max="100" step="0.1" value="' + fila.peso.toFixed(1) +
         '"' + (fila.incluida ? "" : " disabled") + ' aria-label="Peso de la encuesta de ' + encuesta.firma + '"></td>' + celdas + "</tr>";
     }).join("");
     tabla.querySelector("tbody").innerHTML = html;
@@ -222,6 +223,25 @@
 
   /* ---------- Eventos ---------- */
 
+  // Pone en todos los campos de peso (deslizador y número) el valor actual, sin reconstruir la tabla, para no perder el foco mientras se arrastra
+  function actualizarPesos() {
+    filas.forEach(function (fila, indice) {
+      const valor = fila.peso.toFixed(1);
+      const numero = tabla.querySelector('input[data-peso="' + indice + '"]');
+      const deslizador = tabla.querySelector('input[data-deslizador="' + indice + '"]');
+      if (numero && numero !== document.activeElement) numero.value = valor;
+      if (deslizador && deslizador !== document.activeElement) deslizador.value = valor;
+    });
+    pie();
+  }
+
+  tabla.addEventListener("input", function (evento) {
+    const objetivo = evento.target;
+    if (objetivo.hasAttribute("data-deslizador")) {
+      fijarPeso(filas[parseInt(objetivo.getAttribute("data-deslizador"), 10)], parseFloat(objetivo.value));
+      actualizarPesos();
+    }
+  });
   tabla.addEventListener("change", function (evento) {
     const objetivo = evento.target;
     if (objetivo.hasAttribute("data-incluir")) {
@@ -229,6 +249,8 @@
       refrescar();
     } else if (objetivo.hasAttribute("data-peso")) {
       fijarPeso(filas[parseInt(objetivo.getAttribute("data-peso"), 10)], parseFloat(objetivo.value));
+      refrescar();
+    } else if (objetivo.hasAttribute("data-deslizador")) {
       refrescar();
     }
   });

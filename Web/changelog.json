@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-17",
+    "titulo": "Deslizadores de peso y marcador de los 176 en el hemiciclo",
+    "texto": "En «Crea tu propio promedio», cada encuesta tiene ahora un deslizador de peso además del campo numérico: al moverlo, el resto de pesos se reajusta en proporción para que sigan sumando 100. El hemiciclo marca con una línea discontinua y la etiqueta «176» dónde se alcanza la mayoría absoluta contando desde la izquierda; la barra de escaños se mantiene debajo."
+  },
+  {
+    "fecha": "2026-11-17",
     "titulo": "Hemiciclo del Congreso y «Crea tu propio promedio» en el simulador",
     "texto": "La portada y el simulador muestran el reparto central de escaños como un hemiciclo de 350 asientos, con los partidos de izquierda a derecha. En el simulador, la nueva sección «Crea tu propio promedio» enseña la encuesta más reciente de cada encuestadora de los últimos 90 días: puedes dar a cada una el peso que quieras (siempre suman 100) o excluirla, y al pulsar el botón se calcula tu promedio, se traduce a voto por candidatura con el mismo método que el del modelo y se recalculan el reparto, las simulaciones y las mayorías con el número de simulaciones que elijas. Los pesos iniciales son los que da hoy el modelo."
   },
