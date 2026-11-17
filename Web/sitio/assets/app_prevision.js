@@ -132,10 +132,17 @@ function textoDeProbabilidad(p) {
   return porcentaje(100 * p);
 }
 
-function filaDeMayoria(combinacion, p) {
-  return '<div class="barra-prob" title="' + combinacion.partidos.map(function (x) { return NOMBRES[x] || x; }).join(" + ") + '">' +
+// Diputados que suma la combinación en el reparto central (sin ruido)
+function escanosDeLaCombinacion(combinacion, centrales) {
+  return combinacion.partidos.reduce(function (suma, partido) { return suma + (centrales[partido] || 0); }, 0);
+}
+
+function filaDeMayoria(combinacion, p, centrales) {
+  const escanos = escanosDeLaCombinacion(combinacion, centrales);
+  return '<div class="barra-prob" title="' + combinacion.partidos.map(function (x) { return NOMBRES[x] || x; }).join(" + ") + ': ' + entero(escanos) + ' escaños en el reparto central">' +
     '<span class="barra-prob-nombre">' + combinacion.nombre + '</span>' +
     '<span class="barra-prob-pista"><span class="barra-prob-relleno" style="width:' + (100 * p).toFixed(2) + '%;background:' + combinacion.color + '"></span></span>' +
+    '<span class="barra-prob-escanos' + (escanos >= 176 ? " mayoria" : "") + '">' + entero(escanos) + '</span>' +
     '<b>' + textoDeProbabilidad(p) + '</b></div>';
 }
 
@@ -143,16 +150,17 @@ function pintarMayorias() {
   const contenedor = document.getElementById("mayorias");
   if (!contenedor) return;
   const probabilidad = function (combinacion) { return MotorElectoral.probabilidadDeSuma(modelo, ultimoResultado.simulacion, combinacion.partidos); };
+  const centrales = escanosCentrales();
   const calculadas = COMBINACIONES_DE_MAYORIA.map(function (combinacion) { return { combinacion: combinacion, p: probabilidad(combinacion) }; });
   const visibles = calculadas.filter(function (elemento) { return elemento.p >= PROBABILIDAD_MINIMA_DE_MAYORIA; })
     .sort(function (a, b) { return b.p - a.p; });
-  let html = '<h3>Probabilidad de mayoría absoluta (176 escaños o más)</h3><div class="grupo-mayorias">';
-  visibles.forEach(function (elemento) { html += filaDeMayoria(elemento.combinacion, elemento.p); });
+  let html = '<h3>Probabilidad de mayoría absoluta (176 escaños o más)</h3><div class="grupo-mayorias"><div class="barra-prob barra-prob-cabecera"><span></span><span></span><span class="barra-prob-escanos" title="Escaños que suma la combinación en el reparto central (sin ruido)">Escaños</span><b>Prob.</b></div>';
+  visibles.forEach(function (elemento) { html += filaDeMayoria(elemento.combinacion, elemento.p, centrales); });
   html += '</div>';
   if (visibles.length < calculadas.length) {
     html += '<p class="nota">Todas las demás mayorías razonablemente posibles no alcanzan el 0,1% de las simulaciones.</p>';
   }
-  html += '<div class="grupo-mayorias"><h4>Otras</h4>' + filaDeMayoria(COMBINACION_OTRAS, probabilidad(COMBINACION_OTRAS)) + '</div>';
+  html += '<div class="grupo-mayorias"><h4>Otras</h4>' + filaDeMayoria(COMBINACION_OTRAS, probabilidad(COMBINACION_OTRAS), centrales) + '</div>';
   contenedor.innerHTML = html;
 }
 
