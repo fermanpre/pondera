@@ -119,7 +119,7 @@ function pintarMayorias() {
 /* ---------- Tabla nacional: 2026 frente a 2023 ---------- */
 
 // Clave de cada partido del modelo en resultados_2023.js. Podemos, SALF y Front Valencià no tuvieron candidatura propia en 2023 (Podemos y Compromís iban dentro de Sumar).
-const CLAVE_EN_2023 = { PP: "PP", PSOE: "PSOE", VOX: "VOX", SUMAR: "SUMAR", ERC: "ERC", JUNTS: "JUNTS", BILDU: "BILDU", PNV: "PNV", BNG: "BNG", CC: "CC", UPN: "UPN", EXISTE: "EXISTE", ADELANTE: "ADELANTE", PACMA: "PACMA" };
+const CLAVE_EN_2023 = { PP: "PP", PSOE: "PSOE", VOX: "VOX", SUMAR: "SUMAR", FV: "FV", ERC: "ERC", JUNTS: "JUNTS", BILDU: "BILDU", PNV: "PNV", BNG: "BNG", CC: "CC", UPN: "UPN", EXISTE: "EXISTE", ADELANTE: "ADELANTE", PACMA: "PACMA" };
 
 function resultadosNacionalesDe2023() {
   if (typeof RESULTADOS_2023_NACIONAL === "undefined" || typeof MAPA_2023 === "undefined") return null;
@@ -131,6 +131,19 @@ function resultadosNacionalesDe2023() {
   });
   let total = 0;
   Object.keys(MAPA_2023).forEach(function (provincia) { total += MAPA_2023[provincia].total; });
+  // Front Valencià (2026) equivale, a grandes rasgos, a lo que fue Sumar en la Comunitat Valenciana en 2023 (con Compromís dentro), y las encuestas publican el Frente Amplio sin ella:
+  // para comparar, el «FV de 2023» es el voto y los escaños de Sumar en sus tres provincias y el Frente Amplio de 2023 es el total de Sumar menos esa parte.
+  if (typeof RESULTADOS_2023 !== "undefined") {
+    let votosEnLaValenciana = 0, escanosEnLaValenciana = 0;
+    ["Alicante/Alacant", "Castellón/Castelló", "Valencia/València"].forEach(function (provincia) {
+      const sumar = RESULTADOS_2023[provincia] && RESULTADOS_2023[provincia].candidaturas.find(function (c) { return c.clave === "SUMAR"; });
+      if (sumar) { votosEnLaValenciana += sumar.votos; escanosEnLaValenciana += sumar.escanos; }
+    });
+    votos.FV = votosEnLaValenciana;
+    escanos.FV = escanosEnLaValenciana;
+    votos.SUMAR -= votosEnLaValenciana;
+    escanos.SUMAR -= escanosEnLaValenciana;
+  }
   return { votos: votos, escanos: escanos, total: total };
 }
 
@@ -170,7 +183,7 @@ function histogramaNacional(partido, indice, central) {
   while (hasta - desde < 2) { if (desde > 0) desde -= 1; hasta += 1; if (hasta - desde >= 2) break; }
   let masProbable = desde;
   Object.keys(cuentas).forEach(function (n) { if (cuentas[n] > (cuentas[masProbable] || 0)) masProbable = Number(n); });
-  return histogramaDeEscanos({ partido: partido, cuentas: cuentas, central: central, masProbable: masProbable }, sorteos, { desde: desde, hasta: hasta, ancho: 130, compacto: true });
+  return histogramaDeEscanos({ partido: partido, cuentas: cuentas, central: central, masProbable: masProbable }, sorteos, { desde: desde, hasta: hasta, ancho: 180, compacto: true });
 }
 
 function cabeceraDeLaTablaNacional() {

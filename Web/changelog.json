@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-17",
+    "titulo": "Front Valencià y Frente Amplio comparables con 2023; histograma más ancho",
+    "texto": "En la tabla nacional, el resultado de 2023 de Front Valencià es lo que fue Sumar en la Comunitat Valenciana (1,6% de los votos y 4 escaños), y el de Frente Amplio es el total de Sumar menos esa parte (10,8% y 27 escaños), porque las encuestas que separan a Front Valencià dan el Frente Amplio sin la Comunitat Valenciana. Podemos sigue sin dato de 2023, porque iba dentro de Sumar y no se puede separar. Las barras del histograma de escaños son más anchas, manteniendo el 50% central."
+  },
+  {
+    "fecha": "2026-11-17",
     "titulo": "Histograma nacional de escaños y miles con punto",
     "texto": "La tabla de previsión nacional tiene una columna nueva con el histograma del total de escaños de cada partido: muestra los valores que reúnen el 50% central de las simulaciones (del percentil 25 al 75), con el reparto central en oscuro y la probabilidad de cada total en el texto emergente. Los números de cuatro cifras, como el tamaño de muestra de los sondeos, se escriben ahora con punto de miles."
   },
