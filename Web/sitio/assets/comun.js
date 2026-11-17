@@ -1,7 +1,7 @@
 "use strict";
 const NOMBRES = {
   PP: "PP", PSOE: "PSOE", VOX: "Vox", SUMAR: "Frente Amplio", PODEMOS: "Podemos", SALF: "SALF", ADELANTE: "Adelante Andalucía", FV: "Front Valencià",
-  ERC: "ERC", JUNTS: "Junts", BILDU: "EH Bildu", PNV: "PNV", BNG: "BNG", CC: "Coalición Canaria", UPN: "UPN", PACMA: "PACMA", EXISTE: "Coalición Existe (Teruel Existe y Aragón Existe)", OTROS: "Otros",
+  ERC: "ERC", JUNTS: "Junts", BILDU: "EH Bildu", PNV: "PNV", BNG: "BNG", CC: "Coalición Canaria", UPN: "UPN", PACMA: "PACMA", EXISTE: "Coalición Existe", OTROS: "Otros",
 };
 const COLORES = {
   PP: "#1d6fb8", PSOE: "#d4141c", VOX: "#4e9a1d", SUMAR: "#ee3500", SUMAR_ANTIGUO: "#c4157a", PODEMOS: "#6b2d8f", SALF: "#8a6a3b", ADELANTE: "#0b7a3a", FV: "#f2b08c",

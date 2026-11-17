@@ -206,7 +206,7 @@ button.principal { font-weight: 600; }
 .tabla-promedio-propio th:first-child, .tabla-promedio-propio td:first-child { text-align: center; }
 .tabla-promedio-propio td.celda-peso { white-space: nowrap; text-align: right; }
 .tabla-promedio-propio input.deslizador-peso { width: 120px; vertical-align: middle; margin: 0 6px 0 0; }
-.hemiciclo .hemiciclo-marcador { stroke: var(--texto); stroke-width: 1.8; opacity: 0.85; }
+.hemiciclo .hemiciclo-marcador { stroke: #000; stroke-width: 3.6; stroke-linejoin: round; opacity: 1; filter: drop-shadow(0 0 1.5px rgba(255,255,255,.9)); }
 .hemiciclo .hemiciclo-etiqueta { font-size: 14px; font-weight: 700; fill: var(--texto); }
 /* Diferencias con 2023: triángulo verde si sube, rojo si baja */
 :root { --sube: #1b7f3b; --baja: #c62828; }
@@ -215,3 +215,18 @@ button.principal { font-weight: 600; }
 .sube { color: var(--sube); white-space: nowrap; }
 .baja { color: var(--baja); white-space: nowrap; }
 .triangulo { font-size: 0.7em; margin-right: 3px; vertical-align: 1px; }
+/* Línea de la mayoría absoluta en la barra de escaños: continua, negra y del doble de grosor (con un halo claro para que se vea también en el tema oscuro) */
+.barra .linea176 { border-left: 4px solid #000; top: -5px; bottom: -5px; box-shadow: 0 0 0 1px rgba(255,255,255,.75); }
+.leyenda176 { color: var(--suave); }
+/* Tabla nacional: columna de partidos a la mitad y más aire entre las demás */
+#tabla-nacional thead th[rowspan], #tabla-nacional tbody td:first-child { width: 190px; min-width: 190px; text-align: left; white-space: nowrap; }
+#tabla-nacional thead th:not([rowspan]), #tabla-nacional tbody td:not(:first-child) { padding-left: 16px; padding-right: 16px; }
+/* Tabla de encuestas del día: columnas fijas estrechas para que quepan 12-15 partidos */
+#tabla-encuestas-dia { font-size: 0.88rem; }
+#tabla-encuestas-dia th { white-space: normal; line-height: 1.15; vertical-align: bottom; }
+#tabla-encuestas-dia th:nth-child(1), #tabla-encuestas-dia td:nth-child(1) { width: 150px; white-space: normal; text-align: left; line-height: 1.2; }
+#tabla-encuestas-dia th:nth-child(2), #tabla-encuestas-dia td:nth-child(2) { width: 80px; }
+#tabla-encuestas-dia th:nth-child(n+3):nth-child(-n+5), #tabla-encuestas-dia td:nth-child(n+3):nth-child(-n+5) { width: 52px; }
+#tabla-encuestas-dia th:nth-child(6), #tabla-encuestas-dia td:nth-child(6) { width: 76px; }
+#tabla-encuestas-dia th:nth-child(n+7), #tabla-encuestas-dia td:nth-child(n+7) { width: 40px; padding-left: 3px; padding-right: 3px; text-align: center; }
+#tabla-encuestas-dia td, #tabla-encuestas-dia th { padding-left: 6px; padding-right: 6px; }

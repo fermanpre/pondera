@@ -180,7 +180,7 @@ function pintarNacional() {
   marca.className = "linea176";
   marca.style.left = (100 * 176 / 350) + "%";
   barra.appendChild(marca);
-  document.getElementById("leyenda176").textContent = "Línea discontinua: mayoría absoluta (176 escaños). Barra: reparto central, sin ruido.";
+  document.getElementById("leyenda176").textContent = "Línea negra: mayoría absoluta (176 escaños). Barra: reparto central, sin ruido.";
 
   pintarMayorias();
 

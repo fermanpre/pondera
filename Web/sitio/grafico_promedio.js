@@ -16,6 +16,10 @@
   const NOMBRES_EN_GRAFICO = { SUMAR: "Frente Amplio", SUMAR_ANTIGUO: "Sumar", FV: "Front Valencià" };
   // Orden de las columnas de partido en la tabla de encuestas: por su resultado en las generales de 2023 (Frente Amplio, que sucede a Sumar, va justo detrás); los que no tuvieron resultado propio, al final
   const ORDEN_POR_2023 = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE", "PODEMOS", "SALF", "FV"];
+  // Columnas de la tabla de encuestas del día: Sumar y Frente Amplio fusionadas en una (aunque no sean exactamente lo mismo) y Front Valencià justo a su derecha
+  const COLUMNAS_DE_LA_TABLA = ["PP", "PSOE", "VOX", "SUMAR", "FV", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE", "PODEMOS", "SALF"];
+  const NOMBRE_DE_COLUMNA = { SUMAR: "Sumar / Frente Amplio" };
+  const conMiles = (numero) => String(numero).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const posicionEn2023 = (id) => { const posicion = ORDEN_POR_2023.indexOf(id); return posicion < 0 ? ORDEN_POR_2023.length : posicion; };
   const ELECCIONES_MARCADAS = [{ fecha: "2024-06-09", texto: "Europeas" }];
   const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
@@ -149,11 +153,18 @@
     const indice = estado.indiceMarcado;
     const entradas = ENCUESTAS_PROMEDIO.dias[indice] || [];
     const pesoTotal = entradas.reduce((suma, par) => suma + par[1], 0);
-    const partidosElegidos = series.filter((serie) => estado.seleccion.has(serie.id)).sort((a, b) => posicionEn2023(a.id) - posicionEn2023(b.id));
     const filas = entradas.map((par) => {
       const encuesta = ENCUESTAS_PROMEDIO.encuestas[par[0]];
       return { encuesta: encuesta, pesoActual: par[1], peso: pesoTotal > 0 ? par[1] / pesoTotal : 0 };
     });
+
+    // Valor de un partido en una encuesta; la columna fusionada toma Frente Amplio y, si la encuesta aún usa el nombre antiguo, Sumar
+    const valorDeColumna = (encuesta, id) => {
+      if (id === "SUMAR") { return encuesta.valores["FA"] !== undefined ? encuesta.valores["FA"] : encuesta.valores["Sumar"]; }
+      const serie = series.find((candidata) => candidata.id === id);
+      return serie ? encuesta.valores[serie.nombre] : undefined;
+    };
+    const columnasDePartido = COLUMNAS_DE_LA_TABLA.filter((id) => filas.some((fila) => valorDeColumna(fila.encuesta, id) !== undefined));
 
     const valorDeOrden = (fila) => {
       const columna = estado.orden.columna;
@@ -163,8 +174,7 @@
       if (columna === "peso") { return fila.peso; }
       if (columna === "actual") { return fila.pesoActual; }
       if (columna === "absoluto") { return fila.encuesta.absoluto; }
-      const serie = series.find((candidata) => candidata.id === columna);
-      const valor = serie ? fila.encuesta.valores[serie.nombre] : undefined;
+      const valor = valorDeColumna(fila.encuesta, columna);
       return valor === undefined ? -1 : valor;
     };
     filas.sort((a, b) => {
@@ -177,8 +187,8 @@
       ? textoDeFecha(indice) + ": " + filas.length + " encuestas con el día medio de campo en los 30 días anteriores o ya empezadas. Pulsa una cabecera para ordenar."
       : textoDeFecha(indice) + ": ninguna encuesta con el día medio de campo en los 30 días anteriores.";
 
-    const cabeceras = [["firma", "Encuestadora"], ["campo", "Campo"], ["muestra", "Entrevistados"], ["absoluto", "Peso absoluto"], ["actual", "Peso actual"], ["peso", "Peso relativo"]]
-      .concat(partidosElegidos.map((serie) => [serie.id, logoDePartido(serie.id, nombreDe(serie.id)) || nombreDe(serie.id)]));
+    const cabeceras = [["firma", "Encuestadora"], ["campo", "Campo"], ["muestra", "Muestra"], ["absoluto", "Peso absoluto"], ["actual", "Peso actual"], ["peso", "Peso relativo"]]
+      .concat(columnasDePartido.map((id) => [id, logoDePartido(id, NOMBRE_DE_COLUMNA[id] || nombreDe(id)) || nombreDe(id)]));
     const flecha = (columna) => (estado.orden.columna === columna ? (estado.orden.descendente ? " ▼" : " ▲") : "");
     tabla.querySelector("thead").innerHTML = "<tr>" + cabeceras.map((par) =>
       '<th data-columna="' + par[0] + '" style="cursor:pointer' + (par[0] === "firma" || par[0] === "campo" ? ";text-align:left" : "") + '">' + par[1] + flecha(par[0]) + "</th>").join("") + "</tr>";
@@ -189,17 +199,17 @@
     }));
 
     const formatoEntero = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 });
-    const formatoPeso = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    const formatoPeso = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     tabla.querySelector("tbody").innerHTML = filas.map((fila) => {
       const encuesta = fila.encuesta;
-      const cliente = encuesta.cliente ? ' <span class="nota">(' + escaparHtml(encuesta.cliente) + ")</span>" : "";
-      const barra = '<span class="prob" style="width:' + Math.max(1, Math.round(60 * fila.peso / (filas[0] ? Math.max(...filas.map((f) => f.peso)) : 1))) + 'px"></span>';
-      const celdasDePartidos = partidosElegidos.map((serie) => {
-        const valor = encuesta.valores[serie.nombre];
+      const cliente = encuesta.cliente ? '<br><span class="nota">' + escaparHtml(encuesta.cliente) + "</span>" : "";
+      const barra = '<span class="prob" style="width:' + Math.max(1, Math.round(34 * fila.peso / (filas[0] ? Math.max(...filas.map((f) => f.peso)) : 1))) + 'px"></span>';
+      const celdasDePartidos = columnasDePartido.map((id) => {
+        const valor = valorDeColumna(encuesta, id);
         return "<td>" + (valor === undefined ? "–" : formato.format(valor)) + "</td>";
       }).join("");
       return "<tr><td>" + escaparHtml(encuesta.firma) + cliente + '</td><td style="text-align:left">' + escaparHtml(encuesta.campo.replace(/\s\d{4}$/, "")) + "</td><td>" +
-        (encuesta.muestra === null ? "–" : formatoEntero.format(encuesta.muestra)) + "</td><td>" + formatoPeso.format(encuesta.absoluto) + "</td><td>" + formatoPeso.format(fila.pesoActual) +
+        (encuesta.muestra === null ? "–" : conMiles(encuesta.muestra)) + "</td><td>" + formatoPeso.format(encuesta.absoluto) + "</td><td>" + formatoPeso.format(fila.pesoActual) +
         "</td><td>" + barra + formato.format(100 * fila.peso) + "%</td>" + celdasDePartidos + "</tr>";
     }).join("");
   }
