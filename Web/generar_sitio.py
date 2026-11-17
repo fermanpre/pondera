@@ -154,6 +154,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
     <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
   </div>
 </header>
+<div class="retroacronimo"><div class="interior"><b>P</b>romedio <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
 {segunda_cinta}
 <main class="contenedor">
 {contenido}

@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-17",
+    "titulo": "El nombre, desplegado en la cabecera",
+    "texto": "Entre la cinta principal y la segunda cinta de todas las páginas figura ahora el retroacrónimo de PONDERA: Promedio Ordenado de Noticias, Datos y Encuestas, con Resultados y Análisis."
+  },
+  {
+    "fecha": "2026-11-17",
     "titulo": "Simulador sin el resumen «Tu promedio y la proyección»",
     "texto": "Se quita el recuadro «Tu promedio y la proyección» que aparecía tras calcular, porque sus datos ya están en la tabla de encuestas (fila «Tu promedio») y en el resultado nacional. Al pulsar «Calcular promedio y proyección», la página lleva ahora directamente al resultado."
   },
