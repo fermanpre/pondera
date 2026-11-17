@@ -59,7 +59,15 @@ CORRECCION_DE_PARTE = {"activa": True, "promotor": 1.5, "propio": 0.5, "contrari
 FILTRO_DE_ATIPICAS = {"activo": True}
 # Solapamiento del trabajo de campo (trackings acumulados o móviles de una misma casa: SW Demoscopia, 40dB, SocioMétrica, Sigma Dos, Electomanía): el peso de una encuesta
 # se multiplica por la parte de su campo que ninguna entrega posterior de la misma casa ha vuelto a medir (ver solapamiento_de_campo.py). Activado por decisión del usuario el 16/11/2026, con la regla de agrupación de entregas que terminan en 4 días o menos.
-SOLAPAMIENTO_DE_CAMPO = {"activo": True}
+# Sustituido el 17/11/2026 por EXCLUSION_DE_SOLAPADAS (más simple, sin compensar trackings): desactivado.
+SOLAPAMIENTO_DE_CAMPO = {"activo": False}
+# Criterio de inclusión (decisión del usuario, 17/11/2026): de las encuestas de una misma casa, la más reciente y solo las anteriores cuyo campo no se pisa con el de ninguna ya
+# conservada (40dB: 12-16 nov y 2-4 nov, pero no 10-15 ni 10-14 nov). Las que se conservan pesan con su saturación y su recencia como siempre.
+EXCLUSION_DE_SOLAPADAS = {"activo": True}
+# Campos largos (decisión del usuario, 17/11/2026, una asunción a revisar): una encuesta cuyo trabajo de campo excede de DIAS_MAXIMOS_DE_CAMPO días cuenta como hecha en los
+# DIAS_DE_CAMPO_EQUIVALENTES últimos días de su campo (SocioMétrica 1 sep-15 nov: del 1 al 15 de noviembre, con fecha media el 8).
+DIAS_MAXIMOS_DE_CAMPO = 14
+DIAS_DE_CAMPO_EQUIVALENTES = 15
 # Fecha de un sondeo para el peso temporal (decisión del usuario, 16/11/2026): el día MEDIO de su trabajo de campo, no el último, como en el Excel del autor (hoja «Peso sondeos»:
 # «Media campo» = inicio + (fin - inicio) / 2, y la antigüedad se mide desde ahí). El sondeo empieza a pesar su primer día de campo, pesa más en el día medio y decae por los dos lados
 # con la vida media; un tracking de dos meses y medio pesa, por tanto, como lo que es. La ventana de 30 días y el orden por casa (saturación) también usan el día medio.
@@ -112,12 +120,14 @@ def leer_encuestas_acumuladas(convocatoria, fusionar_frente_amplio_en_sumar=True
                 continue  # «CIS (Logoslab)», «CIS (SocioMétrica)»…: recálculos de terceros sobre el CIS, no son encuestas
             clave = (fila["tabla"], fila["firma"], fila["cliente"], fila["fin_campo"], fila["muestra"])
             fin_de_campo = datetime.strptime(fila["fin_campo"], "%Y-%m-%d").date()
-            inicio_de_campo = solapamiento_de_campo.inicio_de_campo(fila["fecha_texto"], fin_de_campo)
+            inicio_original = solapamiento_de_campo.inicio_de_campo(fila["fecha_texto"], fin_de_campo)
+            campo_recortado = (fin_de_campo - inicio_original).days + 1 > DIAS_MAXIMOS_DE_CAMPO
+            inicio_de_campo = fin_de_campo - timedelta(days=DIAS_DE_CAMPO_EQUIVALENTES - 1) if campo_recortado else inicio_original
             encuesta = encuestas.setdefault(clave, {
                 "firma": normalizar_firma(fila["firma"]),
                 "firma_original": fila["firma"],
                 "fin": fin_de_campo,
-                "inicio": inicio_de_campo,
+                "inicio": inicio_de_campo, "inicio_original": inicio_original, "campo_recortado": campo_recortado,
                 "medio": (inicio_de_campo.toordinal() + fin_de_campo.toordinal()) / 2,  # número de día (acaba en .5 si la duración es par)
                 "muestra": int(float(fila["muestra"])) if fila["muestra"] else None,
                 "clave": clave, "cliente": fila["cliente"], "fecha_texto": fila["fecha_texto"],
@@ -148,7 +158,7 @@ def leer_encuestas_acumuladas(convocatoria, fusionar_frente_amplio_en_sumar=True
 # Trackings que publican entregas ACUMULADAS desde un mismo día de inicio (40dB: 10-12, 10-13, 10-14 y 10-15 de noviembre, con 1.000, 1.500, 2.000 y 2.500 entrevistas).
 # Para estas casas cada entrega se sustituye por lo que añade a la anterior: las entrevistas nuevas y sus porcentajes, restando muestra × porcentaje. Decisión del usuario, 16/11/2026.
 # Solo se aplica donde la resta sale limpia (40dB). SocioMétrica queda fuera: su acumulado se repondera entero y los incrementos salen incoherentes (PSOE 25,8 → 37,2 → 29,0; SALF negativo).
-CASAS_A_DESACUMULAR = {"40db"}
+CASAS_A_DESACUMULAR = set()  # vacío desde el 17/11/2026: el criterio de EXCLUSION_DE_SOLAPADAS deja de cada tracking su entrega más reciente, sin restar entregas
 
 
 def desacumular_entregas(encuestas):
@@ -342,7 +352,10 @@ def calcular_promedio(rating, convocatoria="generales_proxima", hoy=None, fecha_
             return encuesta["inicio"] <= hoy
         return encuesta["fin"] <= hoy
 
-    encuestas = [corregir_encuesta_de_parte(e) for e in encuestas_leidas if disponible(e) and e["firma"] not in FIRMAS_EXCLUIDAS]
+    encuestas_disponibles = [e for e in encuestas_leidas if disponible(e) and e["firma"] not in FIRMAS_EXCLUIDAS]
+    if EXCLUSION_DE_SOLAPADAS["activo"]:
+        encuestas_disponibles = solapamiento_de_campo.sin_solapes(encuestas_disponibles, lambda e: e["firma"])
+    encuestas = [corregir_encuesta_de_parte(e) for e in encuestas_disponibles]
     if FILTRO_DE_ATIPICAS["activo"]:
         # Solo se filtran las encuestas que pueden entrar o respaldar a otra (ventana del promedio más la ventana de respaldo): las anteriores no se usan y filtrarlas encarecería la serie diaria
         limite = VENTANA_DIAS + filtro_atipicos.VENTANA_RESPALDO_DIAS

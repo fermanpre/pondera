@@ -39,6 +39,24 @@ def inicio_de_campo(fecha_texto, fin):
     return fin
 
 
+def sin_solapes(encuestas, clave_de_casa):
+    """Criterio de inclusión del 17/11/2026: de las encuestas de una misma casa se conserva la más reciente (por fin de campo) y, yendo hacia atrás, solo las
+    que no pisan el campo de ninguna ya conservada. Así un tracking de entregas acumuladas o móviles queda en su entrega más reciente, sin compensaciones.
+    Cada encuesta lleva su campo efectivo («inicio» y «fin»; los campos de más de dos semanas ya vienen recortados a 15 días en promedio.leer_encuestas_acumuladas)."""
+    por_casa = {}
+    for encuesta in encuestas:
+        por_casa.setdefault(clave_de_casa(encuesta), []).append(encuesta)
+    conservadas = []
+    for lista in por_casa.values():
+        lista.sort(key=lambda e: (e["fin"], e["inicio"]), reverse=True)
+        aceptadas = []
+        for encuesta in lista:
+            if all(encuesta["fin"] < otra["inicio"] or otra["fin"] < encuesta["inicio"] for otra in aceptadas):
+                aceptadas.append(encuesta)
+        conservadas.extend(aceptadas)
+    return conservadas
+
+
 def factores_de_solapamiento(encuestas, clave_de_casa):
     """{id(encuesta): factor} para una lista de encuestas ya limitada a las publicadas hasta «hoy»."""
     por_casa = {}

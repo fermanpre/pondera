@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-17",
+    "titulo": "Nuevo criterio de inclusión de encuestas y 10.000 sorteos",
+    "texto": "Criterio de inclusión: de las encuestas de una misma casa solo cuentan la más reciente y las anteriores cuyo trabajo de campo no se pisa con el de ninguna conservada (de las entregas de 40dB solo quedan la del 12 al 16 de noviembre y la del 2 al 4), sin compensar trackings. Las encuestas con más de dos semanas de campo, como la de SocioMétrica, cuentan como hechas en los 15 últimos días de su campo (con asterisco en las tablas). El promedio apenas se mueve (±0,1 puntos). Además, la previsión publicada se calcula con 10.000 sorteos en lugar de 2.000: la página se pinta enseguida con 2.000 y se actualiza al terminar los 10.000."
+  },
+  {
+    "fecha": "2026-11-17",
     "titulo": "El nombre, desplegado en la cabecera",
     "texto": "Entre la cinta principal y la segunda cinta de todas las páginas figura ahora el retroacrónimo de PONDERA: Promedio Ordenado de Noticias, Datos y Encuestas, con Resultados y Análisis."
   },

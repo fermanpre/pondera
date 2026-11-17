@@ -78,7 +78,7 @@ def main():
         peso = nota * recorte * 0.5 ** (antiguedad / vida_media)
         filas.append({
             "firma": encuesta["firma_original"], "cliente": encuesta["cliente"],
-            "campo": serie_promedio_diaria.fecha_de_campo_en_espanol(encuesta["fecha_texto"], encuesta["fin"]), "fin": encuesta["fin"].isoformat(),
+            "campo": serie_promedio_diaria.fecha_de_campo_en_espanol(encuesta["fecha_texto"], encuesta["fin"], encuesta["inicio"] if encuesta.get("campo_recortado") else None), "fin": encuesta["fin"].isoformat(),
             "muestra": encuesta["muestra"], "de_parte": bool(corregida.get("corregida_de_parte")),
             "valores": {p: round(v, 2) for p, v in encuesta["valores"].items()},
             "valores_modelo": {p: round(v, 2) for p, v in corregida["valores"].items()} if corregida is not encuesta else None,

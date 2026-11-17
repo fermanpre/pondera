@@ -49,8 +49,14 @@ def calcular_serie(dias, encuestas_leidas, pesos_de_firmas):
     return serie, detalle_por_dia
 
 
-def fecha_de_campo_en_espanol(fecha_texto, fin):
-    """«26 Oct–8 Nov» -> «26 oct–8 nov 2026» (el año es el del fin de campo)."""
+def fecha_de_campo_en_espanol(fecha_texto, fin, inicio_efectivo=None):
+    """«26 Oct–8 Nov» -> «26 oct–8 nov 2026» (el año es el del fin de campo). Con un inicio efectivo distinto del publicado (campos de más de dos semanas, que cuentan como
+    de 15 días), se enseña el campo efectivo seguido de un asterisco: «1–15 nov 2026*»."""
+    if inicio_efectivo is not None:
+        meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+        if inicio_efectivo.month == fin.month:
+            return "%d–%d %s %d*" % (inicio_efectivo.day, fin.day, meses[fin.month - 1], fin.year)
+        return "%d %s–%d %s %d*" % (inicio_efectivo.day, meses[inicio_efectivo.month - 1], fin.day, meses[fin.month - 1], fin.year)
     texto = fecha_texto
     for ingles, espanol in MESES_EN_ESPANOL.items():
         texto = texto.replace(ingles, espanol)
@@ -76,7 +82,7 @@ def construir_detalle_de_encuestas(detalle_por_dia, partidos_a_mostrar):
                 valores["FA"] = round(encuesta["valores"]["FA"] - encuesta["valores"]["FV"], 1)
             encuestas.append({
                 "firma": encuesta["firma_original"], "cliente": encuesta["cliente"],
-                "campo": fecha_de_campo_en_espanol(encuesta["fecha_texto"], encuesta["fin"]), "fin": encuesta["fin"].isoformat(),
+                "campo": fecha_de_campo_en_espanol(encuesta["fecha_texto"], encuesta["fin"], encuesta["inicio"] if encuesta.get("campo_recortado") else None), "fin": encuesta["fin"].isoformat(),
                 "muestra": encuesta["muestra"], "absoluto": round(nota, 4), "valores": valores,
             })
     dias = []

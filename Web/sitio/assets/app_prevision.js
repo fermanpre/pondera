@@ -15,7 +15,11 @@ let objetivosActuales = Object.assign({}, DATOS_MODELO.objetivos);
 })();
 let ultimoResultado = null;
 let temporizador = null;
-const SORTEOS_POR_DEFECTO = 2000;
+// Sorteos del Monte Carlo en las páginas sin selector (previsión, provincias y comunidades): 10.000 desde el 17/11/2026. El simulador deja elegir (por defecto 2.000, para que los deslizadores respondan al momento).
+const SORTEOS_POR_DEFECTO = 10000;
+const SORTEOS_RAPIDOS = 2000;  // primera pasada en el hilo principal mientras un trabajador calcula el resto
+let generacionDeCalculo = 0;
+let trabajadorDeSimulacion = null;
 
 function partidosPorVoto() {
   return modelo.partidos.slice().sort((a, b) => objetivosActuales[b] - objetivosActuales[a]);
@@ -23,22 +27,57 @@ function partidosPorVoto() {
 
 /* ---------- Cálculo ---------- */
 
+function pintarTodoConElResultado() {
+  pintarNacional();
+  pintarProvincia();
+  pintarComunidad();
+  if (typeof actualizarMapasConResultado === "function") actualizarMapasConResultado();  // app_mapa.js: los mapas siguen al reparto central con los objetivos de ese momento
+}
+
+function textoDeSegundos(inicio) { return ((performance.now() - inicio) / 1000).toFixed(1).replace(".", ","); }
+
+// Con más de SORTEOS_RAPIDOS sorteos se calcula en dos pasadas: primero 2.000 en el hilo principal (la página se pinta enseguida) y, a continuación, el total pedido en un
+// trabajador (Web Worker) para no bloquear la página; al llegar, se repinta todo. Si el navegador no admite el trabajador, el total se calcula en el hilo principal.
 function recalcular() {
   const selectorDeSorteos = document.getElementById("numero-sorteos");
   const sorteos = selectorDeSorteos ? parseInt(selectorDeSorteos.value, 10) : SORTEOS_POR_DEFECTO;
   const estado = document.getElementById("estado-calculo") || document.createElement("span");
+  const generacion = ++generacionDeCalculo;
+  if (trabajadorDeSimulacion) { trabajadorDeSimulacion.terminate(); trabajadorDeSimulacion = null; }
   estado.textContent = "Calculando…";
   setTimeout(function () {
+    if (generacion !== generacionDeCalculo) return;
     const inicio = performance.now();
     const central = MotorElectoral.repartoSinRuido(modelo, objetivosActuales);
-    const simulacion = MotorElectoral.simular(modelo, { sorteos: sorteos, semilla: 20261129, objetivos: objetivosActuales });
-    ultimoResultado = { central: central, simulacion: simulacion, sorteos: sorteos };
-    estado.textContent = "Calculado en " + ((performance.now() - inicio) / 1000).toFixed(1).replace(".", ",") + " s";
-    pintarNacional();
-    pintarProvincia();
-    pintarComunidad();
-    if (typeof actualizarMapasConResultado === "function") actualizarMapasConResultado();  // app_mapa.js: los mapas siguen al reparto central con los objetivos de ese momento
-    if (typeof alTerminarElCalculo === "function") alTerminarElCalculo();
+    const primeros = Math.min(sorteos, SORTEOS_RAPIDOS);
+    const simulacion = MotorElectoral.simular(modelo, { sorteos: primeros, semilla: 20261129, objetivos: objetivosActuales });
+    ultimoResultado = { central: central, simulacion: simulacion, sorteos: primeros };
+    pintarTodoConElResultado();
+    if (sorteos <= primeros) {
+      estado.textContent = "Calculado en " + textoDeSegundos(inicio) + " s";
+      if (typeof alTerminarElCalculo === "function") alTerminarElCalculo();
+      return;
+    }
+    estado.textContent = "Mostrando " + entero(primeros) + " sorteos; calculando " + entero(sorteos) + "…";
+    const terminar = function (resultadoCompleto) {
+      if (generacion !== generacionDeCalculo) return;
+      ultimoResultado = { central: central, simulacion: resultadoCompleto, sorteos: sorteos };
+      estado.textContent = "Calculado en " + textoDeSegundos(inicio) + " s";
+      pintarTodoConElResultado();
+      if (typeof alTerminarElCalculo === "function") alTerminarElCalculo();
+    };
+    const enElHiloPrincipal = function () {
+      setTimeout(function () { terminar(MotorElectoral.simular(modelo, { sorteos: sorteos, semilla: 20261129, objetivos: objetivosActuales })); }, 20);
+    };
+    try {
+      const trabajador = new Worker("assets/trabajador_simulacion.js");
+      trabajadorDeSimulacion = trabajador;
+      trabajador.onmessage = function (evento) { trabajador.terminate(); if (trabajadorDeSimulacion === trabajador) trabajadorDeSimulacion = null; terminar(evento.data.simulacion); };
+      trabajador.onerror = function () { trabajador.terminate(); if (trabajadorDeSimulacion === trabajador) trabajadorDeSimulacion = null; enElHiloPrincipal(); };
+      trabajador.postMessage({ datos: DATOS_MODELO, objetivos: objetivosActuales, sorteos: sorteos, semilla: 20261129 });
+    } catch (error) {
+      enElHiloPrincipal();
+    }
   }, 20);
 }
 
