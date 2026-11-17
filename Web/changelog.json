@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-17",
+    "titulo": "Las encuestas subnacionales entran en la previsión",
+    "texto": "En los territorios con al menos dos encuestas con porcentajes en los últimos 90 días (hoy Cataluña, Galicia, la Comunitat Valenciana y el País Vasco), la previsión mezcla el modelo con el promedio de esas encuestas, calculado con las mismas reglas que el nacional (con una vida media de 21 días para la antigüedad), con un peso que crece con el número de encuestas (w = k / (k + 3)). Los partidos de un solo territorio (PNV, Bildu, BNG, ERC, Junts y Front Valencià) siguen además a sus encuestas en el total nacional, y la diferencia se compensa dentro de su bloque. Detalle en la metodología."
+  },
+  {
+    "fecha": "2026-11-17",
     "titulo": "Leyendas de los mapas dentro de su recuadro",
     "texto": "Las etiquetas de los extremos de las leyendas de los mapas («izquierda +20», «derecha +20», «I+40», «D+40») ya no se salen del recuadro ni se solapan entre los dos mapas."
   },

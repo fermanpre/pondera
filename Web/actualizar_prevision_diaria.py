@@ -20,6 +20,7 @@ CARPETA_WEB = Path(__file__).resolve().parent
 CARPETA_SITIO = CARPETA_WEB / "sitio"
 sys.path.insert(0, str(CARPETA_WEB.parent / "Sondeos"))
 
+import blend_regional  # noqa: E402
 import generar_resumen  # noqa: E402
 import promedio  # noqa: E402
 import serie_promedio_diaria  # noqa: E402
@@ -48,7 +49,22 @@ def main():
     if set(problema.partidos) != set(datos["partidos"]):
         raise SystemExit("Cambia el conjunto de candidaturas del modelo (%s): regenerar con exportar_datos_web.py." % sorted(set(problema.partidos) ^ set(datos["partidos"])))
     antes = datos["objetivos"]
+    # Blend con las encuestas subnacionales (decisión del usuario, 17/11/2026: lambda 1, k0 3): acerca la base provincial y los totales de los partidos de un solo territorio a sus encuestas.
+    # Si falla, la previsión sigue siendo la del promedio nacional con el ancla del CIS.
+    try:
+        problema, resumen_blend = blend_regional.aplicar(problema, datos["provincias"], dia, serie_promedio_diaria.leer_pesos_de_firmas())
+    except Exception as error:  # no se bloquea la actualización diaria por esto
+        print("Blend regional no aplicado (%s: %s)" % (type(error).__name__, error))
+        resumen_blend = {"territorios": {}}
+    datos["blend_regional"] = {"fecha": dia.isoformat(), "lambda": blend_regional.LAMBDA, "k0": blend_regional.K0, "territorios": resumen_blend["territorios"]}
     datos["objetivos"] = {partido: problema.objetivo[partido] for partido in datos["partidos"]}
+    if resumen_blend["territorios"]:
+        por_nombre = {p["nombre"]: p for p in datos["provincias"]}
+        for nombre in problema.provincias:
+            fila = {i: problema.base[(nombre, i)] for i in problema.partidos if (nombre, i) in problema.base}
+            suma_fila = sum(fila.values())
+            por_nombre[nombre]["cuotas"] = {i: v / suma_fila for i, v in fila.items()}
+        print("Blend regional aplicado a %d territorios: %s" % (len(resumen_blend["territorios"]), ", ".join("%s (k=%d, w=%.2f)" % (n, t["k"], t["w"]) for n, t in sorted(resumen_blend["territorios"].items()))))
     datos["fecha_promedio"] = dia.isoformat()
     texto_json = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
     ruta_modelo.write_text(texto_json, encoding="utf-8")
