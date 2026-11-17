@@ -178,7 +178,7 @@
       : textoDeFecha(indice) + ": ninguna encuesta con el día medio de campo en los 30 días anteriores.";
 
     const cabeceras = [["firma", "Encuestadora"], ["campo", "Campo"], ["muestra", "Entrevistados"], ["absoluto", "Peso absoluto"], ["actual", "Peso actual"], ["peso", "Peso relativo"]]
-      .concat(partidosElegidos.map((serie) => [serie.id, nombreDe(serie.id)]));
+      .concat(partidosElegidos.map((serie) => [serie.id, logoDePartido(serie.id, nombreDe(serie.id)) || nombreDe(serie.id)]));
     const flecha = (columna) => (estado.orden.columna === columna ? (estado.orden.descendente ? " ▼" : " ▲") : "");
     tabla.querySelector("thead").innerHTML = "<tr>" + cabeceras.map((par) =>
       '<th data-columna="' + par[0] + '" style="cursor:pointer' + (par[0] === "firma" || par[0] === "campo" ? ";text-align:left" : "") + '">' + par[1] + flecha(par[0]) + "</th>").join("") + "</tr>";
@@ -235,7 +235,7 @@
     });
     marcarBotones();
     document.getElementById("nota-promedio").textContent =
-      "Actualizado el " + SERIE_PROMEDIO.generado + ". Cada encuesta cuenta desde el primer día de su trabajo de campo, pesa más en el día medio de ese campo y menos cuanto más se aleja de él. " +
+      "Cada encuesta cuenta desde el primer día de su trabajo de campo, pesa más en el día medio de ese campo y menos cuanto más se aleja de él. " +
       "La línea de Sumar se detiene el día en que empieza la de Frente Amplio, con las primeras encuestas que usan ese nombre; Frente Amplio suma Front Valencià cuando la encuesta los separa. " + SERIE_PROMEDIO.fuente +
       (SERIE_PROMEDIO.ultimo_dia >= SERIE_PROMEDIO.ultimo_dia_publicable ? " Serie congelada: la ley electoral prohíbe publicar sondeos en los cinco días previos a la votación." : "");
   }
@@ -244,7 +244,18 @@
     document.querySelectorAll("#rangos-promedio button").forEach((boton) => boton.classList.toggle("activo", boton.dataset.rango === estado.rango));
   }
 
+  // Fecha y hora de la última actualización de la serie, en hora de Madrid (el servidor la guarda en UTC)
+  function mostrarUltimaActualizacion() {
+    const elemento = document.getElementById("ultima-actualizacion");
+    if (!elemento || !SERIE_PROMEDIO.generado) return;
+    const instante = new Date(SERIE_PROMEDIO.generado.length > 16 ? SERIE_PROMEDIO.generado : SERIE_PROMEDIO.generado.replace(" ", "T") + "Z");
+    if (isNaN(instante.getTime())) return;
+    const texto = new Intl.DateTimeFormat("es-ES", { timeZone: "Europe/Madrid", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(instante).replace(",", "");
+    elemento.textContent = "Última actualización: " + texto + " (hora de Madrid)";
+  }
+
   construirControles();
+  mostrarUltimaActualizacion();
   dibujar();
   let temporizadorDeCambioDeTamano = null;
   window.addEventListener("resize", () => { clearTimeout(temporizadorDeCambioDeTamano); temporizadorDeCambioDeTamano = setTimeout(dibujar, 120); });

@@ -99,8 +99,9 @@ a.boton:hover { border-color: var(--acento); }
 .tabla-resumen tfoot th { border-top: 2px solid var(--linea); }
 
 /* Logos de partidos en el listado de sondeos: sobre fondo claro para que se lean también en el tema oscuro */
-.logo-partido { display: inline-flex; align-items: center; justify-content: center; background: #fff; border-radius: 4px; padding: 3px 5px; min-width: 48px; height: 36px; }
-.logo-partido img { max-height: 28px; max-width: 72px; width: auto; height: auto; display: block; }
+.logo-partido { display: inline-flex; align-items: center; justify-content: center; background: #fff; border-radius: 4px; padding: 2px; width: 32px; height: 32px; vertical-align: middle; }
+.logo-partido img { width: 28px; height: 28px; display: block; }
+#tabla-encuestas-dia th, #tabla-encuestas-dia td, #tabla-listado th, #tabla-listado td { padding-left: 5px; padding-right: 5px; }
 
 /* Filas de resultado real en el listado de sondeos regionales */
 .fila-resultado td { background: var(--fondo-suave, rgba(127,127,127,.10)); font-style: italic; }
@@ -205,5 +206,12 @@ button.principal { font-weight: 600; }
 .tabla-promedio-propio th:first-child, .tabla-promedio-propio td:first-child { text-align: center; }
 .tabla-promedio-propio td.celda-peso { white-space: nowrap; text-align: right; }
 .tabla-promedio-propio input.deslizador-peso { width: 120px; vertical-align: middle; margin: 0 6px 0 0; }
-.hemiciclo .hemiciclo-marcador { stroke: var(--texto); stroke-width: 1.6; stroke-dasharray: 5 4; opacity: 0.75; }
+.hemiciclo .hemiciclo-marcador { stroke: var(--texto); stroke-width: 1.8; opacity: 0.85; }
 .hemiciclo .hemiciclo-etiqueta { font-size: 14px; font-weight: 700; fill: var(--texto); }
+/* Diferencias con 2023: triángulo verde si sube, rojo si baja */
+:root { --sube: #1b7f3b; --baja: #c62828; }
+@media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) { --sube: #5fd283; --baja: #ff7b72; } }
+:root[data-tema="oscuro"] { --sube: #5fd283; --baja: #ff7b72; }
+.sube { color: var(--sube); white-space: nowrap; }
+.baja { color: var(--baja); white-space: nowrap; }
+.triangulo { font-size: 0.7em; margin-right: 3px; vertical-align: 1px; }

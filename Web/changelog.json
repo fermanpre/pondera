@@ -1,6 +1,31 @@
 [
   {
     "fecha": "2026-11-17",
+    "titulo": "Las encuestas antiguas ya no desaparecen si Wikipedia las archiva",
+    "texto": "Wikipedia ha quitado de su página las tablas de 2023 y 2024. La actualización diaria conserva ahora las encuestas ya descargadas de ese periodo."
+  },
+  {
+    "fecha": "2026-11-17",
+    "titulo": "Listados de sondeos solo con encuestas",
+    "texto": "El listado nacional deja de mostrar los recálculos de terceros sobre los datos brutos del CIS (Logoslab, SocioMétrica, Ateneo del Dato…), que no son encuestas ni entran en el promedio. El listado subnacional deja solo las encuestas con porcentajes y los resultados reales de referencia, sin proyecciones de escaños."
+  },
+  {
+    "fecha": "2026-11-17",
+    "titulo": "Logos cuadrados y más partidos en las tablas de encuestas",
+    "texto": "Las tablas de encuestas usan solo el emblema de cada partido (o unas siglas cuando no hay emblema) para que las columnas sean más estrechas, y la tabla de encuestas del promedio del día muestra también los logos."
+  },
+  {
+    "fecha": "2026-11-17",
+    "titulo": "Línea de 176 que bordea los círculos y triángulos de variación",
+    "texto": "La línea de la mayoría absoluta del hemiciclo bordea los círculos en vez de atravesarlos y deja 174 escaños a la izquierda y 176 a la derecha. En la tabla de resultados, un triángulo verde ▲ o rojo ▼ marca los partidos que suben o bajan respecto a 2023, en voto y en escaños."
+  },
+  {
+    "fecha": "2026-11-17",
+    "titulo": "Resultados y mayorías antes que el hemiciclo",
+    "texto": "La portada empieza ahora por la tabla de resultados y las probabilidades de mayoría, y el hemiciclo (reparto central, sin ruido) va después, para dar primero la incertidumbre. Encabezado nuevo, con la fecha y la hora de la última actualización (hora de Madrid)."
+  },
+  {
+    "fecha": "2026-11-17",
     "titulo": "Deslizadores de peso y marcador de los 176 en el hemiciclo",
     "texto": "En «Crea tu propio promedio», cada encuesta tiene ahora un deslizador de peso además del campo numérico: al moverlo, el resto de pesos se reajusta en proporción para que sigan sumando 100. El hemiciclo marca con una línea discontinua y la etiqueta «176» dónde se alcanza la mayoría absoluta contando desde la izquierda; la barra de escaños se mantiene debajo."
   },

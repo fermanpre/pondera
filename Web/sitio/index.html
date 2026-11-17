@@ -39,16 +39,13 @@
 <nav class="subnav" aria-label="Secciones de esta página"><div class="interior"><a href="#nacional">Escaños</a><a href="#mayorias">Mayorías</a><a href="#mapa">Mapa</a><a href="#promedio">Promedio</a><a href="#sondeos">Sondeos</a></div></nav>
 <main class="contenedor">
 <div class="cabecera-pagina">
-  <h1>Elecciones generales 2026: previsión de escaños</h1>
-  <p class="subtitulo">29 de noviembre de 2026. Promedio de encuestas, reparto por provincia y Monte Carlo con la incertidumbre calibrada con las 16 elecciones generales desde 1977.</p>
+  <h1>Elecciones generales 2026</h1>
+  <p class="subtitulo">29/11/2026. Simulación de resultados basada en mi promedio de encuestas, calibrada con la incertidumbre de las elecciones generales desde 1977</p>
 </div>
-<p class="nota" id="fecha-promedio"></p>
+<p class="nota" id="ultima-actualizacion"></p>
 
 <section id="nacional">
   <h2>Previsión nacional</h2>
-  <div id="hemiciclo" class="hemiciclo"></div>
-  <div id="barra-escanos" class="barra" aria-label="Escaños previstos por partido"></div>
-  <div class="leyenda176" id="leyenda176"></div>
   <div class="dos-columnas">
     <div>
     <div class="tabla-ancha">
@@ -65,6 +62,11 @@
     <p class="nota">La barra de cada combinación es la proporción de sorteos del Monte Carlo en los que sus partidos suman 176 escaños o más, sin contar pactos ni abstenciones. UPN se suma al PP porque concurren en coalición en Navarra. Que una combinación sume 176 no implica que ese pacto sea viable políticamente.</p>
     </div>
   </div>
+  <h3>Reparto central</h3>
+  <p class="nota">El hemiciclo y la barra muestran solo el reparto central (sin ruido): una de las muchas posibilidades que recoge la simulación de arriba.</p>
+  <div id="hemiciclo" class="hemiciclo"></div>
+  <div id="barra-escanos" class="barra" aria-label="Escaños previstos por partido"></div>
+  <div class="leyenda176" id="leyenda176"></div>
 </section>
 
 <section id="mapa">
@@ -410,25 +412,20 @@
     <table id="tabla-listado"><thead></thead><tbody></tbody></table>
   </div>
   <p><button type="button" id="mostrar-mas">Mostrar más</button></p>
-  <p class="nota">Porcentaje de voto estimado por cada encuesta, tal como lo recoge Wikipedia (sin recalcular). «Sumar/FA» reúne a Sumar y a su sucesor Frente Amplio. Las fuentes son las referencias de cada fila de <a href="https://en.wikipedia.org/wiki/Opinion_polling_for_the_next_Spanish_general_election">Opinion polling for the next Spanish general election</a> (Wikipedia, CC BY-SA 4.0); PONDERA no aloja ni verifica los documentos enlazados. Una encuesta del listado no entra necesariamente en el <a href="index.html#promedio">promedio</a>. <b>de parte</b>: la tabla de Wikipedia da como cliente o fuente a un partido o a una entidad electoral (una encuesta interna o encargada); es un dato de esa tabla, no un juicio sobre la casa.</p>
+  <p class="nota">Porcentaje de voto estimado por cada encuesta, tal como lo recoge Wikipedia (sin recalcular). «Sumar/FA» reúne a Sumar y a su sucesor Frente Amplio. Las fuentes son las referencias de cada fila de <a href="https://en.wikipedia.org/wiki/Opinion_polling_for_the_next_Spanish_general_election">Opinion polling for the next Spanish general election</a> (Wikipedia, CC BY-SA 4.0); PONDERA no aloja ni verifica los documentos enlazados. Una encuesta del listado no entra necesariamente en el <a href="index.html#promedio">promedio</a>. Se omiten los recálculos de terceros sobre los datos brutos del CIS (Logoslab, SocioMétrica, Ateneo del Dato, etc.), que no son encuestas. <b>de parte</b>: la tabla de Wikipedia da como cliente o fuente a un partido o a una entidad electoral (una encuesta interna o encargada); es un dato de esa tabla, no un juicio sobre la casa.</p>
 </section>
   </div>
   <div id="panel-subnacionales" role="tabpanel" aria-labelledby="pestana-subnacionales" hidden>
-    <p class="subtitulo">Las encuestas de las generales de 2026 por comunidad autónoma y por provincia, con los porcentajes de voto cuando los publican y el enlace a la fuente.</p>
+    <p class="subtitulo">Las encuestas de las generales de 2026 por comunidad autónoma y por provincia que publican porcentajes de voto, con el enlace a la fuente.</p>
 <section id="listado-regional">
   <div class="controles">
     <label>Ámbito <select id="filtro-ambito"></select></label>
-    <label>Tipo <select id="filtro-tipo">
-      <option value="">Todos</option>
-      <option value="porcentajes">Con porcentajes</option>
-      <option value="escaños">Solo escaños</option>
-    </select></label>
     <span id="cuenta-regional"></span>
   </div>
   <div class="tabla-ancha">
     <table id="tabla-regional"><thead></thead><tbody></tbody></table>
   </div>
-  <p class="nota"><b>Con porcentajes</b>: la encuesta publica el voto estimado de cada partido (a veces con su rango de escaños). <b>Solo escaños</b>: proyecciones de escaños de las casas (por ejemplo, GAD3, Sigma Dos, SocioMétrica o SW Demoscopia) sin porcentajes: se muestran como referencia, pero no son datos de encuesta de la misma calidad y PONDERA no las usa para calcular nada. Las filas de resultado real (generales de 2023 y europeas de 2024) van al final de cada ámbito. Los datos y las fuentes son los de las tablas de <a href="https://en.wikipedia.org/wiki/Sub-national_opinion_polling_for_the_2026_Spanish_general_election">Sub-national opinion polling for the 2026 Spanish general election</a> (Wikipedia, CC BY-SA 4.0); PONDERA no aloja ni verifica los documentos enlazados. <b>de parte</b>: la tabla de Wikipedia da como cliente o fuente a un partido o a una entidad electoral (una encuesta interna o encargada); es un dato de esa tabla, no un juicio sobre la casa.</p>
+  <p class="nota">Solo se muestran las encuestas con porcentajes de voto; se omiten las proyecciones de escaños sin porcentajes. Las filas de resultado real (generales de 2023 y europeas de 2024) van al final de cada ámbito. Los datos y las fuentes son los de las tablas de <a href="https://en.wikipedia.org/wiki/Sub-national_opinion_polling_for_the_2026_Spanish_general_election">Sub-national opinion polling for the 2026 Spanish general election</a> (Wikipedia, CC BY-SA 4.0); PONDERA no aloja ni verifica los documentos enlazados. <b>de parte</b>: la tabla de Wikipedia da como cliente o fuente a un partido o a una entidad electoral (una encuesta interna o encargada); es un dato de esa tabla, no un juicio sobre la casa.</p>
 </section>
   </div>
 </section>

@@ -13,15 +13,12 @@
   let filtrados = [];
   let mostradas = 0;
 
-  // Logos en assets/logos/ (Wikimedia Commons, dominio público; marcas de sus titulares). Si no hay logo, ficha de color y siglas.
-  const LOGOS = { "PP": "PP.png", "PSOE": "PSOE.svg", "Vox": "Vox.svg", "Sumar/FA": "FA.svg", "Podemos": "Podemos.svg", "ERC": "ERC.svg", "Junts": "Junts.svg", "EH Bildu": "Bildu.svg", "PNV": "PNV.svg", "BNG": "BNG.png", "SALF": "SALF.png", "CCa": "CCa.svg", "UPN": "UPN.svg", "FV": "FV.svg" };
+  // Logos cuadrados de comun.js (logoDePartido). Si no hay logo, ficha de color y siglas.
   const CLAVE_DE_COLOR = { "Vox": "VOX", "Sumar/FA": "SUMAR", "EH Bildu": "BILDU", "CCa": "CC", "Adelante Andalucía": "ADELANTE" };
-  const NOMBRE_LARGO = { "Sumar/FA": "Sumar / Frente Amplio", "CCa": "Coalición Canaria", "FV": "Front Valencià", "SALF": "Se Acabó La Fiesta" };
+  const NOMBRE_LARGO = { "Sumar/FA": "Sumar / Frente Amplio", "CCa": "Coalición Canaria", "FV": "Front Valencià", "SALF": "Se Acabó La Fiesta", "PNV": "PNV (EAJ)", "EH Bildu": "EH Bildu", "Adelante Andalucía": "Adelante Andalucía" };
   function cabeceraDePartido(partido) {
-    const nombre = NOMBRE_LARGO[partido] || partido;
-    if (LOGOS[partido]) {
-      return '<span class="logo-partido"><img src="assets/logos/' + LOGOS[partido] + '" alt="' + escapar(nombre) + '" title="' + escapar(nombre) + '" loading="lazy"></span>';
-    }
+    const logo = logoDePartido(partido, NOMBRE_LARGO[partido] || partido);
+    if (logo) return logo;
     const color = (typeof COLORES !== "undefined" && COLORES[CLAVE_DE_COLOR[partido] || partido.toUpperCase()]) || "#7a7a75";
     return '<span class="ficha" style="background:' + color + '"></span> ' + escapar(partido);
   }

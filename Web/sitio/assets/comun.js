@@ -16,3 +16,16 @@ const formatoEntero = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 
 const porcentaje = (valor) => formatoPorcentaje.format(valor) + "%";
 const entero = (valor) => formatoEntero.format(valor);
 const ficha = (partido) => '<span class="ficha" style="background:' + COLORES[partido] + '"></span>';
+
+// Logos cuadrados de los partidos (solo el emblema, o una ficha con siglas cuando no lo hay), en assets/logos/cuadrados/. Marcas de sus titulares (Wikimedia Commons).
+// Se indexan por identificador del modelo (PP, VOX, SUMAR…) y por el nombre de columna del listado de sondeos (EH Bildu, CCa…).
+const LOGOS_DE_PARTIDOS = {
+  PP: "PP", PSOE: "PSOE", VOX: "Vox", Vox: "Vox", SUMAR: "FA", "Sumar/FA": "FA", SUMAR_ANTIGUO: "Sumar", PODEMOS: "Podemos", Podemos: "Podemos", ERC: "ERC", JUNTS: "Junts", Junts: "Junts",
+  BILDU: "Bildu", "EH Bildu": "Bildu", PNV: "PNV", BNG: "BNG", SALF: "SALF", CC: "CCa", CCa: "CCa", UPN: "UPN", FV: "FV", ADELANTE: "Adelante", "Adelante Andalucía": "Adelante"
+};
+function logoDePartido(clave, nombre) {
+  const fichero = LOGOS_DE_PARTIDOS[clave];
+  if (!fichero) return "";
+  const texto = String(nombre || clave).replace(/[&<>"]/g, "");
+  return '<span class="logo-partido"><img src="assets/logos/cuadrados/' + fichero + '.png" alt="' + texto + '" title="' + texto + '" width="28" height="28" loading="lazy"></span>';
+}

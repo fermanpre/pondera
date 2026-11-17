@@ -14,6 +14,7 @@ CARPETA_WEB = Path(__file__).resolve().parent
 sys.path.insert(0, str(CARPETA_WEB.parent / "Sondeos"))  # funciona igual en local y en el repositorio
 import extraer_sondeos_wikipedia as wiki  # noqa: E402
 from encuestas_de_parte import promotor_de  # noqa: E402
+from promedio import RECALCULO_DEL_CIS  # noqa: E402
 
 CARPETA_SITIO = CARPETA_WEB / "sitio"
 CONVOCATORIA = "generales_proxima"
@@ -37,6 +38,8 @@ def main():
     filas, _anclas, _desajustes = wiki.extraer_pagina(CONVOCATORIA, PAGINA, ANIO_DE_LA_ELECCION, con_enlaces=True)
     sondeos = {}
     for fila in filas:
+        if RECALCULO_DEL_CIS.match(fila["firma"]):
+            continue  # «CIS (Logoslab)», «CIS (SocioMétrica)»…: recálculos de terceros sobre los datos brutos del CIS; no son encuestas y ni se muestran ni entran en el promedio
         clave = (fila["firma"], fila["cliente"], fila["fecha_texto"], fila["anio_inferido"], fila["muestra"])
         sondeo = sondeos.setdefault(clave, {
             "firma": fila["firma"], "cliente": fila["cliente"], "campo": fila["fecha_texto"], "fin": fila["fin_campo"],
@@ -44,6 +47,13 @@ def main():
             "de_parte": promotor_de(fila["firma"], fila["cliente"])[0]})
         sondeo["valores"][normalizar_partido(fila["partido"])] = fila["valor"]
     listado = sorted(sondeos.values(), key=lambda s: s["fin"], reverse=True)
+    # Wikipedia archiva las tablas antiguas en otra página (en noviembre de 2026 quitó 2023 y 2024): se conservan los sondeos ya exportados anteriores a lo que la descarga cubre
+    ruta_previa = CARPETA_SITIO / "listado_sondeos.json"
+    if ruta_previa.exists() and listado:
+        primer_dia_descargado = listado[-1]["fin"]
+        previos = json.loads(ruta_previa.read_text(encoding="utf-8"))["sondeos"]
+        archivados = [s for s in previos if s["fin"] < primer_dia_descargado and not RECALCULO_DEL_CIS.match(s["firma"])]
+        listado = listado + sorted(archivados, key=lambda s: s["fin"], reverse=True)
     sin_fuente = sum(1 for s in listado if not s["fuentes"])
     contenido = json.dumps({"partidos": PARTIDOS_EN_ORDEN, "sondeos": listado}, ensure_ascii=False, separators=(",", ":"))
     (CARPETA_SITIO / "listado_sondeos.json").write_text(contenido, encoding="utf-8")

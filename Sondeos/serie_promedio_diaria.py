@@ -12,7 +12,7 @@ Uso: python serie_promedio_diaria.py
 import csv
 import json
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import promedio
@@ -104,7 +104,7 @@ def main():
         for indice in range(primer_dia_de_frente_amplio, len(dias)):
             series_por_partido["Sumar"][indice] = None
     datos = {
-        "generado": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "generado": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),  # hora UTC: la web la enseña en hora de Madrid
         "primer_dia": dias[0].isoformat(), "ultimo_dia": dias[-1].isoformat(),
         "dias": len(dias), "fecha_eleccion": promedio.FECHA_ELECCION.isoformat(),
         "ultimo_dia_publicable": ULTIMO_DIA_PUBLICABLE.isoformat(),

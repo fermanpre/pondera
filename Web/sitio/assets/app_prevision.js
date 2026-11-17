@@ -141,6 +141,14 @@ function conSigno(valor, decimales) {
   return (redondeado > 0 ? "+" : "−") + texto;
 }
 
+// Diferencia con signo y triángulo: ▲ verde si sube, ▼ rojo si baja (el signo se mantiene para quien no distinga los colores)
+function conTriangulo(valor, decimales) {
+  const texto = conSigno(valor, decimales);
+  if (texto.charAt(0) === "+") return '<span class="sube"><span class="triangulo" aria-hidden="true">▲</span>' + texto + "</span>";
+  if (texto.charAt(0) === "−") return '<span class="baja"><span class="triangulo" aria-hidden="true">▼</span>' + texto + "</span>";
+  return texto;
+}
+
 function textoDeRango(minimo, maximo) {
   return minimo === maximo ? entero(minimo) : entero(minimo) + "-" + entero(maximo);
 }
@@ -190,7 +198,7 @@ function pintarNacional() {
     if (de2023 && clave) {
       const voto2023 = 100 * (de2023.votos[clave] || 0) / de2023.total;
       const escanos2023 = de2023.escanos[clave] || 0;
-      celdasDe2023 = [porcentaje(voto2023), conSigno(voto - voto2023, 1), entero(escanos2023), conSigno(escanos - escanos2023, 0)];
+      celdasDe2023 = [porcentaje(voto2023), conTriangulo(voto - voto2023, 1), entero(escanos2023), conTriangulo(escanos - escanos2023, 0)];
     }
     const fila = document.createElement("tr");
     // Orden de columnas: voto 2023, voto 2026, dif. voto, escaños 2023, escaños 2026, dif. escaños, rango 80%, rango 95%

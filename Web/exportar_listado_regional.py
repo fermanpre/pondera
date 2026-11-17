@@ -47,6 +47,8 @@ def main():
     for sondeo in encuestas.values():
         region = sondeo.pop("_region")
         sondeo["tipo"] = "resultado" if sondeo["resultado"] else ("porcentajes" if sondeo["valores"] else "escaños")
+        if sondeo["tipo"] == "escaños":
+            continue  # solo proyecciones de escaños, sin porcentajes: no son datos de encuesta y no se muestran (decisión del 17/11/2026)
         ambito = ambitos.setdefault(region, {"nombre": NOMBRE_DEL_AMBITO[region], "tipo": "comunidad" if region in COMUNIDADES else "provincia", "sondeos": []})
         ambito["sondeos"].append(sondeo)
     for ambito in ambitos.values():
@@ -54,6 +56,7 @@ def main():
         reales = [s for s in ambito["sondeos"] if s["resultado"]]
         encuestas_del_ambito = sorted([s for s in ambito["sondeos"] if not s["resultado"]], key=lambda s: s["fin"], reverse=True)
         ambito["sondeos"] = encuestas_del_ambito + reales
+    ambitos = {region: a for region, a in ambitos.items() if any(not s["resultado"] for s in a["sondeos"])}  # sin ninguna encuesta con porcentajes, el ámbito no se muestra
     ordenados = sorted(ambitos.values(), key=lambda a: (a["tipo"] != "comunidad", a["nombre"]))
     contenido = json.dumps({"ambitos": ordenados}, ensure_ascii=False, separators=(",", ":"))
     (CARPETA_SITIO / "listado_regional.json").write_text(contenido, encoding="utf-8")
