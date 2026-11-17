@@ -11,12 +11,13 @@
   const DATOS = ENCUESTAS_RECIENTES;
   const TRADUCCION = DATOS.traduccion;
 
-  // Partidos de las encuestas (nombre en la tabla de Wikipedia, identificador del modelo), en el orden de su resultado de 2023; los que no tuvieron resultado propio, al final
-  const COLUMNAS = [["PP", "PP"], ["PSOE", "PSOE"], ["Vox", "VOX"], ["Sumar", "SUMAR"], ["ERC", "ERC"], ["Junts", "JUNTS"], ["EH Bildu", "BILDU"], ["PNV", "PNV"], ["BNG", "BNG"],
-    ["CCa", "CC"], ["UPN", "UPN"], ["Adelante Andalucía", "ADELANTE"], ["Podemos", "PODEMOS"], ["SALF", "SALF"], ["FV", "FV"]];
+  // Partidos de las encuestas (nombre en la tabla de Wikipedia, identificador del modelo), en el mismo orden que la tabla de encuestas del día: primero los de ámbito estatal
+  // (con Front Valencià y Podemos pegados a Frente Amplio) y después los periféricos
+  const COLUMNAS = [["PP", "PP"], ["PSOE", "PSOE"], ["Vox", "VOX"], ["Sumar", "SUMAR"], ["FV", "FV"], ["Podemos", "PODEMOS"], ["SALF", "SALF"], ["ERC", "ERC"], ["Junts", "JUNTS"],
+    ["EH Bildu", "BILDU"], ["PNV", "PNV"], ["BNG", "BNG"], ["CCa", "CC"], ["UPN", "UPN"], ["Adelante Andalucía", "ADELANTE"]];
   const NOMBRE_DE_COLUMNA = { SUMAR: "Frente Amplio", BILDU: "Bildu", CC: "CC", ADELANTE: "Adelante" };
   const formato = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  const formatoEntero = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 });
+  const formatoPeso = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const filas = DATOS.encuestas.map(function (encuesta) { return { encuesta: encuesta, incluida: true, peso: encuesta.peso_modelo }; });
 
@@ -123,12 +124,31 @@
 
   /* ---------- Tabla ---------- */
 
+  // En las encuestas que publican Front Valencià por separado, «Sumar» es el total (Frente Amplio + Front Valencià): para mostrarlas sin contar dos veces, la columna de Frente Amplio enseña el total menos FV
+  function valorMostradoDeEncuesta(valores, nombre) {
+    const valor = valores[nombre];
+    if (nombre === "Sumar" && valor !== undefined && valores.FV !== undefined) return Math.max(0, valor - valores.FV);
+    return valor;
+  }
+
+  // En un promedio, el total de Sumar se reparte entre Frente Amplio y Front Valencià con la misma proporción que usa el modelo (FV / Sumar con FV)
+  function valorMostradoDePromedio(promedio, nombre) {
+    if (nombre !== "Sumar" && nombre !== "FV") return promedio[nombre];
+    if (promedio.Sumar === undefined) return promedio[nombre];
+    const proporcion = promedio.Sumar_con_FV && promedio.FV !== undefined ? promedio.FV / promedio.Sumar_con_FV : 0;
+    return nombre === "FV" ? (promedio.FV === undefined ? undefined : promedio.Sumar * proporcion) : promedio.Sumar * (1 - proporcion);
+  }
+
+  let cabeceraHtml = "";
+
   function cabecera() {
     const partidos = COLUMNAS.map(function (par) {
       const id = par[1];
-      return '<th class="num">' + ficha(id) + (NOMBRE_DE_COLUMNA[id] || NOMBRES[id] || id) + "</th>";
+      const nombre = NOMBRE_DE_COLUMNA[id] === "Frente Amplio" ? "Sumar / Frente Amplio" : (NOMBRES[id] || id);
+      return '<th class="num col-partido">' + (logoDePartido(id, nombre) || ficha(id) + nombre) + "</th>";
     }).join("");
-    tabla.querySelector("thead").innerHTML = '<tr><th>Incluir</th><th>Encuestadora</th><th>Campo</th><th class="num">Entrevistados</th><th class="num">Peso del modelo</th><th class="num">Tu peso (%)</th>' + partidos + "</tr>";
+    cabeceraHtml = '<tr><th>Incluir</th><th>Encuestadora</th><th>Campo</th><th class="num">Muestra</th><th class="num">Peso del modelo</th><th class="num">Tu peso (%)</th>' + partidos + "</tr>";
+    tabla.querySelector("thead").innerHTML = cabeceraHtml;
   }
 
   function textoDeCampo(campo) { return campo.replace(/\s\d{4}$/, ""); }
@@ -138,31 +158,45 @@
       const encuesta = fila.encuesta;
       const valores = valoresDe(encuesta);
       const celdas = COLUMNAS.map(function (par) {
-        const valor = valores[par[0]];
-        return '<td class="num">' + (valor === undefined ? "–" : formato.format(valor)) + "</td>";
+        const valor = valorMostradoDeEncuesta(valores, par[0]);
+        return '<td class="num col-partido">' + (valor === undefined ? "–" : formato.format(valor)) + "</td>";
       }).join("");
       const cliente = encuesta.cliente ? ' <span class="nota">(' + encuesta.cliente + ")</span>" : "";
       const deParte = encuesta.de_parte ? ' <span class="nota">(de parte)</span>' : "";
       return '<tr' + (fila.incluida ? "" : ' class="excluida"') + '><td><input type="checkbox" data-incluir="' + indice + '"' + (fila.incluida ? " checked" : "") + ' aria-label="Incluir la encuesta de ' + encuesta.firma + '"></td>' +
-        "<td>" + encuesta.firma + cliente + deParte + "</td><td>" + textoDeCampo(encuesta.campo) + '</td><td class="num">' + (encuesta.muestra ? formatoEntero.format(encuesta.muestra) : "–") + "</td>" +
-        '<td class="num">' + formato.format(encuesta.peso_modelo) + '</td><td class="celda-peso"><input type="range" class="deslizador-peso" data-deslizador="' + indice + '" min="0" max="100" step="0.1" value="' + fila.peso.toFixed(1) +
+        "<td>" + encuesta.firma + cliente + deParte + "</td><td>" + textoDeCampo(encuesta.campo) + '</td><td class="num">' + (encuesta.muestra ? entero(encuesta.muestra) : "–") + "</td>" +
+        '<td class="num">' + formatoPeso.format(encuesta.peso_modelo) + '</td><td class="celda-peso"><input type="range" class="deslizador-peso" data-deslizador="' + indice + '" min="0" max="100" step="0.1" value="' + fila.peso.toFixed(1) +
         '"' + (fila.incluida ? "" : " disabled") + ' aria-label="Deslizador del peso de la encuesta de ' + encuesta.firma + '"> <input type="number" class="peso-propio" data-peso="' + indice + '" min="0" max="100" step="0.1" value="' + fila.peso.toFixed(1) +
         '"' + (fila.incluida ? "" : " disabled") + ' aria-label="Peso de la encuesta de ' + encuesta.firma + '"></td>' + celdas + "</tr>";
     }).join("");
     tabla.querySelector("tbody").innerHTML = html;
   }
 
+  // Las filas «Tu promedio» y «Promedio del modelo» van en la parte superior de la tabla, justo debajo de la cabecera
   function pie() {
     const promedio = promedioDeLosPartidos();
     const suma = incluidas().reduce(function (total, fila) { return total + fila.peso; }, 0);
-    const celdasPromedio = COLUMNAS.map(function (par) { return '<td class="num"><b>' + (promedio[par[0]] === undefined ? "–" : formato.format(promedio[par[0]])) + "</b></td>"; }).join("");
-    const celdasModelo = COLUMNAS.map(function (par) {
-      const valor = DATOS.promedio_modelo ? DATOS.promedio_modelo[par[0]] : undefined;
-      return '<td class="num">' + (valor === undefined ? "–" : formato.format(valor)) + "</td>";
-    }).join("");
-    tabla.querySelector("tfoot").innerHTML = '<tr><th colspan="5">Suma de los pesos</th><th class="num" id="pp-suma">' + formato.format(suma) + '</th><td colspan="' + COLUMNAS.length + '"></td></tr>' +
-      '<tr><th colspan="6">Tu promedio</th>' + celdasPromedio + "</tr>" +
-      '<tr><th colspan="6">Promedio del modelo (' + DATOS.dia.split("-").reverse().join("/") + ")</th>" + celdasModelo + "</tr>";
+    const celdaDePromedio = function (valores, negrita) {
+      return COLUMNAS.map(function (par) {
+        const valor = valorMostradoDePromedio(valores, par[0]);
+        const texto = valor === undefined ? "–" : formato.format(valor);
+        return '<td class="num col-partido">' + (negrita ? "<b>" + texto + "</b>" : texto) + "</td>";
+      }).join("");
+    };
+    const promedioDelModelo = DATOS.promedio_modelo || {};
+    tabla.querySelector("thead").innerHTML = cabeceraHtml +
+      '<tr class="fila-promedio"><th colspan="5">Tu promedio</th><th class="num" id="pp-suma" title="Suma de tus pesos">' + formato.format(suma) + "</th>" + celdaDePromedio(promedio, true) + "</tr>" +
+      '<tr class="fila-promedio"><th colspan="4">Promedio del modelo (' + DATOS.dia.split("-").reverse().join("/") + ')</th><th class="num">100,0</th><th></th>' + celdaDePromedio(promedioDelModelo, false) + "</tr>";
+    sincronizarCasillaDeTodas();
+  }
+
+  // La casilla «Incluir todas» refleja el estado de las encuestas: marcada si están todas, indeterminada si hay mezcla
+  function sincronizarCasillaDeTodas() {
+    const casilla = document.getElementById("pp-todas");
+    if (!casilla) return;
+    const cuantas = incluidas().length;
+    casilla.checked = cuantas === filas.length;
+    casilla.indeterminate = cuantas > 0 && cuantas < filas.length;
   }
 
   function refrescar() { cuerpo(); pie(); }
@@ -176,13 +210,13 @@
     const nombreEnEncuestas = {};
     COLUMNAS.forEach(function (par) { nombreEnEncuestas[par[1]] = par[0]; });
     const filasHtml = partidos.map(function (partido) {
-      const crudo = nombreEnEncuestas[partido] !== undefined && promedio[nombreEnEncuestas[partido]] !== undefined ? formato.format(promedio[nombreEnEncuestas[partido]]) + "%" : "–";
+      const crudo = nombreEnEncuestas[partido] !== undefined && valorMostradoDePromedio(promedio, nombreEnEncuestas[partido]) !== undefined ? formato.format(valorMostradoDePromedio(promedio, nombreEnEncuestas[partido])) + "%" : "–";
       const escanos = ultimoResultado && ultimoResultado.central ? centralesDe(partido) : "";
       return "<tr><td>" + ficha(partido) + (NOMBRE_DE_COLUMNA[partido] || NOMBRES[partido]) + "</td><td class=\"num\">" + crudo + "</td><td class=\"num\">" + formato.format(100 * objetivos[partido]) + "%</td><td class=\"num\">" + escanos + "</td></tr>";
     }).join("");
     contenedor.innerHTML = '<h3>Tu promedio y la proyección</h3><div class="tabla-ancha"><table><thead><tr><th>Partido</th><th class="num">Promedio de tus encuestas (voto válido)</th>' +
       '<th class="num">Voto que usa el modelo (votos a candidaturas)</th><th class="num">Escaños (reparto central)</th></tr></thead><tbody>' + filasHtml + "</tbody></table></div>" +
-      '<p class="nota">Debajo están el hemiciclo, las mayorías y las tablas por provincia con tu promedio; los deslizadores de «Voto por partido» ya valen lo mismo y se pueden afinar a partir de ahí.</p>';
+      '<p class="nota">Debajo están el resultado nacional, el hemiciclo, los mapas y las tablas por provincia y comunidad con tu promedio; los deslizadores de «Voto por partido» ya valen lo mismo y se pueden afinar a partir de ahí.</p>';
   }
 
   function centralesDe(partido) {
@@ -215,7 +249,7 @@
   window.alTerminarElCalculo = function () {
     if (!promedioPendiente) return;
     pintarResumen(promedioPendiente, objetivosPendientes);
-    document.getElementById("pp-estado").textContent = "Listo: " + formatoEntero.format(ultimoResultado.sorteos) + " simulaciones.";
+    document.getElementById("pp-estado").textContent = "Listo: " + entero(ultimoResultado.sorteos) + " simulaciones.";
     promedioPendiente = null;
     const destino = document.getElementById("pp-resultado");
     if (destino && destino.scrollIntoView) destino.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -256,6 +290,14 @@
   });
   const correccion = document.getElementById("pp-correccion");
   if (correccion) correccion.addEventListener("change", refrescar);
+  const casillaDeTodas = document.getElementById("pp-todas");
+  if (casillaDeTodas) {
+    casillaDeTodas.addEventListener("change", function () {
+      if (casillaDeTodas.checked) { pesosDelModelo(); }
+      else { filas.forEach(function (fila) { fila.incluida = false; fila.peso = 0; }); }
+      refrescar();
+    });
+  }
   document.getElementById("pp-modelo").addEventListener("click", function () { pesosDelModelo(); refrescar(); });
   document.getElementById("pp-iguales").addEventListener("click", function () { pesosIguales(); refrescar(); });
   document.getElementById("pp-calcular").addEventListener("click", calcular);

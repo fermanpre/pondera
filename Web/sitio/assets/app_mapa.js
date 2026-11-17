@@ -57,15 +57,14 @@ function datosDe2023() {
   return resultado;
 }
 
-function datosDe2026() {
-  const modelo = MotorElectoral.prepararModelo(DATOS_MODELO);
-  const central = MotorElectoral.repartoSinRuido(modelo, DATOS_MODELO.objetivos);
+// Izquierda, derecha y sin lado de cada provincia a partir de las cuotas del reparto central (modelo.numeroDePartidos cuotas por provincia)
+function datosDeLasCuotas(modelo, cuotas) {
   const K = modelo.numeroDePartidos;
   const resultado = {};
   DATOS_MODELO.provincias.forEach(function (provincia, p) {
     let izq = 0, der = 0, otros = 0;
     modelo.partidos.forEach(function (partido, k) {
-      const cuota = 100 * central.cuotas[p * K + k];
+      const cuota = 100 * cuotas[p * K + k];
       if (BLOQUES_DEL_MAPA.izquierda.indexOf(partido) >= 0) izq += cuota;
       else if (BLOQUES_DEL_MAPA.derecha.indexOf(partido) >= 0) der += cuota;
       else otros += cuota;
@@ -75,12 +74,33 @@ function datosDe2026() {
   return resultado;
 }
 
+function datosDe2026() {
+  const modeloDelMotor = MotorElectoral.prepararModelo(DATOS_MODELO);
+  const central = MotorElectoral.repartoSinRuido(modeloDelMotor, DATOS_MODELO.objetivos);
+  return datosDeLasCuotas(modeloDelMotor, central.cuotas);
+}
+
+// En el simulador, los mapas muestran el reparto central con el voto que ha fijado el visitante (app_prevision.js llama a esta función al terminar cada cálculo)
+function actualizarMapasConResultado() {
+  if (typeof ultimoResultado === "undefined" || !ultimoResultado || !ultimoResultado.central) return;
+  DATOS_PROVINCIAS.a2026 = datosDeLasCuotas(modelo, ultimoResultado.central.cuotas);
+  pintarCambio(document.getElementById("mapa-cambio"));
+  pintar(document.getElementById("mapa-2026"), DATOS_PROVINCIAS.a2026, 2026);
+  dibujarTabla();
+}
+
 /* ---------- Dibujo ---------- */
 
+// El SVG se crea la primera vez (con sus eventos de la ficha) y después solo se repintan los rellenos
 function clonarMapa(contenedor) {
-  const plantilla = document.getElementById("svg-provincias");
-  contenedor.appendChild(plantilla.content.cloneNode(true));
-  return contenedor.querySelector("svg");
+  let svg = contenedor.querySelector("svg");
+  if (!svg) {
+    const plantilla = document.getElementById("svg-provincias");
+    contenedor.appendChild(plantilla.content.cloneNode(true));
+    svg = contenedor.querySelector("svg");
+    activarFicha(svg);
+  }
+  return svg;
 }
 
 function pintar(contenedor, datos, anio) {
@@ -222,8 +242,8 @@ function activarOrdenDeTabla() {
 }
 
 const DATOS_PROVINCIAS = { a2023: datosDe2023(), a2026: datosDe2026() };
-activarFicha(pintarCambio(document.getElementById("mapa-cambio")));
-activarFicha(pintar(document.getElementById("mapa-2026"), DATOS_PROVINCIAS.a2026, 2026));
+pintarCambio(document.getElementById("mapa-cambio"));
+pintar(document.getElementById("mapa-2026"), DATOS_PROVINCIAS.a2026, 2026);
 dibujarLeyendaDelCambio();
 dibujarLeyenda();
 activarOrdenDeTabla();

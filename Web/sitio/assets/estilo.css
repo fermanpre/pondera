@@ -199,13 +199,16 @@ details.plegable > div, details.plegable > ul, details.plegable > p { margin: 10
 .tabla-promedio-propio tr.excluida td { opacity: 0.45; }
 .tabla-promedio-propio tr.excluida td:first-child { opacity: 1; }
 .tabla-promedio-propio input.peso-propio { width: 4.6em; text-align: right; }
-.tabla-promedio-propio tfoot th { text-align: left; }
+.tabla-promedio-propio thead th { text-align: left; }
+.tabla-promedio-propio thead th.num { text-align: right; }
+.tabla-promedio-propio tr.fila-promedio th { text-align: left; background: color-mix(in srgb, var(--texto) 5%, transparent); }
+.tabla-promedio-propio tr.fila-promedio td { background: color-mix(in srgb, var(--texto) 5%, transparent); }
 #pp-resultado { margin-top: 14px; }
 button.principal { font-weight: 600; }
 .tabla-promedio-propio th:nth-child(2), .tabla-promedio-propio td:nth-child(2), .tabla-promedio-propio th:nth-child(3), .tabla-promedio-propio td:nth-child(3) { text-align: left; }
 .tabla-promedio-propio th:first-child, .tabla-promedio-propio td:first-child { text-align: center; }
 .tabla-promedio-propio td.celda-peso { white-space: nowrap; text-align: right; }
-.tabla-promedio-propio input.deslizador-peso { width: 120px; vertical-align: middle; margin: 0 6px 0 0; }
+.tabla-promedio-propio input.deslizador-peso { width: 90px; vertical-align: middle; margin: 0 6px 0 0; }
 .hemiciclo .hemiciclo-marcador { stroke: #000; stroke-width: 3.6; stroke-linejoin: round; opacity: 1; filter: drop-shadow(0 0 1.5px rgba(255,255,255,.9)); }
 .hemiciclo .hemiciclo-etiqueta { font-size: 14px; font-weight: 700; fill: var(--texto); }
 /* Diferencias con 2023: triángulo verde si sube, rojo si baja */
@@ -215,6 +218,7 @@ button.principal { font-weight: 600; }
 .sube { color: var(--sube); white-space: nowrap; }
 .baja { color: var(--baja); white-space: nowrap; }
 .triangulo { font-size: 0.7em; margin-right: 3px; vertical-align: 1px; }
+.igual { color: var(--suave); }
 /* Línea de la mayoría absoluta en la barra de escaños: continua, negra y del doble de grosor (con un halo claro para que se vea también en el tema oscuro) */
 .barra { overflow: visible; }
 .barra > div:first-child { border-radius: 5px 0 0 5px; }
@@ -235,3 +239,9 @@ button.principal { font-weight: 600; }
 #tabla-encuestas-dia th:nth-child(6), #tabla-encuestas-dia td:nth-child(6) { width: 76px; }
 #tabla-encuestas-dia th:nth-child(n+7), #tabla-encuestas-dia td:nth-child(n+7) { width: 40px; padding-left: 3px; padding-right: 3px; text-align: center; }
 #tabla-encuestas-dia td, #tabla-encuestas-dia th { padding-left: 6px; padding-right: 6px; }
+/* Crea tu propio promedio: controles arriba, con las acciones a la derecha; columnas de partido estrechas con logo cuadrado */
+.controles-promedio { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.controles-promedio .acciones-promedio { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.tabla-promedio-propio th.col-partido, .tabla-promedio-propio td.col-partido { width: 42px; padding-left: 3px; padding-right: 3px; text-align: center; }
+.tabla-promedio-propio { font-size: 0.88rem; }
+.tabla-promedio-propio tr.fila-promedio th.num { text-align: right; }

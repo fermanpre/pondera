@@ -28,7 +28,7 @@ LEMA = "Elecciones generales 2026"
 URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js"]
-SCRIPTS_DE_PROVINCIAS = ["datos_modelo.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js"]
+SCRIPTS_DE_PROVINCIAS = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js"]
 SCRIPTS_DE_COMUNIDADES = SCRIPTS_DE_PROVINCIAS
 # Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
 SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js"]
@@ -54,7 +54,7 @@ PAGINAS = [
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en cada comunidad autónoma de las generales de 2026, con los resultados de 2023."},
     {"archivo": "resumen.html", "plantilla": "resumen", "titulo": "Resumen por provincia", "grupo": "territorio", "scripts": [],
      "descripcion": "Escaños y porcentaje de voto previstos de cada partido en cada provincia, con descarga en CSV y XLSX."},
-    {"archivo": "simulador.html", "plantilla": "simulador", "titulo": "Simulador", "grupo": "simulador", "scripts": SCRIPTS_DE_PREVISION + ["encuestas_recientes.js", "assets/promedio_propio.js"],
+    {"archivo": "simulador.html", "plantilla": "simulador", "titulo": "Simulador", "grupo": "simulador", "scripts": SCRIPTS_DE_PREVISION + ["datos_mapa_2023.js", "encuestas_recientes.js", "assets/promedio_propio.js", "assets/app_mapa.js"],
      "descripcion": "Simulador de escaños: fija el voto de cada partido y mira cómo cambia el reparto en España y en cada provincia."},
     {"archivo": "metodologia.html", "plantilla": "metodologia", "titulo": "Metodología", "grupo": "metodologia", "scripts": [],
      "descripcion": "Cómo se calcula el promedio de encuestas, el reparto por provincia, los escaños y la incertidumbre."},
@@ -273,10 +273,17 @@ def unir_estilos():
 
 
 def incluir_fragmentos(contenido):
-    """Sustituye cada «<!--INCLUIR nombre-->» por el contenido de plantillas/parciales/nombre.html."""
+    """Sustituye cada «<!--INCLUIR nombre-->» por el contenido de plantillas/parciales/nombre.html.
+    Admite argumentos: «<!--INCLUIR nombre | texto 1 | texto 2-->» sustituye los marcadores «{{1|valor por defecto}}», «{{2|...}}» del fragmento
+    (si falta el argumento, se queda el valor por defecto); así una misma sección se reutiliza en varias páginas con otros rótulos."""
     def leer_fragmento(coincidencia):
-        return (CARPETA_PLANTILLAS / "parciales" / (coincidencia.group(1) + ".html")).read_text(encoding="utf-8").strip()
-    return re.sub(r"<!--INCLUIR (\w+)-->", leer_fragmento, contenido)
+        texto = (CARPETA_PLANTILLAS / "parciales" / (coincidencia.group(1) + ".html")).read_text(encoding="utf-8").strip()
+        argumentos = [argumento.strip() for argumento in coincidencia.group(2).split(" | ")[1:]] if coincidencia.group(2) else []
+        def sustituir(marcador):
+            posicion = int(marcador.group(1))
+            return argumentos[posicion - 1] if posicion <= len(argumentos) else marcador.group(2)
+        return re.sub(r"\{\{(\d)\|([^}]*)\}\}", sustituir, texto)
+    return re.sub(r"<!--INCLUIR (\w+)((?: \| .+?)?)-->", leer_fragmento, contenido)
 
 
 def pagina_de_redireccion(destino):

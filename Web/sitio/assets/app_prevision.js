@@ -37,6 +37,7 @@ function recalcular() {
     pintarNacional();
     pintarProvincia();
     pintarComunidad();
+    if (typeof actualizarMapasConResultado === "function") actualizarMapasConResultado();  // app_mapa.js: los mapas siguen al reparto central con los objetivos de ese momento
     if (typeof alTerminarElCalculo === "function") alTerminarElCalculo();
   }, 20);
 }
@@ -159,7 +160,7 @@ function conTriangulo(valor, decimales) {
   const texto = conSigno(valor, decimales);
   if (texto.charAt(0) === "+") return '<span class="sube"><span class="triangulo" aria-hidden="true">▲</span>' + texto + "</span>";
   if (texto.charAt(0) === "−") return '<span class="baja"><span class="triangulo" aria-hidden="true">▼</span>' + texto + "</span>";
-  return texto;
+  return '<span class="igual" title="Sin cambio">=</span>';
 }
 
 function textoDeRango(minimo, maximo) {
@@ -376,6 +377,17 @@ function crearSelectorDeComunidades() {
   selector.addEventListener("change", pintarComunidad);
 }
 
+// Votos a candidaturas de 2023 (sin blancos ni nulos) de un conjunto de provincias, que es la base del voto previsto de 2026; null si no están los datos
+function candidaturasDe2023(nombresDeProvincias) {
+  if (typeof MAPA_2023 === "undefined") return null;
+  let total = 0;
+  nombresDeProvincias.forEach(function (nombre) { total += MAPA_2023[nombre] ? MAPA_2023[nombre].total : 0; });
+  return total > 0 ? total : null;
+}
+
+// Front Valencià (2026) se compara con lo que fue Sumar en la Comunitat Valenciana en 2023: en esas provincias, la candidatura de Sumar de 2023 pasa a la clave FV
+const PROVINCIAS_VALENCIANAS = ["Alicante/Alacant", "Castellón/Castelló", "Valencia/València"];
+
 function pintarProvincia() {
   if (!ultimoResultado || !document.getElementById("selector-provincia")) return;
   const p = parseInt(document.getElementById("selector-provincia").value, 10);
@@ -384,6 +396,7 @@ function pintarProvincia() {
   pintarTablaDeTerritorio({
     idTabla: "tabla-provincia", indices: [p], territorio: "esta provincia",
     resultados2023: typeof RESULTADOS_2023 !== "undefined" ? RESULTADOS_2023[provincia.nombre] : null,
+    candidaturas2023: candidaturasDe2023([provincia.nombre]),
   });
 }
 
@@ -395,6 +408,7 @@ function pintarComunidad() {
   pintarTablaDeTerritorio({
     idTabla: "tabla-comunidad", indices: comunidad.indices, territorio: "esta comunidad",
     resultados2023: typeof RESULTADOS_2023_COMUNIDADES !== "undefined" ? RESULTADOS_2023_COMUNIDADES[comunidad.nombre] : null,
+    candidaturas2023: candidaturasDe2023(comunidad.indices.map(function (p) { return modelo.provincias[p].nombre; })),
   });
 }
 
@@ -412,13 +426,14 @@ function pintarTablaDeTerritorio(config) {
     let cuota = 0;
     let central = 0;
     let nombreDeCoalicion = null;
+    let coalicionDeLaFila = null;
     indices.forEach(function (p) {
       cuota += cuotas[p * K + k] * modelo.provincias[p].peso / pesoTotal;
       central += escanosCentrales[p * K + k];
       // Coalición (UPN-PP en Navarra): la fila de la columna suma los escaños de su socio; el socio no tiene fila propia en esa provincia
       modelo.coaliciones.forEach(function (coalicion) {
         if (coalicion.provincia !== p) return;
-        if (coalicion.columna === k) { central += escanosCentrales[p * K + coalicion.socio]; nombreDeCoalicion = coalicion.nombre; }
+        if (coalicion.columna === k) { central += escanosCentrales[p * K + coalicion.socio]; nombreDeCoalicion = coalicion.nombre; coalicionDeLaFila = { socio: modelo.partidos[coalicion.socio] }; }
         if (coalicion.socio === k) central -= escanosCentrales[p * K + k];
       });
     });
@@ -440,7 +455,7 @@ function pintarTablaDeTerritorio(config) {
     Object.keys(cuentas).forEach(function (cantidad) {
       if (cuentas[cantidad] > mejor) { mejor = cuentas[cantidad]; masProbable = parseInt(cantidad, 10); }
     });
-    filas.push({ partido: partido, nombre: nombreDeCoalicion || NOMBRES[partido], cuota: cuota, central: central, masProbable: masProbable, cuentas: cuentas });
+    filas.push({ partido: partido, nombre: nombreDeCoalicion || NOMBRES[partido], cuota: cuota, central: central, masProbable: masProbable, cuentas: cuentas, coalicion: coalicionDeLaFila });
   });
   filas.sort(function (a, b) { return b.cuota - a.cuota; });
   const tabla = document.getElementById(config.idTabla);
@@ -448,6 +463,26 @@ function pintarTablaDeTerritorio(config) {
   const resultados2023 = tablaConResultados2023 ? config.resultados2023 : null;
   const porClave2023 = {};
   if (resultados2023) resultados2023.candidaturas.forEach(function (c) { porClave2023[c.clave] = c; });
+  const nombresDeProvincias = indices.map(function (p) { return modelo.provincias[p].nombre; });
+  const todoEnLaValenciana = nombresDeProvincias.every(function (nombre) { return PROVINCIAS_VALENCIANAS.indexOf(nombre) >= 0; });
+  if (todoEnLaValenciana && porClave2023.SUMAR) { porClave2023.FV = porClave2023.SUMAR; delete porClave2023.SUMAR; }
+  // 2023 de una fila de la previsión: votos y escaños de su candidatura; en una coalición (UPN-PP en Navarra), la suma de los dos socios
+  function datosDe2023ParaLaDiferencia(f) {
+    const propia = porClave2023[f.partido];
+    if (!f.coalicion) return propia || null;
+    const socio = porClave2023[f.coalicion.socio];
+    if (!propia && !socio) return null;
+    return { votos: (propia ? propia.votos : 0) + (socio ? socio.votos : 0), escanos: (propia ? propia.escanos : 0) + (socio ? socio.escanos : 0) };
+  }
+  // Diferencia de voto (puntos, con 2023 sobre votos a candidaturas, la misma base que el voto previsto) y de escaños (reparto central menos los de 2023)
+  function diferenciaDeVoto(f) {
+    const dato = resultados2023 && config.candidaturas2023 ? datosDe2023ParaLaDiferencia(f) : null;
+    return '<td>' + (dato ? conTriangulo(100 * f.cuota - 100 * dato.votos / config.candidaturas2023, 1) : "–") + '</td>';
+  }
+  function diferenciaDeEscanos(f) {
+    const dato = resultados2023 ? datosDe2023ParaLaDiferencia(f) : null;
+    return '<td>' + (dato ? conTriangulo(f.central - dato.escanos, 0) : "–") + '</td>';
+  }
   const cuerpo = tabla.querySelector("tbody");
   cuerpo.innerHTML = "";
   const orden2023 = ordenElegidoDeLos2023();
@@ -468,7 +503,7 @@ function pintarTablaDeTerritorio(config) {
   filas.forEach(function (f) {
     const fila = document.createElement("tr");
     const celdaPartido = '<td class="col-partido">' + ficha(f.partido) + f.nombre + '</td>';
-    const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + '</td><td>' + f.central + '</td><td>' + f.masProbable +
+    const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + '</td>' + diferenciaDeVoto(f) + '<td>' + f.central + '</td>' + diferenciaDeEscanos(f) + '<td>' + f.masProbable +
       '</td><td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>';
     fila.innerHTML = ordenarFila(celdaPartido, celdasPrevision, celdas2023(f.partido));
     cuerpo.appendChild(fila);
@@ -483,7 +518,7 @@ function pintarTablaDeTerritorio(config) {
       const color = COLORES[c.clave] || "#9a9a94";
       const fila = document.createElement("tr");
       fila.className = "solo-2023";
-      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="4" class="suave">Sin previsión en ' + config.territorio + '</td>', celdas2023(c.clave));
+      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="6" class="suave">Sin previsión en ' + config.territorio + '</td>', celdas2023(c.clave));
       cuerpo.appendChild(fila);
     });
   }
@@ -549,8 +584,8 @@ function construirCabeceraConPasado(tabla, orden) {
   const marcaDeInicio = orden === "final" ? " borde-izq" : "";
   const grupoPasado = '<th colspan="3" class="grupo2023' + marcaDeInicio + ' borde-der">Resultado de 2023 (definitivo)</th>';
   const subPasado = '<th class="' + marcaDeInicio.trim() + '">Votos</th><th>%</th><th class="borde-der">Escaños</th>';
-  const grupoPrevision = '<th colspan="4" style="text-align:center">Previsión 2026</th>';
-  const subPrevision = '<th>Voto previsto</th><th>Escaños</th><th>Más probable</th><th style="text-align:left">Distribución (oscuro: central)</th>';
+  const grupoPrevision = '<th colspan="6" style="text-align:center">Previsión 2026</th>';
+  const subPrevision = '<th>Voto previsto</th><th title="Puntos de voto respecto a 2023 (sobre votos a candidaturas)">Dif.</th><th>Escaños</th><th title="Escaños respecto a 2023">Dif.</th><th>Más probable</th><th style="text-align:left">Distribución (oscuro: central)</th>';
   const partido = '<th rowspan="2" class="col-partido">Partido</th>';
   let primeraFila, segundaFila;
   if (orden === "antes") { primeraFila = grupoPasado + partido + grupoPrevision; segundaFila = subPasado + subPrevision; }
