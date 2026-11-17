@@ -118,7 +118,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
             actual = ' aria-current="page"' if destino == pagina["archivo"] else ""
             enlaces.append('<a href="%s"%s>%s</a>' % (enlace, actual, escapar(rotulo)))
         segunda_cinta = '<nav class="subnav" aria-label="Secciones de esta página"><div class="interior">%s</div></nav>' % "".join(enlaces)
-    scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js", "assets/cookies.js"] + pagina["scripts"])
+    scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js", "assets/veda.js", "assets/cookies.js"] + pagina["scripts"])
 
     return """<!doctype html>
 <html lang="es">
@@ -154,7 +154,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
     <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
   </div>
 </header>
-<div class="retroacronimo"><div class="interior"><b>P</b>romedio <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
+<div class="retroacronimo"><div class="interior"><b>P</b>ronóstico <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
 {segunda_cinta}
 <main class="contenedor">
 {contenido}

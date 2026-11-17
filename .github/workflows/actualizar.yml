@@ -1,10 +1,10 @@
 # Actualización diaria del promedio de encuestas y publicación de la web en GitHub Pages.
-# Se ejecuta todos los días y a mano (pestaña Actions, botón «Run workflow»).
+# Se ejecuta cada tres horas y a mano (pestaña Actions, botón «Run workflow»). Desde el 24/11/2026 (hora de Madrid) no hace nada: veda de sondeos, art. 69.7 de la LOREG.
 name: Actualizar promedio y publicar
 
 on:
   schedule:
-    - cron: "30 6 * * *"   # 06:30 UTC (07:30 o 08:30 en España)
+    - cron: "30 */3 * * *"   # cada tres horas, al minuto 30 (UTC)
   workflow_dispatch:
 
 permissions:
@@ -17,7 +17,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    outputs:
+      veda: ${{ steps.fecha.outputs.veda }}
+    steps:
+      - id: fecha
+        run: |
+          hoy=$(TZ=Europe/Madrid date +%Y%m%d)
+          if [ "$hoy" -ge 20261124 ]; then
+            echo "veda=true" >> "$GITHUB_OUTPUT"
+            echo "Veda de sondeos (desde el 24/11/2026): no se actualiza ni se publica nada."
+          else
+            echo "veda=false" >> "$GITHUB_OUTPUT"
+          fi
+
   actualizar:
+    needs: comprobar
+    if: needs.comprobar.outputs.veda != 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

@@ -36,7 +36,7 @@
     <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
   </div>
 </header>
-<div class="retroacronimo"><div class="interior"><b>P</b>romedio <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
+<div class="retroacronimo"><div class="interior"><b>P</b>ronóstico <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
 <nav class="subnav" aria-label="Secciones de esta página"><div class="interior"><a href="acerca.html" aria-current="page">Acerca de</a><a href="enlaces.html">Enlaces</a><a href="autor.html">Sobre el autor</a><a href="privacidad.html">Privacidad y cookies</a><a href="changelog.html">Historial de cambios</a></div></nav>
 <main class="contenedor">
 <div class="cabecera-pagina">
@@ -47,7 +47,7 @@
 <div class="prosa">
   <h2>Qué es</h2>
   <p>PONDERA es un proyecto personal sobre las elecciones generales de España del 29 de noviembre de 2026. Reúne un promedio diario de las encuestas, una previsión de votos y escaños por provincia con su incertidumbre y un simulador para probar hipótesis propias.</p>
-  <p>El nombre juega con el verbo «ponderar» y con el hecho de que el promedio pondera cada encuesta por la fiabilidad de su firma. Es un retroacrónimo provisional: <b>P</b>romedio <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas con <b>R</b>esultados y <b>A</b>nálisis.</p>
+  <p>El nombre juega con el verbo «ponderar» y con el hecho de que el promedio pondera cada encuesta por la fiabilidad de su firma. Es un retroacrónimo provisional: <b>P</b>ronóstico <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis.</p>
 
   <h2>Qué hay</h2>
   <ul>
@@ -59,7 +59,7 @@
   </ul>
 
   <h2>Cómo se mantiene</h2>
-  <p>Una tarea automática de GitHub Actions baja cada día las encuestas nuevas de Wikipedia, recalcula todo el promedio y publica la web. También se puede lanzar a mano. Todo el cálculo de la previsión y del simulador ocurre en tu navegador: el sitio no usa servidor ni pone anuncios, y solo mide las visitas con Google Analytics si lo aceptas (ver <a href="privacidad.html">Privacidad y cookies</a>).</p>
+  <p>Una tarea automática de GitHub Actions baja cada tres horas las encuestas nuevas de Wikipedia, recalcula el promedio y la previsión y publica la web. También se puede lanzar a mano. Desde el 24 de noviembre, por la veda de sondeos, la tarea se detiene y la web queda con las cifras del 23 de noviembre. Todo el cálculo de la previsión y del simulador ocurre en tu navegador: el sitio no usa servidor ni pone anuncios, y solo mide las visitas con Google Analytics si lo aceptas (ver <a href="privacidad.html">Privacidad y cookies</a>).</p>
 
   <h2>Qué conviene tener presente</h2>
   <p>Esto es una previsión, no una encuesta, y no está asociada a ningún partido, medio ni instituto demoscópico. Los porcentajes y escaños de la web son estimaciones con incertidumbre.</p>
@@ -84,6 +84,7 @@
   </nav>
 </footer>
 <script src="assets/tema.js"></script>
+<script src="assets/veda.js"></script>
 <script src="assets/cookies.js"></script>
 </body>
 </html>

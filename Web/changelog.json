@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-18",
+    "titulo": "Actualización cada tres horas, aviso de veda y textos",
+    "texto": "La tarea automática pasa a ejecutarse cada tres horas. Desde el 24 de noviembre (hora de Madrid), por la veda de sondeos (artículo 69.7 de la LOREG), se detiene sola y todas las páginas muestran un aviso: las cifras serán las del 23 de noviembre. El retroacrónimo del nombre pasa a ser «Pronóstico Ordenado de Noticias, Datos y Encuestas, con Resultados y Análisis». Se actualizan los textos de «Acerca de», «Sobre el autor» y de la sección de la veda en la metodología."
+  },
+  {
+    "fecha": "2026-11-18",
     "titulo": "Unidad del Pueblo Canario, Frente Amplio y orden de las tablas",
     "texto": "Unidad del Pueblo Canario (Podemos, Nueva Canarias e IU) pasa a ser una fila propia, entre Front Valencià y Podemos, y se resta del Frente Amplio (hoy 5,0%): ninguna encuesta publica su porcentaje, así que el modelo la estima como su parte del Frente Amplio en la base de partida (0,5%). La tabla nacional tiene una fila nueva con el total comparable con Sumar 2023 (Frente Amplio + FV + UPC + Podemos). Los partidos periféricos se ordenan por voto estimado (ERC, Adelante, Bildu, Junts, BNG, PNV, UPN, CC, Existe), con PACMA al final, en la tabla nacional, los deslizadores, la tabla de «Crea tu propio promedio», el listado de sondeos y la página Resumen. Se habla siempre de Frente Amplio (Sumar solo en los datos anteriores a octubre de 2026 y en los de 2023)."
   },

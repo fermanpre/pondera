@@ -36,7 +36,7 @@
     <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
   </div>
 </header>
-<div class="retroacronimo"><div class="interior"><b>P</b>romedio <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
+<div class="retroacronimo"><div class="interior"><b>P</b>ronóstico <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
 <nav class="subnav" aria-label="Secciones de esta página"><div class="interior"><a href="acerca.html">Acerca de</a><a href="enlaces.html">Enlaces</a><a href="autor.html">Sobre el autor</a><a href="privacidad.html">Privacidad y cookies</a><a href="changelog.html" aria-current="page">Historial de cambios</a></div></nav>
 <main class="contenedor">
 <div class="cabecera-pagina">
@@ -44,6 +44,7 @@
   <p class="subtitulo">Registro de las actualizaciones reales del sitio, de la más reciente a la más antigua. Las actualizaciones diarias automáticas del promedio no se anotan aquí. <a href="feed.xml">RSS</a>.</p>
 </div>
 <section id="cambios">
+  <article class="entrada-cambio"><time datetime="2026-11-18">18 de noviembre de 2026</time><h3>Actualización cada tres horas, aviso de veda y textos</h3><p>La tarea automática pasa a ejecutarse cada tres horas. Desde el 24 de noviembre (hora de Madrid), por la veda de sondeos (artículo 69.7 de la LOREG), se detiene sola y todas las páginas muestran un aviso: las cifras serán las del 23 de noviembre. El retroacrónimo del nombre pasa a ser «Pronóstico Ordenado de Noticias, Datos y Encuestas, con Resultados y Análisis». Se actualizan los textos de «Acerca de», «Sobre el autor» y de la sección de la veda en la metodología.</p></article>
   <article class="entrada-cambio"><time datetime="2026-11-18">18 de noviembre de 2026</time><h3>Unidad del Pueblo Canario, Frente Amplio y orden de las tablas</h3><p>Unidad del Pueblo Canario (Podemos, Nueva Canarias e IU) pasa a ser una fila propia, entre Front Valencià y Podemos, y se resta del Frente Amplio (hoy 5,0%): ninguna encuesta publica su porcentaje, así que el modelo la estima como su parte del Frente Amplio en la base de partida (0,5%). La tabla nacional tiene una fila nueva con el total comparable con Sumar 2023 (Frente Amplio + FV + UPC + Podemos). Los partidos periféricos se ordenan por voto estimado (ERC, Adelante, Bildu, Junts, BNG, PNV, UPN, CC, Existe), con PACMA al final, en la tabla nacional, los deslizadores, la tabla de «Crea tu propio promedio», el listado de sondeos y la página Resumen. Se habla siempre de Frente Amplio (Sumar solo en los datos anteriores a octubre de 2026 y en los de 2023).</p></article>
   <article class="entrada-cambio"><time datetime="2026-11-17">17 de noviembre de 2026</time><h3>Las encuestas subnacionales entran en la previsión</h3><p>En los territorios con al menos dos encuestas con porcentajes en los últimos 90 días (hoy Cataluña, Galicia, la Comunitat Valenciana y el País Vasco), la previsión mezcla el modelo con el promedio de esas encuestas, calculado con las mismas reglas que el nacional (con una vida media de 21 días para la antigüedad), con un peso que crece con el número de encuestas (w = k / (k + 3)). Los partidos de un solo territorio (PNV, Bildu, BNG, ERC, Junts y Front Valencià) siguen además a sus encuestas en el total nacional, y la diferencia se compensa dentro de su bloque. Detalle en la metodología.</p></article>
   <article class="entrada-cambio"><time datetime="2026-11-17">17 de noviembre de 2026</time><h3>Leyendas de los mapas dentro de su recuadro</h3><p>Las etiquetas de los extremos de las leyendas de los mapas («izquierda +20», «derecha +20», «I+40», «D+40») ya no se salen del recuadro ni se solapan entre los dos mapas.</p></article>
@@ -122,6 +123,7 @@
   </nav>
 </footer>
 <script src="assets/tema.js"></script>
+<script src="assets/veda.js"></script>
 <script src="assets/cookies.js"></script>
 </body>
 </html>

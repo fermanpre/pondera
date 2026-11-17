@@ -215,3 +215,6 @@
 #tabla-nacional tr.fila-subtotal td { font-weight: 600; border-top: 2px solid var(--linea, #b9b9b2); background: var(--fondo-suave, rgba(127,127,127,0.08)); }
 #tabla-nacional tr.fila-subtotal .detalle-subtotal { font-weight: 400; font-size: 0.85em; opacity: 0.8; }
 #tabla-nacional tr.fila-subtotal td.etiqueta-subtotal { white-space: normal; max-width: 14rem; line-height: 1.25; }
+
+/* Aviso de veda de sondeos (assets/veda.js) */
+.aviso-veda { background: #7a1f1f; color: #fff; text-align: center; padding: 0.6rem 1rem; font-size: 0.95rem; line-height: 1.35; font-weight: 600; }
