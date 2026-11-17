@@ -137,13 +137,29 @@ function escanosDeLaCombinacion(combinacion, centrales) {
   return combinacion.partidos.reduce(function (suma, partido) { return suma + (centrales[partido] || 0); }, 0);
 }
 
+// Horquilla del 95% de los escaños que suma la combinación en las simulaciones (percentiles 2,5 y 97,5 de la suma de sus partidos en cada sorteo)
+function horquillaDeLaCombinacion(combinacion) {
+  const K = modelo.numeroDePartidos;
+  const sorteos = ultimoResultado.sorteos;
+  const columnas = combinacion.partidos.map(function (partido) { return modelo.partidos.indexOf(partido); }).filter(function (k) { return k >= 0; });
+  const sumas = [];
+  for (let s = 0; s < sorteos; s++) {
+    let suma = 0;
+    columnas.forEach(function (k) { suma += ultimoResultado.simulacion.nacionales[s * K + k]; });
+    sumas.push(suma);
+  }
+  sumas.sort(function (a, b) { return a - b; });
+  return { desde: Math.round(MotorElectoral.percentil(sumas, 0.025)), hasta: Math.round(MotorElectoral.percentil(sumas, 0.975)) };
+}
+
 function filaDeMayoria(combinacion, p, centrales) {
   const escanos = escanosDeLaCombinacion(combinacion, centrales);
-  return '<div class="barra-prob" title="' + combinacion.partidos.map(function (x) { return NOMBRES[x] || x; }).join(" + ") + ': ' + entero(escanos) + ' escaños en el reparto central">' +
+  const horquilla = horquillaDeLaCombinacion(combinacion);
+  return '<div class="barra-prob" title="' + combinacion.partidos.map(function (x) { return NOMBRES[x] || x; }).join(" + ") + ': horquilla del 95% de ' + entero(horquilla.desde) + ' a ' + entero(horquilla.hasta) + ' escaños; ' + entero(escanos) + ' en el reparto central">' +
     '<span class="barra-prob-nombre">' + combinacion.nombre + '</span>' +
     '<span class="barra-prob-pista"><span class="barra-prob-relleno" style="width:' + (100 * p).toFixed(2) + '%;background:' + combinacion.color + '"></span></span>' +
-    '<span class="barra-prob-escanos' + (escanos >= 176 ? " mayoria" : "") + '">' + entero(escanos) + '</span>' +
-    '<b>' + textoDeProbabilidad(p) + '</b></div>';
+    '<b>' + textoDeProbabilidad(p) + '</b>' +
+    '<span class="barra-prob-escanos">' + entero(horquilla.desde) + '-' + entero(horquilla.hasta) + ' (<span class="' + (escanos >= 176 ? "mayoria" : "") + '">' + entero(escanos) + '</span>)</span></div>';
 }
 
 function pintarMayorias() {
@@ -154,7 +170,7 @@ function pintarMayorias() {
   const calculadas = COMBINACIONES_DE_MAYORIA.map(function (combinacion) { return { combinacion: combinacion, p: probabilidad(combinacion) }; });
   const visibles = calculadas.filter(function (elemento) { return elemento.p >= PROBABILIDAD_MINIMA_DE_MAYORIA; })
     .sort(function (a, b) { return b.p - a.p; });
-  let html = '<h3>Probabilidad de mayoría absoluta (176 escaños o más)</h3><div class="grupo-mayorias"><div class="barra-prob barra-prob-cabecera"><span></span><span></span><span class="barra-prob-escanos" title="Escaños que suma la combinación en el reparto central (sin ruido)">Escaños</span><b>Prob.</b></div>';
+  let html = '<h3>Probabilidad de mayoría absoluta (176 escaños o más)</h3><div class="grupo-mayorias"><div class="barra-prob barra-prob-cabecera"><span></span><span></span><b>Prob.</b><span class="barra-prob-escanos" title="Horquilla del 95% de los escaños que suma la combinación en las simulaciones y, entre paréntesis, los que suma en el reparto central (sin ruido); en negrita si llega a 176">Rango 95% (central)</span></div>';
   visibles.forEach(function (elemento) { html += filaDeMayoria(elemento.combinacion, elemento.p, centrales); });
   html += '</div>';
   if (visibles.length < calculadas.length) {

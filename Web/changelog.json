@@ -1,8 +1,8 @@
 [
   {
     "fecha": "2026-11-17",
-    "titulo": "Escaños de cada mayoría en el reparto central",
-    "texto": "En la lista de probabilidades de mayoría absoluta, cada combinación muestra ahora cuántos diputados suma en el reparto central (en negrita si llega a 176), además de su probabilidad. Aparece en la portada y en el simulador."
+    "titulo": "Mayorías: probabilidad, rango del 95% y reparto central",
+    "texto": "En la lista de probabilidades de mayoría absoluta, cada combinación muestra primero su probabilidad y, a su derecha, el rango del 95% de los escaños que suma en las simulaciones y, entre paréntesis, los que suma en el reparto central (en negrita si llega a 176), por ejemplo «96,0%  173-227 (200)». Aparece en la portada y en el simulador."
   },
   {
     "fecha": "2026-11-17",
