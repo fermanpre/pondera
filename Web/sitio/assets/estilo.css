@@ -254,3 +254,6 @@ button.principal { font-weight: 600; }
 .barra-prob-escanos .mayoria { color: var(--texto); font-weight: 700; }
 .barra-prob-cabecera { font-size: 0.78rem; color: var(--suave); padding-bottom: 0; }
 .barra-prob-cabecera b { font-weight: 400; }
+/* Leyendas de los mapas: la primera y la última etiqueta se alinean con los extremos de la barra para no salirse de su recuadro */
+.marcas-escala span:first-child { transform: none; }
+.marcas-escala span:last-child { transform: translateX(-100%); }
