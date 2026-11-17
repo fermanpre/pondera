@@ -216,7 +216,10 @@ button.principal { font-weight: 600; }
 .baja { color: var(--baja); white-space: nowrap; }
 .triangulo { font-size: 0.7em; margin-right: 3px; vertical-align: 1px; }
 /* Línea de la mayoría absoluta en la barra de escaños: continua, negra y del doble de grosor (con un halo claro para que se vea también en el tema oscuro) */
-.barra .linea176 { border-left: 4px solid #000; top: -5px; bottom: -5px; box-shadow: 0 0 0 1px rgba(255,255,255,.75); }
+.barra { overflow: visible; }
+.barra > div:first-child { border-radius: 5px 0 0 5px; }
+.barra > div:nth-last-child(2) { border-radius: 0 5px 5px 0; }
+.barra .linea176 { border-left: 4px solid #000; top: -10px; height: calc(100% + 20px); margin-left: -2px; box-shadow: 0 0 0 1px rgba(255,255,255,.75); }
 .leyenda176 { color: var(--suave); }
 /* Tabla nacional: columna de partidos a la mitad y más aire entre las demás */
 #tabla-nacional thead th[rowspan], #tabla-nacional tbody td:first-child { width: 190px; min-width: 190px; text-align: left; white-space: nowrap; }

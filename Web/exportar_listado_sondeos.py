@@ -22,7 +22,7 @@ PAGINA = "Opinion_polling_for_the_next_Spanish_general_election"
 ANIO_DE_LA_ELECCION = 2026
 # Nombre de columna de Wikipedia -> nombre en el listado (Sumar y su sucesor Frente Amplio comparten columna)
 NOMBRE_DE_PARTIDO = {"FA": "Sumar/FA", "Sumar": "Sumar/FA"}
-PARTIDOS_EN_ORDEN = ["PP", "PSOE", "Vox", "Sumar/FA", "Podemos", "ERC", "Junts", "EH Bildu", "PNV", "BNG", "SALF", "CCa", "UPN", "FV"]
+PARTIDOS_EN_ORDEN = ["PP", "PSOE", "Vox", "Sumar/FA", "FV", "Podemos", "SALF", "ERC", "Junts", "EH Bildu", "PNV", "BNG", "CCa", "UPN"]
 
 
 def normalizar_partido(nombre):
@@ -38,7 +38,9 @@ def main():
     filas, _anclas, _desajustes = wiki.extraer_pagina(CONVOCATORIA, PAGINA, ANIO_DE_LA_ELECCION, con_enlaces=True)
     sondeos = {}
     for fila in filas:
-        if RECALCULO_DEL_CIS.match(fila["firma"]):
+        if RECALCULO_DEL_CIS.match(fila["firma"]) or fila["firma"] == "2024 EP election":
+            continue  # (también fuera la fila de resultado de las europeas de 2024 que trae la tabla de Wikipedia)
+        if False:
             continue  # «CIS (Logoslab)», «CIS (SocioMétrica)»…: recálculos de terceros sobre los datos brutos del CIS; no son encuestas y ni se muestran ni entran en el promedio
         clave = (fila["firma"], fila["cliente"], fila["fecha_texto"], fila["anio_inferido"], fila["muestra"])
         sondeo = sondeos.setdefault(clave, {
@@ -52,7 +54,7 @@ def main():
     if ruta_previa.exists() and listado:
         primer_dia_descargado = listado[-1]["fin"]
         previos = json.loads(ruta_previa.read_text(encoding="utf-8"))["sondeos"]
-        archivados = [s for s in previos if s["fin"] < primer_dia_descargado and not RECALCULO_DEL_CIS.match(s["firma"])]
+        archivados = [s for s in previos if s["fin"] < primer_dia_descargado and not RECALCULO_DEL_CIS.match(s["firma"]) and s["firma"] != "2024 EP election"]
         listado = listado + sorted(archivados, key=lambda s: s["fin"], reverse=True)
     sin_fuente = sum(1 for s in listado if not s["fuentes"])
     contenido = json.dumps({"partidos": PARTIDOS_EN_ORDEN, "sondeos": listado}, ensure_ascii=False, separators=(",", ":"))

@@ -158,6 +158,14 @@ function cabeceraDeLaTablaNacional() {
     '<tr><th>2023</th><th>2026</th><th>Dif.</th><th>2023</th><th>2026</th><th>Dif.</th><th>80%</th><th>95%</th></tr>';
 }
 
+// Orden fijo de la tabla nacional: primero los partidos de ámbito estatal (con Front Valencià y Podemos pegados a Frente Amplio, para comparar con 2023) y después los periféricos
+const ORDEN_DE_LA_TABLA = ["PP", "PSOE", "VOX", "SUMAR", "FV", "PODEMOS", "SALF", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE", "EXISTE", "PACMA"];
+
+function partidosEnElOrdenDeLaTabla() {
+  const resto = partidosPorVoto().filter(function (partido) { return ORDEN_DE_LA_TABLA.indexOf(partido) < 0; });
+  return ORDEN_DE_LA_TABLA.filter(function (partido) { return modelo.partidos.indexOf(partido) >= 0; }).concat(resto);
+}
+
 function pintarNacional() {
   if (!document.getElementById("barra-escanos")) return;
   const resumen = MotorElectoral.resumirNacional(modelo, ultimoResultado.simulacion);
@@ -188,7 +196,7 @@ function pintarNacional() {
   const cuerpo = document.querySelector("#tabla-nacional tbody");
   cuerpo.innerHTML = "";
   const de2023 = resultadosNacionalesDe2023();
-  partidosPorVoto().forEach(function (partido) {
+  partidosEnElOrdenDeLaTabla().forEach(function (partido) {
     if (partido === "OTROS") return;
     const r = resumen[partido];
     const voto = 100 * objetivosActuales[partido];

@@ -17,7 +17,7 @@
   // Orden de las columnas de partido en la tabla de encuestas: por su resultado en las generales de 2023 (Frente Amplio, que sucede a Sumar, va justo detrás); los que no tuvieron resultado propio, al final
   const ORDEN_POR_2023 = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE", "PODEMOS", "SALF", "FV"];
   // Columnas de la tabla de encuestas del día: Sumar y Frente Amplio fusionadas en una (aunque no sean exactamente lo mismo) y Front Valencià justo a su derecha
-  const COLUMNAS_DE_LA_TABLA = ["PP", "PSOE", "VOX", "SUMAR", "FV", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE", "PODEMOS", "SALF"];
+  const COLUMNAS_DE_LA_TABLA = ["PP", "PSOE", "VOX", "SUMAR", "FV", "PODEMOS", "SALF", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE"];
   const NOMBRE_DE_COLUMNA = { SUMAR: "Sumar / Frente Amplio" };
   const conMiles = (numero) => String(numero).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const posicionEn2023 = (id) => { const posicion = ORDEN_POR_2023.indexOf(id); return posicion < 0 ? ORDEN_POR_2023.length : posicion; };

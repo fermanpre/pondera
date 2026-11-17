@@ -71,6 +71,9 @@ def construir_detalle_de_encuestas(detalle_por_dia, partidos_a_mostrar):
             for partido in partidos_a_mostrar:
                 if partido in encuesta["valores"]:
                     valores[partido] = round(encuesta["valores"][partido], 1)
+            # Para el cálculo, «FA» incluye a Front Valencià cuando la encuesta los separa; en la tabla se enseñan por separado, así que aquí se le quita FV a FA para no duplicarlo
+            if "FA" in valores and "FV" in encuesta["valores"]:
+                valores["FA"] = round(encuesta["valores"]["FA"] - encuesta["valores"]["FV"], 1)
             encuestas.append({
                 "firma": encuesta["firma_original"], "cliente": encuesta["cliente"],
                 "campo": fecha_de_campo_en_espanol(encuesta["fecha_texto"], encuesta["fin"]), "fin": encuesta["fin"].isoformat(),
