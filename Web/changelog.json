@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-17",
+    "titulo": "Simulador sin el resumen «Tu promedio y la proyección»",
+    "texto": "Se quita el recuadro «Tu promedio y la proyección» que aparecía tras calcular, porque sus datos ya están en la tabla de encuestas (fila «Tu promedio») y en el resultado nacional. Al pulsar «Calcular promedio y proyección», la página lleva ahora directamente al resultado."
+  },
+  {
+    "fecha": "2026-11-17",
     "titulo": "Simulador rehecho al estilo de la previsión y diferencias con 2023 en Territorio",
     "texto": "En Territorio, las tablas de provincias y comunidades tienen columnas «Dif.» con 2023 (puntos de voto y escaños) con triángulos verdes y rojos y «=» donde no hay cambio; Front Valencià se compara con Sumar en la Comunitat Valenciana. En el simulador: los controles (pesos, corrección de encuestas de parte, «Incluir todas / excluir todas», simulaciones y botón de calcular) van arriba de la tabla de encuestas, con las filas «Tu promedio» y «Promedio del modelo» en la parte superior; la tabla usa logos cuadrados y cabe entera, con Frente Amplio y Front Valencià por separado; el resultado se presenta como en la portada (barra, tabla con histograma y probabilidades de mayoría, hemiciclo); hay mapas por provincia con el resultado de la simulación y tablas por provincia y por comunidad como en Territorio."
   },

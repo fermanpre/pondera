@@ -201,31 +201,9 @@
 
   function refrescar() { cuerpo(); pie(); }
 
-  /* ---------- Resultado ---------- */
+  /* ---------- Cálculo ---------- */
 
-  function pintarResumen(promedio, objetivos) {
-    const contenedor = document.getElementById("pp-resultado");
-    if (!contenedor) return;
-    const partidos = modelo.partidos.slice().sort(function (a, b) { return objetivos[b] - objetivos[a]; }).filter(function (partido) { return objetivos[partido] > 0.0005; });
-    const nombreEnEncuestas = {};
-    COLUMNAS.forEach(function (par) { nombreEnEncuestas[par[1]] = par[0]; });
-    const filasHtml = partidos.map(function (partido) {
-      const crudo = nombreEnEncuestas[partido] !== undefined && valorMostradoDePromedio(promedio, nombreEnEncuestas[partido]) !== undefined ? formato.format(valorMostradoDePromedio(promedio, nombreEnEncuestas[partido])) + "%" : "–";
-      const escanos = ultimoResultado && ultimoResultado.central ? centralesDe(partido) : "";
-      return "<tr><td>" + ficha(partido) + (NOMBRE_DE_COLUMNA[partido] || NOMBRES[partido]) + "</td><td class=\"num\">" + crudo + "</td><td class=\"num\">" + formato.format(100 * objetivos[partido]) + "%</td><td class=\"num\">" + escanos + "</td></tr>";
-    }).join("");
-    contenedor.innerHTML = '<h3>Tu promedio y la proyección</h3><div class="tabla-ancha"><table><thead><tr><th>Partido</th><th class="num">Promedio de tus encuestas (voto válido)</th>' +
-      '<th class="num">Voto que usa el modelo (votos a candidaturas)</th><th class="num">Escaños (reparto central)</th></tr></thead><tbody>' + filasHtml + "</tbody></table></div>" +
-      '<p class="nota">Debajo están el resultado nacional, el hemiciclo, los mapas y las tablas por provincia y comunidad con tu promedio; los deslizadores de «Voto por partido» ya valen lo mismo y se pueden afinar a partir de ahí.</p>';
-  }
-
-  function centralesDe(partido) {
-    const centrales = typeof escanosCentrales === "function" ? escanosCentrales() : {};
-    return centrales[partido] === undefined ? "0" : String(centrales[partido]);
-  }
-
-  let promedioPendiente = null;
-  let objetivosPendientes = null;
+  let calculoPendiente = false;
 
   function calcular() {
     if (!incluidas().length) {
@@ -235,8 +213,7 @@
     const promedio = promedioDeLosPartidos();
     const objetivos = traducirAObjetivos(promedio);
     objetivosActuales = Object.assign({}, objetivos);
-    promedioPendiente = promedio;
-    objetivosPendientes = objetivos;
+    calculoPendiente = true;
     const sorteos = document.getElementById("pp-sorteos").value;
     const selectorGeneral = document.getElementById("numero-sorteos");
     if (selectorGeneral) selectorGeneral.value = sorteos;
@@ -245,13 +222,12 @@
     recalcular();
   }
 
-  // app_prevision.js llama a esta función cuando termina cada cálculo: si venía de este botón, se completa el resumen
+  // app_prevision.js llama a esta función cuando termina cada cálculo: si venía de este botón, se avisa y se lleva al visitante al resultado nacional
   window.alTerminarElCalculo = function () {
-    if (!promedioPendiente) return;
-    pintarResumen(promedioPendiente, objetivosPendientes);
+    if (!calculoPendiente) return;
+    calculoPendiente = false;
     document.getElementById("pp-estado").textContent = "Listo: " + entero(ultimoResultado.sorteos) + " simulaciones.";
-    promedioPendiente = null;
-    const destino = document.getElementById("pp-resultado");
+    const destino = document.getElementById("nacional");
     if (destino && destino.scrollIntoView) destino.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
