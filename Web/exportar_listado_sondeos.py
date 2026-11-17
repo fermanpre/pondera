@@ -22,7 +22,8 @@ PAGINA = "Opinion_polling_for_the_next_Spanish_general_election"
 ANIO_DE_LA_ELECCION = 2026
 # Nombre de columna de Wikipedia -> nombre en el listado (Sumar y su sucesor Frente Amplio comparten columna)
 NOMBRE_DE_PARTIDO = {"FA": "Sumar/FA", "Sumar": "Sumar/FA"}
-PARTIDOS_EN_ORDEN = ["PP", "PSOE", "Vox", "Sumar/FA", "FV", "Podemos", "SALF", "ERC", "Junts", "EH Bildu", "PNV", "BNG", "CCa", "UPN"]
+# Orden: partidos estatales (con FV y Podemos pegados a Frente Amplio) y después los periféricos por voto estimado (ERC, Adelante, Bildu, Junts, BNG, PNV, UPN, CC); orden del 18/11/2026
+PARTIDOS_EN_ORDEN = ["PP", "PSOE", "Vox", "Sumar/FA", "FV", "Podemos", "SALF", "ERC", "Adelante Andalucía", "EH Bildu", "Junts", "BNG", "PNV", "UPN", "CCa"]
 
 
 def normalizar_partido(nombre):

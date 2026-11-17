@@ -1,5 +1,10 @@
 [
   {
+    "fecha": "2026-11-18",
+    "titulo": "Unidad del Pueblo Canario, Frente Amplio y orden de las tablas",
+    "texto": "Unidad del Pueblo Canario (Podemos, Nueva Canarias e IU) pasa a ser una fila propia, entre Front Valencià y Podemos, y se resta del Frente Amplio (hoy 5,0%): ninguna encuesta publica su porcentaje, así que el modelo la estima como su parte del Frente Amplio en la base de partida (0,5%). La tabla nacional tiene una fila nueva con el total comparable con Sumar 2023 (Frente Amplio + FV + UPC + Podemos). Los partidos periféricos se ordenan por voto estimado (ERC, Adelante, Bildu, Junts, BNG, PNV, UPN, CC, Existe), con PACMA al final, en la tabla nacional, los deslizadores, la tabla de «Crea tu propio promedio», el listado de sondeos y la página Resumen. Se habla siempre de Frente Amplio (Sumar solo en los datos anteriores a octubre de 2026 y en los de 2023)."
+  },
+  {
     "fecha": "2026-11-17",
     "titulo": "Las encuestas subnacionales entran en la previsión",
     "texto": "En los territorios con al menos dos encuestas con porcentajes en los últimos 90 días (hoy Cataluña, Galicia, la Comunitat Valenciana y el País Vasco), la previsión mezcla el modelo con el promedio de esas encuestas, calculado con las mismas reglas que el nacional (con una vida media de 21 días para la antigüedad), con un peso que crece con el número de encuestas (w = k / (k + 3)). Los partidos de un solo territorio (PNV, Bildu, BNG, ERC, Junts y Front Valencià) siguen además a sus encuestas en el total nacional, y la diferencia se compensa dentro de su bloque. Detalle en la metodología."

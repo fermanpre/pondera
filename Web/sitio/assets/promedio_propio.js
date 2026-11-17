@@ -13,8 +13,8 @@
 
   // Partidos de las encuestas (nombre en la tabla de Wikipedia, identificador del modelo), en el mismo orden que la tabla de encuestas del día: primero los de ámbito estatal
   // (con Front Valencià y Podemos pegados a Frente Amplio) y después los periféricos
-  const COLUMNAS = [["PP", "PP"], ["PSOE", "PSOE"], ["Vox", "VOX"], ["Sumar", "SUMAR"], ["FV", "FV"], ["Podemos", "PODEMOS"], ["SALF", "SALF"], ["ERC", "ERC"], ["Junts", "JUNTS"],
-    ["EH Bildu", "BILDU"], ["PNV", "PNV"], ["BNG", "BNG"], ["CCa", "CC"], ["UPN", "UPN"], ["Adelante Andalucía", "ADELANTE"]];
+  const COLUMNAS = [["PP", "PP"], ["PSOE", "PSOE"], ["Vox", "VOX"], ["Sumar", "SUMAR"], ["FV", "FV"], ["UPC", "UPC"], ["Podemos", "PODEMOS"], ["SALF", "SALF"], ["ERC", "ERC"],
+    ["Adelante Andalucía", "ADELANTE"], ["EH Bildu", "BILDU"], ["Junts", "JUNTS"], ["BNG", "BNG"], ["PNV", "PNV"], ["UPN", "UPN"], ["CCa", "CC"]];
   const NOMBRE_DE_COLUMNA = { SUMAR: "Frente Amplio", BILDU: "Bildu", CC: "CC", ADELANTE: "Adelante" };
   const formato = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const formatoPeso = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -99,6 +99,9 @@
     const proporcionFV = p.Sumar_con_FV ? (p.FV || 0) / p.Sumar_con_FV : 0;
     objetivos.FV = objetivos.SUMAR * proporcionFV;
     objetivos.SUMAR -= objetivos.FV;
+    // Unidad del Pueblo Canario: ninguna encuesta publica su porcentaje; es su parte del Frente Amplio en la base de partida (la misma que usa calcular_objetivos)
+    objetivos.UPC = objetivos.SUMAR * proporcionUPC();
+    objetivos.SUMAR -= objetivos.UPC;
     const c = TRADUCCION.coalicion;
     const crecimientoPP = objetivos[c.socio] / (c.votos_pp_fuera + c.votos_pp_dentro);
     const objetivoCoalicion = c.votos_coalicion_base * crecimientoPP;
@@ -132,11 +135,18 @@
   }
 
   // En un promedio, el total de Sumar se reparte entre Frente Amplio y Front Valencià con la misma proporción que usa el modelo (FV / Sumar con FV)
+  function proporcionUPC() {
+    return typeof DATOS_MODELO !== "undefined" && DATOS_MODELO.proporcion_upc_en_frente_amplio ? DATOS_MODELO.proporcion_upc_en_frente_amplio : 0;
+  }
+
+  // El total de Sumar de un promedio se reparte entre Front Valencià, Unidad del Pueblo Canario y Frente Amplio: FV con la proporción FV / Sumar con FV; UPC con su parte de la base (ninguna encuesta la publica)
   function valorMostradoDePromedio(promedio, nombre) {
-    if (nombre !== "Sumar" && nombre !== "FV") return promedio[nombre];
+    if (nombre !== "Sumar" && nombre !== "FV" && nombre !== "UPC") return promedio[nombre];
     if (promedio.Sumar === undefined) return promedio[nombre];
     const proporcion = promedio.Sumar_con_FV && promedio.FV !== undefined ? promedio.FV / promedio.Sumar_con_FV : 0;
-    return nombre === "FV" ? (promedio.FV === undefined ? undefined : promedio.Sumar * proporcion) : promedio.Sumar * (1 - proporcion);
+    if (nombre === "FV") return promedio.FV === undefined ? undefined : promedio.Sumar * proporcion;
+    const frenteAmplioYUpc = promedio.Sumar * (1 - proporcion);
+    return nombre === "UPC" ? frenteAmplioYUpc * proporcionUPC() : frenteAmplioYUpc * (1 - proporcionUPC());
   }
 
   let cabeceraHtml = "";
@@ -144,7 +154,7 @@
   function cabecera() {
     const partidos = COLUMNAS.map(function (par) {
       const id = par[1];
-      const nombre = NOMBRE_DE_COLUMNA[id] === "Frente Amplio" ? "Sumar / Frente Amplio" : (NOMBRES[id] || id);
+      const nombre = NOMBRE_DE_COLUMNA[id] === "Frente Amplio" ? "Frente Amplio" : (NOMBRES[id] || id);
       return '<th class="num col-partido">' + (logoDePartido(id, nombre) || ficha(id) + nombre) + "</th>";
     }).join("");
     cabeceraHtml = '<tr><th>Incluir</th><th>Encuestadora</th><th>Campo</th><th class="num">Muestra</th><th class="num">Peso del modelo</th><th class="num">Tu peso (%)</th>' + partidos + "</tr>";

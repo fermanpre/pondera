@@ -27,10 +27,11 @@ RUTA_XLSX = CARPETA_SITIO / "resumen_provincias.xlsx"
 
 NOMBRES_DE_PARTIDO = {
     "PP": "PP", "PSOE": "PSOE", "VOX": "Vox", "SUMAR": "Frente Amplio", "PODEMOS": "Podemos", "SALF": "SALF", "ADELANTE": "Adelante Andalucía",
-    "FV": "Front Valencià", "ERC": "ERC", "JUNTS": "Junts", "BILDU": "EH Bildu", "PNV": "PNV", "BNG": "BNG", "CC": "Coalición Canaria",
+    "FV": "Front Valencià", "UPC": "Unidad del Pueblo Canario", "ERC": "ERC", "JUNTS": "Junts", "BILDU": "EH Bildu", "PNV": "PNV", "BNG": "BNG", "CC": "Coalición Canaria",
     "UPN": "UPN (en Navarra, UPN-PP)", "PACMA": "PACMA", "EXISTE": "Coalición Existe", "OTROS": "Otros",
 }
 GUION = "–"
+ORDEN_DE_LOS_PARTIDOS = ["PP", "PSOE", "VOX", "SUMAR", "FV", "UPC", "PODEMOS", "SALF", "ERC", "ADELANTE", "BILDU", "JUNTS", "BNG", "PNV", "UPN", "CC", "EXISTE", "PACMA"]
 
 
 def cargar_datos():
@@ -46,7 +47,10 @@ def ordenar_partidos(prueba, modelo):
         for partido, cuota in cuotas.items():
             if cuota > 0:
                 presentes.add(partido)
-    ordenados = sorted((p for p in presentes if p != "OTROS"), key=lambda partido: -modelo["objetivos"].get(partido, 0.0))
+    # Mismo orden que las tablas de la web: estatales (con FV, UPC y Podemos pegados a Frente Amplio) y después los periféricos por voto estimado (orden del 18/11/2026), PACMA y Otros al final
+    fijo = [p for p in ORDEN_DE_LOS_PARTIDOS if p in presentes]
+    resto = sorted((p for p in presentes if p not in ORDEN_DE_LOS_PARTIDOS and p != "OTROS"), key=lambda partido: -modelo["objetivos"].get(partido, 0.0))
+    ordenados = fijo[:-1] + resto + fijo[-1:] if fijo and fijo[-1] == "PACMA" else fijo + resto
     if "OTROS" in presentes:
         ordenados.append("OTROS")
     return ordenados

@@ -15,7 +15,7 @@
 
   // Logos cuadrados de comun.js (logoDePartido). Si no hay logo, ficha de color y siglas.
   const CLAVE_DE_COLOR = { "Vox": "VOX", "Sumar/FA": "SUMAR", "EH Bildu": "BILDU", "CCa": "CC", "Adelante Andalucía": "ADELANTE" };
-  const NOMBRE_LARGO = { "Sumar/FA": "Sumar / Frente Amplio", "CCa": "Coalición Canaria", "FV": "Front Valencià", "SALF": "Se Acabó La Fiesta", "PNV": "PNV (EAJ)", "EH Bildu": "EH Bildu", "Adelante Andalucía": "Adelante Andalucía" };
+  const NOMBRE_LARGO = { "Sumar/FA": "Frente Amplio (Sumar hasta octubre de 2026)", "CCa": "Coalición Canaria", "FV": "Front Valencià", "SALF": "Se Acabó La Fiesta", "PNV": "PNV (EAJ)", "EH Bildu": "EH Bildu", "Adelante Andalucía": "Adelante Andalucía" };
   function cabeceraDePartido(partido) {
     const logo = logoDePartido(partido, NOMBRE_LARGO[partido] || partido);
     if (logo) return logo;

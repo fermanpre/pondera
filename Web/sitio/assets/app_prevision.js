@@ -103,7 +103,7 @@ function escanosCentrales() {
 
 // Cada combinación suma los escaños de sus partidos en cada sorteo del Monte Carlo; se cuenta la proporción de sorteos con 176 o más.
 // UPN va con el PP porque concurren en coalición en Navarra (los escaños de esa lista se reparten por orden entre ambos).
-const IZQUIERDA_ESTATAL = ["PSOE", "SUMAR", "FV"];
+const IZQUIERDA_ESTATAL = ["PSOE", "SUMAR", "FV", "UPC"];
 const NACIONALISTAS_DE_IZQUIERDA = ["ERC", "BILDU", "BNG", "ADELANTE"];
 const BLOQUE_DE_2023_SIN_JUNTS = IZQUIERDA_ESTATAL.concat(["PODEMOS", "PNV", "ERC", "BILDU", "BNG"]);
 const COLOR_DERECHA = "#1d6fb8";
@@ -115,7 +115,7 @@ const COMBINACIONES_DE_MAYORIA = [
   { nombre: "PP + Vox", partidos: ["PP", "UPN", "VOX"], color: COLOR_DERECHA },
   { nombre: "Derecha ampliada: PP + Vox + CC + SALF", partidos: ["PP", "UPN", "VOX", "CC", "SALF"], color: COLOR_DERECHA },
   { nombre: "PSOE solo", partidos: ["PSOE"], color: COLOR_IZQUIERDA },
-  { nombre: "Izquierda estatal: PSOE + Frente Amplio + FV", partidos: IZQUIERDA_ESTATAL, color: COLOR_IZQUIERDA },
+  { nombre: "Izquierda estatal: PSOE + Frente Amplio + FV + UPC", partidos: IZQUIERDA_ESTATAL, color: COLOR_IZQUIERDA },
   { nombre: "Izquierda estatal con Podemos", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"]), color: COLOR_IZQUIERDA },
   { nombre: "Izquierda estatal con Podemos y nacionalistas de izquierda (ERC, Bildu, BNG, Adelante)", partidos: IZQUIERDA_ESTATAL.concat(["PODEMOS"], NACIONALISTAS_DE_IZQUIERDA), color: COLOR_IZQUIERDA },
   // Adelante Andalucía no obtuvo representación en 2023 y no pudo apoyar la investidura: el «bloque de 2023» no la incluye, y las variantes con Adelante se muestran aparte.
@@ -183,7 +183,7 @@ function pintarMayorias() {
 /* ---------- Tabla nacional: 2026 frente a 2023 ---------- */
 
 // Clave de cada partido del modelo en resultados_2023.js. Podemos, SALF y Front Valencià no tuvieron candidatura propia en 2023 (Podemos y Compromís iban dentro de Sumar).
-const CLAVE_EN_2023 = { PP: "PP", PSOE: "PSOE", VOX: "VOX", SUMAR: "SUMAR", FV: "FV", ERC: "ERC", JUNTS: "JUNTS", BILDU: "BILDU", PNV: "PNV", BNG: "BNG", CC: "CC", UPN: "UPN", EXISTE: "EXISTE", ADELANTE: "ADELANTE", PACMA: "PACMA" };
+const CLAVE_EN_2023 = { PP: "PP", PSOE: "PSOE", VOX: "VOX", SUMAR: "SUMAR", FV: "FV", UPC: "UPC", ERC: "ERC", JUNTS: "JUNTS", BILDU: "BILDU", PNV: "PNV", BNG: "BNG", CC: "CC", UPN: "UPN", EXISTE: "EXISTE", ADELANTE: "ADELANTE", PACMA: "PACMA" };
 
 function resultadosNacionalesDe2023() {
   if (typeof RESULTADOS_2023_NACIONAL === "undefined" || typeof MAPA_2023 === "undefined") return null;
@@ -207,6 +207,19 @@ function resultadosNacionalesDe2023() {
     escanos.FV = escanosEnLaValenciana;
     votos.SUMAR -= votosEnLaValenciana;
     escanos.SUMAR -= escanosEnLaValenciana;
+    // Unidad del Pueblo Canario (2026: Podemos, Nueva Canarias e IU) equivale a Sumar en Canarias en 2023 más Nueva Canarias, que concurrió aparte; el Frente Amplio de 2023 es el total de Sumar menos la parte de Canarias
+    let votosEnCanarias = 0, escanosEnCanarias = 0, votosSumarEnCanarias = 0;
+    PROVINCIAS_CANARIAS.forEach(function (provincia) {
+      const candidaturas = RESULTADOS_2023[provincia] ? RESULTADOS_2023[provincia].candidaturas : [];
+      candidaturas.forEach(function (c) {
+        if (c.clave === "SUMAR") { votosSumarEnCanarias += c.votos; votosEnCanarias += c.votos; escanosEnCanarias += c.escanos; }
+        else if (c.clave === "X:NC- bc") votosEnCanarias += c.votos;
+      });
+    });
+    votos.UPC = votosEnCanarias;
+    escanos.UPC = escanosEnCanarias;
+    votos.SUMAR -= votosSumarEnCanarias;
+    escanos.SUMAR -= escanosEnCanarias;
   }
   return { votos: votos, escanos: escanos, total: total };
 }
@@ -255,8 +268,9 @@ function cabeceraDeLaTablaNacional() {
     '<tr><th>2023</th><th>2026</th><th>Dif.</th><th>2023</th><th>2026</th><th>Dif.</th><th>80%</th><th>95%</th></tr>';
 }
 
-// Orden fijo de la tabla nacional: primero los partidos de ámbito estatal (con Front Valencià y Podemos pegados a Frente Amplio, para comparar con 2023) y después los periféricos
-const ORDEN_DE_LA_TABLA = ["PP", "PSOE", "VOX", "SUMAR", "FV", "PODEMOS", "SALF", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE", "EXISTE", "PACMA"];
+// Orden fijo de la tabla nacional: primero los partidos de ámbito estatal (con Front Valencià, Unidad del Pueblo Canario y Podemos pegados a Frente Amplio, para comparar con 2023) y después los
+// periféricos por voto estimado (orden del 18/11/2026: ERC, Adelante, Bildu, Junts, BNG, PNV, UPN, CC y Existe), con PACMA al final
+const ORDEN_DE_LA_TABLA = ["PP", "PSOE", "VOX", "SUMAR", "FV", "UPC", "PODEMOS", "SALF", "ERC", "ADELANTE", "BILDU", "JUNTS", "BNG", "PNV", "UPN", "CC", "EXISTE", "PACMA"];
 
 function partidosEnElOrdenDeLaTabla() {
   const resto = partidosPorVoto().filter(function (partido) { return ORDEN_DE_LA_TABLA.indexOf(partido) < 0; });
@@ -312,6 +326,19 @@ function pintarNacional() {
       '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td><td class="col-histograma">' + histogramaNacional(partido, modelo.partidos.indexOf(partido), escanos) + '</td>';
     cuerpo.appendChild(fila);
   });
+  // Total comparable con Sumar 2023: Frente Amplio + Front Valencià + Unidad del Pueblo Canario + Podemos frente al Sumar de 2023 (con Podemos, Compromís y sus socios territoriales dentro). Adelante Andalucía no entra: en 2023 concurrió aparte, solo en Cádiz.
+  if (de2023 && typeof RESULTADOS_2023_NACIONAL !== "undefined" && RESULTADOS_2023_NACIONAL.SUMAR) {
+    const familia = ["SUMAR", "FV", "UPC", "PODEMOS"].filter(function (partido) { return modelo.partidos.indexOf(partido) >= 0; });
+    const voto2026 = familia.reduce(function (suma, partido) { return suma + 100 * objetivosActuales[partido]; }, 0);
+    const escanos2026 = familia.reduce(function (suma, partido) { return suma + (centrales[partido] || 0); }, 0);
+    const voto2023 = 100 * RESULTADOS_2023_NACIONAL.SUMAR.votos / de2023.total;
+    const escanos2023 = RESULTADOS_2023_NACIONAL.SUMAR.escanos;
+    const filaTotal = document.createElement("tr");
+    filaTotal.className = "fila-subtotal";
+    filaTotal.innerHTML = '<td class="etiqueta-subtotal">Total comparable con Sumar 2023<br><span class="detalle-subtotal">Frente Amplio + FV + UPC + Podemos</span></td><td>' + porcentaje(voto2023) + '</td><td>' + porcentaje(voto2026) + '</td><td>' + conTriangulo(voto2026 - voto2023, 1) + '</td>' +
+      '<td>' + entero(escanos2023) + '</td><td>' + entero(escanos2026) + '</td><td>' + conTriangulo(escanos2026 - escanos2023, 0) + '</td><td colspan="3"></td>';
+    cuerpo.appendChild(filaTotal);
+  }
   document.getElementById("nota-sorteos").textContent = entero(ultimoResultado.sorteos) + " sorteos. Los rangos del 80% y del 95% dejan fuera el 10% y el 2,5% de los sorteos por cada extremo.";
 }
 
@@ -368,7 +395,8 @@ function crearDeslizadores() {
   contenedor.innerHTML = "";
   const notaTopes = document.getElementById("nota-topes");
   if (notaTopes) notaTopes.textContent = notaDeTopes();
-  partidosPorVoto().forEach(function (partido) {
+  partidosEnElOrdenDeLaTabla().forEach(function (partido) {
+    if (partido === "OTROS") return;
     const bloque = document.createElement("div");
     bloque.className = "deslizador";
     bloque.innerHTML = '<label for="d-' + partido + '">' + ficha(partido) + NOMBRES[partido] + '</label>' +
@@ -450,6 +478,8 @@ function candidaturasDe2023(nombresDeProvincias) {
 
 // Front Valencià (2026) se compara con lo que fue Sumar en la Comunitat Valenciana en 2023: en esas provincias, la candidatura de Sumar de 2023 pasa a la clave FV
 const PROVINCIAS_VALENCIANAS = ["Alicante/Alacant", "Castellón/Castelló", "Valencia/València"];
+// Unidad del Pueblo Canario (2026) se compara con Sumar en Canarias en 2023 más Nueva Canarias (que concurrió aparte)
+const PROVINCIAS_CANARIAS = ["Palmas (Las)", "Santa Cruz de Tenerife"];
 
 function pintarProvincia() {
   if (!ultimoResultado || !document.getElementById("selector-provincia")) return;
@@ -529,6 +559,13 @@ function pintarTablaDeTerritorio(config) {
   const nombresDeProvincias = indices.map(function (p) { return modelo.provincias[p].nombre; });
   const todoEnLaValenciana = nombresDeProvincias.every(function (nombre) { return PROVINCIAS_VALENCIANAS.indexOf(nombre) >= 0; });
   if (todoEnLaValenciana && porClave2023.SUMAR) { porClave2023.FV = porClave2023.SUMAR; delete porClave2023.SUMAR; }
+  const todoEnCanarias = nombresDeProvincias.every(function (nombre) { return PROVINCIAS_CANARIAS.indexOf(nombre) >= 0; });
+  if (todoEnCanarias && porClave2023.SUMAR) {
+    const nuevaCanarias = porClave2023["X:NC- bc"];
+    porClave2023.UPC = { votos: porClave2023.SUMAR.votos + (nuevaCanarias ? nuevaCanarias.votos : 0), escanos: porClave2023.SUMAR.escanos };
+    delete porClave2023.SUMAR;
+    delete porClave2023["X:NC- bc"];  // sus votos ya cuentan en Unidad del Pueblo Canario
+  }
   // 2023 de una fila de la previsión: votos y escaños de su candidatura; en una coalición (UPN-PP en Navarra), la suma de los dos socios
   function datosDe2023ParaLaDiferencia(f) {
     const propia = porClave2023[f.partido];
@@ -577,6 +614,7 @@ function pintarTablaDeTerritorio(config) {
     filas.forEach(function (f) { mostradas[f.partido] = true; });
     resultados2023.candidaturas.forEach(function (c) {
       if (mostradas[c.clave]) return;
+      if (c.clave === "X:NC- bc" && porClave2023.UPC) return;  // sus votos ya cuentan en la fila de Unidad del Pueblo Canario
       const nombre = NOMBRES[c.clave] || c.siglas || c.clave;
       const color = COLORES[c.clave] || "#9a9a94";
       const fila = document.createElement("tr");

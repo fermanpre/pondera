@@ -41,6 +41,13 @@ def leer_promedio():
     return promedio
 
 
+def proporcion_upc_en_frente_amplio(provincias):
+    """Parte de UPC en (UPC + Frente Amplio) en la base de partida, ponderada por los votos a candidaturas de cada provincia."""
+    votos_upc = sum(p["cuotas"].get("UPC", 0.0) * p["votos_candidaturas"] for p in provincias.values())
+    votos_frente_amplio = sum(p["cuotas"].get("SUMAR", 0.0) * p["votos_candidaturas"] for p in provincias.values())
+    return votos_upc / (votos_upc + votos_frente_amplio) if votos_upc + votos_frente_amplio > 0 else 0.0
+
+
 def calcular_objetivos(base, configuracion, promedio):
     provincias = base["provincias"]
     total_candidaturas = sum(p["votos_candidaturas"] for p in provincias.values())
@@ -54,6 +61,12 @@ def calcular_objetivos(base, configuracion, promedio):
     proporcion_fv = promedio.get("FV", 0.0) / promedio["Sumar_con_FV"] if promedio.get("Sumar_con_FV") else 0.0
     objetivos["FV"] = objetivos["SUMAR"] * proporcion_fv
     objetivos["SUMAR"] -= objetivos["FV"]
+
+    # Unidad del Pueblo Canario (UPC, Podemos + Nueva Canarias + IU en Canarias; 17/11/2026): ninguna encuesta publica su porcentaje y el total «Frente Amplio» de las casas la incluye.
+    # Su objetivo es su parte del Frente Amplio en la base de partida (UPC / (UPC + Frente Amplio)), así que evoluciona como el Frente Amplio frente a 2023.
+    if "UPC" in provincias[next(iter(provincias))]["cuotas"]:
+        objetivos["UPC"] = objetivos["SUMAR"] * proporcion_upc_en_frente_amplio(provincias)
+        objetivos["SUMAR"] -= objetivos["UPC"]
 
     # Coalición UPN-PP en Navarra: las encuestas ya no dan UPN, así que la coalición sigue la evolución nacional del PP.
     # Objetivo de la coalición = su peso en la base (voto de UPN y del PP en Navarra) x (objetivo del PP / cuota nacional del PP en la base, contando su parte en la coalición).

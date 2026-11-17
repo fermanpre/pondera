@@ -5,7 +5,7 @@
  * La clasificación de partidos de 2026 tiene que decir lo mismo que la de exportar_mapa_2023.py y la tabla de la página.
  */
 const BLOQUES_DEL_MAPA = {
-  izquierda: ["PSOE", "SUMAR", "PODEMOS", "FV", "ADELANTE", "BILDU", "ERC", "BNG", "PACMA"],
+  izquierda: ["PSOE", "SUMAR", "PODEMOS", "FV", "UPC", "ADELANTE", "BILDU", "ERC", "BNG", "PACMA"],
   derecha: ["PP", "VOX", "UPN", "SALF", "JUNTS", "PNV", "CC"],
 };
 const LIMITE_DE_ESCALA = 40;
