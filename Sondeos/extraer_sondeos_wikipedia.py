@@ -251,16 +251,20 @@ def actualizar_solo_proxima():
         nombres_de_columnas = lector.fieldnames
         filas_existentes = list(lector)
     filas_previas = [fila for fila in filas_existentes if fila["convocatoria"] == convocatoria]
-    if len(filas_nuevas) < PROPORCION_MINIMA_DE_FILAS * len(filas_previas):
-        raise SystemExit("ABORTADO: la descarga trae %d filas y ya había %d; no se escribe nada." % (len(filas_nuevas), len(filas_previas)))
+    # Wikipedia puede archivar las tablas más antiguas en otra página (en noviembre de 2026 quitó 2023 y 2024): lo que la descarga ya no cubre se conserva tal cual
+    fecha_de_corte = min(fila["fin_campo"] for fila in filas_nuevas if fila["fin_campo"])
+    filas_archivadas = [fila for fila in filas_previas if fila["fin_campo"] and fila["fin_campo"] < fecha_de_corte]
+    filas_previas_cubiertas = [fila for fila in filas_previas if fila not in filas_archivadas]
+    if len(filas_nuevas) < PROPORCION_MINIMA_DE_FILAS * len(filas_previas_cubiertas):
+        raise SystemExit("ABORTADO: la descarga trae %d filas y ya había %d en el mismo periodo; no se escribe nada." % (len(filas_nuevas), len(filas_previas_cubiertas)))
     if set(filas_nuevas[0].keys()) != set(nombres_de_columnas):
         raise SystemExit("ABORTADO: las columnas de la descarga no coinciden con las del CSV; no se escribe nada.")
     resto = [fila for fila in filas_existentes if fila["convocatoria"] != convocatoria]
     with open(ruta_csv, "w", encoding="utf-8-sig", newline="") as fichero:
         escritor = csv.DictWriter(fichero, fieldnames=nombres_de_columnas, delimiter=";")
         escritor.writeheader()
-        escritor.writerows(resto + filas_nuevas)
-    print("Próxima elección: %d filas antes, %d ahora (desajustes de ancla: %d)." % (len(filas_previas), len(filas_nuevas), len(desajustes)))
+        escritor.writerows(resto + filas_archivadas + filas_nuevas)
+    print("Próxima elección: %d filas antes; %d archivadas (anteriores al %s) conservadas y %d descargadas (desajustes de ancla: %d)." % (len(filas_previas), len(filas_archivadas), fecha_de_corte, len(filas_nuevas), len(desajustes)))
 
 
 if __name__ == "__main__":
