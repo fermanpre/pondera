@@ -153,8 +153,28 @@ function textoDeRango(minimo, maximo) {
   return minimo === maximo ? entero(minimo) : entero(minimo) + "-" + entero(maximo);
 }
 
+/* Histograma nacional de un partido: tramo de escaños que reúne el 50% central de los sorteos (de su percentil 25 al 75), con al menos tres valores para que se vea la forma. */
+function histogramaNacional(partido, indice, central) {
+  const sorteos = ultimoResultado.sorteos;
+  const K = modelo.numeroDePartidos;
+  const cuentas = {};
+  const valores = [];
+  for (let s = 0; s < sorteos; s++) {
+    const escanos = ultimoResultado.simulacion.nacionales[s * K + indice];
+    cuentas[escanos] = (cuentas[escanos] || 0) + 1;
+    valores.push(escanos);
+  }
+  valores.sort(function (a, b) { return a - b; });
+  let desde = valores[Math.floor(0.25 * (sorteos - 1))];
+  let hasta = valores[Math.ceil(0.75 * (sorteos - 1))];
+  while (hasta - desde < 2) { if (desde > 0) desde -= 1; hasta += 1; if (hasta - desde >= 2) break; }
+  let masProbable = desde;
+  Object.keys(cuentas).forEach(function (n) { if (cuentas[n] > (cuentas[masProbable] || 0)) masProbable = Number(n); });
+  return histogramaDeEscanos({ partido: partido, cuentas: cuentas, central: central, masProbable: masProbable }, sorteos, { desde: desde, hasta: hasta, ancho: 130, compacto: true });
+}
+
 function cabeceraDeLaTablaNacional() {
-  return '<tr><th rowspan="2">Partido</th><th colspan="3" class="grupo-columnas">Voto (%)</th><th colspan="3" class="grupo-columnas">Escaños</th><th colspan="2" class="grupo-columnas">Rango de escaños</th></tr>' +
+  return '<tr><th rowspan="2">Partido</th><th colspan="3" class="grupo-columnas">Voto (%)</th><th colspan="3" class="grupo-columnas">Escaños</th><th colspan="2" class="grupo-columnas">Rango de escaños</th><th rowspan="2" class="col-histograma" title="Probabilidad de cada total de escaños en el 50% central de las simulaciones (del percentil 25 al 75). La banda oscura es el reparto central.">Distribución (50% central)</th></tr>' +
     '<tr><th>2023</th><th>2026</th><th>Dif.</th><th>2023</th><th>2026</th><th>Dif.</th><th>80%</th><th>95%</th></tr>';
 }
 
@@ -212,7 +232,7 @@ function pintarNacional() {
     // Orden de columnas: voto 2023, voto 2026, dif. voto, escaños 2023, escaños 2026, dif. escaños, rango 80%, rango 95%
     fila.innerHTML = '<td>' + ficha(partido) + NOMBRES[partido] + '</td><td>' + celdasDe2023[0] + '</td><td>' + porcentaje(voto) + '</td><td>' + celdasDe2023[1] + '</td>' +
       '<td>' + celdasDe2023[2] + '</td><td>' + entero(escanos) + '</td><td>' + celdasDe2023[3] + '</td>' +
-      '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td>';
+      '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td><td class="col-histograma">' + histogramaNacional(partido, modelo.partidos.indexOf(partido), escanos) + '</td>';
     cuerpo.appendChild(fila);
   });
   document.getElementById("nota-sorteos").textContent = entero(ultimoResultado.sorteos) + " sorteos. Los rangos del 80% y del 95% dejan fuera el 10% y el 2,5% de los sorteos por cada extremo.";
@@ -458,14 +478,16 @@ function pintarTablaDeTerritorio(config) {
 
 /* Distribución de escaños de un partido en una provincia: una barra por número de escaños, con la altura proporcional a su probabilidad.
    La banda oscura marca el reparto central (sin ruido). Cada barra lleva su probabilidad en el texto emergente. */
-function histogramaDeEscanos(f, sorteos) {
+function histogramaDeEscanos(f, sorteos, opciones) {
+  opciones = opciones || {};
   const UMBRAL_VISIBLE = 0.005;
   const numeros = Object.keys(f.cuentas).map(Number).sort(function (a, b) { return a - b; });
   const visibles = numeros.filter(function (n) { return f.cuentas[n] / sorteos >= UMBRAL_VISIBLE; });
-  const desde = Math.max(0, Math.min(visibles[0], f.central) - 1);
-  const hasta = Math.max(visibles[visibles.length - 1], f.central) + 1;
+  // Con opciones.desde y opciones.hasta se dibuja solo ese tramo (por ejemplo, el 50% central de las simulaciones)
+  const desde = opciones.desde !== undefined ? opciones.desde : Math.max(0, Math.min(visibles[0], f.central) - 1);
+  const hasta = opciones.hasta !== undefined ? opciones.hasta : Math.max(visibles[visibles.length - 1], f.central) + 1;
   const cantidad = hasta - desde + 1;
-  const ANCHO = 260, ALTO_BARRAS = 44, MARGEN_ARRIBA = 12, ALTO_EJE = 16;
+  const ANCHO = opciones.ancho || 260, ALTO_BARRAS = opciones.compacto ? 26 : 44, MARGEN_ARRIBA = opciones.compacto ? 11 : 12, ALTO_EJE = opciones.compacto ? 12 : 16;
   const anchoDeBarra = ANCHO / cantidad;
   let probabilidadMaxima = 0;
   for (let n = desde; n <= hasta; n++) probabilidadMaxima = Math.max(probabilidadMaxima, (f.cuentas[n] || 0) / sorteos);
@@ -483,15 +505,20 @@ function histogramaDeEscanos(f, sorteos) {
       etiquetaDeLaMasProbable = '<text x="' + (x + anchoDeBarra / 2).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura - 2).toFixed(1) + '" text-anchor="middle" font-size="10" fill="var(--suave)">' + entero(100 * probabilidad) + '%</text>';
     }
   }
-  const bandaCentral = (f.central - desde) * anchoDeBarra;
-  svg += '<rect x="' + bandaCentral.toFixed(1) + '" y="' + (MARGEN_ARRIBA - 6) + '" width="' + anchoDeBarra.toFixed(1) + '" height="' + (ALTO_BARRAS + 6) + '" fill="var(--texto)" opacity="0.35"><title>Reparto central: ' + f.central + ' escaños</title></rect>';
+  if (f.central >= desde && f.central <= hasta) {
+    const bandaCentral = (f.central - desde) * anchoDeBarra;
+    svg += '<rect x="' + bandaCentral.toFixed(1) + '" y="' + (MARGEN_ARRIBA - 6) + '" width="' + anchoDeBarra.toFixed(1) + '" height="' + (ALTO_BARRAS + 6) + '" fill="var(--texto)" opacity="0.35"><title>Reparto central: ' + f.central + ' escaños</title></rect>';
+  }
   svg += etiquetaDeLaMasProbable;
   svg += '<line x1="0" x2="' + ANCHO + '" y1="' + (MARGEN_ARRIBA + ALTO_BARRAS + 0.5) + '" y2="' + (MARGEN_ARRIBA + ALTO_BARRAS + 0.5) + '" stroke="var(--linea)" />';
   const salto = cantidad <= 8 ? 1 : (cantidad <= 16 ? 2 : (cantidad <= 40 ? 5 : 10));
   for (let n = desde; n <= hasta; n++) {
+    if (opciones.compacto && n !== desde && n !== hasta) continue;  // en el histograma compacto solo se rotulan los extremos del tramo
     if (n % salto !== 0 && n !== desde && n !== hasta) continue;
     if (n !== desde && n !== hasta && (n - desde < salto / 2 || hasta - n < salto / 2)) continue;
-    svg += '<text x="' + ((n - desde) * anchoDeBarra + anchoDeBarra / 2).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS + 12) + '" text-anchor="middle" font-size="10" fill="var(--suave)">' + n + '</text>';
+    const ancla = opciones.compacto ? (n === desde ? "start" : "end") : "middle";  // en el histograma compacto, los extremos se alinean al borde para que no se corten
+    const posicionX = opciones.compacto ? (n === desde ? 0 : ANCHO) : (n - desde) * anchoDeBarra + anchoDeBarra / 2;
+    svg += '<text x="' + posicionX.toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS + 11) + '" text-anchor="' + ancla + '" font-size="10" fill="var(--suave)">' + n + '</text>';
   }
   return svg + "</svg>";
 }

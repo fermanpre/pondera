@@ -176,7 +176,9 @@
   .leyenda176 { color: var(--suave); }
   /* Tabla nacional: columna de partidos a la mitad y más aire entre las demás */
   #tabla-nacional thead th[rowspan], #tabla-nacional tbody td:first-child { width: 190px; min-width: 190px; text-align: left; white-space: nowrap; }
-  #tabla-nacional thead th:not([rowspan]), #tabla-nacional tbody td:not(:first-child) { padding-left: 16px; padding-right: 16px; }
+  #tabla-nacional thead th:not([rowspan]), #tabla-nacional tbody td:not(:first-child) { padding-left: 12px; padding-right: 12px; }
+  #tabla-nacional .col-histograma { text-align: left; white-space: normal; min-width: 140px; max-width: 160px; line-height: 1.15; padding-left: 8px; }
+  #tabla-nacional td.col-histograma svg { display: block; width: 130px; height: auto; }
   /* Tabla de encuestas del día: columnas fijas estrechas para que quepan 12-15 partidos */
   #tabla-encuestas-dia { font-size: 0.88rem; }
   #tabla-encuestas-dia th { white-space: normal; line-height: 1.15; vertical-align: bottom; }
