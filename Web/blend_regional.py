@@ -45,7 +45,7 @@ CONSISTENTE = False
 RONDAS = 300
 RESULTADO_DE_ELECCION = re.compile(r"elections?", re.IGNORECASE)
 # Bloques que solo se usan en los indicios territoriales manuales (Sondeos/indicios_territoriales.csv); no entran en el promedio de las encuestas regionales
-BLOQUES_MANUALES = {"FA": ["SUMAR"]}
+BLOQUES_MANUALES = {"FA": ["SUMAR"], "EXISTE": ["EXISTE"]}
 RUTA_INDICIOS = CARPETA_WEB.parent / "Sondeos" / "indicios_territoriales.csv"
 BLOQUES = {"PP": ["PP"], "PSOE": ["PSOE"], "VOX": ["VOX"], "IZQ": ["SUMAR", "PODEMOS"], "FV": ["FV"], "ERC": ["ERC"], "JUNTS": ["JUNTS"], "BILDU": ["BILDU"], "PNV": ["PNV"], "BNG": ["BNG"], "CC": ["CC"]}
 LIBRES = ("PNV", "BILDU", "BNG", "ERC", "JUNTS", "FV")
@@ -173,9 +173,14 @@ def indicios_manuales(dia, rating, provincias_de):
             fin = date.fromisoformat(fila["fin_campo"])
             antiguedad = (dia - fin).days
             unidad = ("comunidad" if fila["comunidad_o_provincia"] == "comunidad" else "provincia", fila["territorio"])
-            if unidad not in provincias_de or antiguedad < 0 or antiguedad > VENTANA_DIAS:
+            # peso_manual (opcional): fija el peso del indicio y lo exime de la ventana de 90 días (resultados electorales, cifras derivadas); sin él, peso de la casa x vida media
+            peso_manual = (fila.get("peso_manual") or "").strip()
+            if unidad not in provincias_de or antiguedad < 0 or (not peso_manual and antiguedad > VENTANA_DIAS):
                 continue
-            peso = rating.get(promedio.normalizar_firma(fila["casa"]), promedio.RATING_FIRMA_DESCONOCIDA) * 0.5 ** (antiguedad / VIDA_MEDIA_DIAS)
+            if peso_manual:
+                peso = float(peso_manual)
+            else:
+                peso = rating.get(promedio.normalizar_firma(fila["casa"]), promedio.RATING_FIRMA_DESCONOCIDA) * 0.5 ** (antiguedad / VIDA_MEDIA_DIAS)
             acumulado[(unidad, fila["bloque"])].append((float(fila["porcentaje"]) / 100.0, peso))
     resultado = {}
     for (unidad, bloque), valores in acumulado.items():

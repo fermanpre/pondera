@@ -1,5 +1,8 @@
-territorio;comunidad_o_provincia;bloque;casa;fin_campo;porcentaje;fuente
-Aragón;comunidad;FA;A+M;2026-10-06;12.0;Heraldo de Aragón (A+M, octubre de 2026): Sumar 5,4 + CHA 6,6; Podemos no aparece
-Aragón;comunidad;FA;CIS;2026-10-30;9.3;CIS 3584 sección de Aragón (n=1.884): voto+simpatía de CHA-FA 9,9 entre quienes citan partido; x 0,94 (estimación 4,7 / voto+simpatía 5,0 a nivel nacional); Podemos aparte (1,3)
-Aragón;comunidad;FA;GAD3;2026-11-05;10.4;GAD3 (barómetro ABC): CHA-FA 0,3 % del voto nacional, que sobre el 2,87 % que pesa Aragón es el 10,4 % (margen del redondeo: 8,7 a 12,2)
-Aragón;comunidad;FA;SocioMétrica;2026-11-08;10.4;SocioMétrica (El Español, 8-11): CHA 0,3 % del voto nacional y 1 escaño en Aragón; sobre el 2,87 % que pesa Aragón es el 10,4 %
+﻿territorio;comunidad_o_provincia;bloque;casa;fin_campo;porcentaje;peso_manual;fuente
+Aragón;comunidad;FA;A+M;2026-10-06;12.0;;"Heraldo de Aragón (A+M, octubre de 2026): Sumar 5,4 + CHA 6,6; Podemos no aparece"
+Aragón;comunidad;FA;CIS;2026-10-30;9.3;;"CIS 3584 sección de Aragón (n=1.884): voto+simpatía de CHA-FA 9,9 entre quienes citan partido; x 0,94 (estimación 4,7 / voto+simpatía 5,0 a nivel nacional); Podemos aparte (1,3)"
+Aragón;comunidad;FA;GAD3;2026-11-05;10.4;;GAD3 (barómetro ABC): CHA-FA 0,3 % del voto nacional, que sobre el 2,87 % que pesa Aragón es el 10,4 % (margen del redondeo: 8,7 a 12,2)
+Aragón;comunidad;FA;SocioMétrica;2026-11-08;10.4;;"SocioMétrica (El Español, 8-11): CHA 0,3 % del voto nacional y 1 escaño en Aragón; sobre el 2,87 % que pesa Aragón es el 10,4 %"
+Teruel;provincia;EXISTE;Autonómicas feb. 2026 (derivada);2026-02-08;9.3;1;"Autonómicas de Aragón del 8-2-2026: Teruel Existe 12,9 % en Teruel; x 0,72 (relación generales / autonómicas de 2023: 15,0 / 20,7) = 9,3 % en unas generales; peso manual 1 (resultado electoral fuera de la ventana de 90 días, pesos iguales por decisión del 18-11-2026)"
+Teruel;provincia;EXISTE;A+M;2026-10-06;17.0;1;"Heraldo (A+M, generales, 1-6 oct.): Existe 3,3 % en Aragón; con Huesca y Zaragoza a nivel de generales (1,1 y 1,5 %) implica 15 a 19 % en Teruel, se usa el punto medio; peso manual 1"
+Teruel;provincia;EXISTE;CIS;2026-10-30;3.4;1;"CIS 3584, provincia de Teruel (n=422): voto+simpatía 3,4 % (voto directo 3,1 %); el CIS 3411 de 2023 midió bien a Teruel Existe (15,7 % frente al 15,0 % real), así que no se descarta; peso manual 1"
