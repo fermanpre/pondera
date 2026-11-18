@@ -44,6 +44,9 @@ VIDA_MEDIA_DIAS = 21  # vida media mínima del peso por antigüedad en los prome
 CONSISTENTE = False
 RONDAS = 300
 RESULTADO_DE_ELECCION = re.compile(r"elections?", re.IGNORECASE)
+# Bloques que solo se usan en los indicios territoriales manuales (Sondeos/indicios_territoriales.csv); no entran en el promedio de las encuestas regionales
+BLOQUES_MANUALES = {"FA": ["SUMAR"]}
+RUTA_INDICIOS = CARPETA_WEB.parent / "Sondeos" / "indicios_territoriales.csv"
 BLOQUES = {"PP": ["PP"], "PSOE": ["PSOE"], "VOX": ["VOX"], "IZQ": ["SUMAR", "PODEMOS"], "FV": ["FV"], "ERC": ["ERC"], "JUNTS": ["JUNTS"], "BILDU": ["BILDU"], "PNV": ["PNV"], "BNG": ["BNG"], "CC": ["CC"]}
 LIBRES = ("PNV", "BILDU", "BNG", "ERC", "JUNTS", "FV")
 # Columna de la tabla de Wikipedia -> candidatura del modelo -> nombre nacional (para la corrección de partido y las medias)
@@ -158,12 +161,37 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating):
     return resultado
 
 
+def indicios_manuales(dia, rating, provincias_de):
+    """{unidad: ({bloque: cuota en tanto por uno}, k)} con los indicios de Sondeos/indicios_territoriales.csv (datos de un partido en un territorio que el extractor no recoge: encuesta que
+    solo publica una suma, sección autonómica de un estudio nacional, cifra derivada de un total nacional...). Cada indicio pesa lo que su casa x 0,5 ^ (antigüedad / VIDA_MEDIA_DIAS);
+    k es el número de indicios dentro de la ventana, y con él se aplica la misma w = lambda x k / (k + k0) que a los promedios regionales."""
+    if not RUTA_INDICIOS.exists():
+        return {}
+    acumulado = defaultdict(list)
+    with open(RUTA_INDICIOS, encoding="utf-8-sig") as fichero:
+        for fila in csv.DictReader(fichero, delimiter=";"):
+            fin = date.fromisoformat(fila["fin_campo"])
+            antiguedad = (dia - fin).days
+            unidad = ("comunidad" if fila["comunidad_o_provincia"] == "comunidad" else "provincia", fila["territorio"])
+            if unidad not in provincias_de or antiguedad < 0 or antiguedad > VENTANA_DIAS:
+                continue
+            peso = rating.get(promedio.normalizar_firma(fila["casa"]), promedio.RATING_FIRMA_DESCONOCIDA) * 0.5 ** (antiguedad / VIDA_MEDIA_DIAS)
+            acumulado[(unidad, fila["bloque"])].append((float(fila["porcentaje"]) / 100.0, peso))
+    resultado = {}
+    for (unidad, bloque), valores in acumulado.items():
+        media = sum(v * p for v, p in valores) / sum(p for _v, p in valores)
+        por_bloque, k = resultado.get(unidad, ({}, 0))
+        por_bloque[bloque] = media
+        resultado[unidad] = (por_bloque, max(k, len(valores)))
+    return resultado
+
+
 def cuota_de_bloque(reparto, problema, provincias, ids):
     peso = sum(problema.peso[p] for p in provincias)
     return sum(reparto.get((p, i), 0.0) * problema.peso[p] for p in provincias for i in ids) / peso
 
 
-def objetivos_territoriales(problema, reparto0, promedios, provincias_de):
+def objetivos_territoriales(problema, reparto0, promedios, provincias_de, manuales=None):
     """{unidad: {bloque cubierto: objetivo T}} con T = (1 - w) modelo + w encuesta (la encuesta repartida entre los bloques cubiertos, con la masa del modelo)."""
     fijos, modelo_de = {}, {}
     for unidad, (cuotas_encuesta, k) in promedios.items():
@@ -176,13 +204,19 @@ def objetivos_territoriales(problema, reparto0, promedios, provincias_de):
         w = LAMBDA * k / (k + K0)
         modelo_de[unidad] = modelo
         fijos[unidad] = {b: (1 - w) * modelo[b] + w * masa_modelo * cuotas_encuesta[b] / masa_encuesta for b in cubiertos}
+    for unidad, (cuotas_manuales, k) in (manuales or {}).items():
+        w = LAMBDA * k / (k + K0)
+        for bloque, cuota_encuesta in cuotas_manuales.items():
+            modelo_del_bloque = cuota_de_bloque(reparto0, problema, provincias_de[unidad], BLOQUES_MANUALES[bloque])
+            if modelo_del_bloque > 0.002:
+                fijos.setdefault(unidad, {})[bloque] = (1 - w) * modelo_del_bloque + w * cuota_encuesta
     if CONSISTENTE:
         comunidades = [u for u in fijos if u[0] == "comunidad"]
         peso_u = {u: sum(problema.peso[p] for p in provincias_de[u]) for u in fijos}
         for bloque, ids in BLOQUES.items():
             if any(i in LIBRES for i in ids):
                 continue
-            numerador = sum(modelo_de[u][bloque] * peso_u[u] for u in comunidades if bloque in fijos[u])
+            numerador = sum(modelo_de[u][bloque] * peso_u[u] for u in comunidades if u in modelo_de and bloque in fijos[u])
             denominador = sum(fijos[u][bloque] * peso_u[u] for u in comunidades if bloque in fijos[u])
             if denominador > 0:
                 for u in fijos:
@@ -218,10 +252,11 @@ def converger(problema, fijos, provincias_de, bloque_de):
         for unidad in orden:
             provincias = provincias_de[unidad]
             for bloque, meta in fijos[unidad].items():
-                actual = cuota_de_bloque(matriz, problema, provincias, BLOQUES[bloque])
+                ids_del_bloque = BLOQUES.get(bloque) or BLOQUES_MANUALES[bloque]
+                actual = cuota_de_bloque(matriz, problema, provincias, ids_del_bloque)
                 if actual > 0:
                     for provincia in provincias:
-                        for i in BLOQUES[bloque]:
+                        for i in ids_del_bloque:
                             if (provincia, i) in matriz:
                                 matriz[(provincia, i)] *= meta / actual
             normalizar_filas()
@@ -261,13 +296,14 @@ def aplicar(problema, provincias_modelo, dia, rating):
         provincias_de[("provincia", p["nombre"])].append(p["nombre"])
     promedios = {u: v for u, v in promedios_por_unidad(dia, nombres_de_provincia, rating).items() if u in provincias_de}
     reparto0 = repartir_proporcional(problema)
-    fijos = objetivos_territoriales(problema, reparto0, promedios, provincias_de)
+    manuales = indicios_manuales(dia, rating, provincias_de)
+    fijos = objetivos_territoriales(problema, reparto0, promedios, provincias_de, manuales)
     if not fijos:
         return problema, {"territorios": {}}
     ejes = json.loads((CARPETA_WEB / "candidaturas.json").read_text(encoding="utf-8"))["parametros"]["ejes"]
     bloque_de = {**{i: "DERECHA" for i in ejes["derecha"]}, **{i: "IZQUIERDA" for i in ejes["izquierda"]}}
     matriz, objetivo = converger(problema, fijos, provincias_de, bloque_de)
     final = ProblemaDeReparto(problema.provincias, problema.partidos, matriz, problema.peso, objetivo)
-    resumen = {"territorios": {"%s (%s)" % (u[1], u[0]): {"k": promedios[u][1], "w": round(LAMBDA * promedios[u][1] / (promedios[u][1] + K0), 3)} for u in fijos},
+    resumen = {"territorios": {"%s (%s)" % (u[1], u[0]): {"k": (promedios.get(u) or manuales[u])[1], "w": round(LAMBDA * (promedios.get(u) or manuales[u])[1] / ((promedios.get(u) or manuales[u])[1] + K0), 3)} for u in fijos},
                "objetivo_antes": {i: problema.objetivo[i] for i in problema.partidos}, "objetivo_despues": objetivo}
     return final, resumen
