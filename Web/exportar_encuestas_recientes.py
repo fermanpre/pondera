@@ -21,6 +21,7 @@ sys.path.insert(0, str(CARPETA_WEB.parent / "Sondeos"))
 
 import filtro_atipicos  # noqa: E402
 import promedio  # noqa: E402
+import proporcion_upc  # noqa: E402
 import serie_promedio_diaria  # noqa: E402
 
 DIAS_DE_VENTANA = 90
@@ -69,6 +70,10 @@ def main():
     error_de_referencia = promedio.error_de_muestra(promedio.MUESTRA_DE_REFERENCIA)
     filas = []
     for encuesta in ultima_por_firma.values():
+        # Si la casa publica UPC por separado (Sondeos/upc_en_encuestas.csv), se añade su cifra; «Sumar» sigue siendo el total, que es lo que usa el modelo
+        cifras_upc = proporcion_upc.cifras_de_la_encuesta(encuesta["firma_original"], encuesta["fin"].isoformat(), encuesta["valores"].get("Sumar", 0.0) - encuesta["valores"].get("FV", 0.0))
+        if cifras_upc:
+            encuesta["valores"]["UPC"] = cifras_upc[0]
         corregida = promedio.corregir_encuesta_de_parte(encuesta)
         rating_n = min(1.0, error_de_referencia / promedio.error_de_muestra(encuesta["muestra"]))
         rating_c = pesos_de_firmas.get(encuesta["firma"], promedio.RATING_FIRMA_DESCONOCIDA)

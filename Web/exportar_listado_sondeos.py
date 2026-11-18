@@ -15,6 +15,7 @@ sys.path.insert(0, str(CARPETA_WEB.parent / "Sondeos"))  # funciona igual en loc
 import extraer_sondeos_wikipedia as wiki  # noqa: E402
 from encuestas_de_parte import promotor_de  # noqa: E402
 from promedio import RECALCULO_DEL_CIS  # noqa: E402
+import proporcion_upc  # noqa: E402
 
 CARPETA_SITIO = CARPETA_WEB / "sitio"
 CONVOCATORIA = "generales_proxima"
@@ -23,7 +24,7 @@ ANIO_DE_LA_ELECCION = 2026
 # Nombre de columna de Wikipedia -> nombre en el listado (Sumar y su sucesor Frente Amplio comparten columna)
 NOMBRE_DE_PARTIDO = {"FA": "Sumar/FA", "Sumar": "Sumar/FA"}
 # Orden: partidos estatales (con FV y Podemos pegados a Frente Amplio) y después los periféricos por voto estimado (ERC, Adelante, Bildu, Junts, BNG, PNV, UPN, CC); orden del 18/11/2026
-PARTIDOS_EN_ORDEN = ["PP", "PSOE", "Vox", "Sumar/FA", "FV", "Podemos", "SALF", "ERC", "Adelante Andalucía", "EH Bildu", "Junts", "BNG", "PNV", "UPN", "CCa"]
+PARTIDOS_EN_ORDEN = ["PP", "PSOE", "Vox", "Sumar/FA", "FV", "UPC", "Podemos", "SALF", "ERC", "Adelante Andalucía", "EH Bildu", "Junts", "BNG", "PNV", "UPN", "CCa"]
 
 
 def normalizar_partido(nombre):
@@ -49,6 +50,11 @@ def main():
             "muestra": fila["muestra"] if fila["muestra"] != "" else None, "valores": {}, "fuentes": fila["enlaces"],
             "de_parte": promotor_de(fila["firma"], fila["cliente"])[0]})
         sondeo["valores"][normalizar_partido(fila["partido"])] = fila["valor"]
+    # Unidad del Pueblo Canario: las casas que la publican por separado (Sondeos/upc_en_encuestas.csv) llevan UPC en su columna y su Frente Amplio sin ella; en las demás, Frente Amplio la incluye
+    for sondeo in sondeos.values():
+        cifras = proporcion_upc.cifras_de_la_encuesta(sondeo["firma"], sondeo["fin"], sondeo["valores"].get("Sumar/FA"))
+        if cifras:
+            sondeo["valores"]["UPC"], sondeo["valores"]["Sumar/FA"] = cifras
     listado = sorted(sondeos.values(), key=lambda s: s["fin"], reverse=True)
     # Wikipedia archiva las tablas antiguas en otra página (en noviembre de 2026 quitó 2023 y 2024): se conservan los sondeos ya exportados anteriores a lo que la descarga cubre
     ruta_previa = CARPETA_SITIO / "listado_sondeos.json"

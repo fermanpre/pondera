@@ -18,6 +18,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+import proporcion_upc
 from motor_reparto import ProblemaDeReparto, cuota_nacional, repartir_escanos_con_coaliciones, repartir_proporcional
 
 CARPETA_WEB = Path(__file__).resolve().parent  # Web/ (en local y en GitHub; Sondeos/ está al lado)
@@ -41,11 +42,20 @@ def leer_promedio():
     return promedio
 
 
-def proporcion_upc_en_frente_amplio(provincias):
-    """Parte de UPC en (UPC + Frente Amplio) en la base de partida, ponderada por los votos a candidaturas de cada provincia."""
+def proporcion_upc_en_frente_amplio(provincias, dia=None):
+    """Parte de UPC en (UPC + Frente Amplio). Si hay encuestas que publican las dos cifras (Sondeos/upc_en_encuestas.csv), sale de ellas (proporcion_upc.py), con la proporción de la base
+    de partida (ponderada por los votos a candidaturas de cada provincia) como cifra de arranque con poco peso; si no hay, sale de candidaturas.json (parametros.upc_en_frente_amplio) o de la base."""
     votos_upc = sum(p["cuotas"].get("UPC", 0.0) * p["votos_candidaturas"] for p in provincias.values())
     votos_frente_amplio = sum(p["cuotas"].get("SUMAR", 0.0) * p["votos_candidaturas"] for p in provincias.values())
-    return votos_upc / (votos_upc + votos_frente_amplio) if votos_upc + votos_frente_amplio > 0 else 0.0
+    de_la_base = votos_upc / (votos_upc + votos_frente_amplio) if votos_upc + votos_frente_amplio > 0 else 0.0
+    if proporcion_upc.RUTA_ENCUESTAS.exists():
+        return proporcion_upc.calcular(de_la_base, dia)[0]
+    ruta_configuracion = CARPETA_WEB / "candidaturas.json"
+    if ruta_configuracion.exists():
+        calibrada = json.loads(ruta_configuracion.read_text(encoding="utf-8"))["parametros"].get("upc_en_frente_amplio")
+        if calibrada:
+            return calibrada["proporcion"]
+    return de_la_base
 
 
 def calcular_objetivos(base, configuracion, promedio):

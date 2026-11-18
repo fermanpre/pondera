@@ -80,14 +80,23 @@
       if (fila.peso <= 0) return;
       const valores = valoresDe(fila.encuesta);
       Object.keys(valores).forEach(function (partido) {
+        if (partido === "UPC") return; // se reparte desde el total de Sumar con la proporción del modelo, no se promedia
         suma[partido] = (suma[partido] || 0) + fila.peso * valores[partido];
         pesos[partido] = (pesos[partido] || 0) + fila.peso;
       });
     });
     const promedio = {};
     Object.keys(suma).forEach(function (partido) { promedio[partido] = suma[partido] / pesos[partido]; });
+    // Partidos que ninguna encuesta incluida publica (40dB, por ejemplo, solo detalla siete y agrupa el resto en «Otro + Blanco»): se toman del promedio del modelo. Sin esto, el reparto
+    // de 100 dejaría sin voto a esos partidos y inflaría a todos los demás (con solo 40dB, el PP y el PSOE saldrían tres puntos por encima de lo que la encuesta dice).
+    const delModelo = DATOS.promedio_modelo || {};
+    partidosRellenados = [];
+    Object.keys(delModelo).forEach(function (partido) {
+      if (promedio[partido] === undefined) { promedio[partido] = delModelo[partido]; partidosRellenados.push(partido); }
+    });
     return promedio;
   }
+  let partidosRellenados = [];
 
   // Misma traducción que calcular_prevision_base.calcular_objetivos: porcentajes de voto válido a porcentajes de votos a candidaturas, Front Valencià como parte de Sumar,
   // coalición UPN-PP, cuotas fijas de PACMA, Existe y Otros, y reescalado para sumar 100.
@@ -127,10 +136,10 @@
 
   /* ---------- Tabla ---------- */
 
-  // En las encuestas que publican Front Valencià por separado, «Sumar» es el total (Frente Amplio + Front Valencià): para mostrarlas sin contar dos veces, la columna de Frente Amplio enseña el total menos FV
+  // En las encuestas que publican Front Valencià por separado, «Sumar» es el total (Frente Amplio + Front Valencià, y la UPC si la casa la publica): para mostrarlas sin contar dos veces, la columna de Frente Amplio enseña el total menos FV y menos UPC
   function valorMostradoDeEncuesta(valores, nombre) {
     const valor = valores[nombre];
-    if (nombre === "Sumar" && valor !== undefined && valores.FV !== undefined) return Math.max(0, valor - valores.FV);
+    if (nombre === "Sumar" && valor !== undefined) return Math.max(0, valor - (valores.FV || 0) - (valores.UPC || 0));
     return valor;
   }
 
@@ -190,6 +199,8 @@
       return COLUMNAS.map(function (par) {
         const valor = valorMostradoDePromedio(valores, par[0]);
         const texto = valor === undefined ? "–" : formato.format(valor);
+        const relleno = negrita && (partidosRellenados.indexOf(par[0]) >= 0 || (par[0] === "Sumar" && partidosRellenados.indexOf("Sumar") >= 0));
+        if (relleno) return '<td class="num col-partido"><i class="valor-del-modelo" title="Ninguna encuesta incluida publica este partido: se toma del promedio del modelo">' + texto + "</i></td>";
         return '<td class="num col-partido">' + (negrita ? "<b>" + texto + "</b>" : texto) + "</td>";
       }).join("");
     };
@@ -197,7 +208,22 @@
     tabla.querySelector("thead").innerHTML = cabeceraHtml +
       '<tr class="fila-promedio"><th colspan="5">Tu promedio</th><th class="num" id="pp-suma" title="Suma de tus pesos">' + formato.format(suma) + "</th>" + celdaDePromedio(promedio, true) + "</tr>" +
       '<tr class="fila-promedio"><th colspan="4">Promedio del modelo (' + DATOS.dia.split("-").reverse().join("/") + ')</th><th class="num">100,0</th><th></th>' + celdaDePromedio(promedioDelModelo, false) + "</tr>";
+    notaDeRelleno();
     sincronizarCasillaDeTodas();
+  }
+
+  // Aviso bajo la tabla: partidos que ninguna encuesta incluida publica y que se han tomado del promedio del modelo
+  function notaDeRelleno() {
+    let nota = document.getElementById("pp-relleno");
+    if (!nota) {
+      nota = document.createElement("p");
+      nota.id = "pp-relleno";
+      nota.className = "nota";
+      tabla.insertAdjacentElement("afterend", nota);
+    }
+    const nombres = COLUMNAS.filter(function (par) { return partidosRellenados.indexOf(par[0]) >= 0 && par[0] !== "Sumar"; }).map(function (par) { return NOMBRES[par[1]] || par[1]; });
+    nota.hidden = nombres.length === 0;
+    nota.textContent = nombres.length ? "Ninguna de las encuestas incluidas publica el voto de " + nombres.join(", ") + ": en «Tu promedio» (cursiva) se toma su valor del promedio del modelo, para que el reparto no deje a esos partidos sin voto e infle a los demás." : "";
   }
 
   // La casilla «Incluir todas» refleja el estado de las encuestas: marcada si están todas, indeterminada si hay mezcla

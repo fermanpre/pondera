@@ -266,3 +266,6 @@ button.principal { font-weight: 600; }
 
 /* Aviso de veda de sondeos (assets/veda.js) */
 .aviso-veda { background: #7a1f1f; color: #fff; text-align: center; padding: 0.6rem 1rem; font-size: 0.95rem; line-height: 1.35; font-weight: 600; }
+
+/* Valores de «Tu promedio» tomados del promedio del modelo porque ninguna encuesta incluida los publica */
+.valor-del-modelo { font-style: italic; font-weight: 400; color: var(--suave); }

@@ -24,7 +24,7 @@ import blend_regional  # noqa: E402
 import generar_resumen  # noqa: E402
 import promedio  # noqa: E402
 import serie_promedio_diaria  # noqa: E402
-from calcular_prevision_base import preparar_problema  # noqa: E402
+from calcular_prevision_base import preparar_problema, proporcion_upc_en_frente_amplio  # noqa: E402
 from motor_reparto import desplazar_en_proporcional, repartir_con_ajuste_iterativo, repartir_escanos_con_coaliciones  # noqa: E402
 
 BARRERA_ELECTORAL = 0.03
@@ -65,6 +65,8 @@ def main():
             suma_fila = sum(fila.values())
             por_nombre[nombre]["cuotas"] = {i: v / suma_fila for i, v in fila.items()}
         print("Blend regional aplicado a %d territorios: %s" % (len(resumen_blend["territorios"]), ", ".join("%s (k=%d, w=%.2f)" % (n, t["k"], t["w"]) for n, t in sorted(resumen_blend["territorios"].items()))))
+    # Parte de UPC en (UPC + Frente Amplio), recalculada con las encuestas que la publican (Sondeos/upc_en_encuestas.csv): la usa el promedio propio de la web para repartir el total.
+    datos["proporcion_upc_en_frente_amplio"] = proporcion_upc_en_frente_amplio(json.loads((CARPETA_WEB / "base_2026.json").read_text(encoding="utf-8"))["provincias"], dia)
     datos["fecha_promedio"] = dia.isoformat()
     texto_json = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
     ruta_modelo.write_text(texto_json, encoding="utf-8")

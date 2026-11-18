@@ -1,6 +1,16 @@
 [
   {
     "fecha": "2026-11-18",
+    "titulo": "Ancla del CIS con UPC y Ara Més, y proporción de UPC",
+    "texto": "El ancla del CIS ignoraba las categorías «UPC» y «Ara Més-Front Ampli» (el CIS las separa del Frente Amplio), de modo que veía un 0% de izquierda alternativa en Canarias y en Baleares; ahora cuentan como izquierda alternativa. Además, la parte de UPC dentro del Frente Amplio pasa del 9,7% de la base de partida a un 7%, y ya no es una cifra fija: se recalcula cada día con las encuestas que publican UPC por separado (ahora CIS, 40dB y GAD3, con su peso y su antigüedad), de modo que cada encuesta nueva con ese dato la mueve. Además, las tablas de sondeos y de «Crea tu propio promedio» muestran una columna de UPC en las encuestas que la publican, y su Frente Amplio ya no la incluye."
+  },
+  {
+    "fecha": "2026-11-18",
+    "titulo": "Simulador: encuestas que no desglosan los partidos territoriales",
+    "texto": "Cuando ninguna de las encuestas incluidas en «Crea tu propio promedio» publica el voto de un partido (40dB, por ejemplo, solo detalla siete partidos y agrupa el resto en «Otro + Blanco»), «Tu promedio» toma el valor de ese partido del promedio del modelo y lo muestra en cursiva, con un aviso bajo la tabla. Antes esos partidos quedaban a cero y el PP y el PSOE salían unos tres puntos por encima de lo que decía la encuesta."
+  },
+  {
+    "fecha": "2026-11-18",
     "titulo": "Actualización cada tres horas, aviso de veda y textos",
     "texto": "La tarea automática pasa a ejecutarse cada tres horas. Desde el 24 de noviembre (hora de Madrid), por la veda de sondeos (artículo 69.7 de la LOREG), se detiene sola y todas las páginas muestran un aviso: las cifras serán las del 23 de noviembre. El retroacrónimo del nombre pasa a ser «Pronóstico Ordenado de Noticias, Datos y Encuestas, con Resultados y Análisis». Se actualizan los textos de «Acerca de», «Sobre el autor» y de la sección de la veda en la metodología."
   },
