@@ -1,0 +1,70 @@
+# Vigilancia diaria de cifras de UPC, Ara Més y CHA en las fuentes de las encuestas nuevas.
+# Descarga las fuentes (PDF y prensa) de las encuestas de los últimos 7 días que aún no ha revisado, busca esos partidos con una cifra pegada y, si hay menciones nuevas,
+# abre una incidencia en el repositorio (GitHub avisa por correo al propietario). No modifica el modelo: la fila nueva en Sondeos/upc_en_encuestas.csv o en
+# Sondeos/indicios_territoriales.csv la añade una persona (o una sesión de Claude) tras mirar el aviso. Desde el 24/11/2026 (hora de Madrid) no hace nada: veda de sondeos.
+name: Vigilar cifras territoriales
+
+on:
+  schedule:
+    - cron: "40 6 * * *"   # una vez al día, 06:40 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: vigilancia-territorial
+  cancel-in-progress: false
+
+jobs:
+  vigilar:
+    runs-on: ubuntu-latest
+    steps:
+      - id: fecha
+        run: |
+          hoy=$(TZ=Europe/Madrid date +%Y%m%d)
+          if [ "$hoy" -ge 20261124 ]; then echo "veda=true" >> "$GITHUB_OUTPUT"; else echo "veda=false" >> "$GITHUB_OUTPUT"; fi
+
+      - uses: actions/checkout@v4
+        if: steps.fecha.outputs.veda != 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.fecha.outputs.veda != 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        if: steps.fecha.outputs.veda != 'true'
+        run: pip install pypdf
+
+      - name: Revisar las fuentes nuevas
+        if: steps.fecha.outputs.veda != 'true'
+        run: python Sondeos/vigilar_cifras_territoriales.py --informe "$RUNNER_TEMP/informe.md"
+
+      - name: Guardar lo revisado
+        if: steps.fecha.outputs.veda != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Sondeos/vigilancia_territorial_estado.json Sondeos/vigilancia_territorial_hallazgos.csv
+          if git diff --cached --quiet; then
+            echo "Sin cambios hoy."
+          else
+            git commit -m "Vigilancia de cifras territoriales ($(date -u +%Y-%m-%d))"
+            for intento in 1 2 3; do
+              git pull --rebase && git push && break
+              sleep 5
+            done
+          fi
+
+      - name: Avisar si hay menciones nuevas
+        if: steps.fecha.outputs.veda != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -s "$RUNNER_TEMP/informe.md" ]; then
+            gh issue create --title "Revisar UPC, Ara Més y CHA: menciones nuevas ($(date -u +%Y-%m-%d))" --body-file "$RUNNER_TEMP/informe.md"
+          else
+            echo "Sin menciones nuevas."
+          fi
