@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-18",
+    "titulo": "SocioMétrica: UPC y CHA-FA",
+    "texto": "SocioMétrica publica por separado la Unidad del Pueblo Canario (0,2%), CHA (0,3% y un escaño en Aragón) y Més per Mallorca (0,1%), y su Frente Amplio de 4,4% los excluye (la suma, 5,0%, coincide con la de Wikipedia). Con ello la parte de UPC en el Frente Amplio baja del 7,1% al 6,4% (su proporción es del 4%) y el Frente Amplio de Aragón sube del 8,2% al 8,6%, porque el 0,3% nacional de CHA equivale a cerca del 10% de Aragón, como ya daba GAD3. La tabla de sondeos muestra la UPC en esa encuesta."
+  },
+  {
+    "fecha": "2026-11-18",
     "titulo": "Frente Amplio en Aragón (CHA-FA) más alto",
     "texto": "El modelo daba al Frente Amplio en Aragón un 6,2%, por debajo de lo que sugieren las encuestas: Heraldo de Aragón (octubre) daba un 12% a Sumar y CHA, la sección aragonesa del CIS un 9,9% de voto más simpatía (9,3% en términos de estimación), GAD3 un 0,3% nacional para CHA-FA (cerca del 10% de Aragón) y 40dB un escaño para CHA. Esos indicios, que no forman un promedio regional, se promedian con el peso de cada casa y su antigüedad y se mezclan con el modelo con la regla de las encuestas regionales (w = k / (k + 3), con k = 3, es decir, 50%): el Frente Amplio aragonés sube al 8,2%, y el total nacional del Frente Amplio no cambia, de modo que el resto de territorios cede unas décimas. El escaño de CHA-FA sigue sin salir en el reparto central, pero su probabilidad en las simulaciones sube."
   },
