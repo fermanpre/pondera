@@ -307,6 +307,22 @@ function pintarNacional() {
   const cuerpo = document.querySelector("#tabla-nacional tbody");
   cuerpo.innerHTML = "";
   const de2023 = resultadosNacionalesDe2023();
+  // Total comparable con Sumar 2023: Frente Amplio + Front Valencià + Unidad del Pueblo Canario + Podemos frente al Sumar de 2023 (con Podemos, Compromís y sus socios territoriales dentro). Adelante Andalucía no entra: en 2023 concurrió aparte, solo en Cádiz.
+  // Va justo debajo de Podemos, en cursiva y en gris (fila-subtotal).
+  function filaDeTotalComparable() {
+    if (!(de2023 && typeof RESULTADOS_2023_NACIONAL !== "undefined" && RESULTADOS_2023_NACIONAL.SUMAR)) return null;
+    const familia = ["SUMAR", "FV", "UPC", "PODEMOS"].filter(function (partido) { return modelo.partidos.indexOf(partido) >= 0; });
+    const voto2026 = familia.reduce(function (suma, partido) { return suma + 100 * objetivosActuales[partido]; }, 0);
+    const escanos2026 = familia.reduce(function (suma, partido) { return suma + (centrales[partido] || 0); }, 0);
+    const voto2023 = 100 * RESULTADOS_2023_NACIONAL.SUMAR.votos / de2023.total;
+    const escanos2023 = RESULTADOS_2023_NACIONAL.SUMAR.escanos;
+    const filaTotal = document.createElement("tr");
+    filaTotal.className = "fila-subtotal";
+    filaTotal.innerHTML = '<td class="etiqueta-subtotal">Total comparable con Sumar 2023<br><span class="detalle-subtotal">Frente Amplio + FV + UPC + Podemos</span></td><td>' + porcentaje(voto2023) + '</td><td>' + porcentaje(voto2026) + '</td><td>' + conTriangulo(voto2026 - voto2023, 1) + '</td>' +
+      '<td>' + entero(escanos2023) + '</td><td>' + entero(escanos2026) + '</td><td>' + conTriangulo(escanos2026 - escanos2023, 0) + '</td><td colspan="3"></td>';
+    return filaTotal;
+  }
+  let totalColocado = false;
   partidosEnElOrdenDeLaTabla().forEach(function (partido) {
     if (partido === "OTROS") return;
     const r = resumen[partido];
@@ -325,20 +341,12 @@ function pintarNacional() {
       '<td>' + celdasDe2023[2] + '</td><td>' + entero(escanos) + '</td><td>' + celdasDe2023[3] + '</td>' +
       '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td><td class="col-histograma">' + histogramaNacional(partido, modelo.partidos.indexOf(partido), escanos) + '</td>';
     cuerpo.appendChild(fila);
+    if (partido === "PODEMOS") {
+      const total = filaDeTotalComparable();
+      if (total) { cuerpo.appendChild(total); totalColocado = true; }
+    }
   });
-  // Total comparable con Sumar 2023: Frente Amplio + Front Valencià + Unidad del Pueblo Canario + Podemos frente al Sumar de 2023 (con Podemos, Compromís y sus socios territoriales dentro). Adelante Andalucía no entra: en 2023 concurrió aparte, solo en Cádiz.
-  if (de2023 && typeof RESULTADOS_2023_NACIONAL !== "undefined" && RESULTADOS_2023_NACIONAL.SUMAR) {
-    const familia = ["SUMAR", "FV", "UPC", "PODEMOS"].filter(function (partido) { return modelo.partidos.indexOf(partido) >= 0; });
-    const voto2026 = familia.reduce(function (suma, partido) { return suma + 100 * objetivosActuales[partido]; }, 0);
-    const escanos2026 = familia.reduce(function (suma, partido) { return suma + (centrales[partido] || 0); }, 0);
-    const voto2023 = 100 * RESULTADOS_2023_NACIONAL.SUMAR.votos / de2023.total;
-    const escanos2023 = RESULTADOS_2023_NACIONAL.SUMAR.escanos;
-    const filaTotal = document.createElement("tr");
-    filaTotal.className = "fila-subtotal";
-    filaTotal.innerHTML = '<td class="etiqueta-subtotal">Total comparable con Sumar 2023<br><span class="detalle-subtotal">Frente Amplio + FV + UPC + Podemos</span></td><td>' + porcentaje(voto2023) + '</td><td>' + porcentaje(voto2026) + '</td><td>' + conTriangulo(voto2026 - voto2023, 1) + '</td>' +
-      '<td>' + entero(escanos2023) + '</td><td>' + entero(escanos2026) + '</td><td>' + conTriangulo(escanos2026 - escanos2023, 0) + '</td><td colspan="3"></td>';
-    cuerpo.appendChild(filaTotal);
-  }
+  if (!totalColocado) { const total = filaDeTotalComparable(); if (total) cuerpo.appendChild(total); }
   document.getElementById("nota-sorteos").textContent = entero(ultimoResultado.sorteos) + " sorteos. Los rangos del 80% y del 95% dejan fuera el 10% y el 2,5% de los sorteos por cada extremo.";
 }
 

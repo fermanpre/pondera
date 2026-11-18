@@ -259,8 +259,9 @@ button.principal { font-weight: 600; }
 .marcas-escala span:last-child { transform: translateX(-100%); }
 
 /* Fila de total comparable con Sumar 2023 en la tabla nacional */
-#tabla-nacional tr.fila-subtotal td { font-weight: 600; border-top: 2px solid var(--linea, #b9b9b2); background: var(--fondo-suave, rgba(127,127,127,0.08)); }
-#tabla-nacional tr.fila-subtotal .detalle-subtotal { font-weight: 400; font-size: 0.85em; opacity: 0.8; }
+#tabla-nacional tr.fila-subtotal td { font-style: italic; font-weight: 400; color: var(--suave); }
+#tabla-nacional tr.fila-subtotal .sube, #tabla-nacional tr.fila-subtotal .baja, #tabla-nacional tr.fila-subtotal .igual { color: inherit; }
+#tabla-nacional tr.fila-subtotal .detalle-subtotal { font-size: 0.85em; }
 #tabla-nacional tr.fila-subtotal td.etiqueta-subtotal { white-space: normal; max-width: 14rem; line-height: 1.25; }
 
 /* Aviso de veda de sondeos (assets/veda.js) */
