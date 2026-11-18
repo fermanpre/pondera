@@ -12,6 +12,7 @@ Si cambia el conjunto de candidaturas con objetivo positivo (entra o sale un par
 Uso: python actualizar_prevision_diaria.py
 """
 
+import copy
 import json
 import sys
 from pathlib import Path
@@ -40,15 +41,14 @@ def recalcular_promedio_actual():
     return dia
 
 
-def main():
-    sys.stdout.reconfigure(encoding="utf-8")
-    dia = recalcular_promedio_actual()
-    problema, validos, escanos = preparar_problema()
-    ruta_modelo = CARPETA_SITIO / "datos_modelo.json"
-    datos = json.loads(ruta_modelo.read_text(encoding="utf-8"))
+def calcular_datos_del_dia(dia, datos_base, medias=None):
+    """(datos del modelo con los objetivos y las cuotas de ese día, problema de reparto, votos válidos, escaños por provincia).
+    Con medias (promedio.calcular_promedio de un día pasado) no usa promedio_actual.csv: así se reconstruye la previsión de cualquier día con el mismo código que la viva
+    (Web/serie_prevision_diaria.py). No escribe nada."""
+    problema, validos, escanos = preparar_problema(medias, dia)
+    datos = copy.deepcopy(datos_base)
     if set(problema.partidos) != set(datos["partidos"]):
         raise SystemExit("Cambia el conjunto de candidaturas del modelo (%s): regenerar con exportar_datos_web.py." % sorted(set(problema.partidos) ^ set(datos["partidos"])))
-    antes = datos["objetivos"]
     # Blend con las encuestas subnacionales (decisión del usuario, 17/11/2026: lambda 1, k0 3): acerca la base provincial y los totales de los partidos de un solo territorio a sus encuestas.
     # Si falla, la previsión sigue siendo la del promedio nacional con el ancla del CIS.
     try:
@@ -58,16 +58,28 @@ def main():
         resumen_blend = {"territorios": {}}
     datos["blend_regional"] = {"fecha": dia.isoformat(), "lambda": blend_regional.LAMBDA, "k0": blend_regional.K0, "territorios": resumen_blend["territorios"]}
     datos["objetivos"] = {partido: problema.objetivo[partido] for partido in datos["partidos"]}
-    if resumen_blend["territorios"]:
-        por_nombre = {p["nombre"]: p for p in datos["provincias"]}
-        for nombre in problema.provincias:
-            fila = {i: problema.base[(nombre, i)] for i in problema.partidos if (nombre, i) in problema.base}
-            suma_fila = sum(fila.values())
-            por_nombre[nombre]["cuotas"] = {i: v / suma_fila for i, v in fila.items()}
-        print("Blend regional aplicado a %d territorios: %s" % (len(resumen_blend["territorios"]), ", ".join("%s (k=%d, w=%.2f)" % (n, t["k"], t["w"]) for n, t in sorted(resumen_blend["territorios"].items()))))
+    # Las cuotas provinciales salen siempre del problema (con o sin blend ese día): si no, un día sin blend heredaría las del fichero, que pueden ser las de otro día
+    por_nombre = {p["nombre"]: p for p in datos["provincias"]}
+    for nombre in problema.provincias:
+        fila = {i: problema.base[(nombre, i)] for i in problema.partidos if (nombre, i) in problema.base}
+        suma_fila = sum(fila.values())
+        por_nombre[nombre]["cuotas"] = {i: v / suma_fila for i, v in fila.items()}
     # Parte de UPC en (UPC + Frente Amplio), recalculada con las encuestas que la publican (Sondeos/upc_en_encuestas.csv): la usa el promedio propio de la web para repartir el total.
     datos["proporcion_upc_en_frente_amplio"] = proporcion_upc_en_frente_amplio(json.loads((CARPETA_WEB / "base_2026.json").read_text(encoding="utf-8"))["provincias"], dia)
     datos["fecha_promedio"] = dia.isoformat()
+    return datos, problema, validos, escanos
+
+
+def main():
+    sys.stdout.reconfigure(encoding="utf-8")
+    dia = recalcular_promedio_actual()
+    ruta_modelo = CARPETA_SITIO / "datos_modelo.json"
+    datos_base = json.loads(ruta_modelo.read_text(encoding="utf-8"))
+    antes = datos_base["objetivos"]
+    datos, problema, validos, escanos = calcular_datos_del_dia(dia, datos_base)
+    resumen_blend = datos["blend_regional"]
+    if resumen_blend["territorios"]:
+        print("Blend regional aplicado a %d territorios: %s" % (len(resumen_blend["territorios"]), ", ".join("%s (k=%d, w=%.2f)" % (n, t["k"], t["w"]) for n, t in sorted(resumen_blend["territorios"].items()))))
     texto_json = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
     ruta_modelo.write_text(texto_json, encoding="utf-8")
     (CARPETA_SITIO / "datos_modelo.js").write_text("const DATOS_MODELO = " + texto_json + ";\n", encoding="utf-8")

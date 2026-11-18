@@ -283,9 +283,11 @@
     const palancaSigma = opciones.palancaSigma || 0;
     const nacionales = new Int16Array(sorteos * K);
     const provinciales = new Uint8Array(sorteos * P * K);
+    const objetivos = new Float32Array(sorteos * K);  // voto nacional simulado de cada sorteo (antes del reparto por provincia); lo usa la serie de previsión, la web no
     for (let sorteo = 0; sorteo < sorteos; sorteo++) {
       const palanca = (palancaMedia || palancaSigma) ? generador.gauss(palancaMedia, palancaSigma) : 0;
       const objetivo = perturbarObjetivos(modelo, objetivoBase, generador, palanca);
+      for (let k = 0; k < K; k++) objetivos[sorteo * K + k] = objetivo[k];
       const primero = repartirProporcional(modelo, modelo.base, objetivo);
       const ruidoso = ruidoProvincial(modelo, primero, generador);
       const final = repartirProporcional(modelo, ruidoso, objetivo);
@@ -302,7 +304,7 @@
       if (opciones.alProgreso && (sorteo + 1) % 25 === 0) opciones.alProgreso(sorteo + 1, sorteos);
     }
     if (opciones.alProgreso) opciones.alProgreso(sorteos, sorteos);
-    return { nacionales: nacionales, provinciales: provinciales, sorteos: sorteos };
+    return { nacionales: nacionales, provinciales: provinciales, objetivos: objetivos, sorteos: sorteos };
   }
 
   /* ---------- Resúmenes ---------- */

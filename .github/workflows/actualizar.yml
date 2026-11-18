@@ -70,6 +70,13 @@ jobs:
       - name: Actualizar la previsión con el promedio vivo (objetivos, reparto sin ruido y página Resumen)
         run: python Web/actualizar_prevision_diaria.py
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Actualizar la serie de previsión (escaños, mayorías y primera fuerza de cada día)
+        run: python Web/serie_prevision_diaria.py --ultimos 3
+
       - name: Actualizar las encuestas recientes del simulador («Crea tu propio promedio»)
         run: python Web/exportar_encuestas_recientes.py
 

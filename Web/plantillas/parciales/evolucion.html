@@ -1,0 +1,25 @@
+<section id="evolucion">
+  <h2>Evolución de la previsión</h2>
+  <p class="subtitulo">Cómo ha cambiado la previsión desde el 1 de julio: escaños, probabilidad de mayoría, primera fuerza y partidos en el filo. Cada punto es la previsión que daría el modelo con el promedio de encuestas de ese día y 10.000 simulaciones.</p>
+  <p class="nota cargando" id="cargando-evolucion">Cargando la evolución…</p>
+
+  <div class="controles" id="pestanas-evolucion" role="tablist" aria-label="Gráficos de evolución de la previsión"></div>
+  <div class="controles"><span id="rangos-evolucion"></span><span id="opciones-evolucion"></span></div>
+  <div id="grafico-evolucion"></div>
+  <div id="detalle-evolucion" aria-live="polite"></div>
+  <div id="partidos-evolucion" class="casillas-partidos"></div>
+  <p class="nota" id="nota-evolucion"></p>
+
+  <details class="plegable">
+    <summary>Cómo leer estos gráficos</summary>
+
+  <ul>
+    <li><b>Es una reconstrucción hasta la fecha marcada.</b> Los días anteriores aplican el modelo de hoy (con el ancla del CIS de octubre, las notas actuales de cada casa y las reglas de hoy) al promedio de encuestas de cada día; no es lo que enseñaba esta web entonces. Desde la fecha marcada («previsión publicada») cada punto es lo que se publicó ese día.</li>
+    <li>El promedio de cada día se calcula con las encuestas conocidas hasta ese día, y los últimos días se recalculan si Wikipedia añade encuestas con retraso.</li>
+    <li>La <b>probabilidad de mayoría</b> es el porcentaje de simulaciones en que la combinación suma 176 escaños o más. La <b>primera fuerza</b> compara al PP (con UPN) con el PSOE: en escaños (quién tiene más diputados) o en voto (quién saca más porcentaje en el voto nacional simulado). «Empate» es el mismo número de escaños.</li>
+    <li>La banda es el rango del 80% de las simulaciones (del percentil 10 al 90). <b>Escaños en el aire</b> cuenta los escaños (partido por provincia) que se obtienen en entre el 20% y el 80% de las simulaciones: cuanto más alto, más incierto es el reparto.</li>
+    <li>Pasa el cursor (o el dedo) por el gráfico para ver los valores de cualquier día. Todos los días usan las mismas simulaciones aleatorias, así las curvas no tiemblan por azar de un día a otro; el detalle está en la <a href="metodologia.html">metodología</a>.</li>
+  </ul>
+
+  </details>
+</section>

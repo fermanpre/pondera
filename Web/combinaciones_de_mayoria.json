@@ -1,0 +1,26 @@
+{
+  "descripcion": "Combinaciones de partidos cuya suma de escaños se compara con la mayoría absoluta (176) en la serie de previsión. Iguales a COMBINACIONES_DE_MAYORIA de sitio/assets/app_prevision.js (comprobado en la verificación). Los bloques son los de simular_prevision.py (los de las sigmas del Monte Carlo).",
+  "mayoria_absoluta": 176,
+  "combinaciones": [
+    {"id": "pp_solo", "nombre": "PP (con UPN) solo", "partidos": ["PP", "UPN"], "grupo": "derecha"},
+    {"id": "pp_vox", "nombre": "PP + Vox", "partidos": ["PP", "UPN", "VOX"], "grupo": "derecha"},
+    {"id": "derecha_ampliada", "nombre": "Derecha ampliada: PP + Vox + CC + SALF", "partidos": ["PP", "UPN", "VOX", "CC", "SALF"], "grupo": "derecha"},
+    {"id": "psoe_solo", "nombre": "PSOE solo", "partidos": ["PSOE"], "grupo": "izquierda"},
+    {"id": "izquierda_estatal", "nombre": "Izquierda estatal: PSOE + Frente Amplio + FV + UPC", "partidos": ["PSOE", "SUMAR", "FV", "UPC"], "grupo": "izquierda"},
+    {"id": "izquierda_estatal_podemos", "nombre": "Izquierda estatal con Podemos", "partidos": ["PSOE", "SUMAR", "FV", "UPC", "PODEMOS"], "grupo": "izquierda"},
+    {"id": "izquierda_nacionalistas", "nombre": "Izquierda estatal con Podemos y nacionalistas de izquierda (ERC, Bildu, BNG, Adelante)", "partidos": ["PSOE", "SUMAR", "FV", "UPC", "PODEMOS", "ERC", "BILDU", "BNG", "ADELANTE"], "grupo": "izquierda"},
+    {"id": "bloque_2023_sin_junts", "nombre": "Bloque de 2023 sin Junts", "partidos": ["PSOE", "SUMAR", "FV", "UPC", "PODEMOS", "PNV", "ERC", "BILDU", "BNG"], "grupo": "izquierda"},
+    {"id": "bloque_2023_sin_junts_adelante", "nombre": "Bloque de 2023 sin Junts + Adelante", "partidos": ["PSOE", "SUMAR", "FV", "UPC", "PODEMOS", "PNV", "ERC", "BILDU", "BNG", "ADELANTE"], "grupo": "izquierda"},
+    {"id": "bloque_2023_completo", "nombre": "Bloque de 2023 completo", "partidos": ["PSOE", "SUMAR", "FV", "UPC", "PODEMOS", "PNV", "ERC", "BILDU", "BNG", "JUNTS"], "grupo": "izquierda"},
+    {"id": "bloque_2023_completo_adelante", "nombre": "Bloque de 2023 completo + Adelante", "partidos": ["PSOE", "SUMAR", "FV", "UPC", "PODEMOS", "PNV", "ERC", "BILDU", "BNG", "JUNTS", "ADELANTE"], "grupo": "izquierda"},
+    {"id": "pp_psoe", "nombre": "PP + PSOE", "partidos": ["PP", "UPN", "PSOE"], "grupo": "otras"}
+  ],
+  "bloques": {
+    "DERECHA": ["PP", "VOX", "UPN"],
+    "IZQUIERDA": ["PSOE", "SUMAR", "PODEMOS", "FV", "UPC"],
+    "NACIONALISTAS": ["ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC"]
+  },
+  "primera_fuerza": {"pp": ["PP", "UPN"], "psoe": ["PSOE"], "otros": ["VOX"]},
+  "al_menos_un_escano": ["PODEMOS", "UPC", "CC", "UPN", "FV", "EXISTE", "ADELANTE", "BNG", "PNV", "JUNTS"],
+  "escanos_en_el_aire": {"umbral_bajo": 0.2, "umbral_alto": 0.8}
+}

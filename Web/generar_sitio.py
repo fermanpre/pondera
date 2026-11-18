@@ -37,7 +37,7 @@ SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.j
 MENU_PRINCIPAL = [("prevision", "Previsión", "index.html"), ("territorio", "Territorio", "provincias.html"), ("simulador", "Simulador", "simulador.html"),
                   ("metodologia", "Metodología", "metodologia.html"), ("acerca", "Acerca de", "acerca.html")]
 SUBMENUS = {
-    "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos")],
+    "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Evolución", "#evolucion"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos")],
     "territorio": [("Provincias", "provincias.html"), ("Comunidades", "comunidades.html"), ("Resumen", "resumen.html")],
     "acerca": [("Acerca de", "acerca.html"), ("Enlaces", "enlaces.html"), ("Sobre el autor", "autor.html"), ("Privacidad y cookies", "privacidad.html"), ("Historial de cambios", "changelog.html")],
 }

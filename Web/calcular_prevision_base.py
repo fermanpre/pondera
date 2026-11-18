@@ -58,7 +58,7 @@ def proporcion_upc_en_frente_amplio(provincias, dia=None):
     return de_la_base
 
 
-def calcular_objetivos(base, configuracion, promedio):
+def calcular_objetivos(base, configuracion, promedio, dia=None):
     provincias = base["provincias"]
     total_candidaturas = sum(p["votos_candidaturas"] for p in provincias.values())
     total_validos = sum(p["votos_validos"] for p in provincias.values())
@@ -75,7 +75,7 @@ def calcular_objetivos(base, configuracion, promedio):
     # Unidad del Pueblo Canario (UPC, Podemos + Nueva Canarias + IU en Canarias; 17/11/2026): ninguna encuesta publica su porcentaje y el total «Frente Amplio» de las casas la incluye.
     # Su objetivo es su parte del Frente Amplio en la base de partida (UPC / (UPC + Frente Amplio)), así que evoluciona como el Frente Amplio frente a 2023.
     if "UPC" in provincias[next(iter(provincias))]["cuotas"]:
-        objetivos["UPC"] = objetivos["SUMAR"] * proporcion_upc_en_frente_amplio(provincias)
+        objetivos["UPC"] = objetivos["SUMAR"] * proporcion_upc_en_frente_amplio(provincias, dia)
         objetivos["SUMAR"] -= objetivos["UPC"]
 
     # Coalición UPN-PP en Navarra: las encuestas ya no dan UPN, así que la coalición sigue la evolución nacional del PP.
@@ -121,12 +121,18 @@ def calcular_objetivos(base, configuracion, promedio):
     return objetivos, factor_blancos, dict(reasignacion)
 
 
-def preparar_problema():
-    """(problema de reparto, votos válidos por provincia, escaños por provincia) con los objetivos del promedio actual y la base de base_2026.json."""
+def medias_a_promedio(medias):
+    """Convierte las medias de promedio.calcular_promedio (en %) al formato de leer_promedio (en tanto por uno), redondeadas a 2 decimales como el CSV promedio_actual.csv."""
+    return {partido: round(valor, 2) / 100.0 for partido, valor in medias.items()}
+
+
+def preparar_problema(medias=None, dia=None):
+    """(problema de reparto, votos válidos por provincia, escaños por provincia) con los objetivos del promedio actual y la base de base_2026.json.
+    Con medias (resultado de promedio.calcular_promedio de un día) y dia no lee promedio_actual.csv: sirve para reconstruir la previsión de días pasados."""
     configuracion = json.loads((CARPETA_WEB / "candidaturas.json").read_text(encoding="utf-8"))
     base = json.loads((CARPETA_WEB / "base_2026.json").read_text(encoding="utf-8"))
     provincias = base["provincias"]
-    objetivos, _factor, _reasignacion = calcular_objetivos(base, configuracion, leer_promedio())
+    objetivos, _factor, _reasignacion = calcular_objetivos(base, configuracion, medias_a_promedio(medias) if medias is not None else leer_promedio(), dia)
     nombres = sorted(provincias)
     peso = {n: float(provincias[n]["votos_candidaturas"]) for n in nombres}
     cuotas = {(n, i): c for n in nombres for i, c in provincias[n]["cuotas"].items() if c > 0}

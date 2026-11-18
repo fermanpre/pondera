@@ -1,6 +1,7 @@
 "use strict";
 /*
  * Página de Previsión: carga los datos pesados de cada sección solo cuando se acerca a la pantalla y maneja las pestañas de Sondeos.
+ *   - Evolución de la previsión: serie_prevision.js y grafico_prevision.js (serie diaria de escaños y probabilidades).
  *   - Promedio: serie_promedio.js, encuestas_promedio.js y grafico_promedio.js (unos 470 KB sin comprimir).
  *   - Sondeos nacionales: listado_sondeos.js y su script (unos 300 KB). Subnacionales: listado_regional.js y su script (unos 185 KB), al abrir su pestaña.
  * Los scripts se cargan en orden (los datos antes que el código que los usa). Con #sondeos-subnacionales en la dirección se abre la pestaña de subnacionales.
@@ -44,6 +45,12 @@
       if (aviso) { aviso.remove(); }
     });
   }
+  function cargarEvolucion() {
+    cargarUnaVez("evolucion", ["serie_prevision.js", "grafico_prevision.js"], function () {
+      const aviso = document.getElementById("cargando-evolucion");
+      if (aviso) { aviso.remove(); }
+    });
+  }
   function cargarSondeosNacionales() {
     cargarUnaVez("sondeos", ["listado_sondeos.js", "assets/listado_sondeos.js"], function () {
       const aviso = document.getElementById("cargando-sondeos");
@@ -64,6 +71,7 @@
   }
 
   cuandoSeAcerque("promedio", cargarPromedio);
+  cuandoSeAcerque("evolucion", cargarEvolucion);
   if (document.getElementById("pestana-nacionales")) {
     document.getElementById("pestana-nacionales").addEventListener("click", function () { elegirPestana("nacionales"); });
     document.getElementById("pestana-subnacionales").addEventListener("click", function () { elegirPestana("subnacionales"); });
@@ -77,4 +85,5 @@
     }
   }
   if (location.hash === "#promedio") { cargarPromedio(); }
+  if (location.hash === "#evolucion") { cargarEvolucion(); }
 })();
