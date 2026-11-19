@@ -34,6 +34,11 @@
   "fecha": "2026-11-18",
   "hallazgos": 0
  },
+ "https://electomania.es/tracking-electopanel-18-nov-avance-de-eh-bildu-y-adelante-andalucia/": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
  "https://elpais.com/espana/elecciones-generales/2026-11-13/la-campana-arranca-con-la-derecha-en-el-horizonte-de-los-190-escanos.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -62,6 +67,11 @@
  "https://elpais.com/espana/elecciones-generales/2026-11-18/el-pp-consolida-su-posicion-frente-a-vox.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
+  "hallazgos": 0
+ },
+ "https://elpais.com/espana/elecciones-generales/2026-11-19/90-minutos-cara-a-cara-sanchez-busca-remontar-los-dos-puntos-que-le-separan-del-pp-y-feijoo-repetir-el-exito-de-2023.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
   "hallazgos": 0
  },
  "https://elpais.com/infografias/encuestas40db/2026/11-tracking-electoral/Informe_tracking_dia01.pdf": {
@@ -93,6 +103,41 @@
   "estado": "revisada",
   "fecha": "2026-11-18",
   "hallazgos": 2
+ },
+ "https://ep00.epimg.net/infografias/encuestas40db/2026/11-tracking-electoral/informe_tracking_dia07.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
+ "https://laseptima.com/wp-content/uploads/2026/11/barometro-n09-12nov2026.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
+ "https://laseptima.com/wp-content/uploads/2026/11/barometro-n10-13nov2026.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
+ "https://laseptima.com/wp-content/uploads/2026/11/barometro-n11-14nov2026.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
+ "https://laseptima.com/wp-content/uploads/2026/11/barometro-n12-15nov2026.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
+ "https://laseptima.com/wp-content/uploads/2026/11/barometro-n13-16nov2026.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
+ "https://laseptima.com/wp-content/uploads/2026/11/barometro-n14-17nov2026.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
  },
  "https://media.licdn.com/dms/document/media/v2/D4D1FAQGaqy1LWWU6ig/feedshare-document-sanitized-pdf/B4DaHmH8tOHIBA-/0/1794862207466?e=1795467600&v=beta&t=ja_hBbNUySAFAKb5NmWTOmoROtgqIJszn8h2xG_74Es": {
   "estado": "revisada",
@@ -180,6 +225,12 @@
   "fecha": "2026-11-18",
   "hallazgos": 1
  },
+ "https://www.electografica.com/2026/11/encuesta-sondaxe-261119.html": {
+  "error": "HTTPError: HTTP Error 429: Too Many Requests",
+  "estado": "error",
+  "fecha": "2026-11-19",
+  "intentos": 1
+ },
  "https://www.elespanol.com/espana/politica/20261108/pp-vox-suman-escanos-sanchez-recupera-perdio-urda-dimision-puente-sondeo-noche/1003744450645_0.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -215,6 +266,11 @@
   "fecha": "2026-11-18",
   "hallazgos": 0
  },
+ "https://www.elmundo.es/elecciones/elecciones-generales/2026/11/18/6afdd75c21efa083408b45b2.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
  "https://www.larazon.es/espana/mayoria-vox-resiste-arranque-campana-205-diputados_202611166afa6889ea8d89799786d4d1.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -240,9 +296,19 @@
   "fecha": "2026-11-18",
   "hallazgos": 0
  },
+ "https://www.lavozdegalicia.es/noticia/espana/2026/11/18/psoe-roza-empate-votos-pp-superaria-holgura-absoluta-vox/00031795030786200396610.htm": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
  "https://www.lavozdegalicia.es/noticia/galicia/2026/11/16/psoe-recorta-tres-escanos-pp-sigue-primera-fuerza/0003_202611G16P5991.htm": {
   "estado": "revisada",
   "fecha": "2026-11-18",
+  "hallazgos": 0
+ },
+ "https://www.politico.eu/newsletter/madrid-playbook/a-falta-de-noticias-hemos-hecho-una-encuesta/": {
+  "estado": "revisada",
+  "fecha": "2026-11-19",
   "hallazgos": 0
  },
  "https://x.com/la_septima_tv/status/2122787030937612582": {
