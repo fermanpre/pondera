@@ -1,10 +1,10 @@
 # Actualización diaria del promedio de encuestas y publicación de la web en GitHub Pages.
-# Se ejecuta cada tres horas y a mano (pestaña Actions, botón «Run workflow»). Desde el 24/11/2026 (hora de Madrid) no hace nada: veda de sondeos, art. 69.7 de la LOREG.
+# Se ejecuta cada tres horas (GitHub no garantiza la hora: a veces retrasa o pierde ejecuciones programadas) y a mano (pestaña Actions, botón «Run workflow»). Desde el 24/11/2026 (hora de Madrid) no hace nada: veda de sondeos, art. 69.7 de la LOREG.
 name: Actualizar promedio y publicar
 
 on:
   schedule:
-    - cron: "30 */3 * * *"   # cada tres horas, al minuto 30 (UTC)
+    - cron: "17 */3 * * *"   # cada tres horas, al minuto 17 (UTC): los minutos 00 y 30 son los más cargados de GitHub y ahí se retrasan o se pierden ejecuciones programadas
   workflow_dispatch:
 
 permissions:

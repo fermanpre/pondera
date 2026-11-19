@@ -118,7 +118,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
             actual = ' aria-current="page"' if destino == pagina["archivo"] else ""
             enlaces.append('<a href="%s"%s>%s</a>' % (enlace, actual, escapar(rotulo)))
         segunda_cinta = '<nav class="subnav" aria-label="Secciones de esta página"><div class="interior">%s</div></nav>' % "".join(enlaces)
-    scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js", "assets/veda.js", "assets/cookies.js"] + pagina["scripts"])
+    scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js", "assets/veda.js", "assets/cookies.js", "ultima_actualizacion.js", "assets/actualizacion.js"] + pagina["scripts"])
 
     return """<!doctype html>
 <html lang="es">
@@ -160,6 +160,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
 {contenido}
 </main>
 <footer class="pie contenedor">
+  <p class="nota" id="actualizacion-pie"></p>
   <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
   <nav aria-label="Pie">
     <a href="{prefijo}LICENSE">Licencia</a>
@@ -319,6 +320,8 @@ def main():
     sys.stdout.reconfigure(encoding="utf-8")
     entradas = leer_changelog()
     (CARPETA_SITIO / "assets").mkdir(parents=True, exist_ok=True)
+    # Hora (UTC) de esta generación del sitio: la enseñan todas las páginas como «última actualización» (assets/actualizacion.js)
+    (CARPETA_SITIO / "ultima_actualizacion.js").write_text('const ULTIMA_ACTUALIZACION = "%s";\n' % datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"), encoding="utf-8")
     unir_estilos()
 
     for pagina in PAGINAS:

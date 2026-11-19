@@ -265,7 +265,6 @@
   }
 
   construirControles();
-  mostrarUltimaActualizacion();
   dibujar();
   let temporizadorDeCambioDeTamano = null;
   window.addEventListener("resize", () => { clearTimeout(temporizadorDeCambioDeTamano); temporizadorDeCambioDeTamano = setTimeout(dibujar, 120); });
