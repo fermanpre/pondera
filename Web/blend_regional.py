@@ -43,6 +43,14 @@ VENTANA_DIAS = 90
 VIDA_MEDIA_DIAS = 21  # vida media mínima del peso por antigüedad en los promedios regionales (la regla nacional la baja a 3 días cerca de la elección y anula las encuestas de más de dos semanas)
 CONSISTENTE = False
 RONDAS = 300
+MUESTRA_SI_NO_CONSTA = 400  # muestra que se supone a una encuesta sin tamaño de muestra al calcular el ruido de un promedio (una encuesta provincial típica)
+DERIVA_DIARIA = 0.001  # desviación típica (en tanto por uno) que acumula una cuota por raíz de día: unos 0,1 puntos por √día, lo que se mueve el promedio nacional
+EFECTO_DE_DISENO = 1.25  # las encuestas por cuotas tienen más varianza que el muestreo aleatorio simple (+25 %)
+# Error relativo del modelo en una provincia (σ de log(real/previsto), Web/simular_prevision.SIGMA_PROVINCIAL_CALIBRADA): clase de partido y tramo de cuota (cuota mínima, sigma)
+CLASE_DE_BLOQUE = {"PP": "GRANDE", "PSOE": "GRANDE", "VOX": "VOX", "IZQ": "IZQ_ALT", "FV": "IZQ_ALT", "ERC": "REGIONAL", "JUNTS": "REGIONAL", "BILDU": "REGIONAL", "PNV": "REGIONAL", "BNG": "REGIONAL", "CC": "REGIONAL"}
+SIGMA_DEL_MODELO = {"GRANDE": [(0.30, 0.095), (0.15, 0.14), (0.0, 0.25)], "VOX": [(0.15, 0.08), (0.0, 0.13)], "IZQ_ALT": [(0.15, 0.17), (0.05, 0.19), (0.0, 0.24)],
+                    "REGIONAL": [(0.30, 0.05), (0.15, 0.08), (0.0, 0.14)]}
+PESO_POR_VARIANZA_EN_PROVINCIAS = True  # provincias: w de cada bloque = V modelo / (V modelo + V encuesta); comunidades: w = k / (k + K0)
 RESULTADO_DE_ELECCION = re.compile(r"elections?", re.IGNORECASE)
 # Bloques que solo se usan en los indicios territoriales manuales (Sondeos/indicios_territoriales.csv); no entran en el promedio de las encuestas regionales
 BLOQUES_MANUALES = {"FA": ["SUMAR"], "EXISTE": ["EXISTE"]}
@@ -119,9 +127,67 @@ def leer_encuestas(dia, nombres_de_provincia):
     return resultado
 
 
-def promedios_por_unidad(dia, nombres_de_provincia, rating):
-    """{unidad: ({bloque: cuota en tanto por uno}, k)} de los territorios con al menos MINIMO_DE_ENCUESTAS encuestas en su promedio."""
-    por_unidad = leer_encuestas(dia, nombres_de_provincia)
+def dias_de_campo(encuesta):
+    """Días de campo (ordinales) de una entrega."""
+    return list(range(encuesta["inicio"].toordinal(), encuesta["fin"].toordinal() + 1))
+
+
+def entregas_vigentes(encuestas):
+    """Mismo criterio que el promedio nacional (EXCLUSION_DE_SOLAPADAS, decisión del 17/11/2026): de cada casa se queda la última entrega y las anteriores que no se pisan con ella. Cada entrega guarda
+    sus días de campo («dias») y las entrevistas por día («muestra_por_dia»), para poder quitar luego los días que ya cubre un detalle provincial."""
+    vigentes = solapamiento_de_campo.sin_solapes(encuestas, lambda e: e["firma"]) if promedio.EXCLUSION_DE_SOLAPADAS["activo"] else list(encuestas)
+    resultado = []
+    for encuesta in vigentes:
+        anotada = dict(encuesta)
+        anotada["dias"] = {dia: 1.0 for dia in dias_de_campo(encuesta)}
+        anotada["muestra_por_dia"] = (encuesta["muestra"] or MUESTRA_SI_NO_CONSTA) / len(anotada["dias"])
+        resultado.append(anotada)
+    return resultado
+
+
+def muestra_efectiva(dias, entrevistas_por_dia):
+    """Muestra efectiva de la media de varias entregas con solape: n_dia x (suma a_d)^2 / (suma a_d^2)."""
+    if not dias:
+        return 0.0
+    return entrevistas_por_dia * sum(dias.values()) ** 2 / sum(a * a for a in dias.values())
+
+
+def quitar_dias_con_detalle_provincial(por_unidad, provincias_de):
+    """Regla del 19/11/2026: una encuesta que da datos por provincia ya está en las provincias y no se vuelve a usar en el blend de su comunidad. En cada comunidad, para cada casa con detalle provincial se
+    quitan los días de campo que ese detalle cubre: lo que queda de la encuesta de la comunidad son las entrevistas de los días que ninguna provincia cubre (con su muestra efectiva), o nada.
+    El porcentaje de la entrega sigue siendo el de toda su ventana (no se puede separar el de los días nuevos): por eso solo pesa la muestra de los días nuevos."""
+    descartadas = []
+    for unidad, encuestas in list(por_unidad.items()):
+        if unidad[0] != "comunidad":
+            continue
+        cubiertos = defaultdict(set)
+        for provincia in provincias_de.get(unidad, []):
+            for encuesta in por_unidad.get(("provincia", provincia), []):
+                cubiertos[(encuesta["firma"], encuesta["cliente"])].update(encuesta["dias"])
+        restantes = []
+        for encuesta in encuestas:
+            propios = cubiertos.get((encuesta["firma"], encuesta["cliente"]))
+            if not propios:
+                restantes.append(encuesta)
+                continue
+            nuevos = {dia: a for dia, a in encuesta["dias"].items() if dia not in propios}
+            muestra_nueva = muestra_efectiva(nuevos, encuesta["muestra_por_dia"])
+            descartadas.append((unidad, encuesta["firma_original"], encuesta["fecha_texto"], round(muestra_nueva)))
+            if muestra_nueva < 1:
+                continue
+            reducida = dict(encuesta)
+            reducida["muestra"] = int(round(muestra_nueva))
+            restantes.append(reducida)
+        por_unidad[unidad] = restantes
+    return descartadas
+
+
+def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None):
+    """{unidad: ({bloque: cuota en tanto por uno}, k, ruido)} de los territorios con al menos MINIMO_DE_ENCUESTAS encuestas en su promedio (una en las provincias con peso por varianza).
+    «ruido» = (suma(w^2 / n), suma(w^2 x días de antigüedad)) / suma(w)^2 de las encuestas del promedio."""
+    por_unidad = {unidad: entregas_vigentes(lista) for unidad, lista in leer_encuestas(dia, nombres_de_provincia).items()}
+    if provincias_de:
+        quitar_dias_con_detalle_provincial(por_unidad, provincias_de)
     ultimos = {}
     for region, (_lista, resultados) in atipicas.encuestas_regionales().items():
         unidad = unidad_de_region(region, nombres_de_provincia)
@@ -138,11 +204,19 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating):
         for unidad, encuestas in por_unidad.items():
             encuestas, _descartes = filtro_atipicos.filtrar(encuestas, ultimos.get(unidad, {}), atipicas.EQUIVALENCIAS_REGIONALES)
             encuestas = [e for e in encuestas if e["valores"]]
-            if len(encuestas) < MINIMO_DE_ENCUESTAS:
+            minimo = 1 if (unidad[0] == "provincia" and PESO_POR_VARIANZA_EN_PROVINCIAS) else MINIMO_DE_ENCUESTAS
+            if len(encuestas) < minimo:
                 continue
-            medias, cuenta, usadas, _vida, _recientes = promedio.calcular_promedio(rating, hoy=dia, fecha_eleccion=promedio.FECHA_ELECCION, escribir=False, encuestas_leidas=encuestas)
-            if usadas < MINIMO_DE_ENCUESTAS:
+            pesos = []
+            medias, cuenta, usadas, _vida, _recientes = promedio.calcular_promedio(rating, hoy=dia, fecha_eleccion=promedio.FECHA_ELECCION, escribir=False, encuestas_leidas=encuestas, pesos_por_encuesta=pesos)
+            if usadas < minimo:
                 continue
+            suma_pesos = sum(peso for _e, peso, _n in pesos)
+            if suma_pesos > 0:
+                ruido = (sum(peso * peso / (e["muestra"] or MUESTRA_SI_NO_CONSTA) for e, peso, _n in pesos) / suma_pesos ** 2,
+                         sum(peso * peso * max(0.0, dia.toordinal() - e["medio"]) for e, peso, _n in pesos) / suma_pesos ** 2)
+            else:
+                ruido = (0.0, 0.0)
             por_bloque = defaultdict(float)
             for nombre, valor in medias.items():
                 candidatura = CANDIDATURA_DE_NOMBRE_NACIONAL.get(nombre)
@@ -150,7 +224,7 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating):
                 if bloque and cuenta[nombre] * 2 >= usadas:
                     por_bloque[bloque] += valor / 100.0
             if len(por_bloque) >= 3:
-                resultado[unidad] = (dict(por_bloque), usadas)
+                resultado[unidad] = (dict(por_bloque), usadas, ruido)
     finally:
         promedio.vida_media_minima = vida
         promedio.VENTANA_DIAS = ventana
@@ -196,19 +270,45 @@ def cuota_de_bloque(reparto, problema, provincias, ids):
     return sum(reparto.get((p, i), 0.0) * problema.peso[p] for p in provincias for i in ids) / peso
 
 
+PESOS_APLICADOS = {}  # {unidad: {bloque: w}} del último cálculo de objetivos_territoriales, para el resumen
+
+
+def sigma_del_modelo(bloque, cuota):
+    """Error relativo (σ de log(real/previsto)) del modelo para un bloque con esa cuota en la provincia."""
+    for cuota_minima, sigma in SIGMA_DEL_MODELO[CLASE_DE_BLOQUE[bloque]]:
+        if cuota >= cuota_minima:
+            return sigma
+    return SIGMA_DEL_MODELO[CLASE_DE_BLOQUE[bloque]][-1][1]
+
+
+def peso_del_bloque(unidad, bloque, cuota_modelo, cuota_encuesta, k, ruido):
+    """Peso de la encuesta en un bloque. Comunidades (y provincias con PESO_POR_VARIANZA_EN_PROVINCIAS = False): LAMBDA x k / (k + K0). Provincias: V modelo / (V modelo + V encuesta), con V modelo = (σ x cuota)^2
+    y V encuesta = EFECTO_DE_DISENO x p (1 - p) x ruido de muestreo de la media ponderada + DERIVA_DIARIA^2 x antigüedad ponderada (días desde el día medio del campo)."""
+    if unidad[0] != "provincia" or not PESO_POR_VARIANZA_EN_PROVINCIAS:
+        return LAMBDA * k / (k + K0)
+    varianza_modelo = (sigma_del_modelo(bloque, cuota_modelo) * cuota_modelo) ** 2
+    ruido_de_muestreo, ruido_de_deriva = ruido
+    varianza_encuesta = EFECTO_DE_DISENO * cuota_encuesta * (1 - cuota_encuesta) * ruido_de_muestreo + DERIVA_DIARIA ** 2 * ruido_de_deriva
+    return LAMBDA * varianza_modelo / (varianza_modelo + varianza_encuesta) if varianza_modelo + varianza_encuesta > 0 else 0.0
+
+
 def objetivos_territoriales(problema, reparto0, promedios, provincias_de, manuales=None):
     """{unidad: {bloque cubierto: objetivo T}} con T = (1 - w) modelo + w encuesta (la encuesta repartida entre los bloques cubiertos, con la masa del modelo)."""
     fijos, modelo_de = {}, {}
-    for unidad, (cuotas_encuesta, k) in promedios.items():
+    for unidad, (cuotas_encuesta, k, ruido) in promedios.items():
         modelo = {b: cuota_de_bloque(reparto0, problema, provincias_de[unidad], ids) for b, ids in BLOQUES.items()}
         cubiertos = [b for b in cuotas_encuesta if modelo[b] > 0.002]
         if len(cubiertos) < 3:
             continue
         masa_modelo = sum(modelo[b] for b in cubiertos)
         masa_encuesta = sum(cuotas_encuesta[b] for b in cubiertos)
-        w = LAMBDA * k / (k + K0)
         modelo_de[unidad] = modelo
-        fijos[unidad] = {b: (1 - w) * modelo[b] + w * masa_modelo * cuotas_encuesta[b] / masa_encuesta for b in cubiertos}
+        fijos[unidad] = {}
+        PESOS_APLICADOS[unidad] = {}
+        for b in cubiertos:
+            w = peso_del_bloque(unidad, b, modelo[b], cuotas_encuesta[b], k, ruido)
+            PESOS_APLICADOS[unidad][b] = w
+            fijos[unidad][b] = (1 - w) * modelo[b] + w * masa_modelo * cuotas_encuesta[b] / masa_encuesta
     for unidad, (cuotas_manuales, k) in (manuales or {}).items():
         w = LAMBDA * k / (k + K0)
         for bloque, cuota_encuesta in cuotas_manuales.items():
@@ -299,7 +399,7 @@ def aplicar(problema, provincias_modelo, dia, rating):
     for p in provincias_modelo:
         provincias_de[("comunidad", p["comunidad"])].append(p["nombre"])
         provincias_de[("provincia", p["nombre"])].append(p["nombre"])
-    promedios = {u: v for u, v in promedios_por_unidad(dia, nombres_de_provincia, rating).items() if u in provincias_de}
+    promedios = {u: v for u, v in promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de).items() if u in provincias_de}
     reparto0 = repartir_proporcional(problema)
     manuales = indicios_manuales(dia, rating, provincias_de)
     fijos = objetivos_territoriales(problema, reparto0, promedios, provincias_de, manuales)
@@ -309,6 +409,13 @@ def aplicar(problema, provincias_modelo, dia, rating):
     bloque_de = {**{i: "DERECHA" for i in ejes["derecha"]}, **{i: "IZQUIERDA" for i in ejes["izquierda"]}}
     matriz, objetivo = converger(problema, fijos, provincias_de, bloque_de)
     final = ProblemaDeReparto(problema.provincias, problema.partidos, matriz, problema.peso, objetivo)
-    resumen = {"territorios": {"%s (%s)" % (u[1], u[0]): {"k": (promedios.get(u) or manuales[u])[1], "w": round(LAMBDA * (promedios.get(u) or manuales[u])[1] / ((promedios.get(u) or manuales[u])[1] + K0), 3)} for u in fijos},
+    def peso_medio(unidad):
+        pesos = PESOS_APLICADOS.get(unidad)
+        if pesos:
+            return sum(pesos.values()) / len(pesos)
+        k = manuales[unidad][1]
+        return LAMBDA * k / (k + K0)
+
+    resumen = {"territorios": {"%s (%s)" % (u[1], u[0]): {"k": (promedios.get(u) or manuales[u])[1], "w": round(peso_medio(u), 3), "w_por_bloque": {b: round(w, 3) for b, w in PESOS_APLICADOS.get(u, {}).items()}} for u in fijos},
                "objetivo_antes": {i: problema.objetivo[i] for i in problema.partidos}, "objetivo_despues": objetivo}
     return final, resumen

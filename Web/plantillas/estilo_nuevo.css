@@ -222,3 +222,27 @@
 
 /* Valores de «Tu promedio» tomados del promedio del modelo porque ninguna encuesta incluida los publica */
 .valor-del-modelo { font-style: italic; font-weight: 400; color: var(--suave); }
+
+  /* Escaños en juego y voto útil (página de provincias) */
+  .vu-rejilla { display: grid; grid-template-columns: 1fr; gap: 20px 40px; margin-top: 12px; }
+  @media (min-width: 900px) { .vu-rejilla { grid-template-columns: minmax(300px, 5fr) minmax(340px, 6fr); } }
+  .vu-cuadrados { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 14px; }
+  .vu-cuadro { display: flex; flex-direction: column; align-items: center; width: 84px; }
+  .vu-cuadro .caja { width: 84px; height: 84px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+  .vu-cuadro b { margin-top: 6px; font-size: 0.9rem; text-align: center; }
+  .vu-aire .caja { background: transparent; border: 2px dashed var(--suave); color: var(--texto); font-size: 2.2rem; font-weight: 800; }
+  .vu-compacto { gap: 6px; }
+  .vu-compacto .vu-cuadro { width: 26px; }
+  .vu-compacto .vu-cuadro .caja { width: 26px; height: 26px; border-radius: 4px; font-size: 1rem; }
+  .vu-leyenda span { white-space: nowrap; }
+  .vu-quien span { white-space: nowrap; }
+  .vu-explicacion { margin: 0 0 4px; color: var(--suave); }
+  .vu-barras h4 { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.06em; color: var(--suave); margin: 14px 0 6px; }
+  .vu-fila { display: grid; grid-template-columns: 130px 1fr 60px; align-items: center; gap: 10px; margin: 5px 0; }
+  .vu-nombre { font-weight: 700; }
+  .vu-pista { position: relative; height: 20px; background: var(--fondo); border-radius: 3px; }
+  .vu-barra { display: block; height: 100%; border-radius: 3px; }
+  .vu-media { position: absolute; top: -5px; bottom: -5px; border-left: 2px dashed var(--suave); }
+  .vu-valor { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .vu-casi0 { color: var(--suave); font-weight: 400; }
+  @media (max-width: 520px) { .vu-fila { grid-template-columns: 100px 1fr 52px; } .vu-cuadro, .vu-cuadro .caja { width: 64px; } .vu-cuadro .caja { height: 64px; } }

@@ -1,5 +1,15 @@
 [
   {
+    "fecha": "2026-11-19",
+    "titulo": "Escaños en juego y voto útil por provincia",
+    "texto": "La página de provincias tiene una sección nueva: para la provincia elegida enseña cuántos escaños están casi decididos y cuántos están en el aire, quién se los lleva (probabilidad en las simulaciones) y cuánto vale un voto a cada partido frente al voto medio en España, con la misma idea que las infografías de voto útil de estos días. En Lugo, por ejemplo, tres de los cuatro escaños están casi decididos (PP, PP y PSOE) y el cuarto se lo juegan PP, PSOE y BNG. Se calcula con las mismas 10.000 simulaciones de la página."
+  },
+  {
+    "fecha": "2026-11-19",
+    "titulo": "Encuestas provinciales: peso por varianza y sin doble uso",
+    "texto": "Una encuesta con detalle provincial deja de contar también en el promedio de su comunidad (solo cuentan los días de campo que las provincias no cubren), y en las provincias el peso de la encuesta frente al modelo se calcula por varianza: depende de la muestra, de la antigüedad y del error del modelo en esa provincia, no de un valor fijo. Entran así las encuestas provinciales de Sondaxe en Galicia (en Lugo y Ourense el BNG queda por debajo del modelo anterior) y otras ocho provincias con una sola encuesta."
+  },
+  {
     "fecha": "2026-11-18",
     "titulo": "Evolución de la previsión",
     "texto": "Nueva sección en la página de inicio con la evolución de la previsión desde el 1 de julio: escaños por partido (con banda del 80%), probabilidad de mayoría de cada combinación, escaños por bloque con la línea de 176, probabilidad de ser primera fuerza (PP frente a PSOE, en escaños y en voto), probabilidad de tener al menos un escaño de los partidos en el filo y escaños en el aire. Hasta la fecha en que se empieza a guardar la previsión publicada, los puntos son una reconstrucción: el modelo de hoy aplicado al promedio de encuestas de cada día."

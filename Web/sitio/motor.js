@@ -158,27 +158,39 @@
   }
 
   /* Escaños de un reparto de cuotas: Int32Array provincias × partidos. */
-  function escanosDeReparto(modelo, reparto) {
+  /* Escaños de una provincia: «cuotas» son las cuotas de los partidos en esa provincia (K valores, en tanto por uno). Con «incremento» ({ k: partido, votos: votos extra }) se suman esos votos
+     al partido antes del reparto (lo usa la serie de voto útil: vuelve a repartir los escaños con unos votos de más). Devuelve un Int32Array de K escaños; se puede pasar «salida» para reutilizarlo. */
+  function escanosDeProvincia(modelo, p, cuotas, incremento, salida) {
     const K = modelo.numeroDePartidos;
     const datos = modelo.datos;
-    const sinEscano = {};
-    (datos.sin_escano || []).forEach(function (partido) { sinEscano[partido] = true; });
-    const resultado = new Int32Array(modelo.numeroDeProvincias * K);
+    if (!modelo.sinEscano) {
+      modelo.sinEscano = {};
+      (datos.sin_escano || []).forEach(function (partido) { modelo.sinEscano[partido] = true; });
+    }
     const votos = new Float64Array(K);
+    const escanos = salida || new Int32Array(K);
+    for (let k = 0; k < K; k++) {
+      const excluido = modelo.sinEscano[modelo.partidos[k]] || !modelo.presente[p * K + k];
+      votos[k] = excluido ? 0 : cuotas[k] * modelo.peso[p];
+    }
+    if (incremento && !(modelo.sinEscano[modelo.partidos[incremento.k]] || !modelo.presente[p * K + incremento.k])) votos[incremento.k] += incremento.votos;
+    repartirDhondt(votos, modelo.provincias[p].escanos, datos.barrera * modelo.provincias[p].votos_validos, escanos);
+    modelo.coaliciones.forEach(function (coalicion) {
+      if (coalicion.provincia !== p || escanos[coalicion.columna] === 0) return;
+      // Los n escaños de la coalición ocupan los n primeros puestos de su lista: se reparten entre la columna y su socio
+      const puestos = coalicion.orden.slice(0, escanos[coalicion.columna]);
+      escanos[coalicion.columna] = puestos.filter(function (k) { return k === coalicion.columna; }).length;
+      escanos[coalicion.socio] += puestos.filter(function (k) { return k === coalicion.socio; }).length;
+    });
+    return escanos;
+  }
+
+  function escanosDeReparto(modelo, reparto) {
+    const K = modelo.numeroDePartidos;
+    const resultado = new Int32Array(modelo.numeroDeProvincias * K);
     const escanos = new Int32Array(K);
     for (let p = 0; p < modelo.numeroDeProvincias; p++) {
-      for (let k = 0; k < K; k++) {
-        const excluido = sinEscano[modelo.partidos[k]] || !modelo.presente[p * K + k];
-        votos[k] = excluido ? 0 : reparto[p * K + k] * modelo.peso[p];
-      }
-      repartirDhondt(votos, modelo.provincias[p].escanos, datos.barrera * modelo.provincias[p].votos_validos, escanos);
-      modelo.coaliciones.forEach(function (coalicion) {
-        if (coalicion.provincia !== p || escanos[coalicion.columna] === 0) return;
-        // Los n escaños de la coalición ocupan los n primeros puestos de su lista: se reparten entre la columna y su socio
-        const puestos = coalicion.orden.slice(0, escanos[coalicion.columna]);
-        escanos[coalicion.columna] = puestos.filter(function (k) { return k === coalicion.columna; }).length;
-        escanos[coalicion.socio] += puestos.filter(function (k) { return k === coalicion.socio; }).length;
-      });
+      escanosDeProvincia(modelo, p, reparto.subarray(p * K, (p + 1) * K), null, escanos);
       for (let k = 0; k < K; k++) resultado[p * K + k] = escanos[k];
     }
     return resultado;
@@ -292,6 +304,7 @@
       const ruidoso = ruidoProvincial(modelo, primero, generador);
       const final = repartirProporcional(modelo, ruidoso, objetivo);
       const escanos = escanosDeReparto(modelo, final);
+      if (opciones.alRepartir) opciones.alRepartir(sorteo, final, escanos);  // gancho opcional (serie de voto útil): recibe el reparto final de cada sorteo
       for (let p = 0; p < P; p++) {
         for (let k = 0; k < K; k++) {
           const cantidad = escanos[p * K + k];
@@ -348,7 +361,7 @@
 
   return {
     crearGenerador: crearGenerador, prepararModelo: prepararModelo, vectorDeObjetivos: vectorDeObjetivos,
-    repartirProporcional: repartirProporcional, escanosDeReparto: escanosDeReparto, repartoSinRuido: repartoSinRuido,
+    repartirProporcional: repartirProporcional, escanosDeReparto: escanosDeReparto, escanosDeProvincia: escanosDeProvincia, repartoSinRuido: repartoSinRuido,
     perturbarObjetivos: perturbarObjetivos, simular: simular, resumirNacional: resumirNacional, probabilidadDeSuma: probabilidadDeSuma,
     percentil: percentil,
   };

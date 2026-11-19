@@ -74,6 +74,9 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Calcular los escaños en juego y el voto útil de cada provincia
+        run: node Web/voto_util_provincias.js
+
       - name: Actualizar la serie de previsión (escaños, mayorías y primera fuerza de cada día)
         run: python Web/serie_prevision_diaria.py --ultimos 3
 
