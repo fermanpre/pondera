@@ -320,7 +320,9 @@ def objetivos_territoriales(problema, reparto0, promedios, provincias_de, manual
         fijos[unidad] = {}
         PESOS_APLICADOS[unidad] = {}
         for b in cubiertos:
-            comunidad_anclada = unidad[0] == "provincia" and any(("comunidad", c[1]) in promedios and unidad[1] in provincias_de[c] for c in provincias_de if c[0] == "comunidad")
+            # Anclada: la comunidad tiene su propio promedio, o todas sus provincias tienen el suyo (la encuesta provincial de una casa cubre entonces toda la comunidad y su total, como en el País Vasco con Ikerfel)
+            comunidad_anclada = unidad[0] == "provincia" and any(unidad[1] in provincias_de[c] and (c in promedios or all(("provincia", p) in promedios for p in provincias_de[c]))
+                                                                for c in provincias_de if c[0] == "comunidad")
             w = peso_del_bloque(unidad, b, modelo[b], cuotas_encuesta[b], k, ruido, comunidad_anclada)
             PESOS_APLICADOS[unidad][b] = w
             fijos[unidad][b] = (1 - w) * modelo[b] + w * masa_modelo * cuotas_encuesta[b] / masa_encuesta
