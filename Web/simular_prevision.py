@@ -153,7 +153,7 @@ def main():
 
 
 def resumir_senado(recolector, sorteos):
-    """Senadores elegidos por voto (208 de 265): resumen de cada escenario (pactos) y, en la raíz, el del escenario principal."""
+    """Senadores elegidos por voto (208 de 266): resumen de cada escenario (pactos) y, en la raíz, el del escenario principal."""
     resumen = resumir_resultados_senado(recolector.resultados[ESCENARIO_PRINCIPAL], sorteos)
     resumen["escenario_principal"] = ESCENARIO_PRINCIPAL
     resumen["escenarios"] = {}
@@ -163,7 +163,7 @@ def resumir_senado(recolector, sorteos):
         resumen_del_escenario["disciplina_izquierda"] = recolector.escenarios[nombre]["disciplina_izquierda"]
         resumen_del_escenario["seguimiento_pp_vox"] = recolector.escenarios[nombre]["seguimiento_pp_vox"]
         resumen["escenarios"][nombre] = resumen_del_escenario
-    resumen["nota"] = ("Solo senadores elegidos por voto (208). Los 57 designados por los parlamentos autonómicos no se estiman. "
+    resumen["nota"] = ("Solo senadores elegidos por voto (208). Los 58 designados por los parlamentos autonómicos no se estiman aquí (se añaden aparte). "
                        "SDP = lista conjunta de izquierdas «Senado de Progreso» (PSOE + Sumar + FV).")
     return resumen
 

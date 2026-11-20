@@ -1,5 +1,5 @@
 """
-Previsión del Senado (senadores elegidos por voto: 208 de 265) a partir del reparto de votos del Congreso de cada sorteo del Monte Carlo.
+Previsión del Senado (senadores elegidos por voto: 208 de 266) a partir del reparto de votos del Congreso de cada sorteo del Monte Carlo.
 
 Método (aprobado el 10/11/2026):
   - Cada elector vota a candidatos concretos (hasta 3 en las provincias de 4 escaños), así que el escaño va a los candidatos más votados de la
@@ -12,7 +12,7 @@ Método (aprobado el 10/11/2026):
   - Listas locales sin equivalente en el Congreso (La Gomera, El Hierro, Eivissa, Teruel Existe…): g = 1 y más ruido.
   - Adelante Andalucía no concurrió al Congreso en 2023: sus candidatos se calculan directamente desde su cuota de 2026, con la relación y el patrón de Sumar.
   - En la Comunitat Valenciana la lista «SUMAR» del Senado de 2023 pasa a ser FV (Front Valencià).
-  - Los senadores designados por los parlamentos autonómicos (57) no se estiman.
+  - Los senadores designados por los parlamentos autonómicos (58) no se estiman (la página los añade aparte: Web/sitio/senado_designados.js).
 
 Coaliciones y pactos (añadidos el 10/11/2026; todos los escenarios se calculan a la vez con los MISMOS sorteos de ruido):
   - «Senado de Progreso»: lista conjunta de izquierdas (PSOE + Sumar + FV). El candidato n.º j de la lista conjunta suma los votos de los candidatos n.º j

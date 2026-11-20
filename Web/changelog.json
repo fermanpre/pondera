@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-20",
+    "titulo": "Senado: senadores designados por los parlamentos autonómicos",
+    "texto": "La tabla del Senado tiene dos columnas nuevas: «Designados», con los 58 senadores que nombran los parlamentos autonómicos (PP 26, PSOE 19, Junts 3, Vox 2 y uno de otros siete partidos más Compromís y Más Madrid), y «Total», que suma a la mediana de elegidos esos designados. También se indica cuántos senadores elegidos necesita la derecha para la mayoría absoluta (134 de 266) una vez contados sus 28 designados. Es una reconstrucción a partir de Público y de la composición de los grupos del Senado, no el listado oficial."
+  },
+  {
+    "fecha": "2026-11-20",
     "titulo": "Gráfico del promedio: Frente Amplio sin Front Valencià ni UPC",
     "texto": "La línea «Frente Amplio» del gráfico del promedio sumaba el Front Valencià (y la Unidad del Pueblo Canario cuando las encuestas la incluyen), de modo que el Front Valencià aparecía dentro y fuera. Ahora «Frente Amplio» es el partido solo (5,0 % hoy, como en el modelo) y una línea punteada aparte, «FA + FV + UPC (total)», conserva el total homogéneo (6,7 %) que se usa para comparar encuestas. El modelo y las simulaciones no cambian: ya repartían el total entre los tres."
   },

@@ -3,7 +3,7 @@ Previsión del Senado de hoy: escribe sitio/senado.json y sitio/senado.js (const
 
 Parte del modelo de la previsión viva (actualizar_prevision_diaria.calcular_datos_del_dia: promedio de hoy, blend regional, indicios), simula el Congreso con el Monte Carlo de Python (montecarlo.simular)
 y, en cada sorteo, calcula los senadores elegidos por voto con el modelo de senado.py en todos los escenarios a la vez (sin pactos, lista conjunta de izquierdas, pacto PP-Vox al 50, 75 y 100 %),
-con los mismos sorteos. El resumen es el de simular_prevision.resumir_senado. Los 57 senadores designados por los parlamentos autonómicos no se estiman.
+con los mismos sorteos. El resumen es el de simular_prevision.resumir_senado. Los 58 senadores designados por los parlamentos autonómicos no se estiman aquí (la página los añade aparte).
 Es lento (unos 4 minutos por 1.000 sorteos): lo ejecuta una vez al día el workflow «Previsión del Senado». Uso: python prevision_senado_diaria.py [sorteos]
 """
 import json

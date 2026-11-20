@@ -1,0 +1,27 @@
+{
+  "fecha": "2026-11-20",
+  "total_senado": 266,
+  "elegidos_por_voto": 208,
+  "designados": 58,
+  "mayoria_absoluta": 134,
+  "por_partido": {
+    "PP": 26,
+    "PSOE": 19,
+    "JUNTS": 3,
+    "VOX": 2,
+    "ERC": 1,
+    "BILDU": 1,
+    "PNV": 1,
+    "BNG": 1,
+    "CC": 1,
+    "SUMAR": 1,
+    "FV": 1,
+    "GEROABAI": 1
+  },
+  "detalle": {
+    "SUMAR": "Más Madrid",
+    "FV": "Compromís",
+    "GEROABAI": "Geroa Bai"
+  },
+  "fuente": "Senadores designados por los parlamentos autonómicos, que no dependen de las elecciones generales. Total y reparto de PP (26) y PSOE (19) y 13 de otros partidos: Público, 3 de abril de 2026; desglose de esos 13 por partido: composición por grupos del Senado en la página de Wikipedia «XV Legislatura de España» (Junts 3, Vox 2, EH Bildu, ERC, PNV, BNG, CC, Más Madrid y Geroa Bai 1 cada uno) y Compromís 1 (lista de Público). Los dos orígenes suman 58. Más Madrid se cuenta con el Frente Amplio y Compromís con Front Valencià. Es una reconstrucción, no el listado oficial del Senado."
+}

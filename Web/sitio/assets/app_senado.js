@@ -7,9 +7,18 @@
   if (typeof SENADO === "undefined") { return; }
   const datos = SENADO.senado;
   const ELEGIDOS_POR_VOTO = 208;
-  const NOMBRES_DEL_SENADO = { SDP: "Senado de Progreso (PSOE + Frente Amplio + Front Valencià)", LOCALES: "Candidaturas locales" };
-  const COLORES_DEL_SENADO = { SDP: "#d4141c", LOCALES: "#9a9a95" };
-  const ORDEN = ["SDP", "PSOE", "SUMAR", "FV", "PODEMOS", "BILDU", "BNG", "ERC", "PNV", "CC", "JUNTS", "LOCALES", "UPN", "PP", "VOX"];
+  const NOMBRES_DEL_SENADO = { SDP: "Senado de Progreso (PSOE + Frente Amplio + Front Valencià)", LOCALES: "Candidaturas locales", GEROABAI: "Geroa Bai" };
+  const COLORES_DEL_SENADO = { SDP: "#d4141c", LOCALES: "#9a9a95", GEROABAI: "#b03a8c" };
+  const ORDEN = ["SDP", "PSOE", "SUMAR", "FV", "PODEMOS", "BILDU", "BNG", "GEROABAI", "ERC", "PNV", "CC", "JUNTS", "LOCALES", "UPN", "PP", "VOX"];
+  const DESIGNADOS = (typeof SENADO_DESIGNADOS !== "undefined") ? SENADO_DESIGNADOS : null;
+  // Designados de cada partido tal como aparece en el escenario: en «SDP» se suman los del PSOE, Más Madrid (con el Frente Amplio) y Compromís (con Front Valencià)
+  const designadosDe = (clave) => {
+    if (!DESIGNADOS) { return 0; }
+    const porPartido = DESIGNADOS.por_partido;
+    if (clave === "SDP") { return (porPartido.PSOE || 0) + (porPartido.SUMAR || 0) + (porPartido.FV || 0); }
+    return porPartido[clave] || 0;
+  };
+  const SIN_ELEGIDOS = { media: 0, mediana: 0, p10: 0, p90: 0, p025: 0, p975: 0 };
   const formatoDecimal = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const nombreDe = (clave) => NOMBRES_DEL_SENADO[clave] || (typeof NOMBRES !== "undefined" && NOMBRES[clave]) || clave;
   const nombreCorto = (clave) => (clave === "SDP" ? "Senado de Progreso" : nombreDe(clave));
@@ -28,6 +37,10 @@
   function pintarEscenario() {
     const escenario = datos.escenarios[selectorEscenario.value];
     const claves = Object.keys(escenario.nacional).sort(porOrden);
+    // Partidos con designados que no tienen senadores elegidos en el escenario (Geroa Bai): aparecen en la tabla con 0 elegidos
+    const clavesDeLaTabla = claves.slice();
+    if (DESIGNADOS) { Object.keys(DESIGNADOS.por_partido).forEach((clave) => { if (clave === "PSOE" || clave === "SUMAR" || clave === "FV") { return; } if (clavesDeLaTabla.indexOf(clave) < 0) { clavesDeLaTabla.push(clave); } }); }
+    const elegidosDe = (clave) => escenario.nacional[clave] || SIN_ELEGIDOS;
     // Barra: la mediana de cada partido, normalizada al total de las medianas
     const sumaMedianas = claves.reduce((suma, clave) => suma + escenario.nacional[clave].mediana, 0) || 1;
     document.getElementById("senado-barra").innerHTML = claves.filter((clave) => escenario.nacional[clave].mediana > 0).map((clave) => {
@@ -35,11 +48,12 @@
       const rotulo = mediana >= 6 ? escapar(clave === "SDP" ? "SDP" : nombreDe(clave)) + " " + mediana : "";
       return '<span class="senado-tramo" style="width:' + (100 * mediana / sumaMedianas).toFixed(2) + "%;background:" + colorDe(clave) + '" title="' + escapar(nombreCorto(clave)) + " " + mediana + '">' + rotulo + "</span>";
     }).join("");
-    const filas = claves.slice().sort((a, b) => escenario.nacional[b].mediana - escenario.nacional[a].mediana || escenario.nacional[b].media - escenario.nacional[a].media);
+    const total = (clave) => elegidosDe(clave).mediana + designadosDe(clave);
+    const filas = clavesDeLaTabla.slice().sort((a, b) => total(b) - total(a) || elegidosDe(b).media - elegidosDe(a).media);
     document.querySelector("#tabla-senado tbody").innerHTML = filas.map((clave) => {
-      const n = escenario.nacional[clave];
+      const n = elegidosDe(clave);
       return '<tr><td><span class="ficha" style="background:' + colorDe(clave) + '"></span> ' + escapar(nombreDe(clave)) + "</td><td><b>" + n.mediana + "</b></td><td>" + n.p10 + " a " + n.p90 +
-        "</td><td>" + n.p025 + " a " + n.p975 + "</td><td>" + formatoDecimal.format(n.media) + "</td></tr>";
+        "</td><td>" + n.p025 + " a " + n.p975 + "</td><td>" + formatoDecimal.format(n.media) + "</td><td>" + designadosDe(clave) + "</td><td><b>" + total(clave) + "</b></td></tr>";
     }).join("");
     const principal = datos.escenarios[datos.escenario_principal];
     const derecha = ["PP", "VOX", "UPN"].reduce((suma, clave) => suma + (principal.nacional[clave] ? principal.nacional[clave].mediana : 0), 0);
@@ -53,7 +67,16 @@
     const v = escenario.ventaja_derecha_sobre_izquierda_y_nacionalistas;
     const signo = (n) => (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n);
     document.getElementById("senado-ventaja-titular").textContent = "PP, Vox y UPN sacan una mediana de " + signo(v.mediana) + " senadores de ventaja sobre el resto (izquierda, nacionalistas y locales), con una probabilidad del " + porcentaje(v.p_positiva) + " de que la ventaja sea positiva.";
-    document.getElementById("senado-ventaja-nota").textContent = "Rango del 80 %: de " + signo(v.p10) + " a " + signo(v.p90) + ". Solo cuenta los " + ELEGIDOS_POR_VOTO + " senadores elegidos por voto: los 57 designados por los parlamentos autonómicos no se estiman.";
+    let texto = "Rango del 80 %: de " + signo(v.p10) + " a " + signo(v.p90) + ". Esta ventaja solo cuenta los " + ELEGIDOS_POR_VOTO + " senadores elegidos por voto.";
+    if (DESIGNADOS) {
+      // Elegidos de PP, Vox y UPN = (ventaja + 208) / 2, porque los 208 se reparten entre ellos y el resto; con los designados de PP y Vox, la mayoría absoluta exige llegar a 134
+      const designadosDeLaDerecha = (DESIGNADOS.por_partido.PP || 0) + (DESIGNADOS.por_partido.VOX || 0) + (DESIGNADOS.por_partido.UPN || 0);
+      const necesarios = DESIGNADOS.mayoria_absoluta - designadosDeLaDerecha;
+      const elegidos = (ventaja) => Math.round((ventaja + ELEGIDOS_POR_VOTO) / 2);
+      texto += " Con los " + designadosDeLaDerecha + " designados de PP y Vox, la mayoría absoluta del Senado (" + DESIGNADOS.mayoria_absoluta + " de " + DESIGNADOS.total_senado + ") exige " + necesarios +
+        " senadores elegidos a PP, Vox y UPN: su mediana es " + elegidos(v.mediana) + " (rango del 80 %: de " + elegidos(v.p10) + " a " + elegidos(v.p90) + "). Los " + DESIGNADOS.designados + " designados no dependen de las elecciones y están reconstruidos a partir de la prensa y de la composición del Senado.";
+    }
+    document.getElementById("senado-ventaja-nota").textContent = texto;
   }
 
   function pintarCircunscripcion() {
