@@ -4,7 +4,8 @@
  *
  * Con el motor de la web (sitio/motor.js) y las mismas 10.000 simulaciones que ve el visitante (semilla 20261129, sitio/datos_modelo.json), calcula una lista de datos sueltos que la página de
  * inicio enseña al azar, uno por visita. Cada dato es un objeto con su tipo y sus cifras; el texto lo escribe el navegador (assets/curiosidades.js), que ya tiene los nombres de los partidos.
- *   - barrera: probabilidad de que un partido no llegue al mínimo de votos de una provincia (3 % de los votos válidos) y se quede sin escaños aunque tenga votos.
+ *   - barrera: probabilidad de que un partido se quede sin escaños POR LA BARRERA: en la simulación se queda por debajo del mínimo de votos de la provincia (3 % de los votos válidos) y, sin barrera,
+ *     el reparto D'Hondt le habría dado al menos un escaño (por eso solo cuentan las simulaciones en las que por cociente le «tocaba»). También se guarda el voto que cuesta el último escaño en el reparto central.
  *   - margen: votos que separan a un partido de un escaño más en el reparto central (el primero que se queda fuera frente al último que entra).
  *   - incierta: provincias donde el reparto central de escaños es el menos probable de las simulaciones.
  *   - nacional: partidos con una probabilidad apreciable de quedarse sin ningún diputado en toda España.
@@ -18,7 +19,7 @@ const Motor = require(path.join(__dirname, "sitio", "motor.js"));
 const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 10000;
 const SEMILLA = 20261129;
 const CUOTA_MINIMA_PARA_BARRERA = 0.004;   // un partido con menos de un 0,4 % del voto de la provincia no se cuenta como candidato a quedarse sin escaño
-const PROBABILIDAD_BARRERA_MINIMA = 0.15;
+const PROBABILIDAD_BARRERA_MINIMA = 0.05;
 const PROBABILIDAD_BARRERA_MAXIMA = 0.97;
 const MAXIMO_DE_DATOS_POR_TIPO = { barrera: 8, margen: 6, incierta: 5, nacional: 5, voto: 4 };
 
@@ -35,23 +36,57 @@ const central = Motor.repartoSinRuido(modelo, datos.objetivos);
 const curiosidades = [];
 
 // ---- Barrera: partidos con votos que pueden quedarse por debajo del mínimo de la provincia
+// D'Hondt SIN barrera: escaños de cada partido con los votos de una simulación, sin excluir a nadie por quedarse por debajo del mínimo
+function escanosSinBarrera(votos, numeroDeEscanos) {
+  const escanos = new Int32Array(votos.length);
+  for (let n = 0; n < numeroDeEscanos; n++) {
+    let mejor = -1, mejorCociente = -1;
+    for (let k = 0; k < votos.length; k++) {
+      if (votos[k] <= 0) continue;
+      const cociente = votos[k] / (escanos[k] + 1);
+      if (cociente > mejorCociente) { mejorCociente = cociente; mejor = k; }
+    }
+    if (mejor >= 0) escanos[mejor] += 1;
+  }
+  return escanos;
+}
+
 const candidatosDeBarrera = [];
 for (let p = 0; p < P; p++) {
   const provincia = modelo.provincias[p];
   const minimo = datos.barrera * provincia.votos_validos;
+  const N = provincia.escanos;
+  const expulsados = new Int32Array(K);   // simulaciones en las que el partido, con escaño por cociente, se queda fuera por la barrera
+  const debajo = new Int32Array(K);       // simulaciones en las que el partido queda por debajo de la barrera, tenga o no escaño por cociente
+  const votos = new Float64Array(K);
+  for (let s = 0; s < SORTEOS; s++) {
+    for (let k = 0; k < K; k++) {
+      const excluido = sinEscano[modelo.partidos[k]] || !modelo.presente[p * K + k];
+      votos[k] = excluido ? 0 : cuotasFinales[(s * P + p) * K + k] * modelo.peso[p];
+    }
+    let hayAlguienDebajo = false;
+    for (let k = 0; k < K; k++) if (votos[k] > 0 && votos[k] < minimo) { debajo[k]++; hayAlguienDebajo = true; }
+    if (!hayAlguienDebajo) continue;
+    const sinBarrera = escanosSinBarrera(votos, N);
+    for (let k = 0; k < K; k++) if (votos[k] > 0 && votos[k] < minimo && sinBarrera[k] > 0) expulsados[k]++;
+  }
+  // Voto que cuesta el último escaño en el reparto central (porcentaje de los votos válidos): lo que tiene que sacar el último en entrar
+  const cocientesCentrales = [];
+  for (let k = 0; k < K; k++) {
+    const votosCentrales = central.cuotas[p * K + k] * modelo.peso[p];
+    if (sinEscano[modelo.partidos[k]] || !modelo.presente[p * K + k] || votosCentrales < minimo) continue;
+    for (let d = 1; d <= N; d++) cocientesCentrales.push(votosCentrales / d);
+  }
+  cocientesCentrales.sort(function (a, b) { return b - a; });
+  const ultimoEscanoPct = cocientesCentrales.length >= N ? Math.round(10000 * cocientesCentrales[N - 1] / provincia.votos_validos) / 10000 : null;
   for (let k = 0; k < K; k++) {
     if (sinEscano[modelo.partidos[k]] || !modelo.presente[p * K + k] || central.cuotas[p * K + k] < CUOTA_MINIMA_PARA_BARRERA) continue;
-    let debajo = 0, sinEscanos = 0;
-    for (let s = 0; s < SORTEOS; s++) {
-      if (cuotasFinales[(s * P + p) * K + k] * modelo.peso[p] < minimo) debajo++;
-      if (resultado.provinciales[(s * P + p) * K + k] === 0) sinEscanos++;
-    }
-    const probabilidad = debajo / SORTEOS;
+    const probabilidad = expulsados[k] / SORTEOS;
     if (probabilidad < PROBABILIDAD_BARRERA_MINIMA || probabilidad > PROBABILIDAD_BARRERA_MAXIMA) continue;
     candidatosDeBarrera.push({
-      tipo: "barrera", partido: modelo.partidos[k], provincia: provincia.nombre, escanos: provincia.escanos, barrera: datos.barrera,
-      probabilidad: Math.round(1000 * probabilidad) / 1000, sin_escanos: Math.round(1000 * sinEscanos / SORTEOS) / 1000,
-      voto_central: Math.round(10000 * central.cuotas[p * K + k] * modelo.peso[p] / provincia.votos_validos) / 10000,
+      tipo: "barrera", partido: modelo.partidos[k], provincia: provincia.nombre, escanos: N, barrera: datos.barrera,
+      probabilidad: Math.round(1000 * probabilidad) / 1000, debajo_de_la_barrera: Math.round(1000 * debajo[k] / SORTEOS) / 1000,
+      voto_central: Math.round(10000 * central.cuotas[p * K + k] * modelo.peso[p] / provincia.votos_validos) / 10000, ultimo_escano: ultimoEscanoPct,
     });
   }
 }
