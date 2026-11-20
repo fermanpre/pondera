@@ -16,11 +16,16 @@ Las encuestas NACIONALES solo se completan con --con-nacionales: el contraste de
 (el porcentaje de «FA» sale 0,2 a 0,5 puntos distinto y en los seguimientos acumulativos como SW Demoscopia o Sigma Dos la entrega no es la misma), y Wikipedia ya las lleva al día.
 Las regionales coinciden con Wikipedia partido a partido.
 
+UPC: Electogrāfica publica en cada encuesta nacional la Unidad del Pueblo Canario aparte («NC-BC, Podemos, IU, Sumar») y Wikipedia la suma al Frente Amplio. Se actualiza Sondeos/upc_en_encuestas.csv
+(el fichero que usa la proporción UPC / (UPC + Frente Amplio) del promedio propio) con la última entrega de cada casa, y solo si el total cuadra: el Frente Amplio de Wikipedia tiene que ser igual al
+Frente Amplio de Electogrāfica + UPC + Ara Més (margen de 0,15 puntos). Si no cuadra (Sigma Dos y Sondaxe, hoy), no se toca: no se sabe si Wikipedia incluye o no el UPC en esa cifra.
+
 Uso: python extraer_electografica.py [--simular] [--con-nacionales]   (--simular enseña lo que añadiría sin escribir)
 """
 
 import csv
 import html
+import io
 import json
 import re
 import sys
@@ -355,16 +360,96 @@ def completar_nacionales(simular, hoy):
     return len(nuevas)
 
 
+RUTA_UPC = CARPETA / "upc_en_encuestas.csv"
+FIN_DE_LINEA = chr(13) + chr(10)  # el CSV de UPC usa saltos de línea de Windows
+DIAS_UPC = 21               # encuestas con fin de campo en las últimas tres semanas (la vida media del peso es de 21 días)
+MARGEN_UPC = 0.15           # margen para que UPC + Frente Amplio cuadre con el total de Wikipedia
+DIAS_DE_UNA_MISMA_SERIE = 10  # entregas de una misma casa con fin de campo a menos de estos días son la misma serie (un tracking): se queda la última
+
+
+def frente_amplio_de_wikipedia(filas_nacionales):
+    """{(casa normalizada, primer día de campo): (fin de campo, firma, Frente Amplio publicado)} de la próxima elección."""
+    resultado = {}
+    for fila in filas_nacionales:
+        if fila["convocatoria"] != CONVOCATORIA_NACIONAL or fila["partido"] != "FA" or fila["valor"] == "":
+            continue
+        resultado[(firma_normalizada(fila["firma"]), inicio_de_campo_iso(fila))] = (fila["fin_campo"], fila["firma"], float(fila["valor"]))
+    return resultado
+
+
+def completar_upc(simular, hoy):
+    """Añade o actualiza en upc_en_encuestas.csv la última encuesta de cada casa que publica UPC y cuyo total cuadra con Wikipedia."""
+    _columnas, filas_nacionales = cargar_filas(RUTA_NACIONAL)
+    publicado = frente_amplio_de_wikipedia(filas_nacionales)
+    candidatas = {}   # casa normalizada -> (fin de campo, firma, upc, frente amplio sin upc, descripción)
+    for entrada in descargar_entradas("Generales"):
+        encuesta = interpretar_entrada(entrada)
+        if encuesta is None or sin_tildes_y_mayusculas(encuesta["ambito"]) not in ("ESPANA", "ESPAÑA") or encuesta["ultimo_dia"] < hoy - timedelta(days=DIAS_UPC):
+            continue
+        valores = {clave_de_partido(nombre): porcentaje for nombre, porcentaje in encuesta["valores"]}
+        upc = valores.get("NCBCPODEMOSIUSUMAR", 0.0)
+        if upc <= 0:
+            continue   # 0 es «no publicado»: Electogrāfica pone 0 donde la casa no da el dato
+        datos_wikipedia = publicado.get((firma_normalizada(encuesta["casa"]), encuesta["primer_dia"].isoformat()))
+        if datos_wikipedia is None:
+            continue   # Wikipedia aún no la tiene: se recoge cuando aparezca
+        fin_wikipedia, firma_wikipedia, frente_amplio_total = datos_wikipedia
+        suma = valores.get("FA", 0.0) + upc + valores.get("ARAMESEUMS", 0.0)
+        if abs(suma - frente_amplio_total) > MARGEN_UPC + 1e-9:
+            print("  [UPC] no cuadra, se descarta: %s %s (FA %.1f + UPC %.1f + Ara Més %.1f = %.1f; Wikipedia %.1f)" % (
+                encuesta["casa"], fin_wikipedia, valores.get("FA", 0.0), upc, valores.get("ARAMESEUMS", 0.0), suma, frente_amplio_total))
+            continue
+        casa = firma_normalizada(encuesta["casa"])
+        if casa not in candidatas or fin_wikipedia > candidatas[casa][0]:
+            candidatas[casa] = (fin_wikipedia, firma_wikipedia, upc, round(frente_amplio_total - upc, 1),
+                                "Electogrāfica, entrega del %s: columna «NC-BC, Podemos, IU, Sumar» (UPC) %s; Frente Amplio de Wikipedia %s menos UPC" % (
+                                    fecha_como_en_wikipedia(encuesta["primer_dia"], encuesta["ultimo_dia"]), str(upc).replace(".", ","), str(frente_amplio_total).replace(".", ",")))
+    with open(RUTA_UPC, "rb") as fichero:
+        con_marca = fichero.read(3) == b"\xef\xbb\xbf"
+    with open(RUTA_UPC, encoding="utf-8-sig", newline="") as fichero:
+        lector = csv.DictReader(fichero, delimiter=";")
+        columnas = lector.fieldnames
+        filas = list(lector)
+    for fila in filas:
+        # Alguna fuente lleva un punto y coma sin comillas: el lector la parte en columnas de más (clave None) y se vuelve a unir al texto de la fuente
+        if None in fila:
+            fila["fuente"] = ";".join([fila["fuente"]] + fila.pop(None))
+    cambios = 0
+    for casa, (fin, firma, upc, sin_upc, descripcion) in candidatas.items():
+        nueva = {"casa": firma, "fin_campo": fin, "upc": str(upc), "frente_amplio_sin_upc": str(sin_upc), "fuente": descripcion}
+        mismas = [fila for fila in filas if firma_normalizada(fila["casa"]) == casa]
+        if any(fila["fin_campo"] >= fin for fila in mismas):
+            continue   # ya está esa entrega o una posterior
+        cercanas = [fila for fila in mismas if (date.fromisoformat(fin) - date.fromisoformat(fila["fin_campo"])).days <= DIAS_DE_UNA_MISMA_SERIE]
+        if cercanas:
+            filas[filas.index(cercanas[0])] = nueva
+            print("  [UPC] ACTUALIZADA %-12s %s -> %s (UPC %s, Frente Amplio sin UPC %s)" % (firma, cercanas[0]["fin_campo"], fin, upc, sin_upc))
+        else:
+            filas.append(nueva)
+            print("  [UPC] NUEVA %-12s %s (UPC %s, Frente Amplio sin UPC %s)" % (firma, fin, upc, sin_upc))
+        cambios += 1
+    if cambios and not simular:
+        # Se prepara todo el contenido en memoria antes de abrir el fichero: si algo falla, el CSV original queda intacto
+        memoria = io.StringIO(newline="")
+        escritor = csv.DictWriter(memoria, fieldnames=columnas, delimiter=";", lineterminator=FIN_DE_LINEA)
+        escritor.writeheader()
+        escritor.writerows(filas)
+        with open(RUTA_UPC, "w", encoding="utf-8-sig" if con_marca else "utf-8", newline="") as fichero:
+            fichero.write(memoria.getvalue())
+    return cambios
+
+
 def main():
     simular = "--simular" in sys.argv
     hoy = datetime.now(timezone.utc).date()
     try:
         regionales = completar_regionales(simular, hoy)
         nacionales = completar_nacionales(simular, hoy) if "--con-nacionales" in sys.argv else 0
+        upc = completar_upc(simular, hoy)
     except Exception as error:  # la red o el formato de la página no deben romper el workflow: se sigue con Wikipedia sola
         print("Electogrāfica no disponible (%s: %s): se sigue solo con Wikipedia." % (type(error).__name__, error))
         return
-    print("Electogrāfica: %d filas regionales y %d nacionales %s." % (regionales, nacionales, "que se añadirían" if simular else "añadidas"))
+    print("Electogrāfica: %d filas regionales y %d nacionales %s; UPC: %d filas %s." % (regionales, nacionales, "que se añadirían" if simular else "añadidas", upc, "que cambiarían" if simular else "añadidas o actualizadas"))
 
 
 if __name__ == "__main__":

@@ -95,7 +95,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Sondeos/sondeos_wikipedia_largo.csv Sondeos/sondeos_regionales_largo.csv Sondeos/casas_con_cifras_descartadas.csv Web/sitio/serie_promedio.json Web/sitio/serie_promedio.js Web/sitio/encuestas_promedio.json Web/sitio/encuestas_promedio.js Web/sitio/listado_sondeos.json Web/sitio/listado_sondeos.js Web/sitio/listado_regional.json Web/sitio/listado_regional.js Sondeos/promedio_actual.csv Web/sitio Web/plantillas/resumen.html
+          git add Sondeos/upc_en_encuestas.csv Sondeos/sondeos_wikipedia_largo.csv Sondeos/sondeos_regionales_largo.csv Sondeos/casas_con_cifras_descartadas.csv Web/sitio/serie_promedio.json Web/sitio/serie_promedio.js Web/sitio/encuestas_promedio.json Web/sitio/encuestas_promedio.js Web/sitio/listado_sondeos.json Web/sitio/listado_sondeos.js Web/sitio/listado_regional.json Web/sitio/listado_regional.js Sondeos/promedio_actual.csv Web/sitio Web/plantillas/resumen.html
           if git diff --cached --quiet; then
             echo "Sin cambios hoy."
           else

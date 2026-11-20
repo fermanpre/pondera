@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-20",
+    "titulo": "UPC: actualización automática desde Electogrāfica",
+    "texto": "La proporción de la Unidad del Pueblo Canario dentro de (UPC + Frente Amplio) se actualiza ahora sola con las encuestas de Electogrāfica que publican el UPC por separado (hoy, 40dB y Sondaxe), solo cuando el total cuadra con el de Wikipedia. Antes se añadía a mano. Con las entregas nuevas de 40dB la proporción baja del 6,1 al 5,9 %."
+  },
+  {
+    "fecha": "2026-11-20",
     "titulo": "Barrera electoral de facto por provincia",
     "texto": "La página de provincias enseña la barrera de facto de cada circunscripción: lo que cuesta su último escaño, con el rango en el que caen el 90 % de las simulaciones, frente al 3 % legal. En Madrid (entre el 2,3 y el 2,5 %) y Barcelona (2,7 a 2,9 %) queda por debajo del 3 %, así que corta la barrera legal; en el resto queda muy por encima."
   },
