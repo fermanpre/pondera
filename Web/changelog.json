@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-20",
+    "titulo": "Gráfico del promedio: Frente Amplio sin Front Valencià ni UPC",
+    "texto": "La línea «Frente Amplio» del gráfico del promedio sumaba el Front Valencià (y la Unidad del Pueblo Canario cuando las encuestas la incluyen), de modo que el Front Valencià aparecía dentro y fuera. Ahora «Frente Amplio» es el partido solo (5,0 % hoy, como en el modelo) y una línea punteada aparte, «FA + FV + UPC (total)», conserva el total homogéneo (6,7 %) que se usa para comparar encuestas. El modelo y las simulaciones no cambian: ya repartían el total entre los tres."
+  },
+  {
+    "fecha": "2026-11-20",
     "titulo": "UPC: actualización automática desde Electogrāfica",
     "texto": "La proporción de la Unidad del Pueblo Canario dentro de (UPC + Frente Amplio) se actualiza ahora sola con las encuestas de Electogrāfica que publican el UPC por separado (hoy, 40dB, Sondaxe y Sigma Dos), solo cuando la cifra de Wikipedia cuadra. Antes se añadía a mano. Con las entregas nuevas la proporción se queda prácticamente igual, en torno al 6,1 %."
   },

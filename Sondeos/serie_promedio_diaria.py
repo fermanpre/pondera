@@ -17,6 +17,10 @@ from pathlib import Path
 
 import promedio
 
+CARPETA_WEB = Path(__file__).resolve().parent.parent / "Web"
+sys.path.insert(0, str(CARPETA_WEB))
+import proporcion_upc  # noqa: E402  (proporción de UPC dentro del Frente Amplio, para separar el UPC del total)
+
 MESES_EN_ESPANOL = {"Jan": "ene", "Feb": "feb", "Mar": "mar", "Apr": "abr", "May": "may", "Jun": "jun", "Jul": "jul", "Aug": "ago", "Sep": "sep", "Oct": "oct", "Nov": "nov", "Dec": "dic"}
 
 PRIMER_DIA = date(2023, 7, 24)  # día siguiente a las generales de 2023
@@ -98,6 +102,11 @@ def main():
     ultimo_dia = min(promedio.HOY, ULTIMO_DIA_PUBLICABLE)
     dias = [PRIMER_DIA + timedelta(days=n) for n in range((ultimo_dia - PRIMER_DIA).days + 1)]
     encuestas_leidas = promedio.leer_encuestas("generales_proxima", fusionar_frente_amplio_en_sumar=False)
+    # En esta lectura «FA» ya incluye a Front Valencià cuando la encuesta los separa (total homogéneo). Se guarda ese total como «Sumar_con_FV» en esas encuestas para poder calcular
+    # la parte de FV de cada día: promedio(FV) / promedio(Sumar_con_FV), igual que hace el modelo (calcular_prevision_base.py).
+    for encuesta in encuestas_leidas:
+        if "FV" in encuesta["valores"] and "FA" in encuesta["valores"]:
+            encuesta["valores"]["Sumar_con_FV"] = encuesta["valores"]["FA"]
     pesos_de_firmas = leer_pesos_de_firmas()
     serie, detalle_por_dia = calcular_serie(dias, encuestas_leidas, pesos_de_firmas)
 
@@ -107,6 +116,22 @@ def main():
         series_por_partido[partido] = [
             round(valores[partido], 2) if valores and partido in valores else None for _dia, valores, _n in serie
         ]
+    # «FA» de la lectura es el total homogéneo (Frente Amplio + Front Valencià + UPC en las casas que los suman). Se guarda como «FA_total» y «FA» pasa a ser el Frente Amplio solo:
+    # el total sin la parte de FV de ese día y sin la parte de UPC (las mismas proporciones que usa el modelo: FV según las encuestas que la publican por separado, UPC según upc_en_encuestas.csv)
+    cifra_de_partida_upc = json.loads((CARPETA_WEB / "candidaturas.json").read_text(encoding="utf-8"))["parametros"]["upc_en_frente_amplio"]["proporcion"]
+    frente_amplio_total, frente_amplio_solo = [], []
+    for dia, valores, _usadas in serie:
+        if not valores or "FA" not in valores:
+            frente_amplio_total.append(None)
+            frente_amplio_solo.append(None)
+            continue
+        parte_de_fv = valores["FV"] / valores["Sumar_con_FV"] if valores.get("Sumar_con_FV") and "FV" in valores else 0.0
+        parte_de_upc = proporcion_upc.calcular(cifra_de_partida_upc, dia)[0]
+        frente_amplio_total.append(round(valores["FA"], 2))
+        frente_amplio_solo.append(round(valores["FA"] * (1.0 - parte_de_fv) * (1.0 - parte_de_upc), 2))
+    if "FA" in series_por_partido:
+        series_por_partido["FA_total"] = frente_amplio_total
+        series_por_partido["FA"] = frente_amplio_solo
     # «Sumar» deja de dibujarse el día en que empieza la línea de Frente Amplio (el partido cambió de nombre en las encuestas)
     if "Sumar" in series_por_partido and "FA" in series_por_partido:
         primer_dia_de_frente_amplio = next(i for i, valor in enumerate(series_por_partido["FA"]) if valor is not None)

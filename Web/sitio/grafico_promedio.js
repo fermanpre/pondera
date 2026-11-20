@@ -10,10 +10,11 @@
   // Nombre del partido en la serie (tal como sale de Wikipedia) -> identificador del modelo
   const IDENTIFICADOR_DE_SERIE = {
     PP: "PP", PSOE: "PSOE", Vox: "VOX", Sumar: "SUMAR_ANTIGUO", FA: "SUMAR", Podemos: "PODEMOS", ERC: "ERC", Junts: "JUNTS", "EH Bildu": "BILDU", PNV: "PNV", BNG: "BNG",
-    SALF: "SALF", CCa: "CC", UPN: "UPN", "Adelante Andalucía": "ADELANTE", FV: "FV",
+    SALF: "SALF", CCa: "CC", UPN: "UPN", "Adelante Andalucía": "ADELANTE", FV: "FV", FA_total: "SUMAR_TOTAL",
   };
-  const SELECCION_INICIAL = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "PODEMOS", "SALF"];
-  const NOMBRES_EN_GRAFICO = { SUMAR: "Frente Amplio", SUMAR_ANTIGUO: "Sumar", FV: "Front Valencià" };
+  COLORES.SUMAR_TOTAL = COLORES.SUMAR;  // la línea del total homogéneo (FA + FV + UPC) lleva el color del Frente Amplio, punteada
+  const SELECCION_INICIAL = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "SUMAR_TOTAL", "PODEMOS", "SALF"];
+  const NOMBRES_EN_GRAFICO = { SUMAR: "Frente Amplio", SUMAR_ANTIGUO: "Sumar", FV: "Front Valencià", SUMAR_TOTAL: "FA + FV + UPC (total)" };
   // Orden de las columnas de partido en la tabla de encuestas: por su resultado en las generales de 2023 (Frente Amplio, que sucede a Sumar, va justo detrás); los que no tuvieron resultado propio, al final
   const ORDEN_POR_2023 = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE", "PODEMOS", "SALF", "FV"];
   // Columnas de la tabla de encuestas del día: Sumar y Frente Amplio fusionadas en una (aunque no sean exactamente lo mismo) y Front Valencià justo a su derecha
@@ -105,7 +106,7 @@
         trazo += (enTramo ? "L" : "M") + x(indice).toFixed(1) + " " + y(valor).toFixed(1) + " ";
         enTramo = true;
       }
-      svg += '<path d="' + trazo + '" fill="none" stroke="' + COLORES[serie.id] + '" stroke-width="2" stroke-linejoin="round" />';
+      svg += '<path d="' + trazo + '" fill="none" stroke="' + COLORES[serie.id] + '" stroke-width="2" stroke-linejoin="round"' + (serie.id === "SUMAR_TOTAL" ? ' stroke-dasharray="2 4" stroke-linecap="round"' : "") + " />";
     });
     if (estado.indiceMarcado >= desde && estado.indiceMarcado <= hasta) {
       svg += '<line x1="' + x(estado.indiceMarcado) + '" x2="' + x(estado.indiceMarcado) + '" y1="' + MARGEN.arriba + '" y2="' + (MARGEN.arriba + alto) + '" stroke="var(--texto)" stroke-opacity="0.5" />';
@@ -246,7 +247,7 @@
     marcarBotones();
     document.getElementById("nota-promedio").textContent =
       "Cada encuesta cuenta desde el primer día de su trabajo de campo, pesa más en el día medio de ese campo y menos cuanto más se aleja de él. " +
-      "La línea de Sumar se detiene el día en que empieza la de Frente Amplio, con las primeras encuestas que usan ese nombre; Frente Amplio suma Front Valencià cuando la encuesta los separa. " + SERIE_PROMEDIO.fuente +
+      "La línea de Sumar se detiene el día en que empieza la de Frente Amplio, con las primeras encuestas que usan ese nombre. Frente Amplio es el partido solo: la línea punteada «FA + FV + UPC (total)» es el total homogéneo que se usa para comparar encuestas, porque algunas casas dan una sola cifra con el Frente Amplio, el Front Valencià y la Unidad del Pueblo Canario juntos y otras los separan; de ese total se descuentan la parte de Front Valencià (según las encuestas que lo publican aparte) y la de la UPC (según Sondeos/upc_en_encuestas.csv). " + SERIE_PROMEDIO.fuente +
       (SERIE_PROMEDIO.ultimo_dia >= SERIE_PROMEDIO.ultimo_dia_publicable ? " Serie congelada: la ley electoral prohíbe publicar sondeos en los cinco días previos a la votación." : "");
   }
 
