@@ -337,3 +337,4 @@ button.principal { font-weight: 600; }
 .curio-pie { margin: 0; font-size: 0.9rem; }
 .curio-otro { font: inherit; font-weight: 700; cursor: pointer; border: 1px solid var(--suave); background: transparent; color: inherit; border-radius: 6px; padding: 3px 12px; margin-right: 12px; }
 .curio-otro:hover { background: var(--fondo); }
+.vu-barrera { margin: 4px 0 10px; padding: 8px 12px; background: var(--fondo); border-radius: 6px; font-size: 0.95rem; }

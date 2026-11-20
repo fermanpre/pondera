@@ -141,12 +141,28 @@
     return html;
   }
 
+  // Barrera electoral de facto: lo que cuesta el último escaño, con el rango del 90 % de las simulaciones, frente al 3 % legal
+  function barreraDeFacto(nombre, datos) {
+    const barrera = datos.barrera_de_facto;
+    if (!barrera) { return ""; }
+    const legal = 100 * (VOTO_UTIL.barrera_legal || 0.03);
+    const formato = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const bajo = 100 * barrera.p05, alto = 100 * barrera.p95;
+    let conclusion;
+    if (alto < legal) { conclusion = "Queda por debajo del " + formato.format(legal) + " % legal: la barrera que de verdad corta es la legal."; }
+    else if (bajo >= legal) { conclusion = "Queda por encima del " + formato.format(legal) + " % legal: aquí la barrera legal no actúa, manda el propio reparto."; }
+    else { conclusion = "Cruza el " + formato.format(legal) + " % legal: según la simulación manda la barrera legal o el propio reparto."; }
+    return "<b>Barrera de facto en " + escapar(nombre) + ":</b> entre el " + formato.format(bajo) + " % y el " + formato.format(alto) + " % de los votos válidos (el 90 % de las simulaciones; mediana " + formato.format(100 * barrera.mediana) + " %). " +
+      "Es lo que cuesta el último escaño del reparto: un partido necesita más o menos eso para sacar su primer escaño. " + conclusion;
+  }
+
   function pintar() {
     const provincia = modelo.provincias[parseInt(selector.value, 10)];
     if (!provincia) { return; }
     const datos = VOTO_UTIL.provincias[provincia.nombre];
     if (!datos) { return; }
     document.getElementById("vu-titular").textContent = titular(provincia.nombre, datos);
+    document.getElementById("vu-barrera").innerHTML = barreraDeFacto(provincia.nombre, datos);
     document.getElementById("vu-escanos").innerHTML = '<p class="nota">Los ' + datos.escanos + (datos.escanos === 1 ? " escaño" : " escaños") + " de " + escapar(provincia.nombre) + "</p>" + cuadrados(provincia.nombre, datos) + quienSeLoLleva(provincia.nombre, datos);
     document.getElementById("vu-barras").innerHTML = barras(provincia.nombre, datos);
     document.getElementById("vu-cocientes").innerHTML = cocientes(provincia.nombre, datos);

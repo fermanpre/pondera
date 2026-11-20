@@ -12,6 +12,8 @@
  *     No cuenta el efecto sobre otros partidos.
  *   - valor de un voto para el bloque: escaños extra que gana de media el BLOQUE del partido (izquierda o derecha) por ese mismo voto adicional, dividido por lo mismo. Cuenta lo que el voto
  *     quita a partidos del otro bloque y no cuenta lo que mueve dentro del bloque (un escaño que el BNG le quita al PSOE no suma nada al bloque). No hay para PNV, Junts, CC ni Existe.
+ *   - barrera de facto: lo que cuesta el último escaño de la provincia (el cociente D'Hondt del último escaño, en % de los votos válidos), con el rango en el que caen el 90 % de las simulaciones
+ *     (percentiles 5 y 95). Un partido necesita más o menos eso para sacar su primer escaño; si es inferior al 3 %, manda la barrera legal.
  * Escribe sitio/voto_util.js (const VOTO_UTIL = {...}) y voto_util.json. Uso: node voto_util_provincias.js [sorteos]
  */
 const fs = require("fs");
@@ -127,6 +129,24 @@ for (let p = 0; p < P; p++) {
     valor[modelo.partidos[k]] = Math.round(100 * (diferencia / SORTEOS / delta) / escanosMediaPorVoto) / 100;
     if (bloque) valorBloque[modelo.partidos[k]] = Math.round(100 * (diferenciaBloque / SORTEOS / delta) / escanosMediaPorVoto) / 100;
   }
+  // Barrera de facto: cociente del último escaño en cada simulación, en % de los votos válidos
+  const sinEscanoDeFacto = {};
+  (datos.sin_escano || []).forEach(function (partido) { sinEscanoDeFacto[partido] = true; });
+  const minimoLegal = datos.barrera * provincia.votos_validos;
+  const costes = new Float64Array(SORTEOS);
+  for (let s = 0; s < SORTEOS; s++) {
+    const cocientes = [];
+    for (let k = 0; k < K; k++) {
+      const votosK = sinEscanoDeFacto[modelo.partidos[k]] || !modelo.presente[p * K + k] ? 0 : cuotasFinales[(s * P + p) * K + k] * modelo.peso[p];
+      if (votosK <= 0 || votosK < minimoLegal) continue;
+      for (let d = 1; d <= N; d++) cocientes.push(votosK / d);
+    }
+    cocientes.sort(function (a, b) { return b - a; });
+    costes[s] = cocientes.length >= N ? cocientes[N - 1] / provincia.votos_validos : 0;
+  }
+  costes.sort();
+  const percentil = function (q) { return costes[Math.min(SORTEOS - 1, Math.floor(q * SORTEOS))]; };
+  const barreraDeFacto = { p05: Math.round(10000 * percentil(0.05)) / 10000, mediana: Math.round(10000 * percentil(0.5)) / 10000, p95: Math.round(10000 * percentil(0.95)) / 10000 };
   // Voto central de cada partido en la provincia (tanto por uno sobre votos a candidaturas), solo los de un 1 % o más: sirve para saber cuál es el partido más votado de cada grupo
   const voto = {};
   for (let k = 0; k < K; k++) if (modelo.presente[p * K + k] && central[p * K + k] >= 0.01) voto[modelo.partidos[k]] = Math.round(10000 * central[p * K + k]) / 10000;
@@ -143,13 +163,13 @@ for (let p = 0; p < P; p++) {
   cocientes.sort(function (x, y) { return y.votos - x.votos; });
   const lista = cocientes.slice(0, N + 4).map(function (c, i) { return { partido: c.partido, divisor: c.divisor, votos: Math.round(c.votos), pct: Math.round(100 * c.pct) / 100, entra: i < N }; });
   const corte = cocientes.length > N ? { ultimo: Math.round(cocientes[N - 1].votos), primero_fuera: Math.round(cocientes[N].votos) } : null;
-  provincias[provincia.nombre] = { cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, valor_bloque: valorBloque, voto: voto };
+  provincias[provincia.nombre] = { barrera_de_facto: barreraDeFacto, cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, valor_bloque: valorBloque, voto: voto };
   if ((p + 1) % 10 === 0) console.log("  " + (p + 1) + "/" + P + " provincias (" + ((Date.now() - inicio) / 1000).toFixed(0) + " s)");
 }
 
 const salida = {
   fecha_promedio: datos.fecha_promedio, sorteos: SORTEOS, semilla: SEMILLA, delta: DELTA,
-  votos_por_escano_medio: Math.round(1 / escanosMediaPorVoto), bloques: BLOQUES, provincias: provincias,
+  votos_por_escano_medio: Math.round(1 / escanosMediaPorVoto), barrera_legal: datos.barrera, bloques: BLOQUES, provincias: provincias,
 };
 const texto = JSON.stringify(salida);
 fs.writeFileSync(path.join(__dirname, "sitio", "voto_util.json"), texto, "utf8");
