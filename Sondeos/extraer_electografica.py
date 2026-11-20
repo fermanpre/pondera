@@ -18,7 +18,9 @@ Las regionales coinciden con Wikipedia partido a partido.
 
 UPC: Electogrāfica publica en cada encuesta nacional la Unidad del Pueblo Canario aparte («NC-BC, Podemos, IU, Sumar») y Wikipedia la suma al Frente Amplio. Se actualiza Sondeos/upc_en_encuestas.csv
 (el fichero que usa la proporción UPC / (UPC + Frente Amplio) del promedio propio) con la última entrega de cada casa, y solo si el total cuadra: el Frente Amplio de Wikipedia tiene que ser igual al
-Frente Amplio de Electogrāfica + UPC + Ara Més (margen de 0,15 puntos). Si no cuadra (Sigma Dos y Sondaxe, hoy), no se toca: no se sabe si Wikipedia incluye o no el UPC en esa cifra.
+Frente Amplio de Electogrāfica + UPC + Ara Més (margen de 0,15 puntos). Segundo caso, Sigma Dos desde el 17/11: su titular es «el Frente Amplio contando la coalición nacional, la canaria y la valenciana» (El Mundo, 19/11/2026), y Wikipedia lo recoge como FA sin FV
+aparte; Electogrāfica repite ese mismo total en su «FA» y da el FV y el UPC por separado. Entonces (Wikipedia sin FV, FA igual al de Electogrāfica con 0,05 de margen) el Frente Amplio sin UPC
+y sin FV es FA - UPC - FV. Si no cuadra ninguno de los dos casos (Sondaxe, hoy), no se toca: no se sabe cómo cuenta Wikipedia esa cifra.
 
 Uso: python extraer_electografica.py [--simular] [--con-nacionales]   (--simular enseña lo que añadiría sin escribir)
 """
@@ -374,13 +376,15 @@ def frente_amplio_de_wikipedia(filas_nacionales):
         if fila["convocatoria"] != CONVOCATORIA_NACIONAL or fila["partido"] != "FA" or fila["valor"] == "":
             continue
         resultado[(firma_normalizada(fila["firma"]), inicio_de_campo_iso(fila))] = (fila["fin_campo"], fila["firma"], float(fila["valor"]))
-    return resultado
+    con_fv = {(firma_normalizada(fila["firma"]), inicio_de_campo_iso(fila)) for fila in filas_nacionales
+              if fila["convocatoria"] == CONVOCATORIA_NACIONAL and fila["partido"] == "FV" and fila["valor"] != ""}
+    return resultado, con_fv
 
 
 def completar_upc(simular, hoy):
     """Añade o actualiza en upc_en_encuestas.csv la última encuesta de cada casa que publica UPC y cuyo total cuadra con Wikipedia."""
     _columnas, filas_nacionales = cargar_filas(RUTA_NACIONAL)
-    publicado = frente_amplio_de_wikipedia(filas_nacionales)
+    publicado, con_fv = frente_amplio_de_wikipedia(filas_nacionales)
     candidatas = {}   # casa normalizada -> (fin de campo, firma, upc, frente amplio sin upc, descripción)
     for entrada in descargar_entradas("Generales"):
         encuesta = interpretar_entrada(entrada)
@@ -395,15 +399,24 @@ def completar_upc(simular, hoy):
             continue   # Wikipedia aún no la tiene: se recoge cuando aparezca
         fin_wikipedia, firma_wikipedia, frente_amplio_total = datos_wikipedia
         suma = valores.get("FA", 0.0) + upc + valores.get("ARAMESEUMS", 0.0)
-        if abs(suma - frente_amplio_total) > MARGEN_UPC + 1e-9:
+        casa = firma_normalizada(encuesta["casa"])
+        clave_wikipedia = (casa, encuesta["primer_dia"].isoformat())
+        fv = valores.get("COMPROMISEUPVPODEMERPV", 0.0)
+        if abs(suma - frente_amplio_total) <= MARGEN_UPC + 1e-9:
+            frente_amplio_sin_upc = round(frente_amplio_total - upc, 1)
+            origen = "Frente Amplio de Wikipedia %s menos UPC" % str(frente_amplio_total).replace(".", ",")
+        elif clave_wikipedia not in con_fv and fv > 0 and abs(valores.get("FA", 0.0) - frente_amplio_total) <= 0.05 + 1e-9:
+            # Wikipedia da el total (Frente Amplio + UPC + FV) en una sola cifra: se quitan UPC y FV para dejar el Frente Amplio solo, que es lo que mide el resto de filas del fichero
+            frente_amplio_sin_upc = round(frente_amplio_total - upc - fv, 1)
+            origen = "total %s (Frente Amplio + UPC + FV, como lo titula la fuente) menos UPC %s y FV %s" % (str(frente_amplio_total).replace(".", ","), str(upc).replace(".", ","), str(fv).replace(".", ","))
+        else:
             print("  [UPC] no cuadra, se descarta: %s %s (FA %.1f + UPC %.1f + Ara Més %.1f = %.1f; Wikipedia %.1f)" % (
                 encuesta["casa"], fin_wikipedia, valores.get("FA", 0.0), upc, valores.get("ARAMESEUMS", 0.0), suma, frente_amplio_total))
             continue
-        casa = firma_normalizada(encuesta["casa"])
         if casa not in candidatas or fin_wikipedia > candidatas[casa][0]:
-            candidatas[casa] = (fin_wikipedia, firma_wikipedia, upc, round(frente_amplio_total - upc, 1),
-                                "Electogrāfica, entrega del %s: columna «NC-BC, Podemos, IU, Sumar» (UPC) %s; Frente Amplio de Wikipedia %s menos UPC" % (
-                                    fecha_como_en_wikipedia(encuesta["primer_dia"], encuesta["ultimo_dia"]), str(upc).replace(".", ","), str(frente_amplio_total).replace(".", ",")))
+            candidatas[casa] = (fin_wikipedia, firma_wikipedia, upc, frente_amplio_sin_upc,
+                                "Electogrāfica, entrega del %s: columna «NC-BC, Podemos, IU, Sumar» (UPC) %s; %s" % (
+                                    fecha_como_en_wikipedia(encuesta["primer_dia"], encuesta["ultimo_dia"]), str(upc).replace(".", ","), origen))
     with open(RUTA_UPC, "rb") as fichero:
         con_marca = fichero.read(3) == b"\xef\xbb\xbf"
     with open(RUTA_UPC, encoding="utf-8-sig", newline="") as fichero:
