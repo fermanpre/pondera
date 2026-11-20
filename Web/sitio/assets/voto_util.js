@@ -112,6 +112,10 @@
   }
 
   // Cocientes D'Hondt del reparto central: cada barra es un cociente (votos del partido entre su divisor); entran los N mayores
+  // Siglas para el gráfico de cocientes (el nombre completo sale al pasar el ratón)
+  const SIGLAS = { PP: "PP", PSOE: "PSOE", VOX: "Vox", SUMAR: "FA", PODEMOS: "Podemos", SALF: "SALF", ADELANTE: "AA", FV: "FV", UPC: "UPC", ERC: "ERC", JUNTS: "Junts", BILDU: "Bildu", PNV: "PNV", BNG: "BNG", UPN: "UPN", CC: "CC", EXISTE: "Existe", PACMA: "PACMA" };
+  const siglasDe = (partido, provincia) => (partido === "UPN" && provincia === "Navarra" ? "UPN-PP" : (SIGLAS[partido] || partido));
+
   function cocientes(nombre, datos) {
     const filas = datos.cocientes;
     if (!filas || !filas.length || !datos.corte) { return ""; }
@@ -123,7 +127,7 @@
     const ultimaQueEntra = {}, primeraQueNo = {};
     filas.forEach((fila, i) => { if (fila.entra) { ultimaQueEntra[fila.partido] = i; } else if (primeraQueNo[fila.partido] === undefined) { primeraQueNo[fila.partido] = i; } });
     const ultimoEscano = filas.filter((f) => f.entra).length;
-    let html = '<h3>Cómo se reparten los cocientes</h3><p class="nota">Cada barra es un cociente D’Hondt: los votos del partido divididos entre 1, 2, 3… Los ' + ultimoEscano + (ultimoEscano === 1 ? " mayor se lleva el escaño" : " mayores se llevan los escaños") +
+    let html = '<h3>Cómo se reparten los cocientes</h3><p class="nota">Cada barra es un cociente D’Hondt: los votos del partido divididos entre 1, 2, 3… El número de la izquierda es el del escaño: el 1 es el primero que se reparte y el último que entra es el ' + (filas.filter((f) => f.entra).length) + '. Los ' + ultimoEscano + (ultimoEscano === 1 ? " mayor se lleva el escaño" : " mayores se llevan los escaños") +
       " de " + escapar(nombre) + ". El último escaño se lo lleva " + escapar(nombreDe(filas[ultimoEscano - 1].partido, nombre)) + " con " + formatoEntero.format(ultimo) + " votos por escaño (" + formatoPct.format(filas[ultimoEscano - 1].pct) + " % del voto a candidaturas); el primero que se queda fuera es " + escapar(nombreDe(filas[ultimoEscano].partido, nombre)) + " con " + formatoEntero.format(primeroFuera) + ". Es el reparto central, sin ruido: no dice cuán probable es cada resultado (eso es lo que enseña «Quién se lo lleva»), sino dónde está hoy cada cociente y cuántos votos separan a cada partido del corte.</p>";
     filas.forEach((fila, i) => {
       if (i === ultimoEscano) {
@@ -131,11 +135,11 @@
       }
       let margen = "";
       if (fila.entra && ultimaQueEntra[fila.partido] === i) {
-        margen = '<span class="vq-margen">puede perder ' + formatoEntero.format(fila.puede_perder !== undefined ? fila.puede_perder : Math.round((fila.votos - primeroFuera) * fila.divisor)) + " votos antes de ceder este escaño</span>";
+        margen = '<span class="vq-margen" title="Votos que puede perder este partido sin ceder este escaño">puede perder ' + formatoEntero.format(fila.puede_perder !== undefined ? fila.puede_perder : Math.round((fila.votos - primeroFuera) * fila.divisor)) + " votos</span>";
       } else if (!fila.entra && primeraQueNo[fila.partido] === i) {
-        margen = '<span class="vq-margen">le faltan ' + formatoEntero.format(fila.faltan !== undefined ? fila.faltan : Math.round((ultimo - fila.votos) * fila.divisor)) + " votos para el siguiente</span>";
+        margen = '<span class="vq-margen" title="Votos que le faltan a este partido para ganar un escaño más">le faltan ' + formatoEntero.format(fila.faltan !== undefined ? fila.faltan : Math.round((ultimo - fila.votos) * fila.divisor)) + " votos</span>";
       }
-      html += '<div class="vq-fila' + (fila.entra ? "" : " vq-fuera") + '"><span class="vq-nombre">' + escapar(nombreDe(fila.partido, nombre)) + " <small>÷" + fila.divisor + '</small></span><span class="vq-pista"><span class="vq-barra" style="width:' +
+      html += '<div class="vq-fila' + (fila.entra ? "" : " vq-fuera") + '"><span class="vq-nombre" title="' + escapar(nombreDe(fila.partido, nombre)) + '"><span class="vq-n">' + (i + 1) + '</span>' + escapar(siglasDe(fila.partido, nombre)) + " <small>÷" + fila.divisor + '</small></span><span class="vq-pista"><span class="vq-barra" style="width:' +
         (100 * fila.votos / maximo).toFixed(1) + "%;background:" + colorDe(fila.partido) + '"></span></span><span class="vq-valor"><b>' + formatoEntero.format(fila.votos) + "</b> votos · " + formatoPct.format(fila.pct) + " %" + margen + "</span></div>";
     });
     return html;

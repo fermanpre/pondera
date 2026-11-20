@@ -303,20 +303,22 @@ button.principal { font-weight: 600; }
 .vu-cocientes { margin: 22px 0 8px; }
 .vu-cocientes h3 { margin: 0 0 4px; font-size: 1.05rem; }
 .vu-cocientes p { margin: 4px 0 10px; }
-.vq-fila { display: grid; grid-template-columns: 185px 1fr 200px; align-items: center; gap: 10px; margin: 3px 0; }
+.vq-fila { display: grid; grid-template-columns: 112px 1fr 390px; align-items: center; gap: 10px; margin: 3px 0; }
 .vq-nombre { font-weight: 700; line-height: 1.15; }
 .vq-nombre small { white-space: nowrap; }
+.vq-n { display: inline-block; min-width: 1.7em; margin-right: 4px; color: var(--suave); font-weight: 400; font-size: 0.8rem; text-align: right; }
 .vq-nombre small { font-weight: 400; color: var(--suave); }
 .vq-pista { position: relative; height: 18px; background: var(--fondo); border-radius: 3px; }
 .vq-barra { display: block; height: 100%; border-radius: 3px; }
 .vq-fuera .vq-barra { background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.55) 0 4px, transparent 4px 8px); opacity: 0.6; }
 .vq-valor { font-variant-numeric: tabular-nums; font-size: 0.85rem; }
 .vq-valor b { font-weight: 800; }
-.vq-margen { display: block; color: var(--suave); font-size: 0.78rem; }
-.vq-corte { display: grid; grid-template-columns: 185px 1fr 200px; gap: 10px; margin: 6px 0; align-items: center; font-size: 0.78rem; color: var(--suave); }
+.vq-margen { display: inline; margin-left: 10px; color: var(--suave); font-size: 0.78rem; white-space: nowrap; }
+.vq-corte { display: grid; grid-template-columns: 112px 1fr 390px; gap: 10px; margin: 6px 0; align-items: center; font-size: 0.78rem; color: var(--suave); }
 .vq-corte span.linea { border-top: 2px dashed var(--suave); }
 .vq-corte span.rotulo { text-align: right; }
-@media (max-width: 520px) { .vq-fila, .vq-corte { grid-template-columns: 96px 1fr 120px; } .vq-valor { font-size: 0.74rem; } }
+@media (max-width: 900px) { .vq-fila, .vq-corte { grid-template-columns: 100px 1fr 230px; } .vq-margen { display: block; margin-left: 0; white-space: normal; } }
+@media (max-width: 520px) { .vq-fila, .vq-corte { grid-template-columns: 92px 1fr 128px; } .vq-valor { font-size: 0.74rem; } }
 .vu-detalle { margin: 14px 0 6px; }
 .vu-detalle summary { cursor: pointer; font-weight: 700; }
 .vu-detalle p { margin: 8px 0; }
@@ -330,7 +332,7 @@ button.principal { font-weight: 600; }
 .senado-modal { font-weight: 800; }
 
 /* Dato curioso de Inicio */
-.curiosidad { margin: 14px 0 18px; padding: 14px 18px; background: #fff; border: 1px solid var(--borde, #e3e1dc); border-left: 5px solid var(--acento, #1d6fb8); border-radius: 8px; }
+.curiosidad { margin: 14px 0 18px; padding: 14px 18px; background: var(--tarjeta); border: 1px solid var(--linea); border-left: 5px solid var(--acento); border-radius: 8px; }
 .curio-etiqueta { display: block; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--suave); }
 .curio-texto { margin: 6px 0 8px; font-size: 1.1rem; line-height: 1.45; }
 .curio-partido { border-bottom: 3px solid var(--c); }
