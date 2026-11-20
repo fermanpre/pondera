@@ -131,9 +131,9 @@
       }
       let margen = "";
       if (fila.entra && ultimaQueEntra[fila.partido] === i) {
-        margen = '<span class="vq-margen">puede perder ' + formatoEntero.format(Math.round((fila.votos - primeroFuera) * fila.divisor)) + " votos antes de ceder este escaño</span>";
+        margen = '<span class="vq-margen">puede perder ' + formatoEntero.format(fila.puede_perder !== undefined ? fila.puede_perder : Math.round((fila.votos - primeroFuera) * fila.divisor)) + " votos antes de ceder este escaño</span>";
       } else if (!fila.entra && primeraQueNo[fila.partido] === i) {
-        margen = '<span class="vq-margen">le faltan ' + formatoEntero.format(Math.round((ultimo - fila.votos) * fila.divisor)) + " votos para el siguiente</span>";
+        margen = '<span class="vq-margen">le faltan ' + formatoEntero.format(fila.faltan !== undefined ? fila.faltan : Math.round((ultimo - fila.votos) * fila.divisor)) + " votos para el siguiente</span>";
       }
       html += '<div class="vq-fila' + (fila.entra ? "" : " vq-fuera") + '"><span class="vq-nombre">' + escapar(nombreDe(fila.partido, nombre)) + " <small>÷" + fila.divisor + '</small></span><span class="vq-pista"><span class="vq-barra" style="width:' +
         (100 * fila.votos / maximo).toFixed(1) + "%;background:" + colorDe(fila.partido) + '"></span></span><span class="vq-valor"><b>' + formatoEntero.format(fila.votos) + "</b> votos · " + formatoPct.format(fila.pct) + " %" + margen + "</span></div>";

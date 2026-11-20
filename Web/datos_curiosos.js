@@ -115,7 +115,8 @@ for (let p = 0; p < P; p++) {
     for (let d = 1; d <= N + 1; d++) cocientes.push({ partido: modelo.partidos[k], divisor: d, votos: votos / d });
   }
   cocientes.sort(function (a, b) { return b.votos - a.votos; });
-  if (cocientes.length > N && N >= 2) {
+  // Solo es exacto si el que queda fuera y el último que entra son partidos distintos: si fueran el mismo, al ganar votos subirían también sus otros cocientes y la cuenta cambia
+  if (cocientes.length > N && N >= 2 && cocientes[N].partido !== cocientes[N - 1].partido) {
     const ultimo = cocientes[N - 1], fuera = cocientes[N];
     margenes.push({ tipo: "margen", provincia: provincia.nombre, escanos: N, partido_fuera: fuera.partido, partido_dentro: ultimo.partido,
                     votos: Math.round((ultimo.votos - fuera.votos) * fuera.divisor) });

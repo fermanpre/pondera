@@ -162,6 +162,34 @@ for (let p = 0; p < P; p++) {
   }
   cocientes.sort(function (x, y) { return y.votos - x.votos; });
   const lista = cocientes.slice(0, N + 4).map(function (c, i) { return { partido: c.partido, divisor: c.divisor, votos: Math.round(c.votos), pct: Math.round(100 * c.pct) / 100, entra: i < N }; });
+  // Márgenes exactos: en el último cociente de cada partido que entra, cuántos votos puede perder sin ceder un escaño; en el primero que queda fuera, cuántos votos le faltan para ganar uno más.
+  // Se busca por bisección sobre el reparto real (escanosDeProvincia), así que cuenta que al cambiar los votos del partido cambian TODOS sus cocientes (no solo el que se mira).
+  const cuotasCentrales = central.subarray(p * K, (p + 1) * K);
+  const escanosAuxiliares = new Int32Array(K);
+  const escanosDelPartido = function (k, variacion) {
+    Motor.escanosDeProvincia(modelo, p, cuotasCentrales, { k: k, votos: variacion }, escanosAuxiliares);
+    const coalicionDeK = modelo.coaliciones.find(function (c) { return c.provincia === p && c.columna === k; });
+    return escanosAuxiliares[k] + (coalicionDeK ? escanosAuxiliares[coalicionDeK.socio] : 0);
+  };
+  const ultimaFilaQueEntra = {}, primeraFilaQueNo = {};
+  lista.forEach(function (fila, i) { if (fila.entra) ultimaFilaQueEntra[fila.partido] = i; else if (primeraFilaQueNo[fila.partido] === undefined) primeraFilaQueNo[fila.partido] = i; });
+  Object.keys(ultimaFilaQueEntra).forEach(function (partido) {
+    const k = modelo.partidos.indexOf(partido);
+    const votosDelPartido = central[p * K + k] * modelo.peso[p];
+    const base = escanosDelPartido(k, 0);
+    let bajo = 0, alto = votosDelPartido;       // bajo: seguro que no cambia; alto: pierde todo
+    if (escanosDelPartido(k, -alto) >= base) return;  // aunque pierda todos sus votos conserva el escaño (no pasa; por seguridad)
+    for (let i = 0; i < 40; i++) { const medio = (bajo + alto) / 2; if (escanosDelPartido(k, -medio) >= base) bajo = medio; else alto = medio; }
+    lista[ultimaFilaQueEntra[partido]].puede_perder = Math.floor(bajo);
+  });
+  Object.keys(primeraFilaQueNo).forEach(function (partido) {
+    const k = modelo.partidos.indexOf(partido);
+    const base = escanosDelPartido(k, 0);
+    let bajo = 0, alto = 3 * modelo.peso[p];
+    if (escanosDelPartido(k, alto) <= base) return;   // ni con muchísimos votos más gana otro escaño
+    for (let i = 0; i < 40; i++) { const medio = (bajo + alto) / 2; if (escanosDelPartido(k, medio) > base) alto = medio; else bajo = medio; }
+    lista[primeraFilaQueNo[partido]].faltan = Math.ceil(alto);
+  });
   const corte = cocientes.length > N ? { ultimo: Math.round(cocientes[N - 1].votos), primero_fuera: Math.round(cocientes[N].votos) } : null;
   provincias[provincia.nombre] = { barrera_de_facto: barreraDeFacto, cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, valor_bloque: valorBloque, voto: voto };
   if ((p + 1) % 10 === 0) console.log("  " + (p + 1) + "/" + P + " provincias (" + ((Date.now() - inicio) / 1000).toFixed(0) + " s)");
