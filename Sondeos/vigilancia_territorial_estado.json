@@ -39,6 +39,11 @@
   "fecha": "2026-11-19",
   "hallazgos": 0
  },
+ "https://electomania.es/tracking-electopanel-19-nov-sanchez-mete-el-turbo-a-costa-de-su-izquierda-con-la-derecha-en-187-escanos/": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
+  "hallazgos": 0
+ },
  "https://elpais.com/espana/elecciones-generales/2026-11-13/la-campana-arranca-con-la-derecha-en-el-horizonte-de-los-190-escanos.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -72,6 +77,16 @@
  "https://elpais.com/espana/elecciones-generales/2026-11-19/90-minutos-cara-a-cara-sanchez-busca-remontar-los-dos-puntos-que-le-separan-del-pp-y-feijoo-repetir-el-exito-de-2023.html": {
   "estado": "revisada",
   "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
+ "https://elpais.com/espana/elecciones-generales/2026-11-19/la-encuesta-antes-del-debate-ligera-ventaja-del-pp-y-muy-clara-del-bloque-derechista.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
+  "hallazgos": 0
+ },
+ "https://elpais.com/espana/elecciones-generales/2026-11-20/la-distancia-entre-el-pp-y-el-psoe-se-estrecha-al-minimo-pese-a-la-victoria-de-feijoo-en-el-debate.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
   "hallazgos": 0
  },
  "https://elpais.com/infografias/encuestas40db/2026/11-tracking-electoral/Informe_tracking_dia01.pdf": {
@@ -109,6 +124,17 @@
   "fecha": "2026-11-19",
   "hallazgos": 0
  },
+ "https://ep00.epimg.net/infografias/encuestas40db/2026/11-tracking-electoral/informe_tracking_dia08.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
+  "hallazgos": 0
+ },
+ "https://ep00.epimg.net/infografias/encuestas40db/2026/11-tracking-electoral/informe_tracking_dia09.pdf": {
+  "error": "HTTPError: HTTP Error 404: Not Found",
+  "estado": "error",
+  "fecha": "2026-11-20",
+  "intentos": 1
+ },
  "https://laseptima.com/wp-content/uploads/2026/11/barometro-n09-12nov2026.pdf": {
   "estado": "revisada",
   "fecha": "2026-11-19",
@@ -137,6 +163,11 @@
  "https://laseptima.com/wp-content/uploads/2026/11/barometro-n14-17nov2026.pdf": {
   "estado": "revisada",
   "fecha": "2026-11-19",
+  "hallazgos": 0
+ },
+ "https://laseptima.com/wp-content/uploads/2026/11/barometro-n15-18nov2026.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
   "hallazgos": 0
  },
  "https://media.licdn.com/dms/document/media/v2/D4D1FAQGaqy1LWWU6ig/feedshare-document-sanitized-pdf/B4DaHmH8tOHIBA-/0/1794862207466?e=1795467600&v=beta&t=ja_hBbNUySAFAKb5NmWTOmoROtgqIJszn8h2xG_74Es": {
@@ -185,6 +216,16 @@
   "fecha": "2026-11-18",
   "hallazgos": 0
  },
+ "https://okdiario.com/espana/feijoo-llega-debate-46-puntos-ventaja-sobre-sanchez-historica-mayoria-absoluta-vox-21189868": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
+  "hallazgos": 0
+ },
+ "https://okdiario.com/espana/pp-saca-5-puntos-psoe-ecuador-primera-semana-campana-tendria-vox-mayoria-196-escanos-21117119": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
+  "hallazgos": 0
+ },
  "https://www.articulo14.es/politica/el-pp-arranca-la-campana-con-25-escanos-de-ventaja-sobre-el-psoe-y-una-mayoria-holgada-con-vox-20261113.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -226,10 +267,14 @@
   "hallazgos": 1
  },
  "https://www.electografica.com/2026/11/encuesta-sondaxe-261119.html": {
-  "error": "HTTPError: HTTP Error 429: Too Many Requests",
-  "estado": "error",
-  "fecha": "2026-11-19",
-  "intentos": 1
+  "estado": "revisada",
+  "fecha": "2026-11-20",
+  "hallazgos": 0
+ },
+ "https://www.electografica.com/2026/11/encuesta-sondaxe-261120.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
+  "hallazgos": 2
  },
  "https://www.elespanol.com/espana/politica/20261108/pp-vox-suman-escanos-sanchez-recupera-perdio-urda-dimision-puente-sondeo-noche/1003744450645_0.html": {
   "estado": "revisada",
@@ -271,6 +316,11 @@
   "fecha": "2026-11-19",
   "hallazgos": 0
  },
+ "https://www.elmundo.es/elecciones/elecciones-generales/2026/11/19/6aff2a9afc6c83886c8b459b.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
+  "hallazgos": 1
+ },
  "https://www.larazon.es/espana/mayoria-vox-resiste-arranque-campana-205-diputados_202611166afa6889ea8d89799786d4d1.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -279,6 +329,11 @@
  "https://www.lasexta.com/elecciones/generales/barometro-lasexta-vox-mantienen-encima-51-votos-frente-bloque-izquierda-que-remonta_202611166afad474ea8d897997870c83.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
+  "hallazgos": 0
+ },
+ "https://www.lasexta.com/programas/al-rojo-vivo/ignacio-urquizu-experto-demoscopia-cara-elecciones-29n-bloque-derecha-esta-muy-consolidado-esta-torno-49_202611196afef28f21e74551e81f5586.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
   "hallazgos": 0
  },
  "https://www.lavozdegalicia.es/noticia/espana/2026/11/14/suma-pp-vox-superaria-absoluta-195-escanos-frente-106-psoe/00031794683613056404784.htm": {
@@ -301,9 +356,19 @@
   "fecha": "2026-11-19",
   "hallazgos": 0
  },
+ "https://www.lavozdegalicia.es/noticia/espana/2026/11/19/feijoo-repunta-primera-vez-campana-debate-sanchez/00031795116567415444664.htm": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
+  "hallazgos": 0
+ },
  "https://www.lavozdegalicia.es/noticia/galicia/2026/11/16/psoe-recorta-tres-escanos-pp-sigue-primera-fuerza/0003_202611G16P5991.htm": {
   "estado": "revisada",
   "fecha": "2026-11-18",
+  "hallazgos": 0
+ },
+ "https://www.politico.eu/article/spanish-election-race-tightens-final-week-poll/": {
+  "estado": "revisada",
+  "fecha": "2026-11-20",
   "hallazgos": 0
  },
  "https://www.politico.eu/newsletter/madrid-playbook/a-falta-de-noticias-hemos-hecho-una-encuesta/": {
