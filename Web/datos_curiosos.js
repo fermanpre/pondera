@@ -6,6 +6,10 @@
  * inicio enseña al azar, uno por visita. Cada dato es un objeto con su tipo y sus cifras; el texto lo escribe el navegador (assets/curiosidades.js), que ya tiene los nombres de los partidos.
  *   - barrera: probabilidad de que un partido se quede sin escaños POR LA BARRERA: en la simulación se queda por debajo del mínimo de votos de la provincia (3 % de los votos válidos) y, sin barrera,
  *     el reparto D'Hondt le habría dado al menos un escaño (por eso solo cuentan las simulaciones en las que por cociente le «tocaba»). También se guarda el voto que cuesta el último escaño en el reparto central.
+ *     Solo en las provincias donde el último escaño cuesta menos que la barrera (en el resto, la barrera de facto es la del propio reparto y el 3 % no actúa).
+ *   - primera: provincias donde dos partidos se disputan la primera plaza (más escaños que ningún otro).
+ *   - giro: los mayores cambios de voto de un partido en una provincia respecto a las generales de 2023.
+ *   - entra: partidos con una probabilidad intermedia de sacar al menos un escaño en una provincia.
  *   - margen: votos que separan a un partido de un escaño más en el reparto central (el primero que se queda fuera frente al último que entra).
  *   - incierta: provincias donde el reparto central de escaños es el menos probable de las simulaciones.
  *   - nacional: partidos con una probabilidad apreciable de quedarse sin ningún diputado en toda España.
@@ -21,9 +25,11 @@ const SEMILLA = 20261129;
 const CUOTA_MINIMA_PARA_BARRERA = 0.004;   // un partido con menos de un 0,4 % del voto de la provincia no se cuenta como candidato a quedarse sin escaño
 const PROBABILIDAD_BARRERA_MINIMA = 0.05;
 const PROBABILIDAD_BARRERA_MAXIMA = 0.97;
-const MAXIMO_DE_DATOS_POR_TIPO = { barrera: 8, margen: 6, incierta: 5, nacional: 5, voto: 4 };
+const MAXIMO_DE_DATOS_POR_TIPO = { barrera: 6, margen: 6, incierta: 5, nacional: 5, voto: 4, primera: 5, giro: 4, entra: 6 };
 
 const datos = JSON.parse(fs.readFileSync(path.join(__dirname, "sitio", "datos_modelo.json"), "utf8"));
+// Resultados reales de 2023 por provincia (votos de cada candidatura y votos válidos): sirven para medir los giros
+const resultados2023 = new Function(fs.readFileSync(path.join(__dirname, "sitio", "resultados_2023.js"), "utf8") + "; return RESULTADOS_2023;")();
 const modelo = Motor.prepararModelo(datos);
 const K = modelo.numeroDePartidos;
 const P = modelo.numeroDeProvincias;
@@ -82,6 +88,7 @@ for (let p = 0; p < P; p++) {
   for (let k = 0; k < K; k++) {
     if (sinEscano[modelo.partidos[k]] || !modelo.presente[p * K + k] || central.cuotas[p * K + k] < CUOTA_MINIMA_PARA_BARRERA) continue;
     const probabilidad = expulsados[k] / SORTEOS;
+    if (ultimoEscanoPct === null || ultimoEscanoPct >= datos.barrera) continue;  // la barrera de facto es más alta que el 3 %: no es un dato de barrera
     if (probabilidad < PROBABILIDAD_BARRERA_MINIMA || probabilidad > PROBABILIDAD_BARRERA_MAXIMA) continue;
     candidatosDeBarrera.push({
       tipo: "barrera", partido: modelo.partidos[k], provincia: provincia.nombre, escanos: N, barrera: datos.barrera,
@@ -141,6 +148,58 @@ for (let k = 0; k < K; k++) {
 }
 nacionales.sort(function (a, b) { return Math.abs(a.probabilidad - 0.5) - Math.abs(b.probabilidad - 0.5); });
 nacionales.slice(0, MAXIMO_DE_DATOS_POR_TIPO.nacional).forEach(function (dato) { curiosidades.push(dato); });
+
+// ---- Primera plaza de cada provincia, giros desde 2023 y partidos que entran o no
+const primeras = [];
+const giros = [];
+const entran = [];
+for (let p = 0; p < P; p++) {
+  const provincia = modelo.provincias[p];
+  const N = provincia.escanos;
+  const vecesPrimero = new Int32Array(K);
+  const vecesConEscano = new Int32Array(K);
+  for (let s = 0; s < SORTEOS; s++) {
+    let maximo = 0, ganador = -1, empate = false;
+    for (let k = 0; k < K; k++) {
+      const escanos = resultado.provinciales[(s * P + p) * K + k];
+      if (escanos > 0) vecesConEscano[k]++;
+      if (escanos > maximo) { maximo = escanos; ganador = k; empate = false; } else if (escanos === maximo && escanos > 0) empate = true;
+    }
+    if (ganador >= 0 && !empate) vecesPrimero[ganador]++;
+  }
+  const ordenados = [];
+  for (let k = 0; k < K; k++) ordenados.push(k);
+  ordenados.sort(function (a, b) { return vecesPrimero[b] - vecesPrimero[a]; });
+  const A = ordenados[0], B = ordenados[1];
+  if (N >= 4 && vecesPrimero[B] / SORTEOS >= 0.15) {
+    primeras.push({ tipo: "primera", provincia: provincia.nombre, escanos: N, partido_a: modelo.partidos[A], probabilidad_a: Math.round(1000 * vecesPrimero[A] / SORTEOS) / 1000,
+                    partido_b: modelo.partidos[B], probabilidad_b: Math.round(1000 * vecesPrimero[B] / SORTEOS) / 1000 });
+  }
+  for (let k = 0; k < K; k++) {
+    if (sinEscano[modelo.partidos[k]] || !modelo.presente[p * K + k]) continue;
+    // Giro: porcentaje de los votos válidos en 2023 (resultado real) frente al del reparto central de 2026, ambos sobre votos válidos
+    const de2023 = resultados2023[provincia.nombre];
+    const candidatura = de2023 ? de2023.candidaturas.find(function (c) { return c.clave === modelo.partidos[k]; }) : null;
+    const antes = candidatura ? candidatura.votos / de2023.validos : 0;
+    const ahora = central.cuotas[p * K + k] * modelo.peso[p] / provincia.votos_validos;
+    if (antes >= 0.03) {
+      giros.push({ tipo: "giro", partido: modelo.partidos[k], provincia: provincia.nombre, de: Math.round(1000 * antes) / 1000, a: Math.round(1000 * ahora) / 1000, puntos: Math.round(1000 * (ahora - antes)) / 10 });
+    }
+    const probabilidad = vecesConEscano[k] / SORTEOS;
+    if (ahora >= 0.01 && probabilidad >= 0.3 && probabilidad <= 0.7) {
+      entran.push({ tipo: "entra", partido: modelo.partidos[k], provincia: provincia.nombre, escanos: N, probabilidad: Math.round(1000 * probabilidad) / 1000 });
+    }
+  }
+}
+primeras.sort(function (a, b) { return Math.abs(a.probabilidad_a - a.probabilidad_b) - Math.abs(b.probabilidad_a - b.probabilidad_b); });
+primeras.slice(0, MAXIMO_DE_DATOS_POR_TIPO.primera).forEach(function (dato) { curiosidades.push(dato); });
+giros.sort(function (a, b) { return Math.abs(b.puntos) - Math.abs(a.puntos); });
+// Un giro por partido (el mayor de todas las provincias), para que no salgan cuatro veces el mismo partido
+const partidosConGiro = {};
+giros.filter(function (dato) { if (partidosConGiro[dato.partido]) return false; partidosConGiro[dato.partido] = true; return true; })
+     .slice(0, MAXIMO_DE_DATOS_POR_TIPO.giro).forEach(function (dato) { curiosidades.push(dato); });
+entran.sort(function (a, b) { return Math.abs(a.probabilidad - 0.5) - Math.abs(b.probabilidad - 0.5); });
+entran.slice(0, MAXIMO_DE_DATOS_POR_TIPO.entra).forEach(function (dato) { curiosidades.push(dato); });
 
 // ---- Voto más valioso (de voto_util.json, si existe)
 const rutaVotoUtil = path.join(__dirname, "sitio", "voto_util.json");

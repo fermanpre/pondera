@@ -6,10 +6,13 @@
  * Usa CURIOSIDADES (curiosidades.js, que genera datos_curiosos.js con las mismas simulaciones que el resto de la web) y NOMBRES y COLORES de comun.js.
  */
 const TIPOS_DE_CURIOSIDAD = {
-  barrera: { titulo: "Fuera por la barrera", explicacion: "Partidos que se quedan sin escaño en una provincia por no llegar al 3 % de los votos válidos aunque por cociente les tocaría uno. En cada simulación se repite el reparto D'Hondt sin barrera: solo cuentan las simulaciones en las que, sin barrera, el partido habría sacado al menos un escaño y, con ella, se queda fuera. Se muestran los que lo sufren en el 5 % de las simulaciones o más." },
+  barrera: { titulo: "Fuera por la barrera", explicacion: "Partidos que se quedan sin escaño en una provincia por no llegar al 3 % de los votos válidos aunque por cociente les tocaría uno. En cada simulación se repite el reparto D'Hondt sin barrera: solo cuentan las simulaciones en las que, sin barrera, el partido habría sacado al menos un escaño y, con ella, se queda fuera. Solo en las provincias donde el último escaño cuesta menos del 3 % del voto (hoy Madrid): en las demás, el propio reparto D'Hondt exige más de un 3 % y la barrera no actúa. Se muestran los que lo sufren en el 5 % de las simulaciones o más." },
   margen: { titulo: "Votos que separan de un escaño", explicacion: "En el reparto central (sin ruido), cuántos votos le faltan al primer partido que se queda fuera para quitarle el último escaño de la provincia al último que entra. Se muestran las provincias con el margen más pequeño." },
   incierta: { titulo: "Provincias con el reparto más incierto", explicacion: "Probabilidad de que el reparto central de escaños de una provincia (entre 3 y 10 escaños) sea exactamente el que sale en una simulación. Cuanto más baja, más puede moverse el resultado. Las provincias grandes no se cuentan: allí cualquier reparto exacto es improbable y el dato no dice nada." },
   nacional: { titulo: "Partidos que pueden quedarse sin diputados", explicacion: "Probabilidad de que un partido no saque ningún escaño en toda España, para los partidos cuya probabilidad está entre el 5 y el 95 %." },
+  primera: { titulo: "Disputa por la primera plaza", explicacion: "Provincias de cuatro escaños o más donde dos partidos se disputan ser el que más escaños saca: probabilidad de cada uno de quedar primero en las simulaciones (los empates no cuentan), con la segunda opción por encima del 15 %. Se muestran las más igualadas." },
+  giro: { titulo: "Los mayores giros desde 2023", explicacion: "El mayor cambio en el porcentaje de votos válidos de cada partido respecto a las generales de 2023 (resultado real) en una provincia, comparado con el reparto central de 2026. Solo partidos con al menos un 3 % en 2023, un dato por partido." },
+  entra: { titulo: "¿Entra o no entra?", explicacion: "Partidos con una probabilidad de sacar al menos un escaño en una provincia entre el 30 y el 70 % y un voto central de al menos el 1 %. Se muestran los más cercanos al 50 %." },
   voto: { titulo: "Los votos que más pesan", explicacion: "Los votos con mayor valor frente al voto medio de España (el «valor de un voto» de la sección de voto útil), solo de partidos con al menos un 1 % del voto en la provincia y un valor de ×2 o más." },
 };
 
@@ -46,6 +49,16 @@ const TIPOS_DE_CURIOSIDAD = {
     }
     if (dato.tipo === "voto") {
       return { texto: "Un voto a " + etiquetaDe(dato.partido, dato.provincia) + " en " + escapar(dato.provincia) + " vale ×" + formatoDecimal.format(dato.valor) + " el voto medio de España: es de los votos que más pesan en el reparto de escaños.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+    }
+    if (dato.tipo === "primera") {
+      return { texto: "En " + escapar(dato.provincia) + " (" + dato.escanos + " escaños) la primera plaza está disputada: " + etiquetaDe(dato.partido_a, dato.provincia) + " queda primero en el " + porcentaje(dato.probabilidad_a) + " de las simulaciones y " + etiquetaDe(dato.partido_b, dato.provincia) + " en el " + porcentaje(dato.probabilidad_b) + ".", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+    }
+    if (dato.tipo === "giro") {
+      const sube = dato.puntos > 0;
+      return { texto: etiquetaDe(dato.partido, dato.provincia) + " " + (sube ? "sube" : "baja") + " " + formatoDecimal.format(Math.abs(dato.puntos)) + " puntos en " + escapar(dato.provincia) + " respecto a 2023: pasa del " + porcentajeDeVoto(dato.de) + " % al " + porcentajeDeVoto(dato.a) + " % de los votos válidos. Es el mayor giro de este partido en cualquier provincia.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+    }
+    if (dato.tipo === "entra") {
+      return { texto: etiquetaDe(dato.partido, dato.provincia) + " tiene un " + porcentaje(dato.probabilidad) + " de probabilidad de sacar al menos un escaño en " + escapar(dato.provincia) + " (" + dato.escanos + " escaños en juego).", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     return null;
   };
