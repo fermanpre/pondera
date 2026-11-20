@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-20",
+    "titulo": "Voto útil: reparto de cocientes",
+    "texto": "La sección de voto útil de cada provincia enseña ahora cómo se reparten los cocientes D’Hondt en el reparto central: una barra por cociente (votos del partido entre 1, 2, 3…), qué escaños entran, cuánto vale el último y cuántos votos le faltan a cada partido para el siguiente o puede perder antes de cederlo."
+  },
+  {
+    "fecha": "2026-11-20",
     "titulo": "Voto útil: valor para el bloque y explicación",
     "texto": "En la sección de voto útil de cada provincia, junto al valor de un voto para el partido aparece el valor para su bloque (izquierda o derecha): los escaños que gana de media el conjunto del bloque por ese voto, sin contar los que el partido le quita a otro de su mismo bloque. Se quita además la frase que decía a quién le sirve más el voto, para que lo decida el visitante, y se añade una explicación de por qué un voto puede valer más aunque el partido tenga menos probabilidad de llevarse el escaño."
   },

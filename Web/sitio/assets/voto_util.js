@@ -111,6 +111,36 @@
     return html;
   }
 
+  // Cocientes D'Hondt del reparto central: cada barra es un cociente (votos del partido entre su divisor); entran los N mayores
+  function cocientes(nombre, datos) {
+    const filas = datos.cocientes;
+    if (!filas || !filas.length || !datos.corte) { return ""; }
+    const maximo = filas[0].votos;
+    const formatoEntero = new Intl.NumberFormat("es-ES", { useGrouping: "always" });
+    const formatoPct = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const ultimo = datos.corte.ultimo, primeroFuera = datos.corte.primero_fuera;
+    // Margen solo en la última fila de cada partido que entra (cuántos votos puede perder antes de ceder su último escaño) y en la primera que queda fuera (cuántos le faltan)
+    const ultimaQueEntra = {}, primeraQueNo = {};
+    filas.forEach((fila, i) => { if (fila.entra) { ultimaQueEntra[fila.partido] = i; } else if (primeraQueNo[fila.partido] === undefined) { primeraQueNo[fila.partido] = i; } });
+    const ultimoEscano = filas.filter((f) => f.entra).length;
+    let html = '<h3>Cómo se reparten los cocientes</h3><p class="nota">Cada barra es un cociente D’Hondt: los votos del partido divididos entre 1, 2, 3… Los ' + ultimoEscano + (ultimoEscano === 1 ? " mayor se lleva el escaño" : " mayores se llevan los escaños") +
+      " de " + escapar(nombre) + ". El último escaño se lo lleva " + escapar(nombreDe(filas[ultimoEscano - 1].partido, nombre)) + " con " + formatoEntero.format(ultimo) + " votos por escaño (" + formatoPct.format(filas[ultimoEscano - 1].pct) + " % del voto a candidaturas); el primero que se queda fuera es " + escapar(nombreDe(filas[ultimoEscano].partido, nombre)) + " con " + formatoEntero.format(primeroFuera) + ". Es el reparto central, sin ruido: no dice cuán probable es cada resultado (eso es lo que enseña «Quién se lo lleva»), sino dónde está hoy cada cociente y cuántos votos separan a cada partido del corte.</p>";
+    filas.forEach((fila, i) => {
+      if (i === ultimoEscano) {
+        html += '<div class="vq-corte"><span></span><span class="linea"></span><span class="rotulo">corte: ' + formatoEntero.format(Math.round((ultimo + primeroFuera) / 2)) + ' votos</span></div>';
+      }
+      let margen = "";
+      if (fila.entra && ultimaQueEntra[fila.partido] === i) {
+        margen = '<span class="vq-margen">puede perder ' + formatoEntero.format(Math.round((fila.votos - primeroFuera) * fila.divisor)) + " votos antes de ceder este escaño</span>";
+      } else if (!fila.entra && primeraQueNo[fila.partido] === i) {
+        margen = '<span class="vq-margen">le faltan ' + formatoEntero.format(Math.round((ultimo - fila.votos) * fila.divisor)) + " votos para el siguiente</span>";
+      }
+      html += '<div class="vq-fila' + (fila.entra ? "" : " vq-fuera") + '"><span class="vq-nombre">' + escapar(nombreDe(fila.partido, nombre)) + " <small>÷" + fila.divisor + '</small></span><span class="vq-pista"><span class="vq-barra" style="width:' +
+        (100 * fila.votos / maximo).toFixed(1) + "%;background:" + colorDe(fila.partido) + '"></span></span><span class="vq-valor"><b>' + formatoEntero.format(fila.votos) + "</b> votos · " + formatoPct.format(fila.pct) + " %" + margen + "</span></div>";
+    });
+    return html;
+  }
+
   function pintar() {
     const provincia = modelo.provincias[parseInt(selector.value, 10)];
     if (!provincia) { return; }
@@ -119,6 +149,7 @@
     document.getElementById("vu-titular").textContent = titular(provincia.nombre, datos);
     document.getElementById("vu-escanos").innerHTML = '<p class="nota">Los ' + datos.escanos + (datos.escanos === 1 ? " escaño" : " escaños") + " de " + escapar(provincia.nombre) + "</p>" + cuadrados(provincia.nombre, datos) + quienSeLoLleva(provincia.nombre, datos);
     document.getElementById("vu-barras").innerHTML = barras(provincia.nombre, datos);
+    document.getElementById("vu-cocientes").innerHTML = cocientes(provincia.nombre, datos);
     const fecha = VOTO_UTIL.fecha_promedio ? new Date(VOTO_UTIL.fecha_promedio + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" }) : "";
     document.getElementById("vu-nota").innerHTML = "Casi decidido: el partido saca ese escaño en al menos el " + Math.round(100 * datos.umbral) + "% de las " + entero(VOTO_UTIL.sorteos) +
       " simulaciones. Valor de un voto: escaños que gana de media el partido por cada voto más en esta provincia (se suma un " + Math.round(100 * VOTO_UTIL.delta) + "% de sus votos y se repite el reparto con las mismas simulaciones), " +

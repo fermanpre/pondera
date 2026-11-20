@@ -300,6 +300,22 @@ button.principal { font-weight: 600; }
 .vu-muestra { display: inline-block; vertical-align: middle; width: 22px; margin: 0 4px 0 10px; border-radius: 2px; background: var(--suave); }
 .vu-muestra-partido { height: 12px; }
 .vu-muestra-bloque { height: 7px; opacity: 0.55; }
+.vu-cocientes { margin: 22px 0 8px; }
+.vu-cocientes h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.vu-cocientes p { margin: 4px 0 10px; }
+.vq-fila { display: grid; grid-template-columns: 90px 1fr 190px; align-items: center; gap: 10px; margin: 3px 0; }
+.vq-nombre { font-weight: 700; white-space: nowrap; }
+.vq-nombre small { font-weight: 400; color: var(--suave); }
+.vq-pista { position: relative; height: 18px; background: var(--fondo); border-radius: 3px; }
+.vq-barra { display: block; height: 100%; border-radius: 3px; }
+.vq-fuera .vq-barra { background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.55) 0 4px, transparent 4px 8px); opacity: 0.6; }
+.vq-valor { font-variant-numeric: tabular-nums; font-size: 0.85rem; }
+.vq-valor b { font-weight: 800; }
+.vq-margen { display: block; color: var(--suave); font-size: 0.78rem; }
+.vq-corte { display: grid; grid-template-columns: 90px 1fr 190px; gap: 10px; margin: 6px 0; align-items: center; font-size: 0.78rem; color: var(--suave); }
+.vq-corte span.linea { border-top: 2px dashed var(--suave); }
+.vq-corte span.rotulo { text-align: right; }
+@media (max-width: 520px) { .vq-fila, .vq-corte { grid-template-columns: 72px 1fr 120px; } .vq-valor { font-size: 0.74rem; } }
 .vu-detalle { margin: 14px 0 6px; }
 .vu-detalle summary { cursor: pointer; font-weight: 700; }
 .vu-detalle p { margin: 8px 0; }

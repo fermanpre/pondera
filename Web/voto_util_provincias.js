@@ -130,7 +130,20 @@ for (let p = 0; p < P; p++) {
   // Voto central de cada partido en la provincia (tanto por uno sobre votos a candidaturas), solo los de un 1 % o más: sirve para saber cuál es el partido más votado de cada grupo
   const voto = {};
   for (let k = 0; k < K; k++) if (modelo.presente[p * K + k] && central[p * K + k] >= 0.01) voto[modelo.partidos[k]] = Math.round(10000 * central[p * K + k]) / 10000;
-  provincias[provincia.nombre] = { comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, valor_bloque: valorBloque, voto: voto };
+  // Cocientes D'Hondt del reparto central: los N+4 mayores (partido, divisor), en % de los votos a candidaturas y en votos; el último que entra y el primero que se queda fuera marcan el corte
+  const sinEscano = {};
+  (datos.sin_escano || []).forEach(function (partido) { sinEscano[partido] = true; });
+  const minimo = datos.barrera * provincia.votos_validos;
+  const cocientes = [];
+  for (let k = 0; k < K; k++) {
+    const votosK = central[p * K + k] * modelo.peso[p];
+    if (sinEscano[modelo.partidos[k]] || !modelo.presente[p * K + k] || votosK <= 0 || votosK < minimo) continue;
+    for (let d = 1; d <= N + 1; d++) cocientes.push({ partido: modelo.partidos[k], divisor: d, votos: votosK / d, pct: 100 * central[p * K + k] / d });
+  }
+  cocientes.sort(function (x, y) { return y.votos - x.votos; });
+  const lista = cocientes.slice(0, N + 4).map(function (c, i) { return { partido: c.partido, divisor: c.divisor, votos: Math.round(c.votos), pct: Math.round(100 * c.pct) / 100, entra: i < N }; });
+  const corte = cocientes.length > N ? { ultimo: Math.round(cocientes[N - 1].votos), primero_fuera: Math.round(cocientes[N].votos) } : null;
+  provincias[provincia.nombre] = { cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, valor_bloque: valorBloque, voto: voto };
   if ((p + 1) % 10 === 0) console.log("  " + (p + 1) + "/" + P + " provincias (" + ((Date.now() - inicio) / 1000).toFixed(0) + " s)");
 }
 
