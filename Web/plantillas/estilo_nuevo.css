@@ -255,6 +255,6 @@
   .vu-muestra-bloque { height: 7px; opacity: 0.55; }
   .vu-detalle { margin: 14px 0 6px; }
   .vu-detalle summary { cursor: pointer; font-weight: 700; }
-  .vu-detalle p { margin: 8px 0; max-width: 70ch; }
+  .vu-detalle p { margin: 8px 0; }
   .vu-casi0 { color: var(--suave); font-weight: 400; }
   @media (max-width: 520px) { .vu-fila { grid-template-columns: 96px 1fr 70px; } .vu-cuadro, .vu-cuadro .caja { width: 64px; } .vu-cuadro .caja { height: 64px; } }
