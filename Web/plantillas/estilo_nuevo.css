@@ -275,3 +275,9 @@
   .vu-detalle p { margin: 8px 0; }
   .vu-casi0 { color: var(--suave); font-weight: 400; }
   @media (max-width: 520px) { .vu-fila { grid-template-columns: 96px 1fr 70px; } .vu-cuadro, .vu-cuadro .caja { width: 64px; } .vu-cuadro .caja { height: 64px; } }
+
+  /* Página del Senado */
+  .senado-barra { display: flex; height: 38px; border-radius: 6px; overflow: hidden; margin: 12px 0 16px; background: var(--fondo); }
+  .senado-tramo { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.8rem; font-weight: 700; white-space: nowrap; overflow: hidden; }
+  #tabla-senado td, #tabla-circunscripcion-senado td { font-variant-numeric: tabular-nums; }
+  .senado-modal { font-weight: 800; }

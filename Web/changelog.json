@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-20",
+    "titulo": "Previsión del Senado",
+    "texto": "Nueva página con la previsión de los 208 senadores que se eligen por voto: reparto por partido con rangos, cinco escenarios de pactos (sin pactos, lista conjunta de izquierdas y pacto PP-Vox al 50, 75 y 100 %), ventaja de la derecha sobre el resto y probabilidades de cada resultado en cada circunscripción. Se calcula una vez al día con 1.000 simulaciones coherentes con las del Congreso."
+  },
+  {
+    "fecha": "2026-11-20",
     "titulo": "Voto útil: reparto de cocientes",
     "texto": "La sección de voto útil de cada provincia enseña ahora cómo se reparten los cocientes D’Hondt en el reparto central: una barra por cociente (votos del partido entre 1, 2, 3…), qué escaños entran, cuánto vale el último y cuántos votos le faltan a cada partido para el siguiente o puede perder antes de cederlo."
   },

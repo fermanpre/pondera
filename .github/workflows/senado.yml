@@ -1,0 +1,67 @@
+# Previsión del Senado: se calcula una vez al día (1.000 simulaciones, unos 10 minutos) y lanza la publicación de la web.
+# Usa los datos que dejó la última ejecución de «Actualizar promedio y publicar» (promedio, blend regional e indicios). Desde el 24/11/2026 (hora de Madrid) no hace nada: veda de sondeos, art. 69.7 de la LOREG.
+name: Previsión del Senado
+
+on:
+  schedule:
+    - cron: "43 5 * * *"   # una vez al día, al minuto 43 (UTC): lejos de los minutos 00 y 30, donde GitHub retrasa o pierde ejecuciones programadas
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: senado
+  cancel-in-progress: false
+
+jobs:
+  senado:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - id: fecha
+        run: |
+          hoy=$(TZ=Europe/Madrid date +%Y%m%d)
+          if [ "$hoy" -ge 20261124 ]; then
+            echo "veda=true" >> "$GITHUB_OUTPUT"
+            echo "Veda de sondeos (desde el 24/11/2026): no se calcula ni se publica nada."
+          else
+            echo "veda=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.fecha.outputs.veda != 'true'
+        uses: actions/checkout@v4
+
+      - if: steps.fecha.outputs.veda != 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - if: steps.fecha.outputs.veda != 'true'
+        name: Instalar dependencias
+        run: pip install lxml openpyxl
+
+      - if: steps.fecha.outputs.veda != 'true'
+        name: Calcular la previsión del Senado (1.000 simulaciones)
+        run: python Web/prevision_senado_diaria.py 1000
+
+      - if: steps.fecha.outputs.veda != 'true'
+        name: Guardar el resultado y lanzar la publicación
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Web/sitio/senado.json Web/sitio/senado.js
+          if git diff --cached --quiet; then
+            echo "Sin cambios hoy."
+            exit 0
+          fi
+          git commit -m "Actualizar la previsión del Senado ($(date -u +%Y-%m-%d))"
+          for intento in 1 2 3; do
+            git pull --rebase -X theirs && git push && break
+            echo "Reintento $intento del push"
+            sleep 10
+          done
+          gh workflow run actualizar.yml
+        env:
+          GH_TOKEN: ${{ github.token }}

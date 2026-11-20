@@ -31,13 +31,14 @@ SCRIPTS_DE_PREVISION = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_202
 SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js"]
 SCRIPTS_DE_PROVINCIAS = SCRIPTS_DE_COMUNIDADES + ["voto_util.js", "assets/voto_util.js"]  # voto_util.js: escaños en juego y voto útil (Web/voto_util_provincias.js)
 # Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
+SCRIPTS_DEL_SENADO = ["senado.js", "assets/comun.js", "assets/app_senado.js"]
 SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js"]
 
 # Cinta principal (grupo, texto, página a la que lleva) y segunda cinta de cada grupo (texto, destino; «#...» = sección de la misma página)
 MENU_PRINCIPAL = [("prevision", "Previsión", "index.html"), ("territorio", "Territorio", "provincias.html"), ("simulador", "Simulador", "simulador.html"),
                   ("metodologia", "Metodología", "metodologia.html"), ("acerca", "Acerca de", "acerca.html")]
 SUBMENUS = {
-    "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Evolución", "#evolucion"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos")],
+    "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Evolución", "#evolucion"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos"), ("Senado", "senado.html")],
     "territorio": [("Provincias", "provincias.html"), ("Comunidades", "comunidades.html"), ("Resumen", "resumen.html")],
     "acerca": [("Acerca de", "acerca.html"), ("Enlaces", "enlaces.html"), ("Sobre el autor", "autor.html"), ("Privacidad y cookies", "privacidad.html"), ("Historial de cambios", "changelog.html")],
 }
@@ -48,6 +49,8 @@ REDIRECCIONES = {"promedio.html": "index.html#promedio", "sondeos.html": "index.
 PAGINAS = [
     {"archivo": "index.html", "plantilla": "inicio", "titulo": "Previsión de escaños", "grupo": "prevision", "scripts": SCRIPTS_DE_INICIO,
      "descripcion": "Previsión de escaños de las elecciones generales de España del 29 de noviembre de 2026: promedio de encuestas, mapa por provincia, rangos y probabilidades de mayoría."},
+    {"archivo": "senado.html", "plantilla": "senado", "titulo": "Previsión del Senado", "grupo": "prevision", "scripts": SCRIPTS_DEL_SENADO,
+     "descripcion": "Senadores que elegirán los votantes en las generales de 2026: reparto por partido con rangos, escenarios de pactos y probabilidades en cada circunscripción."},
     {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "grupo": "territorio", "scripts": SCRIPTS_DE_PROVINCIAS,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
     {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "grupo": "territorio", "scripts": SCRIPTS_DE_COMUNIDADES,
