@@ -293,3 +293,31 @@
   .curio-otro { font: inherit; font-weight: 700; cursor: pointer; border: 1px solid var(--suave); background: transparent; color: inherit; border-radius: 6px; padding: 3px 12px; margin-right: 12px; }
   .curio-otro:hover { background: var(--fondo); }
   .vu-barrera { margin: 4px 0 10px; padding: 8px 12px; background: var(--fondo); border-radius: 6px; font-size: 0.95rem; }
+
+  /* Probabilidad de mayoría en el Senado */
+  .mayorias-rejilla { display: grid; grid-template-columns: 1fr; gap: 16px 28px; margin: 10px 0 6px; }
+  @media (min-width: 900px) { .mayorias-rejilla { grid-template-columns: 1fr 1fr; } }
+  .mayorias-grafico { margin: 0; }
+  .mayorias-grafico figcaption { font-weight: 700; margin-bottom: 4px; }
+  .mayorias-subtitulo { font-size: 1rem; margin: 18px 0 6px; }
+  .mg-svg { width: 100%; height: auto; display: block; }
+  .mg-barra-baja { fill: var(--suave); opacity: 0.4; }
+  .mg-barra-absoluta { fill: #1d6fb8; }
+  .mg-barra-tres { fill: #e08a1e; }
+  .mg-eje, .mg-texto { fill: var(--suave); font-size: 11px; }
+  .mg-umbral { stroke: var(--texto); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: 0.7; }
+  .mg-etiqueta { fill: var(--texto); font-size: 12px; font-weight: 700; }
+  .mg-leyenda { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0 0; font-size: 0.85rem; color: var(--suave); }
+  .mg-leyenda .ficha { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .mr-fila { display: grid; grid-template-columns: 210px 1fr; gap: 10px; align-items: center; margin: 8px 0; }
+  .mr-nombre { font-weight: 700; line-height: 1.2; }
+  .mr-nombre small { display: block; font-weight: 400; color: var(--suave); }
+  .mr-barras { display: grid; gap: 4px; }
+  .mr-linea { display: grid; grid-template-columns: 1fr 52px; align-items: center; gap: 8px; }
+  .mr-pista { position: relative; height: 16px; background: var(--fondo); border-radius: 3px; overflow: hidden; }
+  .mr-relleno { display: block; height: 100%; border-radius: 3px; }
+  .mr-relleno.absoluta { background: #1d6fb8; }
+  .mr-relleno.tres { background: #e08a1e; }
+  .mr-valor { font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
+  .mr-etiqueta-umbral { font-size: 0.75rem; color: var(--suave); font-weight: 400; }
+  @media (max-width: 600px) { .mr-fila { grid-template-columns: 1fr; gap: 2px; } }

@@ -1,5 +1,10 @@
 [
   {
+    "fecha": "2026-11-21",
+    "titulo": "Senado: probabilidad de mayoría absoluta y de tres quintos",
+    "texto": "La página del Senado tiene una sección nueva con la probabilidad de que cada bloque llegue a la mayoría absoluta (134 senadores de 266) y a los tres quintos (160), que son los necesarios para nombramientos como los de cuatro magistrados del Tribunal Constitucional. Dos histogramas muestran la distribución de la derecha (PP, Vox y UPN) y de todo lo demás, contando los designados por los parlamentos autonómicos, y un resumen compara los bloques. Además, la «ventaja de la derecha» se calcula ahora como PP, Vox y UPN frente a todo el resto (antes contaba a Coalición Canaria con la derecha y dejaba fuera a los locales)."
+  },
+  {
     "fecha": "2026-11-20",
     "titulo": "Senado: senadores designados por los parlamentos autonómicos",
     "texto": "La tabla del Senado tiene dos columnas nuevas: «Designados», con los 58 senadores que nombran los parlamentos autonómicos (PP 26, PSOE 19, Junts 3, Vox 2 y uno de otros siete partidos más Compromís y Más Madrid), y «Total», que suma a la mediana de elegidos esos designados. También se indica cuántos senadores elegidos necesita la derecha para la mayoría absoluta (134 de 266) una vez contados sus 28 designados. Es una reconstrucción a partir de Público y de la composición de los grupos del Senado, no el listado oficial."

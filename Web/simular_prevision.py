@@ -181,9 +181,28 @@ def resumir_resultados_senado(resultados, sorteos):
             por_circunscripcion[circunscripcion][clave][cantidad] += 1
     distribucion = {circunscripcion: {clave: {str(n): round(c / sorteos, 4) for n, c in sorted(cuentas.items())} for clave, cuentas in partidos.items()}
                     for circunscripcion, partidos in por_circunscripcion.items()}
-    izquierda_y_nacionalistas = ("PSOE", "SUMAR", "FV", "UPC", "SDP", "ADELANTE", "ERC", "JUNTS", "BILDU", "PNV", "BNG")
-    ventaja = sorted(sum(s.get(c, 0) for c in ("PP", "VOX", "UPN", "CC")) - sum(s.get(c, 0) for c in izquierda_y_nacionalistas) for s in resultados.nacionales)
-    return {"nacional": nacional, "circunscripciones": distribucion, "ventaja_derecha_sobre_izquierda_y_nacionalistas": {
+    # Bloques (revisado el 21/11/2026): derecha = PP + Vox + UPN; izquierda = lista conjunta o PSOE + Sumar + FV (+ Podemos, UPC y Adelante si salieran); el resto (nacionalistas, CC y locales) no se cuenta con ninguna.
+    derecha_claves = ("PP", "VOX", "UPN")
+    izquierda_claves = ("SDP", "PSOE", "SUMAR", "FV", "PODEMOS", "UPC", "ADELANTE")
+    elegidos_totales = [sum(s.values()) for s in resultados.nacionales]
+    derecha = [sum(s.get(c, 0) for c in derecha_claves) for s in resultados.nacionales]
+    ventaja = sorted(2 * d - total for d, total in zip(derecha, elegidos_totales))   # derecha menos todo lo demás
+    maximo = max(elegidos_totales) if elegidos_totales else 0
+
+    def histograma(valores):
+        """Probabilidad de cada número de senadores elegidos (0..máximo), redondeada."""
+        cuentas = [0] * (maximo + 1)
+        for valor in valores:
+            cuentas[valor] += 1
+        return [round(c / sorteos, 4) for c in cuentas]
+
+    distribucion_de_bloques = {
+        "derecha": histograma(derecha),
+        "izquierda": histograma([sum(s.get(c, 0) for c in izquierda_claves) for s in resultados.nacionales]),
+        "pp": histograma([s.get("PP", 0) for s in resultados.nacionales]),
+        "elegidos": maximo,
+    }
+    return {"nacional": nacional, "circunscripciones": distribucion, "distribucion_de_bloques": distribucion_de_bloques, "ventaja_derecha_sobre_izquierda_y_nacionalistas": {
         "mediana": ventaja[sorteos // 2], "p10": ventaja[sorteos // 10], "p90": ventaja[9 * sorteos // 10], "p_positiva": sum(1 for v in ventaja if v > 0) / sorteos}}
 
 

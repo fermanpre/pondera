@@ -61,6 +61,88 @@
     document.getElementById("senado-nota-escenario").textContent = escenario.titulo + ". " + datos.nota + " Mediana de cada partido en las simulaciones (la suma de medianas no tiene por qué dar " + ELEGIDOS_POR_VOTO +
       "); el rango del 80 % deja fuera el 10 % de los resultados más bajos y el 10 % de los más altos, y el del 95 % el 2,5 % de cada lado.";
     pintarVentaja(escenario);
+    pintarMayorias(escenario);
+  }
+
+  // ---- Probabilidad de mayoría: histogramas de cada bloque (elegidos + designados) con las líneas de la mayoría absoluta y de los tres quintos
+  const TAMANO_DEL_SENADO = DESIGNADOS ? DESIGNADOS.total_senado : 266;
+  const MAYORIA_ABSOLUTA = DESIGNADOS ? DESIGNADOS.mayoria_absoluta : 134;
+  const TRES_QUINTOS = Math.ceil(0.6 * TAMANO_DEL_SENADO);   // 160 de 266 (159,6 redondeado al alza)
+  const designadosDelBloque = (claves) => claves.reduce((suma, clave) => suma + ((DESIGNADOS && DESIGNADOS.por_partido[clave]) || 0), 0);
+  const porcentajeEntero = (probabilidad) => Math.round(100 * probabilidad) + " %";
+  const probabilidadDeAlcanzar = (distribucion, desplazamiento, umbral, invertido, elegidos) => {
+    // distribucion[n] = probabilidad de n senadores elegidos del bloque; total del bloque = n + designados (o, si el bloque es «todo lo demás», (elegidos - n) + designados)
+    let suma = 0;
+    distribucion.forEach((p, n) => { const total = invertido ? (elegidos - n) + desplazamiento : n + desplazamiento; if (total >= umbral) { suma += p; } });
+    return suma;
+  };
+
+  function histogramaSvg(distribucion, desplazamiento, invertido, elegidos, contenedor) {
+    const probabilidades = {};   // total de senadores del bloque -> probabilidad
+    distribucion.forEach((p, n) => { if (p > 0) { const total = invertido ? (elegidos - n) + desplazamiento : n + desplazamiento; probabilidades[total] = (probabilidades[total] || 0) + p; } });
+    const totales = Object.keys(probabilidades).map(Number);
+    if (!totales.length) { contenedor.textContent = ""; return; }
+    const minimo = Math.max(0, Math.min(Math.min.apply(null, totales), MAYORIA_ABSOLUTA) - 8);
+    const maximo = Math.min(TAMANO_DEL_SENADO, Math.max(Math.max.apply(null, totales), TRES_QUINTOS) + 8);
+    const pico = Math.max.apply(null, Object.keys(probabilidades).map((k) => probabilidades[k]));
+    const ancho = 560, alto = 250, margen = { izquierda: 8, derecha: 8, arriba: 26, abajo: 26 };
+    const anchoUtil = ancho - margen.izquierda - margen.derecha, altoUtil = alto - margen.arriba - margen.abajo;
+    const x = (valor) => margen.izquierda + anchoUtil * (valor - minimo) / (maximo - minimo + 1);
+    const y = (p) => margen.arriba + altoUtil * (1 - p / (pico * 1.08));
+    const anchoDeBarra = anchoUtil / (maximo - minimo + 1);
+    let svg = '<svg class="mg-svg" viewBox="0 0 ' + ancho + " " + alto + '" role="img" aria-label="Distribución de senadores del bloque">';
+    for (let total = minimo; total <= maximo; total += 1) {
+      const p = probabilidades[total] || 0;
+      if (p <= 0) { continue; }
+      const clase = total >= TRES_QUINTOS ? "mg-barra-tres" : (total >= MAYORIA_ABSOLUTA ? "mg-barra-absoluta" : "mg-barra-baja");
+      svg += '<rect class="' + clase + '" x="' + x(total).toFixed(1) + '" y="' + y(p).toFixed(1) + '" width="' + Math.max(1, anchoDeBarra - 0.6).toFixed(1) + '" height="' + (margen.arriba + altoUtil - y(p)).toFixed(1) + '"><title>' + total + " senadores: " + (100 * p).toFixed(1).replace(".", ",") + " %</title></rect>";
+    }
+    svg += '<line x1="' + margen.izquierda + '" x2="' + (ancho - margen.derecha) + '" y1="' + (margen.arriba + altoUtil) + '" y2="' + (margen.arriba + altoUtil) + '" stroke="var(--linea)" />';
+    for (let marca = Math.ceil(minimo / 10) * 10; marca <= maximo; marca += 10) {
+      svg += '<text class="mg-eje" x="' + (x(marca) + anchoDeBarra / 2).toFixed(1) + '" y="' + (alto - 8) + '" text-anchor="middle">' + marca + "</text>";
+    }
+    [[MAYORIA_ABSOLUTA, "absoluta " + MAYORIA_ABSOLUTA], [TRES_QUINTOS, "tres quintos " + TRES_QUINTOS]].forEach(([umbral, rotulo], i) => {
+      if (umbral < minimo || umbral > maximo) { return; }
+      const posicion = x(umbral);
+      svg += '<line class="mg-umbral" x1="' + posicion.toFixed(1) + '" x2="' + posicion.toFixed(1) + '" y1="' + (margen.arriba - 4) + '" y2="' + (margen.arriba + altoUtil) + '" />';
+      svg += '<text class="mg-etiqueta" x="' + (posicion + (i === 0 ? -4 : 4)).toFixed(1) + '" y="' + (12 + 11 * i) + '" text-anchor="' + (i === 0 ? "end" : "start") + '">' + rotulo + "</text>";
+    });
+    svg += "</svg>";
+    contenedor.innerHTML = svg;
+  }
+
+  function pintarMayorias(escenario) {
+    const seccion = document.getElementById("senado-mayorias");
+    const bloques = escenario.distribucion_de_bloques;
+    if (!seccion || !bloques) { if (seccion) { seccion.hidden = true; } return; }
+    seccion.hidden = false;
+    const elegidos = bloques.elegidos;
+    const designadosDerecha = designadosDelBloque(["PP", "VOX", "UPN"]);
+    const designadosIzquierda = designadosDelBloque(["PSOE", "SUMAR", "FV"]);
+    const designadosRestoDeLaDerecha = (DESIGNADOS ? DESIGNADOS.designados : 0) - designadosDerecha;   // todo lo que no es derecha: izquierda, nacionalistas y locales
+    histogramaSvg(bloques.derecha, designadosDerecha, false, elegidos, document.getElementById("grafico-mayoria-derecha"));
+    histogramaSvg(bloques.derecha, designadosRestoDeLaDerecha, true, elegidos, document.getElementById("grafico-mayoria-resto"));
+    const filas = [
+      { nombre: "Derecha", detalle: "PP + Vox + UPN, con " + designadosDerecha + " designados", distribucion: bloques.derecha, desplazamiento: designadosDerecha, invertido: false },
+      { nombre: "PP solo", detalle: "con " + designadosDelBloque(["PP"]) + " designados", distribucion: bloques.pp, desplazamiento: designadosDelBloque(["PP"]), invertido: false },
+      { nombre: "Izquierda", detalle: "PSOE + Frente Amplio + Front Valencià, con " + designadosIzquierda + " designados", distribucion: bloques.izquierda, desplazamiento: designadosIzquierda, invertido: false },
+      { nombre: "Todo lo que no es derecha", detalle: "izquierda, nacionalistas y locales, con " + designadosRestoDeLaDerecha + " designados", distribucion: bloques.derecha, desplazamiento: designadosRestoDeLaDerecha, invertido: true },
+    ];
+    const probabilidades = filas.map((fila) => ({
+      absoluta: probabilidadDeAlcanzar(fila.distribucion, fila.desplazamiento, MAYORIA_ABSOLUTA, fila.invertido, elegidos),
+      tres: probabilidadDeAlcanzar(fila.distribucion, fila.desplazamiento, TRES_QUINTOS, fila.invertido, elegidos),
+    }));
+    document.getElementById("mayorias-resumen").innerHTML = filas.map((fila, i) =>
+      '<div class="mr-fila"><div class="mr-nombre">' + escapar(fila.nombre) + "<small>" + escapar(fila.detalle) + '</small></div><div class="mr-barras">' +
+      '<div class="mr-linea"><span class="mr-pista"><span class="mr-relleno absoluta" style="width:' + (100 * probabilidades[i].absoluta).toFixed(1) + '%"></span></span><span class="mr-valor">' + porcentajeEntero(probabilidades[i].absoluta) + "</span></div>" +
+      '<div class="mr-linea"><span class="mr-pista"><span class="mr-relleno tres" style="width:' + (100 * probabilidades[i].tres).toFixed(1) + '%"></span></span><span class="mr-valor">' + porcentajeEntero(probabilidades[i].tres) + "</span></div>" +
+      "</div></div>").join("") +
+      '<p class="mg-leyenda"><span><span class="ficha" style="background:#1d6fb8"></span>mayoría absoluta (' + MAYORIA_ABSOLUTA + ' de ' + TAMANO_DEL_SENADO + ')</span><span><span class="ficha" style="background:#e08a1e"></span>tres quintos (' + TRES_QUINTOS + ' de ' + TAMANO_DEL_SENADO + ')</span></p>';
+    document.getElementById("mayorias-titular").textContent = "Con los " + designadosDerecha + " designados, la derecha tiene un " + porcentajeEntero(probabilidades[0].absoluta) + " de probabilidad de mayoría absoluta del Senado (" + MAYORIA_ABSOLUTA +
+      ") y un " + porcentajeEntero(probabilidades[0].tres) + " de tres quintos (" + TRES_QUINTOS + "); el resto, un " + porcentajeEntero(probabilidades[3].absoluta) + " y un " + porcentajeEntero(probabilidades[3].tres) + ".";
+    document.getElementById("mayorias-nota").textContent = "Cada barra es el número total de senadores del bloque (elegidos por voto, simulados, más designados por los parlamentos autonómicos, fijos) en las " + entero(SENADO.sorteos) +
+      " simulaciones. La mayoría absoluta decide casi todo; los tres quintos son los que exige la Constitución para que el Senado proponga cuatro de los doce magistrados del Tribunal Constitucional y se usan también para otros nombramientos, como los vocales del CGPJ que elige el Senado. " +
+      "Con " + entero(SENADO.sorteos) + " simulaciones cada probabilidad tiene un error de hasta ±1,6 puntos. «Todo lo que no es derecha» suma izquierda, nacionalistas, Coalición Canaria, Geroa Bai y locales, que no tienen por qué votar juntos.";
   }
 
   function pintarVentaja(escenario) {
