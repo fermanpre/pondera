@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-20",
+    "titulo": "Datos curiosos en Inicio",
+    "texto": "La página de inicio tiene un cuadro «¿Sabías que…?» que enseña un dato distinto en cada visita (por ejemplo, la probabilidad de que un partido se quede sin escaño en una provincia por no llegar al 3 %, o cuántos votos separan a dos partidos de un escaño), con un botón para ver otro. Se calculan con las mismas simulaciones que el resto de la web."
+  },
+  {
+    "fecha": "2026-11-20",
     "titulo": "Previsión del Senado",
     "texto": "Nueva página con la previsión de los 208 senadores que se eligen por voto: reparto por partido con rangos, cinco escenarios de pactos (sin pactos, lista conjunta de izquierdas y pacto PP-Vox al 50, 75 y 100 %), ventaja de la derecha sobre el resto y probabilidades de cada resultado en cada circunscripción. Se calcula una vez al día con 1.000 simulaciones coherentes con las del Congreso."
   },

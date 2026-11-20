@@ -328,3 +328,12 @@ button.principal { font-weight: 600; }
 .senado-tramo { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.8rem; font-weight: 700; white-space: nowrap; overflow: hidden; }
 #tabla-senado td, #tabla-circunscripcion-senado td { font-variant-numeric: tabular-nums; }
 .senado-modal { font-weight: 800; }
+
+/* Dato curioso de Inicio */
+.curiosidad { margin: 14px 0 18px; padding: 14px 18px; background: #fff; border: 1px solid var(--borde, #e3e1dc); border-left: 5px solid var(--acento, #1d6fb8); border-radius: 8px; }
+.curio-etiqueta { display: block; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--suave); }
+.curio-texto { margin: 6px 0 8px; font-size: 1.1rem; line-height: 1.45; }
+.curio-partido { border-bottom: 3px solid var(--c); }
+.curio-pie { margin: 0; font-size: 0.9rem; }
+.curio-otro { font: inherit; font-weight: 700; cursor: pointer; border: 1px solid var(--suave); background: transparent; color: inherit; border-radius: 6px; padding: 3px 12px; margin-right: 12px; }
+.curio-otro:hover { background: var(--fondo); }

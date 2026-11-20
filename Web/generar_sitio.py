@@ -32,7 +32,7 @@ SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2
 SCRIPTS_DE_PROVINCIAS = SCRIPTS_DE_COMUNIDADES + ["voto_util.js", "assets/voto_util.js"]  # voto_util.js: escaños en juego y voto útil (Web/voto_util_provincias.js)
 # Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
 SCRIPTS_DEL_SENADO = ["senado.js", "assets/comun.js", "assets/app_senado.js"]
-SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js"]
+SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js", "curiosidades.js", "assets/curiosidades.js"]
 
 # Cinta principal (grupo, texto, página a la que lleva) y segunda cinta de cada grupo (texto, destino; «#...» = sección de la misma página)
 MENU_PRINCIPAL = [("prevision", "Previsión", "index.html"), ("territorio", "Territorio", "provincias.html"), ("simulador", "Simulador", "simulador.html"),
