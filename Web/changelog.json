@@ -7,7 +7,7 @@
   {
     "fecha": "2026-11-19",
     "titulo": "Encuestas provinciales: peso por varianza y sin doble uso",
-    "texto": "Una encuesta con detalle provincial deja de contar también en el promedio de su comunidad (solo cuentan los días de campo que las provincias no cubren), y en las provincias el peso de la encuesta frente al modelo se calcula por varianza: depende de la muestra, de la antigüedad y del error del modelo en esa provincia, no de un valor fijo. Entran así las encuestas provinciales de Sondaxe en Galicia (en Lugo y Ourense el BNG queda por debajo del modelo anterior) y otras ocho provincias con una sola encuesta."
+    "texto": "Una encuesta con detalle provincial deja de contar también en el promedio de su comunidad (solo cuentan los días de campo que las provincias no cubren), y en las provincias el peso de la encuesta frente al modelo se calcula por varianza: depende de la muestra, de la antigüedad, de la calidad de la casa y del error del modelo en esa provincia, medido con las elecciones pasadas (el BNG reparte su voto entre las provincias gallegas con mucha estabilidad, y PP y PSOE dentro de su comunidad con un error del 4 al 5 %). Entran así las encuestas provinciales de Sondaxe en Galicia, con pesos de 0,05 a 0,24, y otras ocho provincias con una sola encuesta. En Lugo, el cuarto escaño se lo juegan PP, PSOE y BNG casi por igual."
   },
   {
     "fecha": "2026-11-18",

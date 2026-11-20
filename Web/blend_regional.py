@@ -49,7 +49,16 @@ EFECTO_DE_DISENO = 1.25  # las encuestas por cuotas tienen más varianza que el 
 # Error relativo del modelo en una provincia (σ de log(real/previsto), Web/simular_prevision.SIGMA_PROVINCIAL_CALIBRADA): clase de partido y tramo de cuota (cuota mínima, sigma)
 CLASE_DE_BLOQUE = {"PP": "GRANDE", "PSOE": "GRANDE", "VOX": "VOX", "IZQ": "IZQ_ALT", "FV": "IZQ_ALT", "ERC": "REGIONAL", "JUNTS": "REGIONAL", "BILDU": "REGIONAL", "PNV": "REGIONAL", "BNG": "REGIONAL", "CC": "REGIONAL"}
 SIGMA_DEL_MODELO = {"GRANDE": [(0.30, 0.095), (0.15, 0.14), (0.0, 0.25)], "VOX": [(0.15, 0.08), (0.0, 0.13)], "IZQ_ALT": [(0.15, 0.17), (0.05, 0.19), (0.0, 0.24)],
-                    "REGIONAL": [(0.30, 0.05), (0.15, 0.08), (0.0, 0.14)]}
+                    "REGIONAL": [(0.30, 0.05), (0.15, 0.08), (0.0, 0.10)]}
+# Calibración del 19/11/2026 de la forma provincial de los partidos regionales (Sondeos/calibrar_forma_regionales.py): error log(real / previsto) con previsto = cuota de la elección anterior x (total nuevo / total
+# anterior), solo elecciones consecutivas. BNG (8 transiciones, 4 provincias): 0,066. ERC (10 transiciones): 0,118 por debajo del 15 % y 0,066 entre el 15 y el 30 %. PNV (15 transiciones): 0,114 entre el 15 y el 30 %.
+# La σ de la simulación (0,14 para regionales por debajo del 15 %) mezcla otras fuentes de error; para el peso de las encuestas provinciales se usa la de la forma sola.
+# Forma de PP, PSOE y Vox dentro de su comunidad (calibrar_forma_grandes.py, 20/11/2026, 10 elecciones, comunidades con 2 o más provincias): PP 0,039 (cuota >= 30 %), 0,052 (15-30 %) y 0,055 (< 15 %);
+# PSOE 0,037, 0,049 y 0,021; Vox 0,040 (15-30 %) y 0,067 (< 15 %). Se usa cuando la comunidad de la provincia tiene su propio promedio de encuestas (su total está anclado y solo queda la forma). La σ de 0,095 de
+# GRANDE (dado el total nacional) incluye además el error del total de la comunidad (unos 0,087), que en esas provincias ya está corregido por la encuesta de la comunidad.
+SIGMA_DENTRO_DE_LA_COMUNIDAD = {"GRANDE": [(0.30, 0.04), (0.15, 0.05), (0.0, 0.055)], "VOX": [(0.15, 0.04), (0.0, 0.067)]}
+SIGMA_PROPIA_DE_BLOQUE = {"BNG": 0.07}  # el BNG en Galicia es el más estable (0,066 medido, 0,07 con margen por las pocas elecciones)
+ERROR_DE_CASA_PUNTOS = 2.0  # error sistemático de una casa de nota n, en puntos de voto: ERROR_DE_CASA_PUNTOS x (1 - n); la nota es la de la hoja «Notas» (0,2 si la casa no figura)
 PESO_POR_VARIANZA_EN_PROVINCIAS = True  # provincias: w de cada bloque = V modelo / (V modelo + V encuesta); comunidades: w = k / (k + K0)
 RESULTADO_DE_ELECCION = re.compile(r"elections?", re.IGNORECASE)
 # Bloques que solo se usan en los indicios territoriales manuales (Sondeos/indicios_territoriales.csv); no entran en el promedio de las encuestas regionales
@@ -184,7 +193,7 @@ def quitar_dias_con_detalle_provincial(por_unidad, provincias_de):
 
 def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None):
     """{unidad: ({bloque: cuota en tanto por uno}, k, ruido)} de los territorios con al menos MINIMO_DE_ENCUESTAS encuestas en su promedio (una en las provincias con peso por varianza).
-    «ruido» = (suma(w^2 / n), suma(w^2 x días de antigüedad)) / suma(w)^2 de las encuestas del promedio."""
+    «ruido» = (suma(w^2 / n), suma(w^2 x días de antigüedad), suma(w^2 x error de casa^2)) / suma(w)^2 de las encuestas del promedio."""
     por_unidad = {unidad: entregas_vigentes(lista) for unidad, lista in leer_encuestas(dia, nombres_de_provincia).items()}
     if provincias_de:
         quitar_dias_con_detalle_provincial(por_unidad, provincias_de)
@@ -214,9 +223,10 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None):
             suma_pesos = sum(peso for _e, peso, _n in pesos)
             if suma_pesos > 0:
                 ruido = (sum(peso * peso / (e["muestra"] or MUESTRA_SI_NO_CONSTA) for e, peso, _n in pesos) / suma_pesos ** 2,
-                         sum(peso * peso * max(0.0, dia.toordinal() - e["medio"]) for e, peso, _n in pesos) / suma_pesos ** 2)
+                         sum(peso * peso * max(0.0, dia.toordinal() - e["medio"]) for e, peso, _n in pesos) / suma_pesos ** 2,
+                         sum((peso * ERROR_DE_CASA_PUNTOS / 100.0 * (1.0 - rating.get(e["firma"], promedio.RATING_FIRMA_DESCONOCIDA))) ** 2 for e, peso, _n in pesos) / suma_pesos ** 2)
             else:
-                ruido = (0.0, 0.0)
+                ruido = (0.0, 0.0, 0.0)
             por_bloque = defaultdict(float)
             for nombre, valor in medias.items():
                 candidatura = CANDIDATURA_DE_NOMBRE_NACIONAL.get(nombre)
@@ -273,22 +283,26 @@ def cuota_de_bloque(reparto, problema, provincias, ids):
 PESOS_APLICADOS = {}  # {unidad: {bloque: w}} del último cálculo de objetivos_territoriales, para el resumen
 
 
-def sigma_del_modelo(bloque, cuota):
-    """Error relativo (σ de log(real/previsto)) del modelo para un bloque con esa cuota en la provincia."""
-    for cuota_minima, sigma in SIGMA_DEL_MODELO[CLASE_DE_BLOQUE[bloque]]:
+def sigma_del_modelo(bloque, cuota, comunidad_anclada=False):
+    """Error relativo (σ de log(real/previsto)) del modelo para un bloque con esa cuota en la provincia. Con la comunidad anclada por su propia encuesta, solo el error de la forma dentro de la comunidad."""
+    if bloque in SIGMA_PROPIA_DE_BLOQUE:
+        return SIGMA_PROPIA_DE_BLOQUE[bloque]
+    clase = CLASE_DE_BLOQUE[bloque]
+    tramos = SIGMA_DENTRO_DE_LA_COMUNIDAD[clase] if comunidad_anclada and clase in SIGMA_DENTRO_DE_LA_COMUNIDAD else SIGMA_DEL_MODELO[clase]
+    for cuota_minima, sigma in tramos:
         if cuota >= cuota_minima:
             return sigma
-    return SIGMA_DEL_MODELO[CLASE_DE_BLOQUE[bloque]][-1][1]
+    return tramos[-1][1]
 
 
-def peso_del_bloque(unidad, bloque, cuota_modelo, cuota_encuesta, k, ruido):
+def peso_del_bloque(unidad, bloque, cuota_modelo, cuota_encuesta, k, ruido, comunidad_anclada=False):
     """Peso de la encuesta en un bloque. Comunidades (y provincias con PESO_POR_VARIANZA_EN_PROVINCIAS = False): LAMBDA x k / (k + K0). Provincias: V modelo / (V modelo + V encuesta), con V modelo = (σ x cuota)^2
-    y V encuesta = EFECTO_DE_DISENO x p (1 - p) x ruido de muestreo de la media ponderada + DERIVA_DIARIA^2 x antigüedad ponderada (días desde el día medio del campo)."""
+    y V encuesta = EFECTO_DE_DISENO x p (1 - p) x ruido de muestreo de la media ponderada + DERIVA_DIARIA^2 x antigüedad ponderada (días desde el día medio del campo) + el error sistemático de las casas (ERROR_DE_CASA_PUNTOS x (1 - nota))^2, ponderado como el promedio."""
     if unidad[0] != "provincia" or not PESO_POR_VARIANZA_EN_PROVINCIAS:
         return LAMBDA * k / (k + K0)
-    varianza_modelo = (sigma_del_modelo(bloque, cuota_modelo) * cuota_modelo) ** 2
-    ruido_de_muestreo, ruido_de_deriva = ruido
-    varianza_encuesta = EFECTO_DE_DISENO * cuota_encuesta * (1 - cuota_encuesta) * ruido_de_muestreo + DERIVA_DIARIA ** 2 * ruido_de_deriva
+    varianza_modelo = (sigma_del_modelo(bloque, cuota_modelo, comunidad_anclada) * cuota_modelo) ** 2
+    ruido_de_muestreo, ruido_de_deriva, varianza_de_casa = ruido
+    varianza_encuesta = EFECTO_DE_DISENO * cuota_encuesta * (1 - cuota_encuesta) * ruido_de_muestreo + DERIVA_DIARIA ** 2 * ruido_de_deriva + varianza_de_casa
     return LAMBDA * varianza_modelo / (varianza_modelo + varianza_encuesta) if varianza_modelo + varianza_encuesta > 0 else 0.0
 
 
@@ -306,7 +320,8 @@ def objetivos_territoriales(problema, reparto0, promedios, provincias_de, manual
         fijos[unidad] = {}
         PESOS_APLICADOS[unidad] = {}
         for b in cubiertos:
-            w = peso_del_bloque(unidad, b, modelo[b], cuotas_encuesta[b], k, ruido)
+            comunidad_anclada = unidad[0] == "provincia" and any(("comunidad", c[1]) in promedios and unidad[1] in provincias_de[c] for c in provincias_de if c[0] == "comunidad")
+            w = peso_del_bloque(unidad, b, modelo[b], cuotas_encuesta[b], k, ruido, comunidad_anclada)
             PESOS_APLICADOS[unidad][b] = w
             fijos[unidad][b] = (1 - w) * modelo[b] + w * masa_modelo * cuotas_encuesta[b] / masa_encuesta
     for unidad, (cuotas_manuales, k) in (manuales or {}).items():
