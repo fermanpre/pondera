@@ -10,6 +10,8 @@
  *   - valor de un voto a cada partido: escaños extra que gana ese partido de media por cada voto adicional en la provincia (se suman DELTA = 1 % de los votos de la provincia al partido en cada
  *     sorteo, se vuelven a repartir los escaños de la provincia y se mide la diferencia), dividido por el valor medio de un voto en España (escaños / votos a candidaturas). 1 = la media.
  *     No cuenta el efecto sobre otros partidos.
+ *   - valor de un voto para el bloque: escaños extra que gana de media el BLOQUE del partido (izquierda o derecha) por ese mismo voto adicional, dividido por lo mismo. Cuenta lo que el voto
+ *     quita a partidos del otro bloque y no cuenta lo que mueve dentro del bloque (un escaño que el BNG le quita al PSOE no suma nada al bloque). No hay para PNV, Junts, CC ni Existe.
  * Escribe sitio/voto_util.js (const VOTO_UTIL = {...}) y voto_util.json. Uso: node voto_util_provincias.js [sorteos]
  */
 const fs = require("fs");
@@ -20,6 +22,10 @@ const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 10000;
 const SEMILLA = 20261129;
 const UMBRALES_DE_SEGURIDAD = [0.90, 0.95, 0.975, 0.99];
 const DELTA = 0.01;  // fracción de los votos de la provincia que se suma al partido para medir el valor de su voto
+const BLOQUES = {
+  izquierda: ["PSOE", "SUMAR", "PODEMOS", "FV", "UPC", "ERC", "BILDU", "BNG", "ADELANTE"],
+  derecha: ["PP", "VOX", "SALF", "UPN"],
+};
 const CUOTA_MINIMA_PARA_VALORAR = 0.003;  // los partidos con menos de un 0,3 % medio en la provincia no se valoran (su valor es 0)
 
 const datos = JSON.parse(fs.readFileSync(path.join(__dirname, "sitio", "datos_modelo.json"), "utf8"));
@@ -38,6 +44,13 @@ console.log("Simulación: " + SORTEOS + " sorteos en " + ((Date.now() - inicio) 
 
 const escanosMediaPorVoto = datos.provincias.reduce(function (suma, provincia) { return suma + provincia.escanos; }, 0) / modelo.pesoTotal;  // escaños por voto medio en España
 const central = Motor.repartoSinRuido(modelo, datos.objetivos).cuotas;
+// Columnas de cada bloque en el modelo, y bloque de cada columna (-1 si no tiene)
+const columnasDeBloque = {};
+const bloqueDeColumna = new Array(K).fill(null);
+Object.keys(BLOQUES).forEach(function (bloque) {
+  columnasDeBloque[bloque] = BLOQUES[bloque].map(function (partido) { return modelo.partidos.indexOf(partido); }).filter(function (k) { return k >= 0; });
+  columnasDeBloque[bloque].forEach(function (k) { bloqueDeColumna[k] = bloque; });
+});
 
 function distribucionDeEscanos(p, k, maximo) {
   const cuentas = new Int32Array(maximo + 1);
@@ -92,29 +105,38 @@ for (let p = 0; p < P; p++) {
     base.set(escanos, s * K);
   }
   const valor = {};
+  const valorBloque = {};
   for (let k = 0; k < K; k++) {
     if (!modelo.presente[p * K + k] || central[p * K + k] < CUOTA_MINIMA_PARA_VALORAR) continue;
     // En una coalición (UPN-PP en Navarra) el voto a la columna suma a la coalición entera: se cuentan los escaños de la columna y de su socio
     const coalicion = modelo.coaliciones.find(function (c) { return c.provincia === p && c.columna === k; });
     const socio = coalicion ? coalicion.socio : -1;
-    let diferencia = 0;
+    let diferencia = 0, diferenciaBloque = 0;
+    const bloque = bloqueDeColumna[k];
     for (let s = 0; s < SORTEOS; s++) {
       Motor.escanosDeProvincia(modelo, p, cuotasFinales.subarray((s * P + p) * K, (s * P + p + 1) * K), { k: k, votos: delta }, escanos);
       diferencia += escanos[k] - base[s * K + k];
       if (socio >= 0) diferencia += escanos[socio] - base[s * K + socio];
+      if (bloque) {
+        for (let j = 0; j < columnasDeBloque[bloque].length; j++) {
+          const columna = columnasDeBloque[bloque][j];
+          diferenciaBloque += escanos[columna] - base[s * K + columna];
+        }
+      }
     }
     valor[modelo.partidos[k]] = Math.round(100 * (diferencia / SORTEOS / delta) / escanosMediaPorVoto) / 100;
+    if (bloque) valorBloque[modelo.partidos[k]] = Math.round(100 * (diferenciaBloque / SORTEOS / delta) / escanosMediaPorVoto) / 100;
   }
   // Voto central de cada partido en la provincia (tanto por uno sobre votos a candidaturas), solo los de un 1 % o más: sirve para saber cuál es el partido más votado de cada grupo
   const voto = {};
   for (let k = 0; k < K; k++) if (modelo.presente[p * K + k] && central[p * K + k] >= 0.01) voto[modelo.partidos[k]] = Math.round(10000 * central[p * K + k]) / 10000;
-  provincias[provincia.nombre] = { comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, voto: voto };
+  provincias[provincia.nombre] = { comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, valor_bloque: valorBloque, voto: voto };
   if ((p + 1) % 10 === 0) console.log("  " + (p + 1) + "/" + P + " provincias (" + ((Date.now() - inicio) / 1000).toFixed(0) + " s)");
 }
 
 const salida = {
   fecha_promedio: datos.fecha_promedio, sorteos: SORTEOS, semilla: SEMILLA, delta: DELTA,
-  votos_por_escano_medio: Math.round(1 / escanosMediaPorVoto), provincias: provincias,
+  votos_por_escano_medio: Math.round(1 / escanosMediaPorVoto), bloques: BLOQUES, provincias: provincias,
 };
 const texto = JSON.stringify(salida);
 fs.writeFileSync(path.join(__dirname, "sitio", "voto_util.json"), texto, "utf8");

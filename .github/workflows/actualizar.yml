@@ -55,6 +55,9 @@ jobs:
       - name: Bajar las encuestas regionales y provinciales de Wikipedia
         run: python Sondeos/extraer_sondeos_regionales.py
 
+      - name: Completar las encuestas regionales con las de Electogrāfica (solo las que Wikipedia aún no tiene)
+        run: python Sondeos/extraer_electografica.py
+
       - name: Detectar cifras atípicas (casas con peso recortado)
         run: python Sondeos/detectar_cifras_atipicas.py
 

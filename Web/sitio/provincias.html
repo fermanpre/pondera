@@ -73,6 +73,12 @@
     <div class="vu-escanos" id="vu-escanos"></div>
     <div class="vu-barras" id="vu-barras"></div>
   </div>
+  <details class="vu-detalle">
+    <summary>¿Por qué un voto puede valer más aunque el partido tenga menos probabilidad de llevarse el escaño?</summary>
+    <p>Son dos medidas distintas. La probabilidad de «Quién se lo lleva» dice dónde está hoy cada partido: en cuántas de las simulaciones se queda ese escaño. El valor del voto dice cuánto sube esa probabilidad con un voto más: la pendiente, no la posición.</p>
+    <p>En el reparto D'Hondt cada partido compite con un cociente: sus votos divididos entre sus escaños más uno. Un partido que pelea por su primer escaño divide entre 1, y uno que pelea por su segundo divide entre 2. Un voto más le sube el cociente al primero el doble que al segundo, y por eso al primero le faltan menos votos para llegar al escaño. Puede ocurrir entonces que un partido tenga hoy menos probabilidad de llevárselo, pero que un voto adicional le sirva más.</p>
+    <p>El valor para el bloque cuenta los escaños que gana el conjunto de la izquierda o de la derecha, no solo el partido. Si el escaño que gana un partido se lo quita a otro de su mismo bloque, el bloque no gana nada; si se lo quita a un partido del bloque contrario, sí. Por eso un voto a un partido pequeño puede valer mucho para el propio partido y bastante menos para su bloque.</p>
+  </details>
   <p class="nota" id="vu-nota"></p>
 </section>
 

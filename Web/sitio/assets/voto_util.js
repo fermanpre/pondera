@@ -48,20 +48,6 @@
     } else {
       frase = seguros + " de sus " + datos.escanos + " escaños están casi decididos; " + (datos.aire === 1 ? "queda 1 en el aire" : "quedan " + datos.aire + " en el aire") + ", que se juegan sobre todo " + lista(probables) + ".";
     }
-    // Si el voto más valioso de un grupo no es el del partido más votado de ese grupo, se dice
-    const comentarios = [];
-    GRUPOS.slice(0, 2).forEach((grupo) => {
-      const presentes = grupo.partidos.filter((partido) => datos.voto[partido] !== undefined && datos.valor[partido] !== undefined);
-      if (presentes.length < 2) { return; }
-      const masValioso = presentes.slice().sort((a, b) => datos.valor[b] - datos.valor[a])[0];
-      const masVotado = presentes.slice().sort((a, b) => datos.voto[b] - datos.voto[a])[0];
-      // Solo en contiendas claras (1 o 2 escaños en el aire) y si el partido más valioso se juega de verdad uno de ellos
-      const seJuegaUnEscano = (datos.reparto_aire[masValioso] || 0) >= 0.10;
-      if (datos.aire >= 1 && datos.aire <= 2 && seJuegaUnEscano && masValioso !== masVotado && datos.valor[masValioso] >= 0.5 && datos.valor[masValioso] >= 1.25 * datos.valor[masVotado]) {
-        comentarios.push("a la " + grupo.clave + " le sirve más un voto a " + nombreDe(masValioso, nombre, true) + " que a " + nombreDe(masVotado, nombre, true));
-      }
-    });
-    if (comentarios.length) { frase += " Así que " + comentarios.join(" y ") + "."; }
     return frase;
   }
 
@@ -99,9 +85,11 @@
   }
 
   function barras(nombre, datos) {
+    const valoresDeBloque = datos.valor_bloque || {};
     const valores = Object.keys(datos.valor).filter((partido) => datos.voto[partido] !== undefined || datos.valor[partido] >= CASI_CERO);
-    const escala = Math.max(ESCALA_MINIMA, Math.ceil(Math.max.apply(null, valores.map((partido) => datos.valor[partido]).concat([0]))));
-    let html = '<p class="vu-explicacion">Cuánto vale un voto a cada partido, frente al voto medio en España</p>';
+    const escala = Math.max(ESCALA_MINIMA, Math.ceil(Math.max.apply(null, valores.map((partido) => datos.valor[partido]).concat(valores.map((partido) => valoresDeBloque[partido] || 0)).concat([0]))));
+    let html = '<p class="vu-explicacion">Cuánto vale un voto a cada partido, frente al voto medio en España</p>' +
+      '<p class="vu-clave"><span class="vu-muestra vu-muestra-partido"></span> para el partido <span class="vu-muestra vu-muestra-bloque"></span> para su bloque (izquierda o derecha)</p>';
     GRUPOS.forEach((grupo) => {
       const partidos = grupo.partidos.filter((partido) => valores.indexOf(partido) >= 0).sort((a, b) => datos.valor[b] - datos.valor[a] || (datos.voto[b] || 0) - (datos.voto[a] || 0));
       if (!partidos.length) { return; }
@@ -110,8 +98,13 @@
         const valor = datos.valor[partido];
         const ancho = valor < CASI_CERO ? 0 : Math.max(1.5, Math.min(100, 100 * valor / escala));
         const etiqueta = valor < CASI_CERO ? '<span class="vu-casi0">casi 0</span>' : "×" + formatoValor.format(valor);
-        html += '<div class="vu-fila"><span class="vu-nombre">' + escapar(nombreDe(partido, nombre, true)) + '</span><span class="vu-pista"><span class="vu-barra" style="width:' + ancho.toFixed(1) +
-          "%;background:" + colorDe(partido) + '"></span><span class="vu-media" style="left:' + (100 / escala).toFixed(1) + '%"></span></span><span class="vu-valor">' + etiqueta + "</span></div>";
+        const valorBloque = valoresDeBloque[partido];
+        const tieneBloque = valorBloque !== undefined;
+        const anchoBloque = tieneBloque ? (valorBloque < CASI_CERO ? 0 : Math.max(1.5, Math.min(100, 100 * valorBloque / escala))) : 0;
+        const barraDeBloque = tieneBloque ? '<span class="vu-barra vu-barra-bloque" style="width:' + anchoBloque.toFixed(1) + "%;background:" + colorDe(partido) + '"></span>' : "";
+        const etiquetaDeBloque = tieneBloque ? '<small class="vu-valor-bloque">bloque ' + (valorBloque < CASI_CERO ? "casi 0" : "×" + formatoValor.format(valorBloque)) + "</small>" : "";
+        html += '<div class="vu-fila' + (tieneBloque ? " vu-con-bloque" : "") + '"><span class="vu-nombre">' + escapar(nombreDe(partido, nombre, true)) + '</span><span class="vu-pista"><span class="vu-barra" style="width:' + ancho.toFixed(1) +
+          "%;background:" + colorDe(partido) + '"></span>' + barraDeBloque + '<span class="vu-media" style="left:' + (100 / escala).toFixed(1) + '%"></span></span><span class="vu-valor">' + etiqueta + etiquetaDeBloque + "</span></div>";
       });
     });
     html += '<p class="nota">La línea discontinua es ×1, el valor de un voto medio en España.</p>';
@@ -129,7 +122,7 @@
     const fecha = VOTO_UTIL.fecha_promedio ? new Date(VOTO_UTIL.fecha_promedio + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" }) : "";
     document.getElementById("vu-nota").innerHTML = "Casi decidido: el partido saca ese escaño en al menos el " + Math.round(100 * datos.umbral) + "% de las " + entero(VOTO_UTIL.sorteos) +
       " simulaciones. Valor de un voto: escaños que gana de media el partido por cada voto más en esta provincia (se suma un " + Math.round(100 * VOTO_UTIL.delta) + "% de sus votos y se repite el reparto con las mismas simulaciones), " +
-      "dividido por lo que vale un voto medio en España (un escaño por cada " + entero(VOTO_UTIL.votos_por_escano_medio) + " votos). No cuenta lo que ese voto quita a otros partidos. Promedio a " + fecha + ". <a href=\"metodologia.html#voto-util\">Cómo se calcula</a>.";
+      "dividido por lo que vale un voto medio en España (un escaño por cada " + entero(VOTO_UTIL.votos_por_escano_medio) + " votos). Para el bloque se cuentan los escaños que gana el conjunto de su bloque: un escaño que un partido le quita a otro del mismo bloque no suma, y uno que le quita al bloque contrario sí. Promedio a " + fecha + ". <a href=\"metodologia.html#voto-util\">Cómo se calcula</a>.";
   }
 
   selector.addEventListener("change", pintar);
