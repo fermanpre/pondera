@@ -38,6 +38,35 @@ function textoDeSegundos(inicio) { return ((performance.now() - inicio) / 1000).
 
 // Con más de SORTEOS_RAPIDOS sorteos se calcula en dos pasadas: primero 2.000 en el hilo principal (la página se pinta enseguida) y, a continuación, el total pedido en un
 // trabajador (Web Worker) para no bloquear la página; al llegar, se repinta todo. Si el navegador no admite el trabajador, el total se calcula en el hilo principal.
+/* Escenario representativo (22/11/2026): el sorteo de la simulación cuyos escaños nacionales se parecen más a la mediana de cada partido (distancia en desviaciones robustas, rango
+   intercuartílico / 1,349, con un mínimo de 1 escaño). Las medianas por partido no suman 350 (cada una sale de sorteos distintos); este sorteo sí, y es un resultado que podría darse.
+   Devuelve los escaños de ese sorteo por provincia y partido, con el mismo formato que el reparto central sin ruido (provincia x partidos + partido). */
+function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
+  const nacionales = simulacion.nacionales;
+  const numeroDePartidos = modelo.numeroDePartidos;
+  const medianas = [];
+  const escalas = [];
+  for (let k = 0; k < numeroDePartidos; k++) {
+    const valores = new Int16Array(sorteos);
+    for (let s = 0; s < sorteos; s++) valores[s] = nacionales[s * numeroDePartidos + k];
+    valores.sort();
+    medianas.push(valores[Math.floor(sorteos / 2)]);
+    escalas.push(Math.max(1, (valores[Math.floor(sorteos * 0.75)] - valores[Math.floor(sorteos * 0.25)]) / 1.349));
+  }
+  let mejorSorteo = 0;
+  let mejorDistancia = Infinity;
+  for (let s = 0; s < sorteos; s++) {
+    let distancia = 0;
+    for (let k = 0; k < numeroDePartidos; k++) {
+      const diferencia = (nacionales[s * numeroDePartidos + k] - medianas[k]) / escalas[k];
+      distancia += diferencia * diferencia;
+    }
+    if (distancia < mejorDistancia) { mejorDistancia = distancia; mejorSorteo = s; }
+  }
+  const porProvincia = P * numeroDePartidos;
+  return Uint8Array.from(simulacion.provinciales.subarray(mejorSorteo * porProvincia, (mejorSorteo + 1) * porProvincia));
+}
+
 function recalcular() {
   const selectorDeSorteos = document.getElementById("numero-sorteos");
   const sorteos = selectorDeSorteos ? parseInt(selectorDeSorteos.value, 10) : SORTEOS_POR_DEFECTO;
@@ -51,6 +80,7 @@ function recalcular() {
     const central = MotorElectoral.repartoSinRuido(modelo, objetivosActuales);
     const primeros = Math.min(sorteos, SORTEOS_RAPIDOS);
     const simulacion = MotorElectoral.simular(modelo, { sorteos: primeros, semilla: 20261129, objetivos: objetivosActuales });
+    central.escanos = escanosDelEscenarioRepresentativo(simulacion, primeros);
     ultimoResultado = { central: central, simulacion: simulacion, sorteos: primeros };
     pintarTodoConElResultado();
     if (sorteos <= primeros) {
@@ -61,6 +91,7 @@ function recalcular() {
     estado.textContent = "Mostrando " + entero(primeros) + " sorteos; calculando " + entero(sorteos) + "…";
     const terminar = function (resultadoCompleto) {
       if (generacion !== generacionDeCalculo) return;
+      central.escanos = escanosDelEscenarioRepresentativo(resultadoCompleto, sorteos);
       ultimoResultado = { central: central, simulacion: resultadoCompleto, sorteos: sorteos };
       estado.textContent = "Calculado en " + textoDeSegundos(inicio) + " s";
       pintarTodoConElResultado();
@@ -303,7 +334,7 @@ function pintarNacional() {
   marca.className = "linea176";
   marca.style.left = (100 * 176 / 350) + "%";
   barra.appendChild(marca);
-  document.getElementById("leyenda176").textContent = "Línea negra: mayoría absoluta (176 escaños). Barra: reparto central, sin ruido.";
+  document.getElementById("leyenda176").textContent = "Línea negra: mayoría absoluta (176 escaños). Barra: escenario representativo (el sorteo más parecido a las medianas).";
 
   pintarMayorias();
 
