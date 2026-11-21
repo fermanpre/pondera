@@ -325,11 +325,15 @@
   @media (max-width: 600px) { .mr-fila { grid-template-columns: 1fr; gap: 2px; } }
 
   /* Mundos posibles (22/11/2026) */
-  .mundos-rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; margin: 14px 0; }
-  @media (max-width: 800px) { .mundos-rejilla { grid-template-columns: minmax(0, 1fr); } }
+  .mundos-rejilla { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; margin: 14px 0; }
+  .mundo-cuerpo { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px 24px; align-items: center; }
+  @media (max-width: 800px) { .mundo-cuerpo { grid-template-columns: minmax(0, 1fr); } }
+  .mundo-tabla { width: 100%; }
+  .mundo-tabla td, .mundo-tabla th { padding: 3px 8px; }
+  .mundo-tabla td:not(.col-partido), .mundo-tabla th:not(:first-child) { text-align: right; }
   .mundo { margin: 0; padding: 12px 14px; border: 1px solid var(--linea); border-radius: 10px; }
   .mundo figcaption { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; }
   .mundo-percentil { font-weight: 400; color: var(--suave); }
   .mundo-veredicto { margin: 4px 0 0; font-weight: 600; }
-  .mundo .hemiciclo { margin: 4px auto 8px; }
-  .mundo .hemiciclo-leyenda { font-size: 0.8rem; }
+  .mundo .hemiciclo { width: 100%; margin: 4px auto 8px; }
+  .mundo .hemiciclo-leyenda { display: none; }   /* la tabla de al lado hace de leyenda */

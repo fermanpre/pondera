@@ -7,6 +7,7 @@
  * mundos cerca del centro de la distribución, en proporción a lo probables que son. En cada percentil toma la banda de sorteos que lo rodea (±0,5 puntos de percentil) y, dentro de ella, el más
  * parecido a la mediana de cada partido en esa banda (distancia en desviaciones robustas: rango intercuartílico / 1,349 de todos los sorteos, con un mínimo de 1 escaño).
  * Se calcula aquí, y no en el navegador, para que la página cargue al instante también en el móvil.
+ * De cada mundo guarda también los votos de cada partido (cuota de cada provincia x votos a candidaturas de la provincia, base de 2023 sobre residentes, la del modelo) y su porcentaje sobre el total.
  * Escribe sitio/mundos.js (const MUNDOS = {...}) y mundos.json. Uso: node mundos_posibles.js [sorteos]
  */
 const fs = require("fs");
@@ -25,7 +26,13 @@ const PARTIDOS_DEL_BLOQUE_DE_INVESTIDURA = ["PSOE", "SUMAR", "FV", "UPC", "PODEM
 const datos = JSON.parse(fs.readFileSync(path.join(__dirname, "sitio", "datos_modelo.json"), "utf8"));
 const modelo = Motor.prepararModelo(datos);
 const numeroDePartidos = modelo.numeroDePartidos;
-const simulacion = Motor.simular(modelo, { sorteos: SORTEOS, semilla: SEMILLA });
+// Votos de cada partido en cada sorteo (cuota final de cada provincia x votos a candidaturas de la provincia)
+const votosPorSorteo = new Float64Array(SORTEOS * numeroDePartidos);
+const simulacion = Motor.simular(modelo, { sorteos: SORTEOS, semilla: SEMILLA, alRepartir: function (sorteo, repartoFinal) {
+  for (let p = 0; p < modelo.numeroDeProvincias; p++) {
+    for (let k = 0; k < numeroDePartidos; k++) { votosPorSorteo[sorteo * numeroDePartidos + k] += repartoFinal[p * numeroDePartidos + k] * modelo.peso[p]; }
+  }
+} });
 const nacionales = simulacion.nacionales;
 
 function columnasDe(partidos) {
@@ -80,8 +87,14 @@ for (let i = 0; i < MUNDOS_QUE_SE_MUESTRAN; i++) {
     if (distancia < mejorDistancia) { mejorDistancia = distancia; elegido = sorteo; }
   });
   const escanos = {};
-  modelo.partidos.forEach(function (partido, k) { escanos[partido] = nacionales[elegido * numeroDePartidos + k]; });
-  mundos.push({ percentil: Math.round(percentil * 10) / 10, escanos: escanos, derecha: sumaDeColumnas(elegido, columnasDeLaDerecha), investidura: sumaDeColumnas(elegido, columnasDeLaInvestidura) });
+  const votos = {};
+  const porcentaje = {};
+  modelo.partidos.forEach(function (partido, k) {
+    escanos[partido] = nacionales[elegido * numeroDePartidos + k];
+    votos[partido] = Math.round(votosPorSorteo[elegido * numeroDePartidos + k]);
+    porcentaje[partido] = Math.round(1000 * votosPorSorteo[elegido * numeroDePartidos + k] / modelo.pesoTotal) / 10;
+  });
+  mundos.push({ percentil: Math.round(percentil * 10) / 10, escanos: escanos, votos: votos, porcentaje: porcentaje, derecha: sumaDeColumnas(elegido, columnasDeLaDerecha), investidura: sumaDeColumnas(elegido, columnasDeLaInvestidura) });
 }
 
 const salida = { fecha_promedio: datos.fecha_promedio, sorteos: SORTEOS, mundos: mundos };
