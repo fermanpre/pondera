@@ -47,7 +47,7 @@ MUESTRA_SI_NO_CONSTA = 400  # muestra que se supone a una encuesta sin tamaño d
 DERIVA_DIARIA = 0.001  # desviación típica (en tanto por uno) que acumula una cuota por raíz de día: unos 0,1 puntos por √día, lo que se mueve el promedio nacional
 EFECTO_DE_DISENO = 1.25  # las encuestas por cuotas tienen más varianza que el muestreo aleatorio simple (+25 %)
 # Error relativo del modelo en una provincia (σ de log(real/previsto), Web/simular_prevision.SIGMA_PROVINCIAL_CALIBRADA): clase de partido y tramo de cuota (cuota mínima, sigma)
-CLASE_DE_BLOQUE = {"PP": "GRANDE", "PSOE": "GRANDE", "VOX": "VOX", "IZQ": "IZQ_ALT", "FV": "IZQ_ALT", "ERC": "REGIONAL", "JUNTS": "REGIONAL", "BILDU": "REGIONAL", "PNV": "REGIONAL", "BNG": "REGIONAL", "CC": "REGIONAL"}
+CLASE_DE_BLOQUE = {"PP": "GRANDE", "PSOE": "GRANDE", "VOX": "VOX", "IZQ": "IZQ_ALT", "FV": "IZQ_ALT", "ERC": "REGIONAL", "JUNTS": "REGIONAL", "BILDU": "REGIONAL", "PNV": "REGIONAL", "BNG": "REGIONAL", "CC": "REGIONAL", "UPC": "IZQ_ALT"}
 SIGMA_DEL_MODELO = {"GRANDE": [(0.30, 0.095), (0.15, 0.14), (0.0, 0.25)], "VOX": [(0.15, 0.08), (0.0, 0.13)], "IZQ_ALT": [(0.15, 0.17), (0.05, 0.19), (0.0, 0.24)],
                     "REGIONAL": [(0.30, 0.05), (0.15, 0.08), (0.0, 0.10)]}
 # Calibración del 19/11/2026 de la forma provincial de los partidos regionales (Sondeos/calibrar_forma_regionales.py): error log(real / previsto) con previsto = cuota de la elección anterior x (total nuevo / total
@@ -57,19 +57,20 @@ SIGMA_DEL_MODELO = {"GRANDE": [(0.30, 0.095), (0.15, 0.14), (0.0, 0.25)], "VOX":
 # PSOE 0,037, 0,049 y 0,021; Vox 0,040 (15-30 %) y 0,067 (< 15 %). Se usa cuando la comunidad de la provincia tiene su propio promedio de encuestas (su total está anclado y solo queda la forma). La σ de 0,095 de
 # GRANDE (dado el total nacional) incluye además el error del total de la comunidad (unos 0,087), que en esas provincias ya está corregido por la encuesta de la comunidad.
 SIGMA_DENTRO_DE_LA_COMUNIDAD = {"GRANDE": [(0.30, 0.04), (0.15, 0.05), (0.0, 0.055)], "VOX": [(0.15, 0.04), (0.0, 0.067)]}
-SIGMA_PROPIA_DE_BLOQUE = {"BNG": 0.07}  # el BNG en Galicia es el más estable (0,066 medido, 0,07 con margen por las pocas elecciones)
+SIGMA_PROPIA_DE_BLOQUE = {"BNG": 0.07,  # el BNG en Galicia es el más estable (0,066 medido, 0,07 con margen por las pocas elecciones)
+                          "CC": 0.25}   # CC en 2026 va en coalición con Primero Canarias (escisión de Nueva Canarias): la σ de elecciones pasadas (0,10 por debajo del 15 %) no recoge ese cambio. Valor del 22/11/2026, sin medir
 ERROR_DE_CASA_PUNTOS = 2.0  # error sistemático de una casa de nota n, en puntos de voto: ERROR_DE_CASA_PUNTOS x (1 - n); la nota es la de la hoja «Notas» (0,2 si la casa no figura)
 PESO_POR_VARIANZA_EN_PROVINCIAS = True  # provincias: w de cada bloque = V modelo / (V modelo + V encuesta); comunidades: w = k / (k + K0)
 RESULTADO_DE_ELECCION = re.compile(r"elections?", re.IGNORECASE)
 # Bloques que solo se usan en los indicios territoriales manuales (Sondeos/indicios_territoriales.csv); no entran en el promedio de las encuestas regionales
 BLOQUES_MANUALES = {"FA": ["SUMAR"], "EXISTE": ["EXISTE"]}
 RUTA_INDICIOS = CARPETA_WEB.parent / "Sondeos" / "indicios_territoriales.csv"
-BLOQUES = {"PP": ["PP"], "PSOE": ["PSOE"], "VOX": ["VOX"], "IZQ": ["SUMAR", "PODEMOS"], "FV": ["FV"], "ERC": ["ERC"], "JUNTS": ["JUNTS"], "BILDU": ["BILDU"], "PNV": ["PNV"], "BNG": ["BNG"], "CC": ["CC"]}
-LIBRES = ("PNV", "BILDU", "BNG", "ERC", "JUNTS", "FV")
+BLOQUES = {"PP": ["PP"], "PSOE": ["PSOE"], "VOX": ["VOX"], "IZQ": ["SUMAR", "PODEMOS"], "FV": ["FV"], "ERC": ["ERC"], "JUNTS": ["JUNTS"], "BILDU": ["BILDU"], "PNV": ["PNV"], "BNG": ["BNG"], "CC": ["CC"], "UPC": ["UPC"]}
+LIBRES = ("PNV", "BILDU", "BNG", "ERC", "JUNTS", "FV", "UPC", "CC")   # UPC y CC (22/11/2026): partidos de un solo territorio que siguen a sus encuestas también en el total nacional
 # Columna de la tabla de Wikipedia -> candidatura del modelo -> nombre nacional (para la corrección de partido y las medias)
 CANDIDATURA_DE_COLUMNA = {"PP": "PP", "PSOE": "PSOE", "PSE–EE (PSOE)": "PSOE", "PSdeG–PSOE": "PSOE", "PSC": "PSOE", "Vox": "VOX", "Sumar": "SUMAR", "FA": "SUMAR", "Podemos": "PODEMOS",
-                          "Podem": "PODEMOS", "FV": "FV", "Compromís": "FV", "ERC": "ERC", "Junts": "JUNTS", "EH Bildu": "BILDU", "PNV": "PNV", "BNG": "BNG", "CCa": "CC"}
-NOMBRE_NACIONAL = {"PP": "PP", "PSOE": "PSOE", "VOX": "Vox", "SUMAR": "Sumar", "PODEMOS": "Podemos", "FV": "FV", "ERC": "ERC", "JUNTS": "Junts", "BILDU": "EH Bildu", "PNV": "PNV", "BNG": "BNG", "CC": "CCa"}
+                          "Podem": "PODEMOS", "FV": "FV", "Compromís": "FV", "ERC": "ERC", "Junts": "JUNTS", "EH Bildu": "BILDU", "PNV": "PNV", "BNG": "BNG", "CCa": "CC", "UPC": "UPC"}
+NOMBRE_NACIONAL = {"PP": "PP", "PSOE": "PSOE", "VOX": "Vox", "SUMAR": "Sumar", "PODEMOS": "Podemos", "FV": "FV", "ERC": "ERC", "JUNTS": "Junts", "BILDU": "EH Bildu", "PNV": "PNV", "BNG": "BNG", "CC": "CCa", "UPC": "UPC"}
 CANDIDATURA_DE_NOMBRE_NACIONAL = {v: k for k, v in NOMBRE_NACIONAL.items()}
 BLOQUE_DE_CANDIDATURA = {i: b for b, ids in BLOQUES.items() for i in ids}
 COLUMNAS_QUE_SE_SOLAPAN = [("Sumar", ["Podemos", "IU", "Unidas Podemos"]), ("FA", ["Podemos", "IU"])]

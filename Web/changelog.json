@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Canarias: UPC y Coalición Canaria siguen a sus encuestas",
+    "texto": "La Unidad del Pueblo Canario no entraba en la mezcla con las encuestas provinciales y ahora sí, como un bloque más. Coalición Canaria (en coalición con Primero Canarias, escisión de Nueva Canarias) pesa más porque se sube el error que se supone al modelo para ese partido, y las dos siguen a sus encuestas también en el total nacional. Con la encuesta de GCEMOP, Las Palmas pasa de CC 5,6 % a 7,1 % y de UPC 9,3 % a 10,2 %; Santa Cruz de Tenerife, de CC 12,9 % a 15,2 % y de UPC 6,1 % a 6,9 %."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Encuestas con porcentajes en rangos",
     "texto": "Wikipedia da algunas encuestas con el porcentaje de cada partido como rango (por ejemplo, 25,0–26,0 %). No se leían. Ahora se toma el punto medio del rango, lo que añade la encuesta de GCEMOP en Canarias, Las Palmas y Santa Cruz de Tenerife y tres encuestas de GESOP en Cataluña."
   },
