@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Otros y en blanco en la tabla de la página principal",
+    "texto": "La tabla de partidos de la página principal termina ahora con la suma de los partidos y, por diferencia, «otros y en blanco», como las tablas de provincias y comunidades, para detectar a simple vista un partido que falte o un reparto raro."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Adelante Andalucía en el blend y escenario representativo estable",
     "texto": "Adelante Andalucía entra en la mezcla con las encuestas provinciales como un bloque de la izquierda alternativa (hoy solo la encuesta de Cádiz de EM-Analytics la recoge). Además, el escenario representativo se calcula una vez con los 10.000 sorteos y se incrusta en la página: antes podía cambiar al pasar de la primera pasada de 2.000 sorteos a la final (Adelante Andalucía pasaba de 4 a 2 diputados)."
   },

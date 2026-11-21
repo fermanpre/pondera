@@ -400,12 +400,20 @@ function pintarNacional() {
     return filaTotal;
   }
   let totalColocado = false;
+  // Para las filas de control del final: suma del voto y de los escaños de las filas de partido (sin contar el subtotal comparable, que repite a varios) en 2026 y en 2023
+  const sumas = { voto2026: 0, escanos2026: 0, voto2023: 0, escanos2023: 0 };
   partidosEnElOrdenDeLaTabla().forEach(function (partido) {
     if (partido === "OTROS") return;
     const r = resumen[partido];
     const voto = 100 * objetivosActuales[partido];
     const escanos = centrales[partido] || 0;
     const clave = CLAVE_EN_2023[partido];
+    sumas.voto2026 += voto;
+    sumas.escanos2026 += escanos;
+    if (de2023 && clave) {
+      sumas.voto2023 += 100 * (de2023.votos[clave] || 0) / de2023.total;
+      sumas.escanos2023 += de2023.escanos[clave] || 0;
+    }
     let celdasDe2023 = ["–", "–", "–", "–"];  // voto 2023, dif. de voto, escaños 2023, dif. de escaños
     if (de2023 && clave) {
       const voto2023 = 100 * (de2023.votos[clave] || 0) / de2023.total;
@@ -424,6 +432,18 @@ function pintarNacional() {
     }
   });
   if (!totalColocado) { const total = filaDeTotalComparable(); if (total) cuerpo.appendChild(total); }
+  // Control de cordura (22/11/2026), igual que en provincias y comunidades: suma de las filas y, por diferencia, «otros y en blanco». Un cajón anormalmente grande delata un partido que falta o un dato mal repartido.
+  const UMBRAL_DE_AVISO_DE_OTROS = 8;   // puntos a partir de los cuales se marca en rojo el resto del voto previsto
+  function filaDeControl(clase, nombre, voto2023, voto2026, escanos2023, escanos2026, avisar) {
+    const fila = document.createElement("tr");
+    fila.className = clase;
+    const marcaDeAviso = avisar && voto2026 >= UMBRAL_DE_AVISO_DE_OTROS ? ' class="resto-alto"' : "";
+    fila.innerHTML = '<td>' + nombre + '</td><td>' + (de2023 ? porcentaje(voto2023) : "–") + '</td><td' + marcaDeAviso + '>' + porcentaje(voto2026) + '</td><td></td>' +
+      '<td>' + (de2023 ? entero(escanos2023) : "–") + '</td><td>' + entero(escanos2026) + '</td><td></td><td colspan="3"></td>';
+    cuerpo.appendChild(fila);
+  }
+  filaDeControl("fila-suma", "Suma de los partidos", sumas.voto2023, sumas.voto2026, sumas.escanos2023, sumas.escanos2026, false);
+  filaDeControl("fila-resto", "Otros y en blanco (por diferencia)", 100 - sumas.voto2023, 100 - sumas.voto2026, 350 - sumas.escanos2023, 350 - sumas.escanos2026, true);
   document.getElementById("nota-sorteos").textContent = entero(ultimoResultado.sorteos) + " sorteos. Los rangos del 80% y del 95% dejan fuera el 10% y el 2,5% de los sorteos por cada extremo.";
 }
 

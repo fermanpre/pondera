@@ -264,6 +264,9 @@ button.principal { font-weight: 600; }
 #tabla-nacional tr.fila-subtotal td { font-style: italic; font-weight: 400; color: var(--suave); }
 #tabla-nacional tr.fila-subtotal .sube, #tabla-nacional tr.fila-subtotal .baja, #tabla-nacional tr.fila-subtotal .igual { color: inherit; }
 #tabla-nacional tr.fila-subtotal .detalle-subtotal { font-size: 0.85em; }
+#tabla-nacional tr.fila-suma td { border-top: 2px solid var(--linea); font-weight: 600; }
+#tabla-nacional tr.fila-resto td { color: var(--suave); }
+#tabla-nacional tr.fila-resto td.resto-alto { color: #b3261e; font-weight: 700; }
 #tabla-nacional tr.fila-subtotal td.etiqueta-subtotal { white-space: normal; max-width: 14rem; line-height: 1.25; }
 
 /* Aviso de veda de sondeos (assets/veda.js) */
