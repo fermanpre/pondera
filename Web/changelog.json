@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Encuestas con porcentajes en rangos",
+    "texto": "Wikipedia da algunas encuestas con el porcentaje de cada partido como rango (por ejemplo, 25,0–26,0 %). No se leían. Ahora se toma el punto medio del rango, lo que añade la encuesta de GCEMOP en Canarias, Las Palmas y Santa Cruz de Tenerife y tres encuestas de GESOP en Cataluña."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Evolución del promedio en comunidades y provincias",
     "texto": "Las páginas de territorio enseñan ahora, bajo el promedio de encuestas, su evolución desde las generales de 2023 con un círculo por encuesta, en los territorios con al menos tres encuestas con porcentajes (11 hoy: Galicia, Cataluña, Andalucía, Madrid, Comunitat Valenciana, País Vasco, Región de Murcia y las provincias de A Coruña, Lugo, Ourense y Pontevedra). Es el mismo promedio que la tabla, calculado día a día; donde no hay encuestas suficientes la línea se corta y no se interpola."
   },

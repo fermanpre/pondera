@@ -20,6 +20,7 @@ SALIDA = Path(__file__).resolve().parent / "sondeos_regionales_largo.csv"
 MESES = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6, "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
 PATRON_FECHA_FINAL = re.compile(r"(\d{1,2})\s+([A-Z][a-z]{2})\s+(\d{4})\s*$")
 PATRON_MES_FINAL = re.compile(r"([A-Z][a-z]{2})\s+(\d{4})\s*$")
+PATRON_RANGO = re.compile(r"^(\d+(?:\.\d+)?)\s*[–-]\s*(\d+(?:\.\d+)?)\s*(.*)$")
 PATRON_CELDA = re.compile(r"^(?P<pct>\?|\d+(?:\.\d+)?)?\s*(?P<escanos>\d+(?:/\d+)?|\(\d+\))?$")
 ENCABEZADOS_QUE_NO_SON_PARTIDOS = {"polling firm/commissioner", "fieldwork date", "sample size", "turnout", "lead"}
 
@@ -41,6 +42,11 @@ def interpretar_celda(texto):
     texto = texto.replace(",", "").strip()
     if texto in ("", "–", "-", "—"):
         return None
+    # Rango de porcentaje («25.0–26.0 4/6»: GCEMOP en Canarias y Las Palmas, algunas encuestas de Cataluña): se toma el punto medio (22/11/2026)
+    rango = PATRON_RANGO.match(texto)
+    if rango:
+        minimo_del_rango, maximo_del_rango, resto = float(rango.group(1)), float(rango.group(2)), rango.group(3)
+        texto = ("%.2f" % ((minimo_del_rango + maximo_del_rango) / 2.0)).rstrip("0").rstrip(".") + " " + resto
     coincidencia = PATRON_CELDA.match(texto)
     if not coincidencia:
         return None
