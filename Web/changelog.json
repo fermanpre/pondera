@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Rangos y distribución del voto en la tabla nacional",
+    "texto": "Encima de la tabla de partidos de la página principal hay un selector Escaños / Voto. Con Voto, las tres últimas columnas enseñan el rango del 80 % y del 95 % del voto nacional simulado de cada partido y la distribución del 50 % central, como ya se hacía con los escaños. Se recuerda la elección."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Otros y en blanco en la tabla de la página principal",
     "texto": "La tabla de partidos de la página principal termina ahora con la suma de los partidos y, por diferencia, «otros y en blanco», como las tablas de provincias y comunidades, para detectar a simple vista un partido que falte o un reparto raro."
   },

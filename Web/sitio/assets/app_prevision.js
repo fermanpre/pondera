@@ -337,8 +337,87 @@ function histogramaNacional(partido, indice, central) {
   return histogramaDeEscanos({ partido: partido, cuentas: cuentas, central: central, masProbable: masProbable }, sorteos, { desde: desde, hasta: hasta, ancho: 180, compacto: true });
 }
 
+/* Voto nacional simulado de cada partido (en %), ordenado de menor a mayor: {partido: Float64Array}. Sale de simulacion.objetivos (voto de cada sorteo antes del reparto por provincia). */
+function votoNacionalSimulado() {
+  const K = modelo.numeroDePartidos;
+  const sorteos = ultimoResultado.sorteos;
+  const objetivos = ultimoResultado.simulacion.objetivos;
+  const resultado = {};
+  modelo.partidos.forEach(function (partido, k) {
+    const valores = new Float64Array(sorteos);
+    for (let s = 0; s < sorteos; s++) valores[s] = 100 * objetivos[s * K + k];
+    valores.sort();
+    resultado[partido] = valores;
+  });
+  return resultado;
+}
+
+function textoDeRangoDeVoto(valores, fraccionInferior, fraccionSuperior) {
+  const n = valores.length;
+  const inferior = valores[Math.floor(fraccionInferior * (n - 1))];
+  const superior = valores[Math.ceil(fraccionSuperior * (n - 1))];
+  return formatoPorcentaje.format(inferior) + "–" + formatoPorcentaje.format(superior);
+}
+
+/* Histograma compacto del voto nacional de un partido: el 50% central de los sorteos (del percentil 25 al 75), repartido en tramos de 0,05 a 1 punto (los más finos que dejan 14 o menos),
+   con la probabilidad de cada tramo sobre el total de sorteos. La banda oscura es el voto del modelo (reparto central). Mismo aspecto que el histograma de escaños. */
+function histogramaDeVoto(partido, valores, central) {
+  const n = valores.length;
+  const cuantil = function (fraccion) { return valores[Math.floor(fraccion * (n - 1))]; };
+  let inferior = cuantil(0.25);
+  let superior = cuantil(0.75);
+  const ANCHURA_MINIMA = 0.3;   // puntos: un partido con poca dispersión (UPN, CC) sigue enseñando varios tramos
+  if (superior - inferior < ANCHURA_MINIMA) {
+    const medio = (inferior + superior) / 2;
+    inferior = Math.max(0, medio - ANCHURA_MINIMA / 2);   // el voto no es negativo: el tramo se desplaza si se saldría por abajo
+    superior = inferior + ANCHURA_MINIMA;
+  }
+  const PASOS = [0.05, 0.1, 0.2, 0.25, 0.5, 1];
+  let paso = PASOS[PASOS.length - 1];
+  for (let i = 0; i < PASOS.length; i++) { if ((superior - inferior) / PASOS[i] <= 14) { paso = PASOS[i]; break; } }
+  const primerTramo = Math.floor(inferior / paso + 1e-9);
+  const cantidad = Math.max(3, Math.ceil(superior / paso - 1e-9) - primerTramo);
+  const cuentas = new Array(cantidad).fill(0);
+  for (let s = 0; s < n; s++) {
+    const tramo = Math.floor(valores[s] / paso + 1e-9) - primerTramo;
+    if (tramo >= 0 && tramo < cantidad) cuentas[tramo]++;
+  }
+  const decimales = paso < 0.1 ? 2 : 1;
+  const texto = function (valor) { return valor.toFixed(decimales).replace(".", ","); };
+  const ANCHO = 180, ALTO_BARRAS = 26, MARGEN_ARRIBA = 11, ALTO_EJE = 12;
+  const anchoDeBarra = ANCHO / cantidad;
+  const maximo = Math.max.apply(null, cuentas);
+  let masProbable = 0;
+  cuentas.forEach(function (cuenta, i) { if (cuenta > cuentas[masProbable]) masProbable = i; });
+  let svg = '<svg viewBox="0 0 ' + ANCHO + " " + (MARGEN_ARRIBA + ALTO_BARRAS + ALTO_EJE) + '" width="' + ANCHO + '" role="img" aria-label="Distribución del voto de ' + NOMBRES[partido] + '" style="max-width:100%;height:auto">';
+  let etiqueta = "";
+  cuentas.forEach(function (cuenta, i) {
+    if (!cuenta || !maximo) return;
+    const probabilidad = cuenta / n;
+    const altura = Math.max(1, ALTO_BARRAS * cuenta / maximo);
+    const x = i * anchoDeBarra;
+    const desdeTramo = (primerTramo + i) * paso;
+    svg += '<rect x="' + (x + 0.5).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura).toFixed(1) + '" width="' + Math.max(1, anchoDeBarra - 1).toFixed(1) + '" height="' + altura.toFixed(1) +
+      '" fill="' + COLORES[partido] + '" opacity="0.9"><title>' + texto(desdeTramo) + "–" + texto(desdeTramo + paso) + " %: " + porcentaje(100 * probabilidad) + '</title></rect>';
+    if (i === masProbable) etiqueta = '<text x="' + (x + anchoDeBarra / 2).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura - 2).toFixed(1) + '" text-anchor="middle" font-size="10" fill="var(--suave)">' + entero(100 * probabilidad) + '%</text>';
+  });
+  const tramoCentral = Math.floor(central / paso + 1e-9) - primerTramo;
+  if (tramoCentral >= 0 && tramoCentral < cantidad) {
+    svg += '<rect x="' + (tramoCentral * anchoDeBarra).toFixed(1) + '" y="' + (MARGEN_ARRIBA - 6) + '" width="' + anchoDeBarra.toFixed(1) + '" height="' + (ALTO_BARRAS + 6) + '" fill="var(--texto)" opacity="0.35"><title>Voto del modelo: ' + texto(central) + ' %</title></rect>';
+  }
+  svg += etiqueta;
+  svg += '<line x1="0" x2="' + ANCHO + '" y1="' + (MARGEN_ARRIBA + ALTO_BARRAS + 0.5) + '" y2="' + (MARGEN_ARRIBA + ALTO_BARRAS + 0.5) + '" stroke="var(--linea)" />';
+  svg += '<text x="0" y="' + (MARGEN_ARRIBA + ALTO_BARRAS + 11) + '" text-anchor="start" font-size="10" fill="var(--suave)">' + texto(primerTramo * paso) + '</text>';
+  svg += '<text x="' + ANCHO + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS + 11) + '" text-anchor="end" font-size="10" fill="var(--suave)">' + texto((primerTramo + cantidad) * paso) + '</text>';
+  return svg + "</svg>";
+}
+
 function cabeceraDeLaTablaNacional() {
-  return '<tr><th rowspan="2">Partido</th><th colspan="3" class="grupo-columnas">Voto (%)</th><th colspan="3" class="grupo-columnas">Escaños</th><th colspan="2" class="grupo-columnas">Rango de escaños</th><th rowspan="2" class="col-histograma" title="Probabilidad de cada total de escaños en el 50% central de las simulaciones (del percentil 25 al 75). La banda oscura es el reparto central.">Distribución (50% central)</th></tr>' +
+  const deVoto = vistaNacional === "voto";
+  const titulo = deVoto ? "Probabilidad de cada tramo de voto nacional en el 50% central de las simulaciones (del percentil 25 al 75). La banda oscura es el voto del modelo (el reparto central)."
+    : "Probabilidad de cada total de escaños en el 50% central de las simulaciones (del percentil 25 al 75). La banda oscura es el reparto central.";
+  return '<tr><th rowspan="2">Partido</th><th colspan="3" class="grupo-columnas">Voto (%)</th><th colspan="3" class="grupo-columnas">Escaños</th><th colspan="2" class="grupo-columnas">' + (deVoto ? "Rango de voto (%)" : "Rango de escaños") +
+    '</th><th rowspan="2" class="col-histograma" title="' + titulo + '">' + (deVoto ? "Distribución del voto (50% central)" : "Distribución (50% central)") + '</th></tr>' +
     '<tr><th>2023</th><th>2026</th><th>Dif.</th><th>2023</th><th>2026</th><th>Dif.</th><th>80%</th><th>95%</th></tr>';
 }
 
@@ -399,6 +478,7 @@ function pintarNacional() {
       '<td>' + entero(escanos2023) + '</td><td>' + entero(escanos2026) + '</td><td>' + conTriangulo(escanos2026 - escanos2023, 0) + '</td><td colspan="3"></td>';
     return filaTotal;
   }
+  const votoSimulado = vistaNacional === "voto" ? votoNacionalSimulado() : null;
   let totalColocado = false;
   // Para las filas de control del final: suma del voto y de los escaños de las filas de partido (sin contar el subtotal comparable, que repite a varios) en 2026 y en 2023
   const sumas = { voto2026: 0, escanos2026: 0, voto2023: 0, escanos2023: 0 };
@@ -424,7 +504,8 @@ function pintarNacional() {
     // Orden de columnas: voto 2023, voto 2026, dif. voto, escaños 2023, escaños 2026, dif. escaños, rango 80%, rango 95%
     fila.innerHTML = '<td>' + ficha(partido) + NOMBRES[partido] + '</td><td>' + celdasDe2023[0] + '</td><td>' + porcentaje(voto) + '</td><td>' + celdasDe2023[1] + '</td>' +
       '<td>' + celdasDe2023[2] + '</td><td>' + entero(escanos) + '</td><td>' + celdasDe2023[3] + '</td>' +
-      '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td><td class="col-histograma">' + histogramaNacional(partido, modelo.partidos.indexOf(partido), escanos) + '</td>';
+      (votoSimulado ? '<td>' + textoDeRangoDeVoto(votoSimulado[partido], 0.1, 0.9) + '</td><td>' + textoDeRangoDeVoto(votoSimulado[partido], 0.025, 0.975) + '</td><td class="col-histograma">' + histogramaDeVoto(partido, votoSimulado[partido], voto) + '</td>'
+        : '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td><td class="col-histograma">' + histogramaNacional(partido, modelo.partidos.indexOf(partido), escanos) + '</td>');
     cuerpo.appendChild(fila);
     if (partido === "PODEMOS") {
       const total = filaDeTotalComparable();
@@ -444,7 +525,8 @@ function pintarNacional() {
   }
   filaDeControl("fila-suma", "Suma de los partidos", sumas.voto2023, sumas.voto2026, sumas.escanos2023, sumas.escanos2026, false);
   filaDeControl("fila-resto", "Otros y en blanco (por diferencia)", 100 - sumas.voto2023, 100 - sumas.voto2026, 350 - sumas.escanos2023, 350 - sumas.escanos2026, true);
-  document.getElementById("nota-sorteos").textContent = entero(ultimoResultado.sorteos) + " sorteos. Los rangos del 80% y del 95% dejan fuera el 10% y el 2,5% de los sorteos por cada extremo.";
+  document.getElementById("nota-sorteos").textContent = entero(ultimoResultado.sorteos) + " sorteos. Los rangos del 80% y del 95% dejan fuera el 10% y el 2,5% de los sorteos por cada extremo." +
+    (votoSimulado ? " Rangos y distribución del voto: voto nacional simulado de cada partido (antes del reparto por provincias), en porcentaje sobre los votos a candidaturas." : "");
 }
 
 /* ---------- Deslizadores ---------- */
@@ -844,6 +926,24 @@ function activarSelectorDePosicion2023() {
 /* ---------- Arranque ---------- */
 
 activarSelectorDePosicion2023();
+
+/* Vista de las tres últimas columnas de la tabla nacional (rango del 80%, rango del 95% y distribución del 50% central): de escaños o de voto. Se recuerda la elección del visitante. */
+let vistaNacional = "escanos";
+function activarSelectorDeVistaNacional() {
+  const selector = document.getElementById("vista-nacional");
+  if (!selector) return;
+  try {
+    const guardada = localStorage.getItem("pondera-vista-nacional");
+    if (guardada && selector.querySelector('option[value="' + guardada + '"]')) selector.value = guardada;
+  } catch (error) { /* sin almacenamiento: se usa el valor por defecto */ }
+  vistaNacional = selector.value;
+  selector.addEventListener("change", function () {
+    vistaNacional = selector.value;
+    try { localStorage.setItem("pondera-vista-nacional", selector.value); } catch (error) { /* ignorar */ }
+    if (ultimoResultado) pintarNacional();
+  });
+}
+activarSelectorDeVistaNacional();
 const botonRestablecer = document.getElementById("restablecer");
 if (botonRestablecer) {
   botonRestablecer.addEventListener("click", function () {
