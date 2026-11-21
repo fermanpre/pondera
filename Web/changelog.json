@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-21",
+    "titulo": "Promedio de encuestas en las páginas de provincia y de comunidad",
+    "texto": "Las páginas de provincias y de comunidades enseñan ahora el promedio de las encuestas del territorio, con la diferencia respecto a la previsión del modelo y la lista de encuestas que lo forman con su peso. Hoy hay promedio en 14 territorios (Cataluña, Galicia y doce provincias); en el resto, la página avisa de que no hay encuestas suficientes con porcentajes."
+  },
+  {
+    "fecha": "2026-11-21",
     "titulo": "Congreso: probabilidad de mayoría; UPC en el hemiciclo y en el promedio; Senado a 10.000 simulaciones",
     "texto": "Bajo las mayorías de la página de inicio hay dos histogramas con los escaños de la derecha ampliada y del bloque de investidura de 2023 y las líneas de la mayoría absoluta (176) y de los tres quintos (210), con un resumen de la probabilidad de cada combinación. La leyenda del hemiciclo enseña ahora los partidos que no tienen escaño en el reparto central pero sí opciones de sacar alguno (Unidad del Pueblo Canario, 51 %; Podemos, 39 %; SALF, 23 %), y el gráfico del promedio tiene una línea estimada de la Unidad del Pueblo Canario. El Senado se calcula con 10.000 simulaciones en lugar de 1.000, lo que reduce el error de cada probabilidad a ±1 punto."
   },

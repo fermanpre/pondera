@@ -56,7 +56,7 @@ def calcular_datos_del_dia(dia, datos_base, medias=None):
     except Exception as error:  # no se bloquea la actualización diaria por esto
         print("Blend regional no aplicado (%s: %s)" % (type(error).__name__, error))
         resumen_blend = {"territorios": {}}
-    datos["blend_regional"] = {"fecha": dia.isoformat(), "lambda": blend_regional.LAMBDA, "k0": blend_regional.K0, "territorios": resumen_blend["territorios"]}
+    datos["blend_regional"] = {"fecha": dia.isoformat(), "lambda": blend_regional.LAMBDA, "k0": blend_regional.K0, "territorios": resumen_blend["territorios"], "promedios": resumen_blend.get("promedios", {})}
     datos["objetivos"] = {partido: problema.objetivo[partido] for partido in datos["partidos"]}
     # Las cuotas provinciales salen siempre del problema (con o sin blend ese día): si no, un día sin blend heredaría las del fichero, que pueden ser las de otro día
     por_nombre = {p["nombre"]: p for p in datos["provincias"]}

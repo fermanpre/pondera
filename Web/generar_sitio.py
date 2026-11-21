@@ -28,7 +28,7 @@ LEMA = "Elecciones generales 2026"
 URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js"]
-SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js"]
+SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/promedio_territorio.js", "assets/app_prevision.js"]
 SCRIPTS_DE_PROVINCIAS = SCRIPTS_DE_COMUNIDADES + ["voto_util.js", "assets/voto_util.js"]  # voto_util.js: escaños en juego y voto útil (Web/voto_util_provincias.js)
 # Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
 SCRIPTS_DEL_SENADO = ["senado.js", "senado_designados.js", "assets/comun.js", "assets/app_senado.js"]

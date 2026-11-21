@@ -191,9 +191,10 @@ def quitar_dias_con_detalle_provincial(por_unidad, provincias_de):
     return descartadas
 
 
-def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None):
+def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None, detalle=None):
     """{unidad: ({bloque: cuota en tanto por uno}, k, ruido)} de los territorios con al menos MINIMO_DE_ENCUESTAS encuestas en su promedio (una en las provincias con peso por varianza).
-    «ruido» = (suma(w^2 / n), suma(w^2 x días de antigüedad), suma(w^2 x error de casa^2)) / suma(w)^2 de las encuestas del promedio."""
+    «ruido» = (suma(w^2 / n), suma(w^2 x días de antigüedad), suma(w^2 x error de casa^2)) / suma(w)^2 de las encuestas del promedio.
+    Con «detalle» (un diccionario) rellena además, para mostrarlo en la web (21/11/2026): {unidad: {"k", "medias": {candidatura: porcentaje}, "encuestas": [{casa, fin, muestra, peso}]}}."""
     por_unidad = {unidad: entregas_vigentes(lista) for unidad, lista in leer_encuestas(dia, nombres_de_provincia).items()}
     if provincias_de:
         quitar_dias_con_detalle_provincial(por_unidad, provincias_de)
@@ -235,6 +236,17 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None):
                     por_bloque[bloque] += valor / 100.0
             if len(por_bloque) >= 3:
                 resultado[unidad] = (dict(por_bloque), usadas, ruido)
+                if detalle is not None:
+                    medias_por_candidatura = {}
+                    for nombre, valor in medias.items():
+                        candidatura = CANDIDATURA_DE_NOMBRE_NACIONAL.get(nombre)
+                        if candidatura and cuenta[nombre] * 2 >= usadas:
+                            medias_por_candidatura[candidatura] = round(valor, 2)
+                    encuestas_del_promedio = []
+                    for encuesta, peso, _antiguedad in sorted(pesos, key=lambda trio: -trio[1]):
+                        encuestas_del_promedio.append({"casa": encuesta["firma_original"], "fin": encuesta["fin"].isoformat(), "muestra": encuesta["muestra"],
+                                                       "peso": round(peso / suma_pesos, 3) if suma_pesos > 0 else 0})
+                    detalle[unidad] = {"k": usadas, "medias": medias_por_candidatura, "encuestas": encuestas_del_promedio}
     finally:
         promedio.vida_media_minima = vida
         promedio.VENTANA_DIAS = ventana
@@ -416,12 +428,14 @@ def aplicar(problema, provincias_modelo, dia, rating):
     for p in provincias_modelo:
         provincias_de[("comunidad", p["comunidad"])].append(p["nombre"])
         provincias_de[("provincia", p["nombre"])].append(p["nombre"])
-    promedios = {u: v for u, v in promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de).items() if u in provincias_de}
+    detalle_de_promedios = {}
+    promedios = {u: v for u, v in promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de, detalle_de_promedios).items() if u in provincias_de}
+    detalle_para_la_web = {"%s (%s)" % (u[1], u[0]): d for u, d in detalle_de_promedios.items() if u in provincias_de}
     reparto0 = repartir_proporcional(problema)
     manuales = indicios_manuales(dia, rating, provincias_de)
     fijos = objetivos_territoriales(problema, reparto0, promedios, provincias_de, manuales)
     if not fijos:
-        return problema, {"territorios": {}}
+        return problema, {"territorios": {}, "promedios": detalle_para_la_web}
     ejes = json.loads((CARPETA_WEB / "candidaturas.json").read_text(encoding="utf-8"))["parametros"]["ejes"]
     bloque_de = {**{i: "DERECHA" for i in ejes["derecha"]}, **{i: "IZQUIERDA" for i in ejes["izquierda"]}}
     matriz, objetivo = converger(problema, fijos, provincias_de, bloque_de)
@@ -434,5 +448,5 @@ def aplicar(problema, provincias_modelo, dia, rating):
         return LAMBDA * k / (k + K0)
 
     resumen = {"territorios": {"%s (%s)" % (u[1], u[0]): {"k": (promedios.get(u) or manuales[u])[1], "w": round(peso_medio(u), 3), "w_por_bloque": {b: round(w, 3) for b, w in PESOS_APLICADOS.get(u, {}).items()}} for u in fijos},
-               "objetivo_antes": {i: problema.objetivo[i] for i in problema.partidos}, "objetivo_despues": objetivo}
+               "objetivo_antes": {i: problema.objetivo[i] for i in problema.partidos}, "objetivo_despues": objetivo, "promedios": detalle_para_la_web}
     return final, resumen
