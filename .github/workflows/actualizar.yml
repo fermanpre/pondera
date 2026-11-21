@@ -81,6 +81,8 @@ jobs:
         run: node Web/voto_util_provincias.js
       - name: Calcular los datos curiosos de Inicio
         run: node Web/datos_curiosos.js
+      - name: Calcular los mundos posibles del Congreso
+        run: node Web/mundos_posibles.js
 
       - name: Actualizar la serie de previsión (escaños, mayorías y primera fuerza de cada día)
         run: python Web/serie_prevision_diaria.py --ultimos 3

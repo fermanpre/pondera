@@ -31,7 +31,6 @@ function pintarTodoConElResultado() {
   pintarNacional();
   pintarProvincia();
   pintarComunidad();
-  if (typeof pintarMundosPosibles === "function") pintarMundosPosibles();  // mundos_posibles.js (página «Mundos posibles»)
   if (typeof actualizarMapasConResultado === "function") actualizarMapasConResultado();  // app_mapa.js: los mapas siguen al reparto central con los objetivos de ese momento
 }
 
