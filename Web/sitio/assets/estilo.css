@@ -380,7 +380,9 @@ button.principal { font-weight: 600; }
 .mundo-tabla td:not(.col-partido), .mundo-tabla th:not(:first-child) { text-align: right; }
 .mundo { margin: 0; padding: 12px 14px; border: 1px solid var(--linea); border-radius: 10px; }
 .mundo figcaption { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; }
-.mundo-percentil { font-weight: 400; color: var(--suave); }
+.mundo-percentil { font-weight: 400; color: var(--suave); text-align: right; }
+.mundo figcaption { gap: 12px; flex-wrap: wrap; }
+.mundo-tabla tr.mundo-destacado td { background: var(--tarjeta); font-weight: 700; }
 .mundo-veredicto { margin: 4px 0 0; font-weight: 600; }
 .mundo .hemiciclo { width: 100%; margin: 4px auto 8px; }
 .mundo .hemiciclo-leyenda { display: none; }   /* la tabla de al lado hace de leyenda */
