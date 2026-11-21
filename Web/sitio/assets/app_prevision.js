@@ -62,6 +62,21 @@ function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
   const resumenDeLosSorteos = medianasYEscalasDeLosSorteos(simulacion, sorteos);
   const medianas = resumenDeLosSorteos.medianas;
   const escalas = resumenDeLosSorteos.escalas;
+  // Mediana de los escaños de cada partido en cada provincia (histograma por celda: los escaños de una provincia son pocos)
+  const porProvincia = P * numeroDePartidos;
+  const provinciales = simulacion.provinciales;
+  const medianasProvinciales = new Uint8Array(porProvincia);
+  const histograma = new Uint32Array(64);
+  for (let celda = 0; celda < porProvincia; celda++) {
+    histograma.fill(0);
+    for (let s = 0; s < sorteos; s++) histograma[provinciales[s * porProvincia + celda]]++;
+    let acumulado = 0;
+    let escanos = 0;
+    while (acumulado + histograma[escanos] <= Math.floor(sorteos / 2)) { acumulado += histograma[escanos]; escanos++; }
+    medianasProvinciales[celda] = escanos;
+  }
+  // Distancia = parte nacional (desviaciones robustas) + parte provincial (suma de diferencias al cuadrado respecto a la mediana de cada provincia y partido, peso 1). Sin la parte provincial
+  // el sorteo elegido heredaba el ruido propio de cada provincia (Badajoz salía 3-1-1 cuando el 88 % de los sorteos dan 2-2-1).
   let mejorSorteo = 0;
   let mejorDistancia = Infinity;
   for (let s = 0; s < sorteos; s++) {
@@ -70,9 +85,13 @@ function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
       const diferencia = (nacionales[s * numeroDePartidos + k] - medianas[k]) / escalas[k];
       distancia += diferencia * diferencia;
     }
+    const inicio = s * porProvincia;
+    for (let celda = 0; celda < porProvincia; celda++) {
+      const diferenciaProvincial = provinciales[inicio + celda] - medianasProvinciales[celda];
+      distancia += diferenciaProvincial * diferenciaProvincial;
+    }
     if (distancia < mejorDistancia) { mejorDistancia = distancia; mejorSorteo = s; }
   }
-  const porProvincia = P * numeroDePartidos;
   return Uint8Array.from(simulacion.provinciales.subarray(mejorSorteo * porProvincia, (mejorSorteo + 1) * porProvincia));
 }
 

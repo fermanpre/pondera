@@ -393,3 +393,11 @@ button.principal { font-weight: 600; }
 #tabla-provincia td.resto-alto, #tabla-comunidad td.resto-alto { color: #b3261e; font-weight: 700; }
 #promedio-territorio .fila-resto td { color: var(--suave); }
 #promedio-territorio td.resto-alto { color: #b3261e; font-weight: 700; }
+
+/* Evolución del promedio por territorio (22/11/2026) */
+.serie-territorial { margin-top: 18px; }
+.serie-territorial .grafico-territorio { overflow-x: auto; }
+.serie-territorial svg { display: block; max-width: 100%; height: auto; }
+.leyenda-territorio { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 6px 0 0; font-size: 0.9rem; }
+.leyenda-territorio .ley-ficha { white-space: nowrap; }
+.leyenda-territorio .ficha { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }

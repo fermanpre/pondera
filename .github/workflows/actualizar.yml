@@ -70,6 +70,9 @@ jobs:
       - name: Actualizar el listado de sondeos regionales
         run: python Web/exportar_listado_regional.py
 
+      - name: Recalcular la evolución del promedio de cada territorio
+        run: python Web/serie_promedio_territorial.py
+
       - name: Actualizar la previsión con el promedio vivo (objetivos, reparto sin ruido y página Resumen)
         run: python Web/actualizar_prevision_diaria.py
 

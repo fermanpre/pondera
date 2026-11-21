@@ -1,6 +1,16 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Evolución del promedio en comunidades y provincias",
+    "texto": "Las páginas de territorio enseñan ahora, bajo el promedio de encuestas, su evolución desde las generales de 2023 con un círculo por encuesta, en los territorios con al menos tres encuestas con porcentajes (11 hoy: Galicia, Cataluña, Andalucía, Madrid, Comunitat Valenciana, País Vasco, Región de Murcia y las provincias de A Coruña, Lugo, Ourense y Pontevedra). Es el mismo promedio que la tabla, calculado día a día; donde no hay encuestas suficientes la línea se corta y no se interpola."
+  },
+  {
+    "fecha": "2026-11-22",
+    "titulo": "Escenario representativo: también parecido a cada provincia",
+    "texto": "El sorteo que enseñan el hemiciclo y las tablas se elegía solo por los escaños nacionales y podía traer un reparto provincial raro (Badajoz salía 3-1-1 aunque el 88 % de los sorteos dan 2-2-1). Ahora la distancia suma también la diferencia con la mediana de cada partido en cada provincia. El coste a nivel nacional es mínimo."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Voto útil: probabilidad de que el voto sea decisivo",
     "texto": "En la página de cada provincia, bajo el valor del voto, hay ahora la probabilidad de que el voto de cada partido sea decisivo: la proporción de simulaciones en las que un cambio del 0,25% de los votos de la provincia le da o le quita un escaño. Mide cuántas veces el partido está justo en la frontera de un escaño y, a diferencia del valor, no se promedia la pendiente."
   },

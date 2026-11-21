@@ -15,6 +15,7 @@ function pintarPromedioDelTerritorio(config) {
   if (!promedio) {
     contenedor.innerHTML = '<h2>Promedio de encuestas</h2><p class="nota">No hay encuestas suficientes de ' + escaparTexto(config.nombre) +
       ' con porcentajes de voto para calcular un promedio propio (hacen falta ' + (config.tipo === "comunidad" ? "dos" : "una") + '); la previsión parte del promedio nacional.</p>';
+    if (typeof pintarSerieDelTerritorio === "function") { pintarSerieDelTerritorio(config, contenedor); }   // aunque hoy no haya promedio, puede haber historia
     return;
   }
   const indices = config.indices;
@@ -66,4 +67,5 @@ function pintarPromedioDelTerritorio(config) {
     }).join("") + '</tbody></table></div></details>' +
     '<p class="nota">La diferencia es previsión menos promedio, en puntos: el modelo no sigue a la encuesta al cien por cien, sino que la mezcla con el promedio nacional y la elección de 2023 (ver la <a href="metodologia.html">metodología</a>). ' +
     'El promedio solo incluye los partidos que figuran en al menos la mitad de las encuestas. «Otros y en blanco» es lo que falta hasta el 100 %: se marca en rojo a partir del ' + UMBRAL_DE_AVISO + ' %, porque un cajón tan grande suele indicar un partido sin cifra en la encuesta o una cifra descartada.</p>';
+  if (typeof pintarSerieDelTerritorio === "function") { pintarSerieDelTerritorio(config, contenedor); }
 }
