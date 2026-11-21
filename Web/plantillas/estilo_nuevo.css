@@ -5,8 +5,8 @@
   .cabecera-sitio .interior { max-width: 1680px; margin: 0 auto; padding: 10px clamp(16px, 2vw, 32px); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; }
   .marca { font-weight: 800; letter-spacing: 0.08em; font-size: 1.2rem; color: var(--texto); text-decoration: none; }
   .marca small { font-weight: 400; letter-spacing: 0; color: var(--suave); font-size: 0.75rem; margin-left: 8px; }
-  nav.principal { display: flex; flex-wrap: wrap; gap: 2px 4px; flex: 1; }
-  nav.principal a { padding: 6px 10px; border-radius: 6px; color: var(--texto); text-decoration: none; font-size: 0.95rem; }
+  nav.principal { display: flex; flex-wrap: wrap; gap: 2px 0; flex: 1; }
+  nav.principal a { padding: 6px 8px; border-radius: 6px; color: var(--texto); text-decoration: none; font-size: 0.95rem; }
   nav.principal a:hover { background: var(--fondo); }
   nav.principal a[aria-current="page"] { background: var(--acento); color: var(--tarjeta); }
   #boton-tema { padding: 4px 10px; font-size: 0.85rem; }

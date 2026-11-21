@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Menús reorganizados",
+    "texto": "La pestaña «Previsión» se llama ahora «Congreso» y conserva sus secciones (escaños, mayorías, mapa, evolución, promedio y sondeos). El Senado, los mundos posibles, los mundos raros y los datos curiosos dejan de colgar de ella y tienen pestaña propia: los tres últimos, a continuación del Simulador, y el Senado entre ellos y la Metodología."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Nueva página: Mundos raros",
     "texto": "La página «Mundos raros» enseña diez sucesos que ocurren en una de cada cien o de cada mil simulaciones del Congreso (un partido con muchos diputados, sin ninguno, o un partido grande en un extremo), cada uno con un mundo en el que pasa, su hemiciclo y su tabla de votos. Se actualiza con cada ejecución."
   },

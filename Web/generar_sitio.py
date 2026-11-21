@@ -38,10 +38,11 @@ SCRIPTS_DE_CURIOSIDADES = ["curiosidades.js", "assets/comun.js", "assets/curiosi
 SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js", "assets/mayorias_congreso.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js", "curiosidades.js", "assets/curiosidades.js"]
 
 # Cinta principal (grupo, texto, página a la que lleva) y segunda cinta de cada grupo (texto, destino; «#...» = sección de la misma página)
-MENU_PRINCIPAL = [("prevision", "Previsión", "index.html"), ("territorio", "Territorio", "provincias.html"), ("simulador", "Simulador", "simulador.html"),
-                  ("metodologia", "Metodología", "metodologia.html"), ("acerca", "Acerca de", "acerca.html")]
+MENU_PRINCIPAL = [("prevision", "Congreso", "index.html"), ("territorio", "Territorio", "provincias.html"), ("simulador", "Simulador", "simulador.html"),
+                  ("mundos", "Mundos posibles", "mundos.html"), ("mundos_raros", "Mundos raros", "mundos_raros.html"), ("curiosidades", "Datos curiosos", "curiosidades.html"),
+                  ("senado", "Senado", "senado.html"), ("metodologia", "Metodología", "metodologia.html"), ("acerca", "Acerca de", "acerca.html")]
 SUBMENUS = {
-    "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Evolución", "#evolucion"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos"), ("Senado", "senado.html"), ("Mundos posibles", "mundos.html"), ("Mundos raros", "mundos_raros.html"), ("Datos curiosos", "curiosidades.html")],
+    "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Evolución", "#evolucion"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos")],
     "territorio": [("Provincias", "provincias.html"), ("Comunidades", "comunidades.html"), ("Resumen", "resumen.html")],
     "acerca": [("Acerca de", "acerca.html"), ("Enlaces", "enlaces.html"), ("Sobre el autor", "autor.html"), ("Privacidad y cookies", "privacidad.html"), ("Historial de cambios", "changelog.html")],
 }
@@ -52,13 +53,13 @@ REDIRECCIONES = {"promedio.html": "index.html#promedio", "sondeos.html": "index.
 PAGINAS = [
     {"archivo": "index.html", "plantilla": "inicio", "titulo": "Previsión de escaños", "grupo": "prevision", "scripts": SCRIPTS_DE_INICIO,
      "descripcion": "Previsión de escaños de las elecciones generales de España del 29 de noviembre de 2026: promedio de encuestas, mapa por provincia, rangos y probabilidades de mayoría."},
-    {"archivo": "senado.html", "plantilla": "senado", "titulo": "Previsión del Senado", "grupo": "prevision", "scripts": SCRIPTS_DEL_SENADO,
+    {"archivo": "senado.html", "plantilla": "senado", "titulo": "Previsión del Senado", "grupo": "senado", "scripts": SCRIPTS_DEL_SENADO,
      "descripcion": "Senadores que elegirán los votantes en las generales de 2026: reparto por partido con rangos, escenarios de pactos y probabilidades en cada circunscripción."},
-    {"archivo": "mundos.html", "plantilla": "mundos", "titulo": "Mundos posibles", "grupo": "prevision", "scripts": SCRIPTS_DE_MUNDOS,
+    {"archivo": "mundos.html", "plantilla": "mundos", "titulo": "Mundos posibles", "grupo": "mundos", "scripts": SCRIPTS_DE_MUNDOS,
      "descripcion": "Diez maneras en las que podría quedar el Congreso en las generales de 2026, desde un resultado muy malo para la derecha hasta uno muy bueno, con más mundos cerca de lo más probable."},
-    {"archivo": "mundos_raros.html", "plantilla": "mundos_raros", "titulo": "Mundos raros", "grupo": "prevision", "scripts": SCRIPTS_DE_MUNDOS_RAROS,
+    {"archivo": "mundos_raros.html", "plantilla": "mundos_raros", "titulo": "Mundos raros", "grupo": "mundos_raros", "scripts": SCRIPTS_DE_MUNDOS_RAROS,
      "descripcion": "Sucesos que ocurren en una de cada cien o de cada mil simulaciones del Congreso, cada uno con un mundo en el que pasa: partidos que aparecen, que desaparecen o que suben mucho."},
-    {"archivo": "curiosidades.html", "plantilla": "curiosidades", "titulo": "Datos curiosos", "grupo": "prevision", "scripts": SCRIPTS_DE_CURIOSIDADES,
+    {"archivo": "curiosidades.html", "plantilla": "curiosidades", "titulo": "Datos curiosos", "grupo": "curiosidades", "scripts": SCRIPTS_DE_CURIOSIDADES,
      "descripcion": "Listado de los datos curiosos de la previsión: partidos que caen por la barrera, votos que separan de un escaño, provincias inciertas y votos que más pesan."},
     {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "grupo": "territorio", "scripts": SCRIPTS_DE_PROVINCIAS,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
