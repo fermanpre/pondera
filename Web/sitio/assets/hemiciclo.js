@@ -73,7 +73,7 @@ function marcadorDeMayoria(disposicion) {
     '" y="' + (HEMICICLO.centroY - (exterior + 12) * Math.sin(ultimo.angulo) + 4).toFixed(1) + '">176</text>';
 }
 
-function pintarHemiciclo(contenedor, escanosPorPartido) {
+function pintarHemiciclo(contenedor, escanosPorPartido, sinEscano) {
   if (!contenedor) return;
   const partidos = ORDEN_EN_LA_BARRA.filter(function (partido) { return (escanosPorPartido[partido] || 0) > 0; });
   // Partidos con escaños que no figuran en el orden de la barra: al final
@@ -99,5 +99,10 @@ function pintarHemiciclo(contenedor, escanosPorPartido) {
   const leyenda = partidos.map(function (partido) {
     return '<span class="hemiciclo-partido"><span class="ficha" style="background:' + (COLORES[partido] || "#9a9a94") + '"></span>' + (NOMBRES[partido] || partido) + " <b>" + escanosPorPartido[partido] + "</b></span>";
   }).join("");
-  contenedor.innerHTML = svg + '<div class="hemiciclo-leyenda">' + leyenda + "</div>";
+  // Partidos sin escaño en el reparto central pero con opciones de sacar alguno en las simulaciones: «Unidad del Pueblo Canario 0 (47 % de sacar escaño)»
+  const opciones = (sinEscano || []).map(function (elemento) {
+    return '<span class="hemiciclo-partido hemiciclo-sin-escano"><span class="ficha" style="background:' + (COLORES[elemento.partido] || "#9a9a94") + '"></span>' + (NOMBRES[elemento.partido] || elemento.partido) +
+      " <b>0</b> <small>(" + Math.round(100 * elemento.probabilidad) + " % de sacar escaño)</small></span>";
+  }).join("");
+  contenedor.innerHTML = svg + '<div class="hemiciclo-leyenda">' + leyenda + "</div>" + (opciones ? '<div class="hemiciclo-leyenda hemiciclo-leyenda-opciones"><span class="hemiciclo-partido">Sin escaño en el reparto central:</span>' + opciones + "</div>" : "");
 }

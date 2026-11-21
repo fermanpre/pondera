@@ -105,7 +105,8 @@
       if (umbral < minimo || umbral > maximo) { return; }
       const posicion = x(umbral);
       svg += '<line class="mg-umbral" x1="' + posicion.toFixed(1) + '" x2="' + posicion.toFixed(1) + '" y1="' + (margen.arriba - 4) + '" y2="' + (margen.arriba + altoUtil) + '" />';
-      svg += '<text class="mg-etiqueta" x="' + (posicion + (i === 0 ? -4 : 4)).toFixed(1) + '" y="' + (12 + 11 * i) + '" text-anchor="' + (i === 0 ? "end" : "start") + '">' + rotulo + "</text>";
+      const alFinal = i === 0 || posicion > ancho - 110;   // la etiqueta va a la izquierda de la línea; la de tres quintos, a la derecha salvo que no quepa
+      svg += '<text class="mg-etiqueta" x="' + (posicion + (alFinal ? -4 : 4)).toFixed(1) + '" y="' + (12 + 11 * i) + '" text-anchor="' + (alFinal ? "end" : "start") + '">' + rotulo + "</text>";
     });
     svg += "</svg>";
     contenedor.innerHTML = svg;
@@ -142,7 +143,7 @@
       ") y un " + porcentajeEntero(probabilidades[0].tres) + " de tres quintos (" + TRES_QUINTOS + "); el resto, un " + porcentajeEntero(probabilidades[3].absoluta) + " y un " + porcentajeEntero(probabilidades[3].tres) + ".";
     document.getElementById("mayorias-nota").textContent = "Cada barra es el número total de senadores del bloque (elegidos por voto, simulados, más designados por los parlamentos autonómicos, fijos) en las " + entero(SENADO.sorteos) +
       " simulaciones. La mayoría absoluta decide casi todo; los tres quintos son los que exige la Constitución para que el Senado proponga cuatro de los doce magistrados del Tribunal Constitucional y se usan también para otros nombramientos, como los vocales del CGPJ que elige el Senado. " +
-      "Con " + entero(SENADO.sorteos) + " simulaciones cada probabilidad tiene un error de hasta ±1,6 puntos. «Todo lo que no es derecha» suma izquierda, nacionalistas, Coalición Canaria, Geroa Bai y locales, que no tienen por qué votar juntos.";
+      "Con " + entero(SENADO.sorteos) + " simulaciones, cada probabilidad tiene un error de hasta ±" + String(Math.round(10 * 98 / Math.sqrt(SENADO.sorteos)) / 10).replace(".", ",") + " puntos (al 95 %). «Todo lo que no es derecha» suma izquierda, nacionalistas, Coalición Canaria, Geroa Bai y locales, que no tienen por qué votar juntos.";
   }
 
   function pintarVentaja(escenario) {

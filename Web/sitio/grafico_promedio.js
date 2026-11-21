@@ -10,11 +10,11 @@
   // Nombre del partido en la serie (tal como sale de Wikipedia) -> identificador del modelo
   const IDENTIFICADOR_DE_SERIE = {
     PP: "PP", PSOE: "PSOE", Vox: "VOX", Sumar: "SUMAR_ANTIGUO", FA: "SUMAR", Podemos: "PODEMOS", ERC: "ERC", Junts: "JUNTS", "EH Bildu": "BILDU", PNV: "PNV", BNG: "BNG",
-    SALF: "SALF", CCa: "CC", UPN: "UPN", "Adelante Andalucía": "ADELANTE", FV: "FV", FA_total: "SUMAR_TOTAL",
+    SALF: "SALF", CCa: "CC", UPN: "UPN", "Adelante Andalucía": "ADELANTE", FV: "FV", FA_total: "SUMAR_TOTAL", UPC: "UPC",
   };
   COLORES.SUMAR_TOTAL = COLORES.SUMAR;  // la línea del total homogéneo (FA + FV + UPC) lleva el color del Frente Amplio, punteada
-  const SELECCION_INICIAL = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "SUMAR_TOTAL", "PODEMOS", "SALF"];
-  const NOMBRES_EN_GRAFICO = { SUMAR: "Frente Amplio", SUMAR_ANTIGUO: "Sumar", FV: "Front Valencià", SUMAR_TOTAL: "FA + FV + UPC (total)" };
+  const SELECCION_INICIAL = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "SUMAR_TOTAL", "UPC", "PODEMOS", "SALF"];
+  const NOMBRES_EN_GRAFICO = { SUMAR: "Frente Amplio", SUMAR_ANTIGUO: "Sumar", FV: "Front Valencià", SUMAR_TOTAL: "FA + FV + UPC (total)", UPC: "Unidad del Pueblo Canario (estimada)" };
   // Orden de las columnas de partido en la tabla de encuestas: por su resultado en las generales de 2023 (Frente Amplio, que sucede a Sumar, va justo detrás); los que no tuvieron resultado propio, al final
   const ORDEN_POR_2023 = ["PP", "PSOE", "VOX", "SUMAR_ANTIGUO", "SUMAR", "ERC", "JUNTS", "BILDU", "PNV", "BNG", "CC", "UPN", "ADELANTE", "PODEMOS", "SALF", "FV"];
   // Columnas de la tabla de encuestas del día: Sumar y Frente Amplio fusionadas en una (aunque no sean exactamente lo mismo) y Front Valencià justo a su derecha

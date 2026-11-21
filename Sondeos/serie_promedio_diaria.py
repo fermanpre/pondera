@@ -119,18 +119,21 @@ def main():
     # «FA» de la lectura es el total homogéneo (Frente Amplio + Front Valencià + UPC en las casas que los suman). Se guarda como «FA_total» y «FA» pasa a ser el Frente Amplio solo:
     # el total sin la parte de FV de ese día y sin la parte de UPC (las mismas proporciones que usa el modelo: FV según las encuestas que la publican por separado, UPC según upc_en_encuestas.csv)
     cifra_de_partida_upc = json.loads((CARPETA_WEB / "candidaturas.json").read_text(encoding="utf-8"))["parametros"]["upc_en_frente_amplio"]["proporcion"]
-    frente_amplio_total, frente_amplio_solo = [], []
+    frente_amplio_total, frente_amplio_solo, upc_estimada = [], [], []
     for dia, valores, _usadas in serie:
         if not valores or "FA" not in valores:
             frente_amplio_total.append(None)
             frente_amplio_solo.append(None)
+            upc_estimada.append(None)
             continue
         parte_de_fv = valores["FV"] / valores["Sumar_con_FV"] if valores.get("Sumar_con_FV") and "FV" in valores else 0.0
         parte_de_upc = proporcion_upc.calcular(cifra_de_partida_upc, dia)[0]
         frente_amplio_total.append(round(valores["FA"], 2))
         frente_amplio_solo.append(round(valores["FA"] * (1.0 - parte_de_fv) * (1.0 - parte_de_upc), 2))
+        upc_estimada.append(round(valores["FA"] * (1.0 - parte_de_fv) * parte_de_upc, 2))   # UPC estimada: parte de UPC de ese día sobre el total sin FV
     if "FA" in series_por_partido:
         series_por_partido["FA_total"] = frente_amplio_total
+        series_por_partido["UPC"] = upc_estimada
         series_por_partido["FA"] = frente_amplio_solo
     # «Sumar» deja de dibujarse el día en que empieza la línea de Frente Amplio (el partido cambió de nombre en las encuestas)
     if "Sumar" in series_por_partido and "FA" in series_por_partido:

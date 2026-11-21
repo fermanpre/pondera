@@ -146,6 +146,8 @@
   .hemiciclo .hemiciclo-nota { font-size: 13px; fill: var(--suave); }
   .hemiciclo-leyenda { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; margin-top: 4px; font-size: 0.9rem; }
   .hemiciclo-partido { white-space: nowrap; }
+  .hemiciclo-sin-escano small { color: var(--suave); }
+  .hemiciclo-leyenda-opciones { margin-top: 0; font-size: 0.85rem; color: var(--suave); }
 
   /* Crea tu propio promedio */
   .tabla-promedio-propio th, .tabla-promedio-propio td { white-space: nowrap; }

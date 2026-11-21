@@ -1,4 +1,4 @@
-# Previsión del Senado: se calcula una vez al día (1.000 simulaciones, unos 10 minutos) y lanza la publicación de la web.
+# Previsión del Senado: se calcula una vez al día (10.000 simulaciones, de media hora a una hora y media) y lanza la publicación de la web.
 # Usa los datos que dejó la última ejecución de «Actualizar promedio y publicar» (promedio, blend regional e indicios). Desde el 24/11/2026 (hora de Madrid) no hace nada: veda de sondeos, art. 69.7 de la LOREG.
 name: Previsión del Senado
 
@@ -18,7 +18,7 @@ concurrency:
 jobs:
   senado:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 150
     steps:
       - id: fecha
         run: |
@@ -43,8 +43,8 @@ jobs:
         run: pip install lxml openpyxl
 
       - if: steps.fecha.outputs.veda != 'true'
-        name: Calcular la previsión del Senado (1.000 simulaciones)
-        run: python Web/prevision_senado_diaria.py 1000
+        name: Calcular la previsión del Senado (10.000 simulaciones)
+        run: python Web/prevision_senado_diaria.py 10000
 
       - if: steps.fecha.outputs.veda != 'true'
         name: Guardar el resultado y lanzar la publicación

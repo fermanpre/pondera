@@ -178,6 +178,7 @@ function pintarMayorias() {
   }
   html += '<div class="grupo-mayorias"><h4>Otras</h4>' + filaDeMayoria(COMBINACION_OTRAS, probabilidad(COMBINACION_OTRAS), centrales) + '</div>';
   contenedor.innerHTML = html;
+  if (typeof pintarHistogramasDeMayoria === "function") pintarHistogramasDeMayoria();
 }
 
 /* ---------- Tabla nacional: 2026 frente a 2023 ---------- */
@@ -294,7 +295,10 @@ function pintarNacional() {
     trozo.textContent = cantidad >= 8 ? cantidad : "";
     barra.appendChild(trozo);
   });
-  if (typeof pintarHemiciclo === "function") pintarHemiciclo(document.getElementById("hemiciclo"), centrales);
+  // Partidos sin escaño en el reparto central con al menos un 5 % de probabilidad de sacar alguno (UPC, Podemos, SALF...): salen en la leyenda del hemiciclo con esa probabilidad
+  const sinEscano = ORDEN_EN_LA_BARRA.filter(function (partido) { return !(centrales[partido] || 0) && resumen[partido] && resumen[partido].pAlMenos1 >= 0.05; })
+    .map(function (partido) { return { partido: partido, probabilidad: resumen[partido].pAlMenos1 }; });
+  if (typeof pintarHemiciclo === "function") pintarHemiciclo(document.getElementById("hemiciclo"), centrales, sinEscano);
   const marca = document.createElement("div");
   marca.className = "linea176";
   marca.style.left = (100 * 176 / 350) + "%";
