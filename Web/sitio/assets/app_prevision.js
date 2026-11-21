@@ -200,9 +200,8 @@ const COMBINACIONES_DE_MAYORIA = [
 const COMBINACION_OTRAS = { nombre: "PP + PSOE", partidos: ["PP", "UPN", "PSOE"], color: COLOR_OTRAS };
 
 function textoDeProbabilidad(p) {
-  if (p === 0) return "0%";
-  if (p < 0.001) return "< 0,1%";
-  return porcentaje(100 * p);
+  const original = p === 0 ? "0%" : (p < 0.001 ? "< 0,1%" : porcentaje(100 * p));
+  return PROBABILIDAD.html(p, original);
 }
 
 // Diputados que suma la combinación en el reparto central (sin ruido)
@@ -337,6 +336,18 @@ function histogramaNacional(partido, indice, central) {
   return histogramaDeEscanos({ partido: partido, cuentas: cuentas, central: central, masProbable: masProbable }, sorteos, { desde: desde, hasta: hasta, ancho: 180, compacto: true });
 }
 
+/* Etiqueta de probabilidad sobre una barra de un histograma (SVG): el porcentaje, o la frecuencia («1 de cada 15») con el porcentaje en el texto emergente. La frecuencia es más larga: se alinea
+   al borde si se saldría del dibujo. */
+function etiquetaDeProbabilidadSvg(x, y, probabilidad, original, anchoDelDibujo) {
+  const texto = PROBABILIDAD.plano(probabilidad, original);
+  const anchoAproximado = 5.4 * texto.length;
+  let ancla = "middle";
+  let posicion = x;
+  if (x - anchoAproximado / 2 < 0) { ancla = "start"; posicion = 0; }
+  else if (x + anchoAproximado / 2 > anchoDelDibujo) { ancla = "end"; posicion = anchoDelDibujo; }
+  return '<text x="' + posicion.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="' + ancla + '" font-size="10" fill="var(--suave)">' + (PROBABILIDAD.activo() ? "<title>" + original + "</title>" : "") + texto + "</text>";
+}
+
 /* Voto nacional simulado de cada partido (en %), ordenado de menor a mayor: {partido: Float64Array}. Sale de simulacion.objetivos (voto de cada sorteo antes del reparto por provincia). */
 function votoNacionalSimulado() {
   const K = modelo.numeroDePartidos;
@@ -398,8 +409,8 @@ function histogramaDeVoto(partido, valores, central) {
     const x = i * anchoDeBarra;
     const desdeTramo = (primerTramo + i) * paso;
     svg += '<rect x="' + (x + 0.5).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura).toFixed(1) + '" width="' + Math.max(1, anchoDeBarra - 1).toFixed(1) + '" height="' + altura.toFixed(1) +
-      '" fill="' + COLORES[partido] + '" opacity="0.9"><title>' + texto(desdeTramo) + "–" + texto(desdeTramo + paso) + " %: " + porcentaje(100 * probabilidad) + '</title></rect>';
-    if (i === masProbable) etiqueta = '<text x="' + (x + anchoDeBarra / 2).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura - 2).toFixed(1) + '" text-anchor="middle" font-size="10" fill="var(--suave)">' + entero(100 * probabilidad) + '%</text>';
+      '" fill="' + COLORES[partido] + '" opacity="0.9"><title>' + texto(desdeTramo) + "–" + texto(desdeTramo + paso) + " %: " + porcentaje(100 * probabilidad) + (PROBABILIDAD.activo() ? " (" + PROBABILIDAD.frecuencia(probabilidad) + ")" : "") + '</title></rect>';
+    if (i === masProbable) etiqueta = etiquetaDeProbabilidadSvg(x + anchoDeBarra / 2, MARGEN_ARRIBA + ALTO_BARRAS - altura - 2, probabilidad, entero(100 * probabilidad) + "%", ANCHO);
   });
   const tramoCentral = Math.floor(central / paso + 1e-9) - primerTramo;
   if (tramoCentral >= 0 && tramoCentral < cantidad) {
@@ -863,9 +874,9 @@ function histogramaDeEscanos(f, sorteos, opciones) {
     const altura = Math.max(1, ALTO_BARRAS * probabilidad / probabilidadMaxima);
     const x = (n - desde) * anchoDeBarra;
     svg += '<rect x="' + (x + 0.5).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura).toFixed(1) + '" width="' + Math.max(1, anchoDeBarra - 1).toFixed(1) + '" height="' + altura.toFixed(1) +
-      '" fill="' + color + '" opacity="0.9"><title>' + n + " escaños: " + porcentaje(100 * probabilidad) + '</title></rect>';
+      '" fill="' + color + '" opacity="0.9"><title>' + n + " escaños: " + porcentaje(100 * probabilidad) + (PROBABILIDAD.activo() ? " (" + PROBABILIDAD.frecuencia(probabilidad) + ")" : "") + '</title></rect>';
     if (n === f.masProbable) {
-      etiquetaDeLaMasProbable = '<text x="' + (x + anchoDeBarra / 2).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura - 2).toFixed(1) + '" text-anchor="middle" font-size="10" fill="var(--suave)">' + entero(100 * probabilidad) + '%</text>';
+      etiquetaDeLaMasProbable = etiquetaDeProbabilidadSvg(x + anchoDeBarra / 2, MARGEN_ARRIBA + ALTO_BARRAS - altura - 2, probabilidad, entero(100 * probabilidad) + "%", ANCHO);
     }
   }
   if (f.central >= desde && f.central <= hasta) {
@@ -944,6 +955,9 @@ function activarSelectorDeVistaNacional() {
   });
 }
 activarSelectorDeVistaNacional();
+
+// Al cambiar el modo de las probabilidades (porcentajes o «x de cada y») se repinta todo con el último resultado, sin recalcular
+PROBABILIDAD.alCambiar(function () { if (ultimoResultado) pintarTodoConElResultado(); });
 const botonRestablecer = document.getElementById("restablecer");
 if (botonRestablecer) {
   botonRestablecer.addEventListener("click", function () {

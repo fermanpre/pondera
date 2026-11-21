@@ -51,23 +51,23 @@ REDIRECCIONES = {"promedio.html": "index.html#promedio", "sondeos.html": "index.
 
 # archivo, plantilla, título, descripción, grupo de la cinta principal, scripts de la página
 PAGINAS = [
-    {"archivo": "index.html", "plantilla": "inicio", "titulo": "Previsión de escaños", "grupo": "prevision", "scripts": SCRIPTS_DE_INICIO,
+    {"archivo": "index.html", "plantilla": "inicio", "titulo": "Previsión de escaños", "grupo": "prevision", "scripts": SCRIPTS_DE_INICIO, "probabilidades": True,
      "descripcion": "Previsión de escaños de las elecciones generales de España del 29 de noviembre de 2026: promedio de encuestas, mapa por provincia, rangos y probabilidades de mayoría."},
-    {"archivo": "senado.html", "plantilla": "senado", "titulo": "Previsión del Senado", "grupo": "senado", "scripts": SCRIPTS_DEL_SENADO,
+    {"archivo": "senado.html", "plantilla": "senado", "titulo": "Previsión del Senado", "grupo": "senado", "scripts": SCRIPTS_DEL_SENADO, "probabilidades": True,
      "descripcion": "Senadores que elegirán los votantes en las generales de 2026: reparto por partido con rangos, escenarios de pactos y probabilidades en cada circunscripción."},
     {"archivo": "mundos.html", "plantilla": "mundos", "titulo": "Mundos posibles", "grupo": "mundos", "scripts": SCRIPTS_DE_MUNDOS,
      "descripcion": "Diez maneras en las que podría quedar el Congreso en las generales de 2026, desde un resultado muy malo para la derecha hasta uno muy bueno, con más mundos cerca de lo más probable."},
-    {"archivo": "mundos_raros.html", "plantilla": "mundos_raros", "titulo": "Mundos raros", "grupo": "mundos_raros", "scripts": SCRIPTS_DE_MUNDOS_RAROS,
+    {"archivo": "mundos_raros.html", "plantilla": "mundos_raros", "titulo": "Mundos raros", "grupo": "mundos_raros", "scripts": SCRIPTS_DE_MUNDOS_RAROS, "probabilidades": True,
      "descripcion": "Sucesos que ocurren en una de cada cien o de cada mil simulaciones del Congreso, cada uno con un mundo en el que pasa: partidos que aparecen, que desaparecen o que suben mucho."},
-    {"archivo": "curiosidades.html", "plantilla": "curiosidades", "titulo": "Datos curiosos", "grupo": "curiosidades", "scripts": SCRIPTS_DE_CURIOSIDADES,
+    {"archivo": "curiosidades.html", "plantilla": "curiosidades", "titulo": "Datos curiosos", "grupo": "curiosidades", "scripts": SCRIPTS_DE_CURIOSIDADES, "probabilidades": True,
      "descripcion": "Listado de los datos curiosos de la previsión: partidos que caen por la barrera, votos que separan de un escaño, provincias inciertas y votos que más pesan."},
-    {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "grupo": "territorio", "scripts": SCRIPTS_DE_PROVINCIAS,
+    {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "grupo": "territorio", "scripts": SCRIPTS_DE_PROVINCIAS, "probabilidades": True,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
-    {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "grupo": "territorio", "scripts": SCRIPTS_DE_COMUNIDADES,
+    {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "grupo": "territorio", "scripts": SCRIPTS_DE_COMUNIDADES, "probabilidades": True,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en cada comunidad autónoma de las generales de 2026, con los resultados de 2023."},
     {"archivo": "resumen.html", "plantilla": "resumen", "titulo": "Resumen por provincia", "grupo": "territorio", "scripts": [],
      "descripcion": "Escaños y porcentaje de voto previstos de cada partido en cada provincia, con descarga en CSV y XLSX."},
-    {"archivo": "simulador.html", "plantilla": "simulador", "titulo": "Simulador", "grupo": "simulador", "scripts": SCRIPTS_DE_PREVISION + ["encuestas_recientes.js", "assets/promedio_propio.js", "assets/app_mapa.js"],
+    {"archivo": "simulador.html", "plantilla": "simulador", "titulo": "Simulador", "grupo": "simulador", "probabilidades": True, "scripts": SCRIPTS_DE_PREVISION + ["encuestas_recientes.js", "assets/promedio_propio.js", "assets/app_mapa.js"],
      "descripcion": "Simulador de escaños: fija el voto de cada partido y mira cómo cambia el reparto en España y en cada provincia."},
     {"archivo": "metodologia.html", "plantilla": "metodologia", "titulo": "Metodología", "grupo": "metodologia", "scripts": [],
      "descripcion": "Cómo se calcula el promedio de encuestas, el reparto por provincia, los escaños y la incertidumbre."},
@@ -131,7 +131,10 @@ def construir_pagina(pagina, contenido, prefijo=""):
             actual = ' aria-current="page"' if destino == pagina["archivo"] else ""
             enlaces.append('<a href="%s"%s>%s</a>' % (enlace, actual, escapar(rotulo)))
         segunda_cinta = '<nav class="subnav" aria-label="Secciones de esta página"><div class="interior">%s</div></nav>' % "".join(enlaces)
-    scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js", "assets/veda.js", "assets/cookies.js", "ultima_actualizacion.js", "assets/actualizacion.js"] + pagina["scripts"])
+    # Botón global de probabilidades (porcentajes o «x de cada y»): solo en las páginas que enseñan probabilidades
+    boton_probabilidades = ('<button id="boton-probabilidades" type="button" aria-label="Mostrar las probabilidades como porcentajes o como x de cada y">Probabilidades: %</button>\n    '
+                            if pagina.get("probabilidades") else "")
+    scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js", "assets/probabilidad.js", "assets/veda.js", "assets/cookies.js", "ultima_actualizacion.js", "assets/actualizacion.js"] + pagina["scripts"])
 
     return """<!doctype html>
 <html lang="es">
@@ -164,7 +167,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
     <nav class="principal" aria-label="Principal">
       {menu}
     </nav>
-    <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
+    {boton_probabilidades}<button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
   </div>
 </header>
 <div class="retroacronimo"><div class="interior"><b>P</b>ronóstico <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
@@ -194,7 +197,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
 """.format(
         titulo_completo=escapar(titulo_completo), descripcion=escapar(pagina["descripcion"]), url_canonica=url_canonica, prefijo=prefijo,
         nombre=NOMBRE_SITIO, lema=escapar(LEMA), base_url=BASE_URL, script_de_tema=SCRIPT_DE_TEMA_EN_CABECERA + ETIQUETA_DE_GOOGLE_ANALYTICS, menu="\n      ".join(enlaces_del_menu),
-        contenido=contenido, scripts=scripts, url_repositorio=URL_REPOSITORIO, segunda_cinta=segunda_cinta)
+        contenido=contenido, scripts=scripts, url_repositorio=URL_REPOSITORIO, segunda_cinta=segunda_cinta, boton_probabilidades=boton_probabilidades)
 
 
 def contenido_del_changelog(entradas):

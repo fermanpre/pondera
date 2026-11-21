@@ -24,6 +24,8 @@ const TIPOS_DE_CURIOSIDAD = {
   };
   const colorDe = (partido) => (typeof COLORES !== "undefined" && COLORES[partido]) || "#7a7a75";
   const porcentaje = (probabilidad) => Math.round(100 * probabilidad) + " %";
+  // «en el 95 % de las simulaciones» o, en el modo de frecuencias, «en 19 de cada 20 simulaciones»
+  const enSimulaciones = (probabilidad) => PROBABILIDAD.enLasSimulaciones(probabilidad, porcentaje(probabilidad));
   const formatoEntero = new Intl.NumberFormat("es-ES", { useGrouping: "always" });
   const formatoDecimal = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   function escapar(texto) { return String(texto).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
@@ -35,30 +37,30 @@ const TIPOS_DE_CURIOSIDAD = {
     if (dato.tipo === "barrera") {
       const barrera = formatoDecimal.format(100 * dato.barrera).replace(",0", "");
       const ultimo = dato.ultimo_escano ? " El último escaño de " + escapar(dato.provincia) + " cuesta un " + porcentajeDeVoto(dato.ultimo_escano) + " % de los votos válidos en el reparto central, y " + escapar(nombreDe(dato.partido, dato.provincia)) + " tiene un " + porcentajeDeVoto(dato.voto_central) + " %." : "";
-      return { texto: etiquetaDe(dato.partido, dato.provincia) + " se queda sin escaño en " + escapar(dato.provincia) + " por la barrera del " + barrera + " % en el " + porcentaje(dato.probabilidad) + " de las simulaciones: saca los votos para un escaño por cociente, pero no llega al " + barrera + " %." +
-        ultimo + " En total queda por debajo del " + barrera + " % en el " + porcentaje(dato.debajo_de_la_barrera) + " de las simulaciones.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+      return { texto: etiquetaDe(dato.partido, dato.provincia) + " se queda sin escaño en " + escapar(dato.provincia) + " por la barrera del " + barrera + " % " + enSimulaciones(dato.probabilidad) + ": saca los votos para un escaño por cociente, pero no llega al " + barrera + " %." +
+        ultimo + " En total queda por debajo del " + barrera + " % " + enSimulaciones(dato.debajo_de_la_barrera) + ".", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "margen") {
       return { texto: "En " + escapar(dato.provincia) + ", " + formatoEntero.format(dato.votos) + " votos separan a " + etiquetaDe(dato.partido_fuera, dato.provincia) + " de arrebatarle el último escaño a " + etiquetaDe(dato.partido_dentro, dato.provincia) + ", en el reparto central (" + dato.escanos + " escaños en juego).", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "incierta") {
-      return { texto: "En " + escapar(dato.provincia) + " (" + dato.escanos + " escaños), el reparto central solo se repite en el " + porcentaje(dato.probabilidad) + " de las simulaciones: es una de las provincias donde más puede moverse el resultado.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+      return { texto: "En " + escapar(dato.provincia) + " (" + dato.escanos + " escaños), el reparto central solo se repite " + enSimulaciones(dato.probabilidad) + ": es una de las provincias donde más puede moverse el resultado.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "nacional") {
-      return { texto: etiquetaDe(dato.partido, "") + " se queda sin ningún diputado en toda España en el " + porcentaje(dato.probabilidad) + " de las simulaciones.", enlace: "index.html#nacional", rotulo: "Ver los escaños" };
+      return { texto: etiquetaDe(dato.partido, "") + " se queda sin ningún diputado en toda España " + enSimulaciones(dato.probabilidad) + ".", enlace: "index.html#nacional", rotulo: "Ver los escaños" };
     }
     if (dato.tipo === "voto") {
       return { texto: "Un voto a " + etiquetaDe(dato.partido, dato.provincia) + " en " + escapar(dato.provincia) + " vale ×" + formatoDecimal.format(dato.valor) + " el voto medio de España: es de los votos que más pesan en el reparto de escaños.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "primera") {
-      return { texto: "En " + escapar(dato.provincia) + " (" + dato.escanos + " escaños) la primera plaza está disputada: " + etiquetaDe(dato.partido_a, dato.provincia) + " queda primero en el " + porcentaje(dato.probabilidad_a) + " de las simulaciones y " + etiquetaDe(dato.partido_b, dato.provincia) + " en el " + porcentaje(dato.probabilidad_b) + ".", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+      return { texto: "En " + escapar(dato.provincia) + " (" + dato.escanos + " escaños) la primera plaza está disputada: " + etiquetaDe(dato.partido_a, dato.provincia) + " queda primero " + enSimulaciones(dato.probabilidad_a) + " y " + etiquetaDe(dato.partido_b, dato.provincia) + " " + enSimulaciones(dato.probabilidad_b) + ".", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "giro") {
       const sube = dato.puntos > 0;
       return { texto: etiquetaDe(dato.partido, dato.provincia) + " " + (sube ? "sube" : "baja") + " " + formatoDecimal.format(Math.abs(dato.puntos)) + " puntos en " + escapar(dato.provincia) + " respecto a 2023: pasa del " + porcentajeDeVoto(dato.de) + " % al " + porcentajeDeVoto(dato.a) + " % de los votos válidos. Es el mayor giro de este partido en cualquier provincia.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "entra") {
-      return { texto: etiquetaDe(dato.partido, dato.provincia) + " tiene un " + porcentaje(dato.probabilidad) + " de probabilidad de sacar al menos un escaño en " + escapar(dato.provincia) + " (" + dato.escanos + " escaños en juego).", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+      return { texto: etiquetaDe(dato.partido, dato.provincia) + (PROBABILIDAD.activo() ? " saca al menos un escaño en " + escapar(dato.provincia) + " (" + dato.escanos + " escaños en juego) " + enSimulaciones(dato.probabilidad) + "." : " tiene un " + porcentaje(dato.probabilidad) + " de probabilidad de sacar al menos un escaño en " + escapar(dato.provincia) + " (" + dato.escanos + " escaños en juego)."), enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     return null;
   };
@@ -82,4 +84,9 @@ const TIPOS_DE_CURIOSIDAD = {
   contenedor.hidden = false;
   contenedor.querySelector(".curio-otro").addEventListener("click", mostrar);
   mostrar();
+  // Al cambiar el modo de las probabilidades se redacta de nuevo el dato que se está viendo
+  PROBABILIDAD.alCambiar(function () {
+    const redaccion = ultimo >= 0 ? window.redactarCuriosidad(datos[ultimo]) : null;
+    if (redaccion) { contenedor.querySelector(".curio-texto").innerHTML = redaccion.texto; }
+  });
 })();

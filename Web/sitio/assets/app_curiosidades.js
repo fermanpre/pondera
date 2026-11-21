@@ -8,6 +8,7 @@
   const datos = CURIOSIDADES.datos;
   const fecha = new Date(CURIOSIDADES.fecha_promedio + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" });
   const tipos = Object.keys(TIPOS_DE_CURIOSIDAD);
+  PROBABILIDAD.alCambiar(function () { location.reload(); });
   document.getElementById("curiosidades-resumen").textContent = datos.length + " datos de " + tipos.length + " tipos. Promedio a " + fecha + ", " + entero(CURIOSIDADES.sorteos) + " simulaciones.";
   contenedor.innerHTML = tipos.map(function (tipo) {
     const delTipo = datos.filter(function (dato) { return dato.tipo === tipo; });

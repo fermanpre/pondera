@@ -102,7 +102,7 @@ function pintarHemiciclo(contenedor, escanosPorPartido, sinEscano) {
   // Partidos sin escaño en el reparto central pero con opciones de sacar alguno en las simulaciones: «Unidad del Pueblo Canario 0 (47 % de sacar escaño)»
   const opciones = (sinEscano || []).map(function (elemento) {
     return '<span class="hemiciclo-partido hemiciclo-sin-escano"><span class="ficha" style="background:' + (COLORES[elemento.partido] || "#9a9a94") + '"></span>' + (NOMBRES[elemento.partido] || elemento.partido) +
-      " <b>0</b> <small>(" + Math.round(100 * elemento.probabilidad) + " % de sacar escaño)</small></span>";
+      " <b>0</b> <small>(" + (PROBABILIDAD.activo() ? "escaño " + PROBABILIDAD.enLasSimulaciones(elemento.probabilidad, Math.round(100 * elemento.probabilidad) + " %") : Math.round(100 * elemento.probabilidad) + " % de sacar escaño") + ")</small></span>";
   }).join("");
   contenedor.innerHTML = svg + '<div class="hemiciclo-leyenda">' + leyenda + "</div>" + (opciones ? '<div class="hemiciclo-leyenda hemiciclo-leyenda-opciones"><span class="hemiciclo-partido">Sin escaño en el reparto central:</span>' + opciones + "</div>" : "");
 }

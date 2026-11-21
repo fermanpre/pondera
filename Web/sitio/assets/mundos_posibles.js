@@ -48,7 +48,8 @@ if (typeof MUNDOS !== "undefined") {
     '<figcaption><span class="mundo-numero">Mundo ' + (i + 1) + '</span><span class="mundo-percentil">percentil ' + escritura(mundo.percentil) + '</span></figcaption>');
 }
 if (typeof MUNDOS_RAROS !== "undefined") {
+  PROBABILIDAD.alCambiar(function () { location.reload(); });
   pintarListaDeMundos("mundos-raros", MUNDOS_RAROS.mundos, (mundo) =>
-    '<figcaption><span class="mundo-numero">' + titularDelMundoRaro(mundo) + '</span><span class="mundo-percentil">' + escritura(mundo.probabilidad) + ' % de las simulaciones (' + mundo.simulaciones + ' de ' +
+    '<figcaption><span class="mundo-numero">' + titularDelMundoRaro(mundo) + '</span><span class="mundo-percentil">' + (PROBABILIDAD.activo() ? PROBABILIDAD.enLasSimulaciones(mundo.simulaciones / MUNDOS_RAROS.sorteos, escritura(mundo.probabilidad) + ' %').replace(/^en /, '') : escritura(mundo.probabilidad) + ' % de las simulaciones') + ' (' + mundo.simulaciones + ' de ' +
     MUNDOS_RAROS.sorteos.toLocaleString("es-ES", { useGrouping: "always" }) + ')</span></figcaption>');
 }

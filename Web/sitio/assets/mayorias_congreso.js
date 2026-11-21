@@ -11,7 +11,7 @@ function pintarHistogramasDeMayoria() {
   const ESCANOS = 350, ABSOLUTA = 176, TRES_QUINTOS = 210;
   const sorteos = ultimoResultado.sorteos;
   const K = modelo.numeroDePartidos;
-  const porcentajeEntero = (probabilidad) => Math.round(100 * probabilidad) + " %";
+  const porcentajeEntero = (probabilidad) => PROBABILIDAD.html(probabilidad, Math.round(100 * probabilidad) + " %");
 
   // Suma de escaños de un grupo de partidos en cada sorteo
   function sumasDe(partidos) {
@@ -85,8 +85,12 @@ function pintarHistogramasDeMayoria() {
 
   contenedor.innerHTML =
     '<h2>Probabilidad de mayoría en el Congreso</h2>' +
-    '<p class="subtitulo">La derecha ampliada tiene un ' + porcentajeEntero(pDerecha.absoluta) + ' de probabilidad de mayoría absoluta (' + ABSOLUTA + ') y un ' + porcentajeEntero(pDerecha.tres) + ' de tres quintos (' + TRES_QUINTOS +
-    '); el bloque de investidura de 2023 con Podemos y Adelante, un ' + porcentajeEntero(pInvestidura.absoluta) + ' y un ' + porcentajeEntero(pInvestidura.tres) + '.</p>' +
+    (PROBABILIDAD.activo()
+      ? '<p class="subtitulo">La derecha ampliada logra la mayoría absoluta (' + ABSOLUTA + ') ' + PROBABILIDAD.enLasSimulaciones(pDerecha.absoluta, Math.round(100 * pDerecha.absoluta) + " %") + ' y los tres quintos (' + TRES_QUINTOS +
+        ') ' + PROBABILIDAD.enLasSimulaciones(pDerecha.tres, Math.round(100 * pDerecha.tres) + " %") + '; el bloque de investidura de 2023 con Podemos y Adelante, ' + PROBABILIDAD.enLasSimulaciones(pInvestidura.absoluta, Math.round(100 * pInvestidura.absoluta) + " %") +
+        ' y ' + PROBABILIDAD.enLasSimulaciones(pInvestidura.tres, Math.round(100 * pInvestidura.tres) + " %") + '.</p>'
+      : '<p class="subtitulo">La derecha ampliada tiene un ' + porcentajeEntero(pDerecha.absoluta) + ' de probabilidad de mayoría absoluta (' + ABSOLUTA + ') y un ' + porcentajeEntero(pDerecha.tres) + ' de tres quintos (' + TRES_QUINTOS +
+        '); el bloque de investidura de 2023 con Podemos y Adelante, un ' + porcentajeEntero(pInvestidura.absoluta) + ' y un ' + porcentajeEntero(pInvestidura.tres) + '.</p>') +
     '<div class="mayorias-rejilla">' +
     '<figure class="mayorias-grafico"><figcaption>' + escaparTexto(derecha.nombre) + '</figcaption>' + graficoSvg(sumasDerecha) + '</figure>' +
     '<figure class="mayorias-grafico"><figcaption>' + escaparTexto(investidura.nombre) + '</figcaption>' + graficoSvg(sumasInvestidura) + '</figure></div>' +

@@ -26,7 +26,7 @@
     return (typeof NOMBRES !== "undefined" && NOMBRES[partido]) || partido;
   }
   const colorDe = (partido) => (typeof COLORES !== "undefined" && COLORES[partido]) || "#7a7a75";
-  const porcentajeEntero = (probabilidad) => Math.round(100 * probabilidad) + "%";
+  const porcentajeEntero = (probabilidad) => PROBABILIDAD.html(probabilidad, Math.round(100 * probabilidad) + "%");
   function lista(nombres) {
     if (nombres.length <= 1) { return nombres.join(""); }
     return nombres.slice(0, -1).join(", ") + " y " + nombres[nombres.length - 1];
@@ -125,7 +125,7 @@
     partidos.forEach((partido) => {
       const probabilidad = datos.decisivo[partido];
       html += '<div class="vu-fila"><span class="vu-nombre">' + escapar(nombreDe(partido, nombre, true)) + '</span><span class="vu-pista"><span class="vu-barra" style="width:' + Math.max(1.5, 100 * probabilidad).toFixed(1) +
-        "%;background:" + colorDe(partido) + '"></span></span><span class="vu-valor">' + Math.round(100 * probabilidad) + " %</span></div>";
+        "%;background:" + colorDe(partido) + '"></span></span><span class="vu-valor">' + PROBABILIDAD.html(probabilidad, Math.round(100 * probabilidad) + " %") + "</span></div>";
     });
     return html;
   }

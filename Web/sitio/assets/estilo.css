@@ -56,7 +56,14 @@ nav.principal { display: flex; flex-wrap: wrap; gap: 2px 0; flex: 1; }
 nav.principal a { padding: 6px 8px; border-radius: 6px; color: var(--texto); text-decoration: none; font-size: 0.95rem; }
 nav.principal a:hover { background: var(--fondo); }
 nav.principal a[aria-current="page"] { background: var(--acento); color: var(--tarjeta); }
-#boton-tema { padding: 4px 10px; font-size: 0.85rem; }
+#boton-tema, #boton-probabilidades { padding: 4px 10px; font-size: 0.85rem; }
+/* Barras de mayoría con frecuencias («14 de cada 15» no cabe en la columna de porcentaje): el nombre ocupa su propia línea, como en pantallas estrechas */
+.prob-frecuencias .barra-prob { grid-template-columns: 1fr max-content max-content; }
+.prob-frecuencias .barra-prob-nombre { grid-column: 1 / -1; }
+.prob-frecuencias .barra-prob-pista { grid-column: 1; }
+.prob-frecuencias .barra-prob-cabecera > span:nth-child(-n+2) { display: none; }
+.prob-frecuencias .barra-prob-cabecera b { grid-column: 2; }
+.prob-frac { cursor: help; text-decoration: underline dotted color-mix(in srgb, var(--texto) 40%, transparent); text-underline-offset: 3px; }
 .cabecera-pagina { padding: 24px 0 4px; }
 h1 { font-size: 1.7rem; margin: 0 0 4px; }
 .prosa { max-width: 100ch; }
@@ -140,11 +147,11 @@ a.boton:hover { border-color: var(--acento); }
 .mayorias h3 { margin: 0 0 6px; }
 .grupo-mayorias { margin: 10px 0 14px; }
 .grupo-mayorias h4 { margin: 0 0 4px; color: var(--suave); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
-.barra-prob { display: grid; grid-template-columns: minmax(120px, 28%) minmax(56px, 1fr) 50px 100px; align-items: center; gap: 10px; padding: 3px 0; font-size: 0.92rem; }
+.barra-prob { display: grid; grid-template-columns: minmax(120px, 28%) minmax(56px, 1fr) minmax(50px, max-content) 100px; align-items: center; gap: 10px; padding: 3px 0; font-size: 0.92rem; }
 .barra-prob-pista { height: 14px; background: color-mix(in srgb, var(--texto) 8%, transparent); border-radius: 3px; overflow: hidden; }
 .barra-prob-relleno { display: block; height: 100%; border-radius: 3px; min-width: 0; }
-.barra-prob b { text-align: right; font-variant-numeric: tabular-nums; }
-@media (max-width: 560px) { .barra-prob { grid-template-columns: 1fr 50px 100px; } .barra-prob-nombre { grid-column: 1 / -1; } .barra-prob-pista { grid-column: 1; } }
+.barra-prob b { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 560px) { .barra-prob { grid-template-columns: 1fr minmax(50px, max-content) 100px; } .barra-prob-nombre { grid-column: 1 / -1; } .barra-prob-pista { grid-column: 1; } }
 
 /* Aviso de cookies */
 #aviso-cookies { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 50; max-width: 760px; margin: 0 auto; background: var(--tarjeta); color: var(--texto); border: 1px solid var(--linea); border-radius: 10px; box-shadow: 0 4px 18px rgba(0,0,0,.25); padding: 12px 16px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
@@ -160,7 +167,7 @@ a.boton:hover { border-color: var(--acento); }
 .dos-columnas .mayorias { margin-top: 0; }
 
 /* Cabecera en pantallas estrechas: marca y tema arriba, menú debajo en varias líneas */
-@media (max-width: 700px) { .cabecera-sitio .interior { flex-direction: column; align-items: flex-start; } nav.principal { flex: none; } #boton-tema { align-self: flex-start; } }
+@media (max-width: 700px) { .cabecera-sitio .interior { flex-direction: column; align-items: flex-start; } nav.principal { flex: none; } #boton-tema, #boton-probabilidades { align-self: flex-start; } }
 
 /* Segunda cinta (secciones de la página o páginas del grupo), pestañas, bloques plegables y secciones de Previsión */
 html { scroll-behavior: smooth; }
@@ -370,7 +377,8 @@ button.principal { font-weight: 600; }
 .mr-relleno { display: block; height: 100%; border-radius: 3px; }
 .mr-relleno.absoluta { background: #1d6fb8; }
 .mr-relleno.tres { background: #e08a1e; }
-.mr-valor { font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
+.mr-valor { font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.prob-frecuencias .mr-linea { grid-template-columns: 1fr 150px; }   /* «999 de cada 1.000» no cabe en 52 px; ancho fijo para que las barras sigan alineadas */
 .mr-etiqueta-umbral { font-size: 0.75rem; color: var(--suave); font-weight: 400; }
 @media (max-width: 600px) { .mr-fila { grid-template-columns: 1fr; gap: 2px; } }
 

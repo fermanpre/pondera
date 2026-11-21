@@ -23,7 +23,7 @@
   const nombreDe = (clave) => NOMBRES_DEL_SENADO[clave] || (typeof NOMBRES !== "undefined" && NOMBRES[clave]) || clave;
   const nombreCorto = (clave) => (clave === "SDP" ? "Senado de Progreso" : nombreDe(clave));
   const colorDe = (clave) => COLORES_DEL_SENADO[clave] || (typeof COLORES !== "undefined" && COLORES[clave]) || "#7a7a75";
-  const porcentaje = (probabilidad) => Math.round(100 * probabilidad) + "%";
+  const porcentaje = (probabilidad) => PROBABILIDAD.html(probabilidad, Math.round(100 * probabilidad) + "%");
   function escapar(texto) { return String(texto).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
   const posicion = (clave) => (ORDEN.indexOf(clave) < 0 ? 99 : ORDEN.indexOf(clave));
   const porOrden = (a, b) => posicion(a) - posicion(b);
@@ -69,7 +69,8 @@
   const MAYORIA_ABSOLUTA = DESIGNADOS ? DESIGNADOS.mayoria_absoluta : 134;
   const TRES_QUINTOS = Math.ceil(0.6 * TAMANO_DEL_SENADO);   // 160 de 266 (159,6 redondeado al alza)
   const designadosDelBloque = (claves) => claves.reduce((suma, clave) => suma + ((DESIGNADOS && DESIGNADOS.por_partido[clave]) || 0), 0);
-  const porcentajeEntero = (probabilidad) => Math.round(100 * probabilidad) + " %";
+  const porcentajeEntero = (probabilidad) => PROBABILIDAD.html(probabilidad, Math.round(100 * probabilidad) + " %");
+  PROBABILIDAD.alCambiar(function () { location.reload(); });
   const probabilidadDeAlcanzar = (distribucion, desplazamiento, umbral, invertido, elegidos) => {
     // distribucion[n] = probabilidad de n senadores elegidos del bloque; total del bloque = n + designados (o, si el bloque es «todo lo demás», (elegidos - n) + designados)
     let suma = 0;
@@ -139,8 +140,12 @@
       '<div class="mr-linea"><span class="mr-pista"><span class="mr-relleno tres" style="width:' + (100 * probabilidades[i].tres).toFixed(1) + '%"></span></span><span class="mr-valor">' + porcentajeEntero(probabilidades[i].tres) + "</span></div>" +
       "</div></div>").join("") +
       '<p class="mg-leyenda"><span><span class="ficha" style="background:#1d6fb8"></span>mayoría absoluta (' + MAYORIA_ABSOLUTA + ' de ' + TAMANO_DEL_SENADO + ')</span><span><span class="ficha" style="background:#e08a1e"></span>tres quintos (' + TRES_QUINTOS + ' de ' + TAMANO_DEL_SENADO + ')</span></p>';
-    document.getElementById("mayorias-titular").textContent = "Con los " + designadosDerecha + " designados, la derecha tiene un " + porcentajeEntero(probabilidades[0].absoluta) + " de probabilidad de mayoría absoluta del Senado (" + MAYORIA_ABSOLUTA +
-      ") y un " + porcentajeEntero(probabilidades[0].tres) + " de tres quintos (" + TRES_QUINTOS + "); el resto, un " + porcentajeEntero(probabilidades[3].absoluta) + " y un " + porcentajeEntero(probabilidades[3].tres) + ".";
+    const enSimulaciones = (p) => PROBABILIDAD.enLasSimulaciones(p, Math.round(100 * p) + " %");
+    document.getElementById("mayorias-titular").innerHTML = PROBABILIDAD.activo()
+      ? "Con los " + designadosDerecha + " designados, la derecha logra la mayoría absoluta del Senado (" + MAYORIA_ABSOLUTA + ") " + enSimulaciones(probabilidades[0].absoluta) + " y los tres quintos (" + TRES_QUINTOS + ") " +
+        enSimulaciones(probabilidades[0].tres) + "; el resto, " + enSimulaciones(probabilidades[3].absoluta) + " y " + enSimulaciones(probabilidades[3].tres) + "."
+      : "Con los " + designadosDerecha + " designados, la derecha tiene un " + porcentajeEntero(probabilidades[0].absoluta) + " de probabilidad de mayoría absoluta del Senado (" + MAYORIA_ABSOLUTA +
+        ") y un " + porcentajeEntero(probabilidades[0].tres) + " de tres quintos (" + TRES_QUINTOS + "); el resto, un " + porcentajeEntero(probabilidades[3].absoluta) + " y un " + porcentajeEntero(probabilidades[3].tres) + ".";
     document.getElementById("mayorias-nota").textContent = "Cada barra es el número total de senadores del bloque (elegidos por voto, simulados, más designados por los parlamentos autonómicos, fijos) en las " + entero(SENADO.sorteos) +
       " simulaciones. La mayoría absoluta decide casi todo; los tres quintos son los que exige la Constitución para que el Senado proponga cuatro de los doce magistrados del Tribunal Constitucional y se usan también para otros nombramientos, como los vocales del CGPJ que elige el Senado. " +
       "Con " + entero(SENADO.sorteos) + " simulaciones, cada probabilidad tiene un error de hasta ±" + String(Math.round(10 * 98 / Math.sqrt(SENADO.sorteos)) / 10).replace(".", ",") + " puntos (al 95 %). «Todo lo que no es derecha» suma izquierda, nacionalistas, Coalición Canaria, Geroa Bai y locales, que no tienen por qué votar juntos.";
@@ -149,7 +154,8 @@
   function pintarVentaja(escenario) {
     const v = escenario.ventaja_derecha_sobre_izquierda_y_nacionalistas;
     const signo = (n) => (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n);
-    document.getElementById("senado-ventaja-titular").textContent = "PP, Vox y UPN sacan una mediana de " + signo(v.mediana) + " senadores de ventaja sobre el resto (izquierda, nacionalistas y locales), con una probabilidad del " + porcentaje(v.p_positiva) + " de que la ventaja sea positiva.";
+    document.getElementById("senado-ventaja-titular").innerHTML = "PP, Vox y UPN sacan una mediana de " + signo(v.mediana) + " senadores de ventaja sobre el resto (izquierda, nacionalistas y locales), " +
+      (PROBABILIDAD.activo() ? "y la ventaja es positiva " + PROBABILIDAD.enLasSimulaciones(v.p_positiva, Math.round(100 * v.p_positiva) + "%") + "." : "con una probabilidad del " + porcentaje(v.p_positiva) + " de que la ventaja sea positiva.");
     let texto = "Rango del 80 %: de " + signo(v.p10) + " a " + signo(v.p90) + ". Esta ventaja solo cuenta los " + ELEGIDOS_POR_VOTO + " senadores elegidos por voto.";
     if (DESIGNADOS) {
       // Elegidos de PP, Vox y UPN = (ventaja + 208) / 2, porque los 208 se reparten entre ellos y el resto; con los designados de PP y Vox, la mayoría absoluta exige llegar a 134
