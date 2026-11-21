@@ -108,6 +108,25 @@
       });
     });
     html += '<p class="nota">La línea discontinua es ×1, el valor de un voto medio en España.</p>';
+    html += decisivos(nombre, datos);
+    return html;
+  }
+
+  // Probabilidad de que un voto sea decisivo: en qué parte de las simulaciones basta un cambio de unos pocos centenares de votos para que el partido gane o pierda un escaño
+  function decisivos(nombre, datos) {
+    if (!datos.decisivo) { return ""; }
+    const partidos = Object.keys(datos.decisivo).filter((partido) => datos.decisivo[partido] >= 0.005).sort((a, b) => datos.decisivo[b] - datos.decisivo[a]);
+    if (!partidos.length) { return ""; }
+    const formatoEntero = new Intl.NumberFormat("es-ES", { useGrouping: "always" });
+    const formatoPorcentajeDeVentana = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 2 });
+    let html = '<p class="vu-explicacion vu-decisivo-titulo">Probabilidad de que el voto sea decisivo</p>' +
+      '<p class="nota">En qué parte de las simulaciones un cambio de unos ' + formatoEntero.format(datos.ventana_decisiva) + ' votos (el ' + formatoPorcentajeDeVentana.format(100 * VOTO_UTIL.ventana_decisiva) +
+      ' % del voto de la provincia) basta para que el partido gane un escaño más o pierda uno. Es una cifra baja casi siempre: un empate virtual en el reparto central (los cocientes de abajo) es solo una de las posiciones que toma en las simulaciones, porque el voto de cada partido en una provincia tiene un error de varios miles de votos.</p>';
+    partidos.forEach((partido) => {
+      const probabilidad = datos.decisivo[partido];
+      html += '<div class="vu-fila"><span class="vu-nombre">' + escapar(nombreDe(partido, nombre, true)) + '</span><span class="vu-pista"><span class="vu-barra" style="width:' + Math.max(1.5, 100 * probabilidad).toFixed(1) +
+        "%;background:" + colorDe(partido) + '"></span></span><span class="vu-valor">' + Math.round(100 * probabilidad) + " %</span></div>";
+    });
     return html;
   }
 

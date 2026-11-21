@@ -12,6 +12,9 @@
  *     No cuenta el efecto sobre otros partidos.
  *   - valor de un voto para el bloque: escaños extra que gana de media el BLOQUE del partido (izquierda o derecha) por ese mismo voto adicional, dividido por lo mismo. Cuenta lo que el voto
  *     quita a partidos del otro bloque y no cuenta lo que mueve dentro del bloque (un escaño que el BNG le quita al PSOE no suma nada al bloque). No hay para PNV, Junts, CC ni Existe.
+ *   - probabilidad de que un voto sea decisivo (22/11/2026): en qué parte de las simulaciones basta un cambio de VENTANA_DECISIVA = 0,25 % de los votos de la provincia para que el partido gane un
+ *     escaño más (si se le suman esos votos) o pierda uno (si se le restan). A diferencia del valor, que promedia la pendiente sobre todas las simulaciones, mide cuántas veces el partido está justo en la
+ *     frontera de un escaño, de modo que un empate virtual por el último escaño (PP y PSOE en Almería) se nota. En una coalición (UPN-PP en Navarra) se cuentan los escaños de la columna y de su socio.
  *   - barrera de facto: lo que cuesta el último escaño de la provincia (el cociente D'Hondt del último escaño, en % de los votos válidos), con el rango en el que caen el 90 % de las simulaciones
  *     (percentiles 5 y 95). Un partido necesita más o menos eso para sacar su primer escaño; si es inferior al 3 %, manda la barrera legal.
  * Escribe sitio/voto_util.js (const VOTO_UTIL = {...}) y voto_util.json. Uso: node voto_util_provincias.js [sorteos]
@@ -23,6 +26,7 @@ const Motor = require(path.join(__dirname, "sitio", "motor.js"));
 const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 10000;
 const SEMILLA = 20261129;
 const UMBRALES_DE_SEGURIDAD = [0.90, 0.95, 0.975, 0.99];
+const VENTANA_DECISIVA = 0.0025;  // fracción de los votos de la provincia que, sumada o restada a un partido, define si su voto es decisivo
 const DELTA = 0.01;  // fracción de los votos de la provincia que se suma al partido para medir el valor de su voto
 const BLOQUES = {
   izquierda: ["PSOE", "SUMAR", "PODEMOS", "FV", "UPC", "ERC", "BILDU", "BNG", "ADELANTE"],
@@ -129,6 +133,25 @@ for (let p = 0; p < P; p++) {
     valor[modelo.partidos[k]] = Math.round(100 * (diferencia / SORTEOS / delta) / escanosMediaPorVoto) / 100;
     if (bloque) valorBloque[modelo.partidos[k]] = Math.round(100 * (diferenciaBloque / SORTEOS / delta) / escanosMediaPorVoto) / 100;
   }
+  // Probabilidad de ser decisivo: el partido gana un escaño con +ventana votos o pierde uno con -ventana votos
+  const ventana = VENTANA_DECISIVA * modelo.peso[p];
+  const decisivo = {};
+  for (let k = 0; k < K; k++) {
+    if (!modelo.presente[p * K + k] || central[p * K + k] < CUOTA_MINIMA_PARA_VALORAR) continue;
+    const coalicion = modelo.coaliciones.find(function (c) { return c.provincia === p && c.columna === k; });
+    const socio = coalicion ? coalicion.socio : -1;
+    let sorteosDecisivos = 0;
+    for (let s = 0; s < SORTEOS; s++) {
+      const cuotasDelSorteo = cuotasFinales.subarray((s * P + p) * K, (s * P + p + 1) * K);
+      const escanosBase = base[s * K + k] + (socio >= 0 ? base[s * K + socio] : 0);
+      Motor.escanosDeProvincia(modelo, p, cuotasDelSorteo, { k: k, votos: ventana }, escanos);
+      const conMasVotos = escanos[k] + (socio >= 0 ? escanos[socio] : 0);
+      Motor.escanosDeProvincia(modelo, p, cuotasDelSorteo, { k: k, votos: -ventana }, escanos);
+      const conMenosVotos = escanos[k] + (socio >= 0 ? escanos[socio] : 0);
+      if (conMasVotos > escanosBase || conMenosVotos < escanosBase) sorteosDecisivos++;
+    }
+    decisivo[modelo.partidos[k]] = Math.round(1000 * sorteosDecisivos / SORTEOS) / 1000;
+  }
   // Barrera de facto: cociente del último escaño en cada simulación, en % de los votos válidos
   const sinEscanoDeFacto = {};
   (datos.sin_escano || []).forEach(function (partido) { sinEscanoDeFacto[partido] = true; });
@@ -191,12 +214,12 @@ for (let p = 0; p < P; p++) {
     lista[primeraFilaQueNo[partido]].faltan = Math.ceil(alto);
   });
   const corte = cocientes.length > N ? { ultimo: Math.round(cocientes[N - 1].votos), primero_fuera: Math.round(cocientes[N].votos) } : null;
-  provincias[provincia.nombre] = { barrera_de_facto: barreraDeFacto, cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, valor_bloque: valorBloque, voto: voto };
+  provincias[provincia.nombre] = { barrera_de_facto: barreraDeFacto, cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, valor_bloque: valorBloque, decisivo: decisivo, ventana_decisiva: Math.round(ventana), voto: voto };
   if ((p + 1) % 10 === 0) console.log("  " + (p + 1) + "/" + P + " provincias (" + ((Date.now() - inicio) / 1000).toFixed(0) + " s)");
 }
 
 const salida = {
-  fecha_promedio: datos.fecha_promedio, sorteos: SORTEOS, semilla: SEMILLA, delta: DELTA,
+  fecha_promedio: datos.fecha_promedio, sorteos: SORTEOS, semilla: SEMILLA, delta: DELTA, ventana_decisiva: VENTANA_DECISIVA,
   votos_por_escano_medio: Math.round(1 / escanosMediaPorVoto), barrera_legal: datos.barrera, bloques: BLOQUES, provincias: provincias,
 };
 const texto = JSON.stringify(salida);
