@@ -630,10 +630,13 @@ function moverPartido(partido, nuevoPorcentaje) {
 function crearSelectorDeProvincias() {
   const selector = document.getElementById("selector-provincia");
   if (!selector) return;
-  modelo.provincias.forEach(function (provincia, p) {
+  // En orden alfabético ignorando las tildes (Ávila con la A, Cádiz y Córdoba entre las C por su segunda letra); el valor de cada opción sigue siendo el índice de la provincia en el modelo
+  const enOrdenAlfabetico = modelo.provincias.map(function (provincia, p) { return { provincia: provincia, p: p }; })
+    .sort(function (a, b) { return a.provincia.nombre.localeCompare(b.provincia.nombre, "es", { sensitivity: "base" }); });
+  enOrdenAlfabetico.forEach(function (elemento) {
     const opcion = document.createElement("option");
-    opcion.value = p;
-    opcion.textContent = provincia.nombre + " (" + provincia.escanos + ")";
+    opcion.value = elemento.p;
+    opcion.textContent = elemento.provincia.nombre + " (" + elemento.provincia.escanos + ")";
     selector.appendChild(opcion);
   });
   selector.addEventListener("change", pintarProvincia);
@@ -646,7 +649,7 @@ function comunidadesDelModelo() {
     if (!porNombre[provincia.comunidad]) porNombre[provincia.comunidad] = [];
     porNombre[provincia.comunidad].push(p);
   });
-  return Object.keys(porNombre).sort(function (a, b) { return a.localeCompare(b, "es"); }).map(function (nombre) {
+  return Object.keys(porNombre).sort(function (a, b) { return a.localeCompare(b, "es", { sensitivity: "base" }); }).map(function (nombre) {
     const indices = porNombre[nombre];
     const escanos = indices.reduce(function (suma, p) { return suma + modelo.provincias[p].escanos; }, 0);
     return { nombre: nombre, indices: indices, escanos: escanos };

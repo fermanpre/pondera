@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Listas de provincias y comunidades sin tildes en el orden",
+    "texto": "Los desplegables de provincias, comunidades y del listado de sondeos regionales se ordenan ignorando las tildes: Ávila queda entre Asturias y Badajoz, y Cádiz y Córdoba entre las demás C por su segunda letra."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Probabilidades como «x de cada y»",
     "texto": "Un botón «Probabilidades» en la cabecera de las páginas con probabilidades cambia los porcentajes por frecuencias aproximadas (95 % pasa a «19 de cada 20»), con el porcentaje exacto en el texto emergente. Solo afecta a probabilidades, no al voto; se recuerda la elección."
   },

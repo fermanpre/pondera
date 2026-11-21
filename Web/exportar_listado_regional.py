@@ -9,6 +9,7 @@ Uso: python exportar_listado_regional.py
 
 import json
 import sys
+import unicodedata
 from pathlib import Path
 
 CARPETA_WEB = Path(__file__).resolve().parent
@@ -26,6 +27,11 @@ NOMBRE_DEL_AMBITO = {
 }
 COMUNIDADES = {"Andalusia", "Aragon", "Asturias", "Balearic Islands", "Basque Country", "Canary Islands", "Cantabria", "Castile and León", "Castilla–La Mancha", "Catalonia",
                "Extremadura", "Galicia", "La Rioja", "Madrid", "Murcia", "Navarre", "Valencian Community"}
+
+
+def sin_tildes(texto):
+    """El texto sin tildes (Ávila -> Avila), para ordenar alfabéticamente sin que las letras acentuadas vayan al final."""
+    return "".join(letra for letra in unicodedata.normalize("NFD", texto) if unicodedata.category(letra) != "Mn")
 
 
 def main():
@@ -57,7 +63,7 @@ def main():
         encuestas_del_ambito = sorted([s for s in ambito["sondeos"] if not s["resultado"]], key=lambda s: s["fin"], reverse=True)
         ambito["sondeos"] = encuestas_del_ambito + reales
     ambitos = {region: a for region, a in ambitos.items() if any(not s["resultado"] for s in a["sondeos"])}  # sin ninguna encuesta con porcentajes, el ámbito no se muestra
-    ordenados = sorted(ambitos.values(), key=lambda a: (a["tipo"] != "comunidad", a["nombre"]))
+    ordenados = sorted(ambitos.values(), key=lambda a: (a["tipo"] != "comunidad", sin_tildes(a["nombre"]).lower()))   # alfabético ignorando las tildes
     contenido = json.dumps({"ambitos": ordenados}, ensure_ascii=False, separators=(",", ":"))
     (CARPETA_SITIO / "listado_regional.json").write_text(contenido, encoding="utf-8")
     (CARPETA_SITIO / "listado_regional.js").write_text("const LISTADO_REGIONAL = " + contenido + ";\n", encoding="utf-8")
