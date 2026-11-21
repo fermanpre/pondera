@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Promedio por territorio: suma y «otros y en blanco»",
+    "texto": "La tabla del promedio de encuestas de cada provincia y comunidad lleva ahora una fila con la suma de los partidos y otra con «otros y en blanco» por diferencia, para el promedio y para la previsión del modelo. Se marca en rojo a partir del 8 %, porque un cajón tan grande suele indicar un partido sin cifra en la encuesta o una cifra descartada."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Menús reorganizados",
     "texto": "La pestaña «Previsión» se llama ahora «Congreso» y conserva sus secciones (escaños, mayorías, mapa, evolución, promedio y sondeos). El Senado, los mundos posibles, los mundos raros y los datos curiosos dejan de colgar de ella y tienen pestaña propia: los tres últimos, a continuación del Simulador, y el Senado entre ellos y la Metodología."
   },

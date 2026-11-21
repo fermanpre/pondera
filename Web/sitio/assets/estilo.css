@@ -386,3 +386,8 @@ button.principal { font-weight: 600; }
 .mundo-veredicto { margin: 4px 0 0; font-weight: 600; }
 .mundo .hemiciclo { width: 100%; margin: 4px auto 8px; }
 .mundo .hemiciclo-leyenda { display: none; }   /* la tabla de al lado hace de leyenda */
+
+/* Control de cordura del promedio por territorio (22/11/2026) */
+#promedio-territorio .fila-suma td { border-top: 2px solid var(--linea); font-weight: 600; }
+#promedio-territorio .fila-resto td { color: var(--suave); }
+#promedio-territorio td.resto-alto { color: #b3261e; font-weight: 700; }

@@ -29,6 +29,13 @@ function pintarPromedioDelTerritorio(config) {
     filas.push({ partido: partido, encuestas: promedio.medias[partido], modelo: 100 * cuotaDelModelo });
   });
   filas.sort(function (a, b) { return b.encuestas - a.encuestas; });
+  // Control de cordura: suma de los partidos de la tabla y, por diferencia, «otros y en blanco». Un cajón anormalmente grande delata un partido que falta en la encuesta o una cifra descartada.
+  const sumaDeLaEncuesta = filas.reduce(function (suma, f) { return suma + f.encuestas; }, 0);
+  const sumaDelModelo = filas.reduce(function (suma, f) { return suma + f.modelo; }, 0);
+  const restoDeLaEncuesta = 100 - sumaDeLaEncuesta;
+  const restoDelModelo = 100 - sumaDelModelo;
+  const UMBRAL_DE_AVISO = 8;   // puntos de «otros y en blanco» a partir de los cuales se marca la fila
+  const claseDelResto = (resto) => resto >= UMBRAL_DE_AVISO ? ' class="resto-alto"' : "";
   const fecha = (texto) => { const trozos = texto.split("-"); return parseInt(trozos[2], 10) + "/" + parseInt(trozos[1], 10); };
   contenedor.innerHTML =
     '<h2>Promedio de encuestas</h2>' +
@@ -36,11 +43,14 @@ function pintarPromedioDelTerritorio(config) {
     '<div class="tabla-ancha"><table><thead><tr><th>Partido</th><th>Promedio de encuestas</th><th>Previsión del modelo</th><th>Diferencia</th></tr></thead><tbody>' +
     filas.map(function (f) {
       return '<tr><td class="col-partido">' + ficha(f.partido) + NOMBRES[f.partido] + '</td><td>' + porcentaje(f.encuestas) + '</td><td>' + porcentaje(f.modelo) + '</td><td>' + conTriangulo(f.modelo - f.encuestas, 1) + '</td></tr>';
-    }).join("") + '</tbody></table></div>' +
+    }).join("") +
+    '<tr class="fila-suma"><td class="col-partido">Suma de los partidos</td><td>' + porcentaje(sumaDeLaEncuesta) + '</td><td>' + porcentaje(sumaDelModelo) + '</td><td></td></tr>' +
+    '<tr class="fila-resto"><td class="col-partido">Otros y en blanco (por diferencia)</td><td' + claseDelResto(restoDeLaEncuesta) + '>' + porcentaje(restoDeLaEncuesta) + '</td><td' + claseDelResto(restoDelModelo) + '>' + porcentaje(restoDelModelo) +
+    '</td><td></td></tr></tbody></table></div>' +
     '<details class="vu-detalle"><summary>Encuestas del promedio</summary><div class="tabla-ancha"><table><thead><tr><th>Casa</th><th>Fin de campo</th><th>Muestra</th><th>Peso en el promedio</th></tr></thead><tbody>' +
     promedio.encuestas.map(function (e) {
       return '<tr><td>' + escaparTexto(e.casa) + '</td><td>' + fecha(e.fin) + '</td><td>' + (e.muestra ? entero(e.muestra) : "–") + '</td><td>' + Math.round(100 * e.peso) + ' %</td></tr>';
     }).join("") + '</tbody></table></div></details>' +
     '<p class="nota">La diferencia es previsión menos promedio, en puntos: el modelo no sigue a la encuesta al cien por cien, sino que la mezcla con el promedio nacional y la elección de 2023 (ver la <a href="metodologia.html">metodología</a>). ' +
-    'El promedio solo incluye los partidos que figuran en al menos la mitad de las encuestas.</p>';
+    'El promedio solo incluye los partidos que figuran en al menos la mitad de las encuestas. «Otros y en blanco» es lo que falta hasta el 100 %: se marca en rojo a partir del ' + UMBRAL_DE_AVISO + ' %, porque un cajón tan grande suele indicar un partido sin cifra en la encuesta o una cifra descartada.</p>';
 }
