@@ -44,6 +44,16 @@
   "fecha": "2026-11-20",
   "hallazgos": 0
  },
+ "https://electomania.es/tracking-electopanel-20-nov-el-pp-sale-reforzado-del-cara-a-cara/": {
+  "estado": "revisada",
+  "fecha": "2026-11-21",
+  "hallazgos": 0
+ },
+ "https://electomania.es/tracking-electopanel-21-nov-psoe-y-vox-al-alza-con-34-escanos-en-disputa/": {
+  "estado": "revisada",
+  "fecha": "2026-11-21",
+  "hallazgos": 0
+ },
  "https://elpais.com/espana/elecciones-generales/2026-11-13/la-campana-arranca-con-la-derecha-en-el-horizonte-de-los-190-escanos.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -130,10 +140,9 @@
   "hallazgos": 0
  },
  "https://ep00.epimg.net/infografias/encuestas40db/2026/11-tracking-electoral/informe_tracking_dia09.pdf": {
-  "error": "HTTPError: HTTP Error 404: Not Found",
-  "estado": "error",
-  "fecha": "2026-11-20",
-  "intentos": 1
+  "estado": "revisada",
+  "fecha": "2026-11-21",
+  "hallazgos": 0
  },
  "https://laseptima.com/wp-content/uploads/2026/11/barometro-n09-12nov2026.pdf": {
   "estado": "revisada",
@@ -211,9 +220,25 @@
   "fecha": "2026-11-18",
   "hallazgos": 0
  },
+ "https://moreincommon.es/pdfs/pulso-electoral/pulso-electoral-noviembre-2026.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-21",
+  "hallazgos": 0
+ },
+ "https://moreincommones.substack.com/p/diez-dias-para-el-29n-nuestro-ultimo": {
+  "error": "HTTPError: HTTP Error 403: Forbidden",
+  "estado": "error",
+  "fecha": "2026-11-21",
+  "intentos": 1
+ },
  "https://okdiario.com/espana/campana-sanchez-contra-okdiario-no-da-frutos-psoe-queda-104-escanos-frente-holgada-mayoria-pp-vox-20904749": {
   "estado": "revisada",
   "fecha": "2026-11-18",
+  "hallazgos": 0
+ },
+ "https://okdiario.com/espana/debate-impulsa-pp-hasta-135-escanos-costa-vox-psoe-que-retrocede-4-diputados-21236645": {
+  "estado": "revisada",
+  "fecha": "2026-11-21",
   "hallazgos": 0
  },
  "https://okdiario.com/espana/feijoo-llega-debate-46-puntos-ventaja-sobre-sanchez-historica-mayoria-absoluta-vox-21189868": {
@@ -276,6 +301,11 @@
   "fecha": "2026-11-20",
   "hallazgos": 2
  },
+ "https://www.electografica.com/2026/11/encuesta-sondaxe-261121.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-21",
+  "hallazgos": 1
+ },
  "https://www.elespanol.com/espana/politica/20261108/pp-vox-suman-escanos-sanchez-recupera-perdio-urda-dimision-puente-sondeo-noche/1003744450645_0.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -321,6 +351,11 @@
   "fecha": "2026-11-20",
   "hallazgos": 1
  },
+ "https://www.elmundo.es/elecciones/elecciones-generales/2026/11/20/6b00981ffdddffc8218b4590.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-21",
+  "hallazgos": 0
+ },
  "https://www.larazon.es/espana/mayoria-vox-resiste-arranque-campana-205-diputados_202611166afa6889ea8d89799786d4d1.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -361,6 +396,11 @@
   "fecha": "2026-11-20",
   "hallazgos": 0
  },
+ "https://www.lavozdegalicia.es/noticia/espana/2026/11/20/pp-concentra-voto-util-minimiza-fugas-partidos-galicia/00031795200518832464353.htm": {
+  "estado": "revisada",
+  "fecha": "2026-11-21",
+  "hallazgos": 0
+ },
  "https://www.lavozdegalicia.es/noticia/galicia/2026/11/16/psoe-recorta-tres-escanos-pp-sigue-primera-fuerza/0003_202611G16P5991.htm": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -379,6 +419,11 @@
  "https://x.com/la_septima_tv/status/2122787030937612582": {
   "estado": "revisada",
   "fecha": "2026-11-18",
+  "nota": "dominio omitido"
+ },
+ "https://x.com/la_septima_tv/status/2123878170008941007": {
+  "estado": "revisada",
+  "fecha": "2026-11-21",
   "nota": "dominio omitido"
  }
 }
