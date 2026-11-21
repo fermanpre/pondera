@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Nueva página: Mundos posibles",
+    "texto": "La página «Mundos posibles» enseña diez resultados posibles del Congreso, del percentil 1 al 99 de la ventaja de la derecha ampliada sobre el bloque de investidura de 2023, con más mundos cerca del centro de la distribución. Cada uno es una de las 10.000 simulaciones, con su hemiciclo."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Escaños: escenario representativo en lugar del reparto central",
     "texto": "Los escaños del hemiciclo, la barra de la portada, las mayorías y las páginas de provincias y comunidades son ahora los del sorteo de las 10.000 simulaciones más parecido a la mediana de cada partido, en lugar del reparto central sin ruido, que se movía en uno o dos escaños con cambios mínimos del promedio. El reparto central sigue en la página Resumen y en la evolución de la previsión."
   },

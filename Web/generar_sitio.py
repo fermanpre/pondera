@@ -32,6 +32,7 @@ SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2
 SCRIPTS_DE_PROVINCIAS = SCRIPTS_DE_COMUNIDADES + ["voto_util.js", "assets/voto_util.js"]  # voto_util.js: escaños en juego y voto útil (Web/voto_util_provincias.js)
 # Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
 SCRIPTS_DEL_SENADO = ["senado.js", "senado_designados.js", "assets/comun.js", "assets/app_senado.js"]
+SCRIPTS_DE_MUNDOS = ["datos_modelo.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/mundos_posibles.js", "assets/app_prevision.js"]
 SCRIPTS_DE_CURIOSIDADES = ["curiosidades.js", "assets/comun.js", "assets/curiosidades.js", "assets/app_curiosidades.js"]
 SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "assets/app_prevision.js", "assets/mayorias_congreso.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js", "curiosidades.js", "assets/curiosidades.js"]
 
@@ -39,7 +40,7 @@ SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.j
 MENU_PRINCIPAL = [("prevision", "Previsión", "index.html"), ("territorio", "Territorio", "provincias.html"), ("simulador", "Simulador", "simulador.html"),
                   ("metodologia", "Metodología", "metodologia.html"), ("acerca", "Acerca de", "acerca.html")]
 SUBMENUS = {
-    "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Evolución", "#evolucion"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos"), ("Senado", "senado.html"), ("Datos curiosos", "curiosidades.html")],
+    "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Evolución", "#evolucion"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos"), ("Senado", "senado.html"), ("Mundos posibles", "mundos.html"), ("Datos curiosos", "curiosidades.html")],
     "territorio": [("Provincias", "provincias.html"), ("Comunidades", "comunidades.html"), ("Resumen", "resumen.html")],
     "acerca": [("Acerca de", "acerca.html"), ("Enlaces", "enlaces.html"), ("Sobre el autor", "autor.html"), ("Privacidad y cookies", "privacidad.html"), ("Historial de cambios", "changelog.html")],
 }
@@ -52,6 +53,8 @@ PAGINAS = [
      "descripcion": "Previsión de escaños de las elecciones generales de España del 29 de noviembre de 2026: promedio de encuestas, mapa por provincia, rangos y probabilidades de mayoría."},
     {"archivo": "senado.html", "plantilla": "senado", "titulo": "Previsión del Senado", "grupo": "prevision", "scripts": SCRIPTS_DEL_SENADO,
      "descripcion": "Senadores que elegirán los votantes en las generales de 2026: reparto por partido con rangos, escenarios de pactos y probabilidades en cada circunscripción."},
+    {"archivo": "mundos.html", "plantilla": "mundos", "titulo": "Mundos posibles", "grupo": "prevision", "scripts": SCRIPTS_DE_MUNDOS,
+     "descripcion": "Diez maneras en las que podría quedar el Congreso en las generales de 2026, desde un resultado muy malo para la derecha hasta uno muy bueno, con más mundos cerca de lo más probable."},
     {"archivo": "curiosidades.html", "plantilla": "curiosidades", "titulo": "Datos curiosos", "grupo": "prevision", "scripts": SCRIPTS_DE_CURIOSIDADES,
      "descripcion": "Listado de los datos curiosos de la previsión: partidos que caen por la barrera, votos que separan de un escaño, provincias inciertas y votos que más pesan."},
     {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "grupo": "territorio", "scripts": SCRIPTS_DE_PROVINCIAS,

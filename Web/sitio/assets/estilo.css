@@ -370,3 +370,13 @@ button.principal { font-weight: 600; }
 .mr-valor { font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
 .mr-etiqueta-umbral { font-size: 0.75rem; color: var(--suave); font-weight: 400; }
 @media (max-width: 600px) { .mr-fila { grid-template-columns: 1fr; gap: 2px; } }
+
+/* Mundos posibles (22/11/2026) */
+.mundos-rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; margin: 14px 0; }
+@media (max-width: 800px) { .mundos-rejilla { grid-template-columns: minmax(0, 1fr); } }
+.mundo { margin: 0; padding: 12px 14px; border: 1px solid var(--linea); border-radius: 10px; }
+.mundo figcaption { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; }
+.mundo-percentil { font-weight: 400; color: var(--suave); }
+.mundo-veredicto { margin: 4px 0 0; font-weight: 600; }
+.mundo .hemiciclo { margin: 4px auto 8px; }
+.mundo .hemiciclo-leyenda { font-size: 0.8rem; }

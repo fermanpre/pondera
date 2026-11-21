@@ -31,6 +31,7 @@ function pintarTodoConElResultado() {
   pintarNacional();
   pintarProvincia();
   pintarComunidad();
+  if (typeof pintarMundosPosibles === "function") pintarMundosPosibles();  // mundos_posibles.js (página «Mundos posibles»)
   if (typeof actualizarMapasConResultado === "function") actualizarMapasConResultado();  // app_mapa.js: los mapas siguen al reparto central con los objetivos de ese momento
 }
 
@@ -41,7 +42,7 @@ function textoDeSegundos(inicio) { return ((performance.now() - inicio) / 1000).
 /* Escenario representativo (22/11/2026): el sorteo de la simulación cuyos escaños nacionales se parecen más a la mediana de cada partido (distancia en desviaciones robustas, rango
    intercuartílico / 1,349, con un mínimo de 1 escaño). Las medianas por partido no suman 350 (cada una sale de sorteos distintos); este sorteo sí, y es un resultado que podría darse.
    Devuelve los escaños de ese sorteo por provincia y partido, con el mismo formato que el reparto central sin ruido (provincia x partidos + partido). */
-function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
+function medianasYEscalasDeLosSorteos(simulacion, sorteos) {
   const nacionales = simulacion.nacionales;
   const numeroDePartidos = modelo.numeroDePartidos;
   const medianas = [];
@@ -53,6 +54,15 @@ function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
     medianas.push(valores[Math.floor(sorteos / 2)]);
     escalas.push(Math.max(1, (valores[Math.floor(sorteos * 0.75)] - valores[Math.floor(sorteos * 0.25)]) / 1.349));
   }
+  return { medianas: medianas, escalas: escalas };
+}
+
+function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
+  const nacionales = simulacion.nacionales;
+  const numeroDePartidos = modelo.numeroDePartidos;
+  const resumenDeLosSorteos = medianasYEscalasDeLosSorteos(simulacion, sorteos);
+  const medianas = resumenDeLosSorteos.medianas;
+  const escalas = resumenDeLosSorteos.escalas;
   let mejorSorteo = 0;
   let mejorDistancia = Infinity;
   for (let s = 0; s < sorteos; s++) {
