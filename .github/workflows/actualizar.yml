@@ -89,6 +89,9 @@ jobs:
       - name: Calcular los mundos raros del Congreso
         run: node Web/mundos_raros.js
 
+      - name: Precalcular el escenario representativo (10.000 sorteos)
+        run: node Web/escenario_representativo.js
+
       - name: Actualizar la serie de previsión (escaños, mayorías y primera fuerza de cada día)
         run: python Web/serie_prevision_diaria.py --ultimos 3
 

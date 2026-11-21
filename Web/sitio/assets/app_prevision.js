@@ -56,6 +56,20 @@ function medianasYEscalasDeLosSorteos(simulacion, sorteos) {
   return { medianas: medianas, escalas: escalas };
 }
 
+/* Escenario representativo precalculado (Web/escenario_representativo.js, con los 10.000 sorteos de la semilla de la web): evita que el sorteo elegido cambie entre la primera pasada (2.000 sorteos)
+   y la final, y que un partido con una distribución ancha de escaños (Adelante Andalucía) pase de 4 a 2 diputados al terminar el cálculo. Solo vale con los objetivos del modelo y el número de
+   sorteos de por defecto; si el visitante cambia los objetivos o el número de sorteos, se calcula en el navegador. Devuelve null si no vale. */
+function escenarioRepresentativoIncrustado(sorteos) {
+  if (typeof ESCENARIO_REPRESENTATIVO === "undefined" || ESCENARIO_REPRESENTATIVO.sorteos !== sorteos) return null;
+  if (ESCENARIO_REPRESENTATIVO.partidos.length !== modelo.numeroDePartidos || ESCENARIO_REPRESENTATIVO.escanos.length !== P * modelo.numeroDePartidos) return null;
+  for (let k = 0; k < modelo.numeroDePartidos; k++) {
+    const partido = modelo.partidos[k];
+    if (ESCENARIO_REPRESENTATIVO.partidos[k] !== partido) return null;
+    if (Math.abs((objetivosActuales[partido] || 0) - ESCENARIO_REPRESENTATIVO.objetivos[partido]) > 1e-9) return null;
+  }
+  return Uint8Array.from(ESCENARIO_REPRESENTATIVO.escanos);
+}
+
 function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
   const nacionales = simulacion.nacionales;
   const numeroDePartidos = modelo.numeroDePartidos;
@@ -108,7 +122,7 @@ function recalcular() {
     const central = MotorElectoral.repartoSinRuido(modelo, objetivosActuales);
     const primeros = Math.min(sorteos, SORTEOS_RAPIDOS);
     const simulacion = MotorElectoral.simular(modelo, { sorteos: primeros, semilla: 20261129, objetivos: objetivosActuales });
-    central.escanos = escanosDelEscenarioRepresentativo(simulacion, primeros);
+    central.escanos = escenarioRepresentativoIncrustado(sorteos) || escanosDelEscenarioRepresentativo(simulacion, primeros);
     ultimoResultado = { central: central, simulacion: simulacion, sorteos: primeros };
     pintarTodoConElResultado();
     if (sorteos <= primeros) {
@@ -119,7 +133,7 @@ function recalcular() {
     estado.textContent = "Mostrando " + entero(primeros) + " sorteos; calculando " + entero(sorteos) + "…";
     const terminar = function (resultadoCompleto) {
       if (generacion !== generacionDeCalculo) return;
-      central.escanos = escanosDelEscenarioRepresentativo(resultadoCompleto, sorteos);
+      central.escanos = escenarioRepresentativoIncrustado(sorteos) || escanosDelEscenarioRepresentativo(resultadoCompleto, sorteos);
       ultimoResultado = { central: central, simulacion: resultadoCompleto, sorteos: sorteos };
       estado.textContent = "Calculado en " + textoDeSegundos(inicio) + " s";
       pintarTodoConElResultado();
