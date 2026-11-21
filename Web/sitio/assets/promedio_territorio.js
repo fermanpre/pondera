@@ -20,18 +20,30 @@ function pintarPromedioDelTerritorio(config) {
   const indices = config.indices;
   const cuotas = ultimoResultado.central.cuotas;
   const pesoTotal = indices.reduce(function (suma, p) { return suma + modelo.provincias[p].peso; }, 0);
+  // Filas: todos los partidos del promedio (también los que el modelo no tiene, como la CUP, sin cifra del modelo) y los del modelo con al menos un 1 % en el territorio (sin cifra de promedio)
+  const cuotaDelModeloDe = function (k) {
+    let cuota = 0;
+    indices.forEach(function (p) { cuota += cuotas[p * K + k] * modelo.provincias[p].peso / pesoTotal; });
+    return 100 * cuota;
+  };
   const filas = [];
   Object.keys(promedio.medias).forEach(function (partido) {
     const k = modelo.partidos.indexOf(partido);
-    if (k < 0) { return; }
-    let cuotaDelModelo = 0;
-    indices.forEach(function (p) { cuotaDelModelo += cuotas[p * K + k] * modelo.provincias[p].peso / pesoTotal; });
-    filas.push({ partido: partido, encuestas: promedio.medias[partido], modelo: 100 * cuotaDelModelo });
+    filas.push({ partido: partido, encuestas: promedio.medias[partido], modelo: k < 0 ? null : cuotaDelModeloDe(k) });
   });
-  filas.sort(function (a, b) { return b.encuestas - a.encuestas; });
+  modelo.partidos.forEach(function (partido, k) {
+    if (partido === "OTROS" || promedio.medias[partido] !== undefined) { return; }
+    const cuota = cuotaDelModeloDe(k);
+    if (cuota >= 1) { filas.push({ partido: partido, encuestas: null, modelo: cuota }); }
+  });
+  const pesoDeLaFila = (f) => f.encuestas !== null ? f.encuestas : f.modelo;
+  filas.sort(function (a, b) { return pesoDeLaFila(b) - pesoDeLaFila(a); });
+  const cifra = (valor) => valor === null ? "–" : porcentaje(valor);
+  const nombreDe = (partido) => NOMBRES[partido] || partido;
+  const colorDe = (partido) => COLORES[partido] || "#9a9a94";
   // Control de cordura: suma de los partidos de la tabla y, por diferencia, «otros y en blanco». Un cajón anormalmente grande delata un partido que falta en la encuesta o una cifra descartada.
-  const sumaDeLaEncuesta = filas.reduce(function (suma, f) { return suma + f.encuestas; }, 0);
-  const sumaDelModelo = filas.reduce(function (suma, f) { return suma + f.modelo; }, 0);
+  const sumaDeLaEncuesta = filas.reduce(function (suma, f) { return suma + (f.encuestas === null ? 0 : f.encuestas); }, 0);
+  const sumaDelModelo = filas.reduce(function (suma, f) { return suma + (f.modelo === null ? 0 : f.modelo); }, 0);
   const restoDeLaEncuesta = 100 - sumaDeLaEncuesta;
   const restoDelModelo = 100 - sumaDelModelo;
   const UMBRAL_DE_AVISO = 8;   // puntos de «otros y en blanco» a partir de los cuales se marca la fila
@@ -42,7 +54,8 @@ function pintarPromedioDelTerritorio(config) {
     '<p class="subtitulo">' + promedio.k + (promedio.k === 1 ? " encuesta" : " encuestas") + ' de ' + escaparTexto(config.nombre) + ' en los últimos 90 días, promediadas con las mismas reglas que el promedio nacional.</p>' +
     '<div class="tabla-ancha"><table><thead><tr><th>Partido</th><th>Promedio de encuestas</th><th>Previsión del modelo</th><th>Diferencia</th></tr></thead><tbody>' +
     filas.map(function (f) {
-      return '<tr><td class="col-partido">' + ficha(f.partido) + NOMBRES[f.partido] + '</td><td>' + porcentaje(f.encuestas) + '</td><td>' + porcentaje(f.modelo) + '</td><td>' + conTriangulo(f.modelo - f.encuestas, 1) + '</td></tr>';
+      const diferencia = f.encuestas !== null && f.modelo !== null ? conTriangulo(f.modelo - f.encuestas, 1) : "–";
+      return '<tr><td class="col-partido"><span class="ficha" style="background:' + colorDe(f.partido) + '"></span>' + escaparTexto(nombreDe(f.partido)) + '</td><td>' + cifra(f.encuestas) + '</td><td>' + cifra(f.modelo) + '</td><td>' + diferencia + '</td></tr>';
     }).join("") +
     '<tr class="fila-suma"><td class="col-partido">Suma de los partidos</td><td>' + porcentaje(sumaDeLaEncuesta) + '</td><td>' + porcentaje(sumaDelModelo) + '</td><td></td></tr>' +
     '<tr class="fila-resto"><td class="col-partido">Otros y en blanco (por diferencia)</td><td' + claseDelResto(restoDeLaEncuesta) + '>' + porcentaje(restoDeLaEncuesta) + '</td><td' + claseDelResto(restoDelModelo) + '>' + porcentaje(restoDelModelo) +

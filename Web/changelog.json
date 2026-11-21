@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Control de cordura en provincias y comunidades; promedio con todos los partidos",
+    "texto": "La tabla principal de cada provincia y comunidad (2023 y previsión) acaba ahora con la suma de los partidos y «otros y en blanco» por diferencia, que se marca en rojo en la previsión a partir del 8 %. El promedio de encuestas de cada territorio incluye ya todos los partidos de las encuestas, como Adelante Andalucía y SALF en Cádiz, y los del modelo con al menos un 1 % del voto, para que la suma y el resto sean reales."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Promedio por territorio: suma y «otros y en blanco»",
     "texto": "La tabla del promedio de encuestas de cada provincia y comunidad lleva ahora una fila con la suma de los partidos y otra con «otros y en blanco» por diferencia, para el promedio y para la previsión del modelo. Se marca en rojo a partir del 8 %, porque un cajón tan grande suele indicar un partido sin cifra en la encuesta o una cifra descartada."
   },

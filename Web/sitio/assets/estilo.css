@@ -388,6 +388,8 @@ button.principal { font-weight: 600; }
 .mundo .hemiciclo-leyenda { display: none; }   /* la tabla de al lado hace de leyenda */
 
 /* Control de cordura del promedio por territorio (22/11/2026) */
-#promedio-territorio .fila-suma td { border-top: 2px solid var(--linea); font-weight: 600; }
+#promedio-territorio .fila-suma td, #tabla-provincia .fila-suma td, #tabla-comunidad .fila-suma td { border-top: 2px solid var(--linea); font-weight: 600; }
+#tabla-provincia .fila-resto td, #tabla-comunidad .fila-resto td { color: var(--suave); }
+#tabla-provincia td.resto-alto, #tabla-comunidad td.resto-alto { color: #b3261e; font-weight: 700; }
 #promedio-territorio .fila-resto td { color: var(--suave); }
 #promedio-territorio td.resto-alto { color: #b3261e; font-weight: 700; }

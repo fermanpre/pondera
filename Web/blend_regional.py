@@ -73,6 +73,8 @@ NOMBRE_NACIONAL = {"PP": "PP", "PSOE": "PSOE", "VOX": "Vox", "SUMAR": "Sumar", "
 CANDIDATURA_DE_NOMBRE_NACIONAL = {v: k for k, v in NOMBRE_NACIONAL.items()}
 BLOQUE_DE_CANDIDATURA = {i: b for b, ids in BLOQUES.items() for i in ids}
 COLUMNAS_QUE_SE_SOLAPAN = [("Sumar", ["Podemos", "IU", "Unidas Podemos"]), ("FA", ["Podemos", "IU"])]
+# Columnas de las encuestas regionales que no pasan al blend (no tienen bloque propio) pero sí se enseñan en el promedio de cada territorio (22/11/2026): columna de Wikipedia -> candidatura del modelo
+CANDIDATURA_PARA_MOSTRAR = {"Adelante Andalucía (2021)": "ADELANTE", "Adelante Andalucía": "ADELANTE", "SALF": "SALF", "UPN": "UPN", "CCa": "CC", "Existe": "EXISTE", "PACMA": "PACMA"}
 COMUNIDADES = {
     "Andalusia": "Andalucía", "Aragon": "Aragón", "Asturias": "Asturias", "Balearic Islands": "Illes Balears", "Basque Country": "País Vasco", "Canary Islands": "Canarias",
     "Cantabria": "Cantabria", "Castile and León": "Castilla y León", "Castilla–La Mancha": "Castilla-La Mancha", "Catalonia": "Cataluña", "Extremadura": "Extremadura",
@@ -239,9 +241,11 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None, 
                 if detalle is not None:
                     medias_por_candidatura = {}
                     for nombre, valor in medias.items():
-                        candidatura = CANDIDATURA_DE_NOMBRE_NACIONAL.get(nombre)
-                        if candidatura and cuenta[nombre] * 2 >= usadas:
-                            medias_por_candidatura[candidatura] = round(valor, 2)
+                        if cuenta[nombre] * 2 < usadas:
+                            continue
+                        # Candidatura del modelo si la hay; si no, el nombre de la columna tal cual (CUP, UPL...), que la web enseña sin cifra del modelo
+                        candidatura = CANDIDATURA_DE_NOMBRE_NACIONAL.get(nombre) or CANDIDATURA_PARA_MOSTRAR.get(nombre) or nombre
+                        medias_por_candidatura[candidatura] = round(medias_por_candidatura.get(candidatura, 0.0) + valor, 2)
                     encuestas_del_promedio = []
                     for encuesta, peso, _antiguedad in sorted(pesos, key=lambda trio: -trio[1]):
                         encuestas_del_promedio.append({"casa": encuesta["firma_original"], "fin": encuesta["fin"].isoformat(), "muestra": encuesta["muestra"],

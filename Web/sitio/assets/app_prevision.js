@@ -677,6 +677,31 @@ function pintarTablaDeTerritorio(config) {
       cuerpo.appendChild(fila);
     });
   }
+  // Control de cordura (22/11/2026): suma de las filas y, por diferencia, «otros y en blanco». Un cajón anormalmente grande delata un partido que falta o un dato mal repartido.
+  const UMBRAL_DE_AVISO_DE_OTROS = 8;   // puntos a partir de los cuales se marca en rojo el resto del voto previsto
+  const escanosDelTerritorio = indices.reduce(function (suma, p) { return suma + modelo.provincias[p].escanos; }, 0);
+  const sumaDeVoto = filas.reduce(function (suma, f) { return suma + 100 * f.cuota; }, 0);
+  const sumaDeEscanos = filas.reduce(function (suma, f) { return suma + f.central; }, 0);
+  let votos2023 = 0, escanos2023 = 0;
+  if (resultados2023) {
+    Object.keys(porClave2023).forEach(function (clave) { votos2023 += porClave2023[clave].votos; escanos2023 += porClave2023[clave].escanos; });
+  }
+  function celdasDeSumas2023(votos, porcentajeDeVoto, escanos) {
+    if (!tablaConResultados2023) return "";
+    return '<td class="num2023' + marcaDeInicio + '">' + votos.toLocaleString("es-ES", { useGrouping: "always" }) + '</td><td class="num2023">' + porcentaje(porcentajeDeVoto) + '</td><td class="num2023 borde-der">' + escanos + '</td>';
+  }
+  function filaDeControl(clase, nombre, votoPrevisto, escanosPrevistos, celdasPasado, avisar) {
+    const fila = document.createElement("tr");
+    fila.className = clase;
+    const marcaDeAviso = avisar && votoPrevisto >= UMBRAL_DE_AVISO_DE_OTROS ? ' class="resto-alto"' : "";
+    fila.innerHTML = ordenarFila('<td class="col-partido">' + nombre + '</td>', '<td' + marcaDeAviso + '>' + porcentaje(votoPrevisto) + '</td><td></td><td>' + escanosPrevistos + '</td><td></td><td></td><td></td>', celdasPasado);
+    cuerpo.appendChild(fila);
+  }
+  const validos2023 = resultados2023 ? resultados2023.validos : 0;
+  filaDeControl("fila-suma", "Suma de los partidos", sumaDeVoto, sumaDeEscanos,
+    resultados2023 ? celdasDeSumas2023(votos2023, 100 * votos2023 / validos2023, escanos2023) : celdasDeSumas2023(0, 0, 0), false);
+  filaDeControl("fila-resto", "Otros y en blanco (por diferencia)", 100 - sumaDeVoto, escanosDelTerritorio - sumaDeEscanos,
+    resultados2023 ? celdasDeSumas2023(validos2023 - votos2023, 100 - 100 * votos2023 / validos2023, 0) : celdasDeSumas2023(0, 0, 0), true);
 }
 
 /* Distribución de escaños de un partido en una provincia: una barra por número de escaños, con la altura proporcional a su probabilidad.
