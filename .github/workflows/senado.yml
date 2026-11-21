@@ -4,7 +4,7 @@ name: Previsión del Senado
 
 on:
   schedule:
-    - cron: "43 5 * * *"   # una vez al día, al minuto 43 (UTC): lejos de los minutos 00 y 30, donde GitHub retrasa o pierde ejecuciones programadas
+    - cron: "43 19 * * *"   # una vez al día a las 19:43 UTC (20:43 en Madrid), con las encuestas del día ya dentro y antes de la veda; minuto 43: lejos de los minutos 00 y 30, donde GitHub retrasa o pierde ejecuciones programadas
   workflow_dispatch:
 
 permissions:
