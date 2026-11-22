@@ -99,6 +99,12 @@
   "fecha": "2026-11-20",
   "hallazgos": 0
  },
+ "https://elpais.com/espana/elecciones-generales/2026-11-21/el-psoe-acaricia-el-empate-con-el-pp-segun-el-tracking-de-40db.html": {
+  "error": "HTTPError: HTTP Error 403: Forbidden",
+  "estado": "error",
+  "fecha": "2026-11-22",
+  "intentos": 1
+ },
  "https://elpais.com/infografias/encuestas40db/2026/11-tracking-electoral/Informe_tracking_dia01.pdf": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -142,6 +148,11 @@
  "https://ep00.epimg.net/infografias/encuestas40db/2026/11-tracking-electoral/informe_tracking_dia09.pdf": {
   "estado": "revisada",
   "fecha": "2026-11-21",
+  "hallazgos": 0
+ },
+ "https://ep00.epimg.net/infografias/encuestas40db/2026/11-tracking-electoral/informe_tracking_dia10.pdf": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
   "hallazgos": 0
  },
  "https://laseptima.com/wp-content/uploads/2026/11/barometro-n09-12nov2026.pdf": {
@@ -228,8 +239,8 @@
  "https://moreincommones.substack.com/p/diez-dias-para-el-29n-nuestro-ultimo": {
   "error": "HTTPError: HTTP Error 403: Forbidden",
   "estado": "error",
-  "fecha": "2026-11-21",
-  "intentos": 1
+  "fecha": "2026-11-22",
+  "intentos": 2
  },
  "https://okdiario.com/espana/campana-sanchez-contra-okdiario-no-da-frutos-psoe-queda-104-escanos-frente-holgada-mayoria-pp-vox-20904749": {
   "estado": "revisada",
@@ -251,9 +262,30 @@
   "fecha": "2026-11-20",
   "hallazgos": 0
  },
+ "https://okdiario.com/espana/psoe-recorta-distancias-pero-pp-sigue-cinco-puntos-delante-socialistas-suma-vox-roza-200-escanos-21240493": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
+  "hallazgos": 0
+ },
+ "https://www.abc.es/espana/derecha-mantiene-holgada-mayoria-194-escanos-semana-20261122023225-nt.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
+  "hallazgos": 0
+ },
  "https://www.articulo14.es/politica/el-pp-arranca-la-campana-con-25-escanos-de-ventaja-sobre-el-psoe-y-una-mayoria-holgada-con-vox-20261113.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
+  "hallazgos": 0
+ },
+ "https://www.articulo14.es/politica/sanchez-recorta-distancias-a-feijoo-pero-la-mayoria-de-pp-y-vox-supera-los-190-escanos-20261122.html": {
+  "error": "HTTPError: HTTP Error 403: Forbidden",
+  "estado": "error",
+  "fecha": "2026-11-22",
+  "intentos": 1
+ },
+ "https://www.diariodenavarra.es/noticias/actualidad/nacional/2026/11/22/pp-vox-consolidan-ventaja-semana-elecciones-843312-28.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
   "hallazgos": 0
  },
  "https://www.elconfidencial.com/espana/2026-11-16/encuesta-imop-cuarta-oleada-derecha-ventaja-izquierdas-territoriales-frente-amplio-podemos-cbtr_4464610/": {
@@ -306,6 +338,11 @@
   "fecha": "2026-11-21",
   "hallazgos": 1
  },
+ "https://www.electografica.com/2026/11/encuesta-sondaxe-261122.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
+  "hallazgos": 0
+ },
  "https://www.elespanol.com/espana/politica/20261108/pp-vox-suman-escanos-sanchez-recupera-perdio-urda-dimision-puente-sondeo-noche/1003744450645_0.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -315,6 +352,11 @@
   "estado": "revisada",
   "fecha": "2026-11-18",
   "hallazgos": 1
+ },
+ "https://www.elespanol.com/espana/politica/20261121/tracking-semana-feijoo-sanchez-ganan-escanos-costa-aliados-oposicion-mantiene-debate/1003744467538_0.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
+  "hallazgos": 0
  },
  "https://www.elmundo.es/elecciones/elecciones-generales/2026/11/12/6af60b3ee4d4d8845c8b4577.html": {
   "estado": "revisada",
@@ -356,6 +398,11 @@
   "fecha": "2026-11-21",
   "hallazgos": 0
  },
+ "https://www.elmundo.es/espana/encuestas/2026/11/21/6b01d96dfc6c83e5298b4592.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
+  "hallazgos": 0
+ },
  "https://www.larazon.es/espana/mayoria-vox-resiste-arranque-campana-205-diputados_202611166afa6889ea8d89799786d4d1.html": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -369,6 +416,11 @@
  "https://www.lasexta.com/programas/al-rojo-vivo/ignacio-urquizu-experto-demoscopia-cara-elecciones-29n-bloque-derecha-esta-muy-consolidado-esta-torno-49_202611196afef28f21e74551e81f5586.html": {
   "estado": "revisada",
   "fecha": "2026-11-20",
+  "hallazgos": 0
+ },
+ "https://www.lavanguardia.com/politica/20261122/11689982/derecha-suma-mayoria-absoluta-psoe-acerca-pp.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
   "hallazgos": 0
  },
  "https://www.lavozdegalicia.es/noticia/espana/2026/11/14/suma-pp-vox-superaria-absoluta-195-escanos-frente-106-psoe/00031794683613056404784.htm": {
@@ -401,6 +453,11 @@
   "fecha": "2026-11-21",
   "hallazgos": 0
  },
+ "https://www.lavozdegalicia.es/noticia/espana/2026/11/21/psoe-solo-impondria-escanos-cuatro-provincias-pp-lidera-19/00031795288775954890565.htm": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
+  "hallazgos": 0
+ },
  "https://www.lavozdegalicia.es/noticia/galicia/2026/11/16/psoe-recorta-tres-escanos-pp-sigue-primera-fuerza/0003_202611G16P5991.htm": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -416,6 +473,11 @@
   "fecha": "2026-11-19",
   "hallazgos": 0
  },
+ "https://www.vozpopuli.com/espana/politica/pp-y-vox-se-disparan-a-210-escanos-y-frenan-en-seco-el-espiritu-de-remontada-del-psoe.html": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
+  "hallazgos": 0
+ },
  "https://x.com/la_septima_tv/status/2122787030937612582": {
   "estado": "revisada",
   "fecha": "2026-11-18",
@@ -424,6 +486,11 @@
  "https://x.com/la_septima_tv/status/2123878170008941007": {
   "estado": "revisada",
   "fecha": "2026-11-21",
+  "nota": "dominio omitido"
+ },
+ "https://x.com/la_septima_tv/status/2124233838876336632": {
+  "estado": "revisada",
+  "fecha": "2026-11-22",
   "nota": "dominio omitido"
  }
 }
