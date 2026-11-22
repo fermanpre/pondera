@@ -25,7 +25,9 @@ const Motor = require(path.join(__dirname, "sitio", "motor.js"));
 
 const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 10000;
 const SEMILLA = 20261129;
-const UMBRALES_DE_SEGURIDAD = [0.90, 0.95, 0.975, 0.99];
+const UMBRALES_DE_SEGURIDAD = [0.95, 0.975, 0.99];  // «casi seguro»: desde el 22/11/2026 el 95 % (antes el 90 %)
+const UMBRAL_PROBABLE = 0.75;                        // «probable»: entre este umbral y el de «casi seguro»; por debajo, «en el aire»
+const MAXIMO_DE_ESCANOS_PARA_ESCALERA = 8;           // la escalera de probabilidades solo en las provincias de hasta 8 escaños
 const VENTANA_DECISIVA = 0.0025;  // fracción de los votos de la provincia que, sumada o restada a un partido, define si su voto es decisivo
 const DELTA = 0.01;  // fracción de los votos de la provincia que se suma al partido para medir el valor de su voto
 const BLOQUES = {
@@ -58,27 +60,66 @@ Object.keys(BLOQUES).forEach(function (bloque) {
   columnasDeBloque[bloque].forEach(function (k) { bloqueDeColumna[k] = bloque; });
 });
 
+function socioDeCoalicion(p, k) {
+  const coalicion = modelo.coaliciones.find(function (c) { return c.provincia === p && c.columna === k; });
+  return coalicion ? coalicion.socio : -1;
+}
+function esSocioDeCoalicion(p, k) { return modelo.coaliciones.some(function (c) { return c.provincia === p && c.socio === k; }); }
+
 function distribucionDeEscanos(p, k, maximo) {
   const cuentas = new Int32Array(maximo + 1);
-  for (let s = 0; s < SORTEOS; s++) cuentas[resultado.provinciales[(s * P + p) * K + k]]++;
+  const socio = socioDeCoalicion(p, k);
+  for (let s = 0; s < SORTEOS; s++) {
+    const cantidad = resultado.provinciales[(s * P + p) * K + k] + (socio >= 0 ? resultado.provinciales[(s * P + p) * K + socio] : 0);
+    cuentas[Math.min(cantidad, maximo)]++;
+  }
   return cuentas;
 }
 
-function escanosSeguros(p, escanos) {
+// Probabilidad de que cada entidad (partido o coalición) saque j o más escaños, para j = 1..N: {partido: [P(>=1), P(>=2), ...]}
+function probabilidadesAlMenos(p, escanos) {
+  const resultadoPorPartido = {};
+  for (let k = 0; k < K; k++) {
+    if (esSocioDeCoalicion(p, k)) continue;
+    const cuentas = distribucionDeEscanos(p, k, escanos);
+    const alMenos = [];
+    let acumulado = SORTEOS;
+    for (let n = 1; n <= escanos; n++) {
+      acumulado -= cuentas[n - 1];
+      alMenos.push(acumulado / SORTEOS);
+    }
+    if (alMenos[0] > 0) resultadoPorPartido[modelo.partidos[k]] = alMenos;
+  }
+  return resultadoPorPartido;
+}
+
+// Escaños casi seguros (el partido saca j o más en al menos el umbral de las simulaciones) y probables (entre UMBRAL_PROBABLE y el umbral); el resto, en el aire
+function clasificarEscanos(p, escanos) {
+  const alMenos = probabilidadesAlMenos(p, escanos);
   for (let i = 0; i < UMBRALES_DE_SEGURIDAD.length; i++) {
     const umbral = UMBRALES_DE_SEGURIDAD[i];
     const seguros = {};
+    const candidatosAProbables = [];   // {partido, probabilidad} de los escaños que son probables, para recortar si sobran
     let suma = 0;
-    for (let k = 0; k < K; k++) {
-      const cuentas = distribucionDeEscanos(p, k, escanos);
-      let alMenos = SORTEOS, seguro = 0;
-      for (let n = 1; n <= escanos; n++) {
-        alMenos -= cuentas[n - 1];
-        if (alMenos / SORTEOS >= umbral) seguro = n;
+    Object.keys(alMenos).forEach(function (partido) {
+      let seguro = 0;
+      for (let n = 1; n <= escanos; n++) { if (alMenos[partido][n - 1] >= umbral) seguro = n; }
+      if (seguro > 0) { seguros[partido] = seguro; suma += seguro; }
+      for (let n = seguro + 1; n <= escanos; n++) {
+        const probabilidad = alMenos[partido][n - 1];
+        if (probabilidad < UMBRAL_PROBABLE) break;
+        candidatosAProbables.push({ partido: partido, probabilidad: probabilidad });
       }
-      if (seguro > 0) { seguros[modelo.partidos[k]] = seguro; suma += seguro; }
+    });
+    if (suma <= escanos || i === UMBRALES_DE_SEGURIDAD.length - 1) {
+      candidatosAProbables.sort(function (a, b) { return b.probabilidad - a.probabilidad; });
+      const probables = {};
+      let sumaProbables = 0;
+      candidatosAProbables.forEach(function (candidato) {
+        if (suma + sumaProbables < escanos) { probables[candidato.partido] = (probables[candidato.partido] || 0) + 1; sumaProbables += 1; }
+      });
+      return { seguros: seguros, probables: probables, suma: Math.min(suma, escanos), sumaProbables: sumaProbables, umbral: umbral, alMenos: alMenos };
     }
-    if (suma <= escanos || i === UMBRALES_DE_SEGURIDAD.length - 1) return { seguros: seguros, suma: Math.min(suma, escanos), umbral: umbral };
   }
 }
 
@@ -86,21 +127,17 @@ const provincias = {};
 for (let p = 0; p < P; p++) {
   const provincia = modelo.provincias[p];
   const N = provincia.escanos;
-  const { seguros, suma, umbral } = escanosSeguros(p, N);
-  const enElAire = N - suma;
-  // Quién se lleva los escaños en el aire
-  const repartoDelAire = {};
-  if (enElAire > 0) {
-    for (let k = 0; k < K; k++) {
-      const partido = modelo.partidos[k];
-      const base = seguros[partido] || 0;
-      let extra = 0;
-      for (let s = 0; s < SORTEOS; s++) {
-        const cantidad = resultado.provinciales[(s * P + p) * K + k];
-        if (cantidad > base) extra += cantidad - base;
-      }
-      if (extra > 0) repartoDelAire[partido] = Math.round(10000 * extra / SORTEOS) / 10000;
-    }
+  const { seguros, probables, suma, sumaProbables, umbral, alMenos } = clasificarEscanos(p, N);
+  const enElAire = N - suma - sumaProbables;
+  // Escalera de probabilidades (provincias pequeñas): para cada partido o coalición, la probabilidad de sacar al menos 1, 2, 3... escaños, mientras sea de un 1 % o más
+  let escalera = null;
+  if (N <= MAXIMO_DE_ESCANOS_PARA_ESCALERA) {
+    escalera = Object.keys(alMenos).map(function (partido) {
+      const probabilidades = [];
+      for (let n = 0; n < alMenos[partido].length; n++) { if (alMenos[partido][n] >= 0.01) probabilidades.push(Math.round(1000 * alMenos[partido][n]) / 1000); }
+      return { partido: partido, p: probabilidades };
+    }).filter(function (fila) { return fila.p.length > 0; })
+      .sort(function (a, b) { return b.p.reduce(function (x, y) { return x + y; }, 0) - a.p.reduce(function (x, y) { return x + y; }, 0); });
   }
   // Valor de un voto a cada partido
   const delta = DELTA * modelo.peso[p];
@@ -168,6 +205,29 @@ for (let p = 0; p < P; p++) {
     costes[s] = cocientes.length >= N ? cocientes[N - 1] / provincia.votos_validos : 0;
   }
   costes.sort();
+  const disputa = (function () {
+    const ultimo = {}, primeroFuera = {};
+    for (let s = 0; s < SORTEOS; s++) {
+      const cocientes = [];
+      for (let k = 0; k < K; k++) {
+        const votosK = sinEscanoDeFacto[modelo.partidos[k]] || !modelo.presente[p * K + k] ? 0 : cuotasFinales[(s * P + p) * K + k] * modelo.peso[p];
+        if (votosK <= 0 || votosK < minimoLegal) continue;
+        for (let d = 1; d <= N + 1; d++) cocientes.push({ k: k, votos: votosK / d });
+      }
+      cocientes.sort(function (a, b) { return b.votos - a.votos; });
+      if (cocientes.length > N) {
+        const partidoUltimo = modelo.partidos[cocientes[N - 1].k], partidoFuera = modelo.partidos[cocientes[N].k];
+        ultimo[partidoUltimo] = (ultimo[partidoUltimo] || 0) + 1;
+        primeroFuera[partidoFuera] = (primeroFuera[partidoFuera] || 0) + 1;
+      }
+    }
+    const aProbabilidades = function (cuentas) {
+      const salida = {};
+      Object.keys(cuentas).forEach(function (partido) { if (cuentas[partido] / SORTEOS >= 0.005) salida[partido] = Math.round(1000 * cuentas[partido] / SORTEOS) / 1000; });
+      return salida;
+    };
+    return { ultimo: aProbabilidades(ultimo), fuera: aProbabilidades(primeroFuera) };
+  })();
   const percentil = function (q) { return costes[Math.min(SORTEOS - 1, Math.floor(q * SORTEOS))]; };
   const barreraDeFacto = { p05: Math.round(10000 * percentil(0.05)) / 10000, mediana: Math.round(10000 * percentil(0.5)) / 10000, p95: Math.round(10000 * percentil(0.95)) / 10000 };
   // Voto central de cada partido en la provincia (tanto por uno sobre votos a candidaturas), solo los de un 1 % o más: sirve para saber cuál es el partido más votado de cada grupo
@@ -214,7 +274,7 @@ for (let p = 0; p < P; p++) {
     lista[primeraFilaQueNo[partido]].faltan = Math.ceil(alto);
   });
   const corte = cocientes.length > N ? { ultimo: Math.round(cocientes[N - 1].votos), primero_fuera: Math.round(cocientes[N].votos) } : null;
-  provincias[provincia.nombre] = { barrera_de_facto: barreraDeFacto, cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, seguros: seguros, aire: enElAire, reparto_aire: repartoDelAire, valor: valor, valor_bloque: valorBloque, decisivo: decisivo, ventana_decisiva: Math.round(ventana), voto: voto };
+  provincias[provincia.nombre] = { barrera_de_facto: barreraDeFacto, cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, umbral_probable: UMBRAL_PROBABLE, seguros: seguros, probables: probables, aire: enElAire, escalera: escalera, disputa: disputa, valor: valor, valor_bloque: valorBloque, decisivo: decisivo, ventana_decisiva: Math.round(ventana), voto: voto };
   if ((p + 1) % 10 === 0) console.log("  " + (p + 1) + "/" + P + " provincias (" + ((Date.now() - inicio) / 1000).toFixed(0) + " s)");
 }
 

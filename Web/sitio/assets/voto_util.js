@@ -26,62 +26,100 @@
     return (typeof NOMBRES !== "undefined" && NOMBRES[partido]) || partido;
   }
   const colorDe = (partido) => (typeof COLORES !== "undefined" && COLORES[partido]) || "#7a7a75";
-  const porcentajeEntero = (probabilidad) => PROBABILIDAD.html(probabilidad, Math.round(100 * probabilidad) + "%");
+  // El 99,6 % no se redondea a 100 %: sería afirmar certeza
+  const textoDePorcentaje = (probabilidad) => (probabilidad >= 1 ? "100%" : probabilidad > 0.995 ? ">99%" : probabilidad < 0.005 ? "<1%" : Math.round(100 * probabilidad) + "%");
+  const porcentajeEntero = (probabilidad) => PROBABILIDAD.html(probabilidad, textoDePorcentaje(probabilidad));
   function lista(nombres) {
     if (nombres.length <= 1) { return nombres.join(""); }
     return nombres.slice(0, -1).join(", ") + " y " + nombres[nombres.length - 1];
   }
   function escapar(texto) { return String(texto).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
+  const sumaDe = (cuentas) => Object.keys(cuentas || {}).reduce((suma, partido) => suma + cuentas[partido], 0);
+
+  // «3 son casi seguros, 1 es probable y 1 está en el aire»
   function titular(nombre, datos) {
-    const seguros = Object.keys(datos.seguros).reduce((suma, partido) => suma + datos.seguros[partido], 0);
-    const probables = Object.keys(datos.reparto_aire).filter((partido) => datos.reparto_aire[partido] >= (datos.aire === 1 ? 0.10 : 0.25))
-      .sort((a, b) => datos.reparto_aire[b] - datos.reparto_aire[a]).slice(0, 4).map((partido) => nombreDe(partido, nombre));
-    let frase;
-    if (datos.aire === 0) {
-      frase = datos.escanos === 1 ? "El único escaño de " + nombre + " está casi decidido." : "Los " + datos.escanos + " escaños de " + nombre + " están casi decididos.";
-    } else if (seguros === 0) {
-      frase = datos.escanos === 1 ? "El único escaño de " + nombre + " se lo juegan " + lista(probables) + "."
-        : "Ninguno de los " + datos.escanos + " escaños de " + nombre + " está decidido del todo: se los juegan sobre todo " + lista(probables) + ".";
-    } else if (datos.aire === 1) {
-      frase = (seguros === 1 ? "Uno de sus " + datos.escanos + " escaños está casi decidido" : seguros + " de sus " + datos.escanos + " escaños están casi decididos") + ". El otro se lo juegan " + lista(probables) + ".";
-    } else {
-      frase = seguros + " de sus " + datos.escanos + " escaños están casi decididos; " + (datos.aire === 1 ? "queda 1 en el aire" : "quedan " + datos.aire + " en el aire") + ", que se juegan sobre todo " + lista(probables) + ".";
+    const seguros = sumaDe(datos.seguros);
+    const probables = sumaDe(datos.probables);
+    if (datos.aire === 0 && probables === 0) {
+      return datos.escanos === 1 ? "El único escaño de " + nombre + " es casi seguro." : "Los " + datos.escanos + " escaños de " + nombre + " son casi seguros.";
     }
-    return frase;
+    const partes = [];
+    if (seguros > 0) { partes.push(seguros === 1 ? "1 es casi seguro" : seguros + " son casi seguros"); }
+    if (probables > 0) { partes.push(probables === 1 ? "1 es probable" : probables + " son probables"); }
+    if (datos.aire > 0) { partes.push(datos.aire === 1 ? "1 está en el aire" : datos.aire + " están en el aire"); }
+    if (datos.escanos === 1) { return "El único escaño de " + nombre + " está en el aire."; }
+    return "De los " + datos.escanos + " escaños de " + nombre + ", " + lista(partes) + ".";
   }
 
   function cuadrados(nombre, datos) {
     const compacto = datos.escanos > MAXIMO_DE_CUADROS_GRANDES;
-    const ordenados = Object.keys(datos.seguros).sort((a, b) => datos.seguros[b] - datos.seguros[a] || (datos.voto[b] || 0) - (datos.voto[a] || 0));
+    const porVoto = (cuentas) => Object.keys(cuentas || {}).sort((a, b) => cuentas[b] - cuentas[a] || (datos.voto[b] || 0) - (datos.voto[a] || 0));
+    const ordenados = porVoto(datos.seguros);
+    const ordenadosProbables = porVoto(datos.probables);
     let html = '<div class="vu-cuadrados' + (compacto ? " vu-compacto" : "") + '">';
     ordenados.forEach((partido) => {
       for (let i = 0; i < datos.seguros[partido]; i += 1) {
-        const rotulo = nombreDe(partido, nombre);
-        html += '<div class="vu-cuadro" title="' + escapar(rotulo) + '"><span class="caja" style="background:' + colorDe(partido) + '"></span>' + (compacto ? "" : "<b>" + escapar(rotulo) + "</b>") + "</div>";
+        const rotulo = nombreDe(partido, nombre, true);
+        html += '<div class="vu-cuadro" title="' + escapar(rotulo) + ': casi seguro"><span class="caja" style="background:' + colorDe(partido) + '"></span>' + (compacto ? "" : "<b>" + escapar(rotulo) + "</b>") + "</div>";
+      }
+    });
+    ordenadosProbables.forEach((partido) => {
+      for (let i = 0; i < datos.probables[partido]; i += 1) {
+        const rotulo = nombreDe(partido, nombre, true);
+        html += '<div class="vu-cuadro vu-probable" title="' + escapar(rotulo) + ': probable"><span class="caja" style="background:' + colorDe(partido) + '"></span>' + (compacto ? "" : "<b>" + escapar(rotulo) + "</b>") + "</div>";
       }
     });
     for (let i = 0; i < datos.aire; i += 1) {
       html += '<div class="vu-cuadro vu-aire" title="En el aire"><span class="caja">?</span>' + (compacto ? "" : "<b>En el aire</b>") + "</div>";
     }
     html += "</div>";
+    const conProbables = sumaDe(datos.probables) > 0;
     if (compacto) {
-      const partes = ordenados.map((partido) => '<span><span class="ficha" style="background:' + colorDe(partido) + '"></span>' + escapar(nombreDe(partido, nombre)) + " <b>" + datos.seguros[partido] + "</b></span>");
-      html += '<p class="nota vu-leyenda">Casi decididos: ' + partes.join(" · ") + (datos.aire ? ' · <span class="vu-aire-leyenda">En el aire <b>' + datos.aire + "</b></span>" : "") + ".</p>";
+      const partes = ordenados.map((partido) => '<span><span class="ficha" style="background:' + colorDe(partido) + '"></span>' + escapar(nombreDe(partido, nombre, true)) + " <b>" + datos.seguros[partido] + "</b></span>");
+      const partesProbables = ordenadosProbables.map((partido) => '<span><span class="ficha" style="background:' + colorDe(partido) + '"></span>' + escapar(nombreDe(partido, nombre, true)) + " <b>" + datos.probables[partido] + "</b></span>");
+      html += '<p class="nota vu-leyenda">Casi seguros: ' + partes.join(" · ") + (conProbables ? ". Probables: " + partesProbables.join(" · ") : "") +
+        (datos.aire ? '. <span class="vu-aire-leyenda">En el aire <b>' + datos.aire + "</b></span>" : "") + ".</p>";
+    } else {
+      html += '<p class="nota vu-leyenda"><span class="vu-muestra-cuadro"></span> casi seguro' + (conProbables ? ' · <span class="vu-muestra-cuadro vu-muestra-probable"></span> probable' : "") +
+        (datos.aire ? ' · <span class="vu-muestra-cuadro vu-muestra-aire">?</span> en el aire' : "") + "</p>";
     }
     return html;
   }
 
-  function quienSeLoLleva(nombre, datos) {
-    if (datos.aire === 0) { return ""; }
-    const entradas = Object.keys(datos.reparto_aire).filter((partido) => datos.reparto_aire[partido] >= 0.005).sort((a, b) => datos.reparto_aire[b] - datos.reparto_aire[a]);
-    if (!entradas.length) { return ""; }
-    if (datos.aire === 1) {
-      return '<p class="vu-quien"><b>Quién se lo lleva:</b> ' + entradas.map((partido) => '<span><span class="ficha" style="background:' + colorDe(partido) + '"></span>' +
-        escapar(nombreDe(partido, nombre)) + " <b>" + porcentajeEntero(datos.reparto_aire[partido]) + "</b></span>").join(" · ") + "</p>";
-    }
-    return '<p class="vu-quien"><b>Escaños de más sobre los casi decididos, de media:</b> ' + entradas.map((partido) => '<span><span class="ficha" style="background:' + colorDe(partido) + '"></span>' +
-      escapar(nombreDe(partido, nombre)) + " <b>" + formatoMedia.format(datos.reparto_aire[partido]) + "</b></span>").join(" · ") + "</p>";
+  // Disputa por el último escaño: en qué parte de las simulaciones se lo lleva cada partido (y quién es el primero que se queda fuera)
+  const MINIMO_EN_LA_DISPUTA = 0.03;
+  function disputaDelUltimo(nombre, datos) {
+    if (!datos.disputa) { return ""; }
+    const fragmento = (cuentas) => Object.keys(cuentas).filter((partido) => cuentas[partido] >= MINIMO_EN_LA_DISPUTA).sort((a, b) => cuentas[b] - cuentas[a])
+      .map((partido) => '<span><span class="ficha" style="background:' + colorDe(partido) + '"></span>' + escapar(nombreDe(partido, nombre, true)) + " <b>" + porcentajeEntero(cuentas[partido]) + "</b></span>").join(" · ");
+    const ultimo = fragmento(datos.disputa.ultimo);
+    if (!ultimo) { return ""; }
+    const fuera = fragmento(datos.disputa.fuera);
+    return '<p class="vu-quien"><b>Disputa por el último escaño:</b> ' + ultimo + "</p>" + (fuera ? '<p class="vu-quien vu-fuera"><b>El primero que se queda fuera:</b> ' + fuera + "</p>" : "");
+  }
+
+  // Escalera de probabilidades (provincias de pocos escaños): para cada partido, la probabilidad de sacar al menos 1, 2, 3... escaños
+  function escalera(nombre, datos) {
+    if (!datos.escalera || !datos.escalera.length) { return ""; }
+    const umbralSeguro = datos.umbral, umbralProbable = datos.umbral_probable;
+    const columnas = Math.max.apply(null, datos.escalera.map((fila) => fila.p.length));
+    const clase = (probabilidad) => (probabilidad >= umbralSeguro ? "vu-seguro" : probabilidad >= umbralProbable ? "vu-probable-celda" : "vu-aire-celda");
+    let html = '<h4 class="vu-escalera-titulo">Probabilidad de cada escaño</h4><div class="tabla-ancha"><table class="vu-escalera"><thead><tr><th>Partido</th>';
+    for (let n = 1; n <= columnas; n += 1) { html += "<th>" + n + (n === 1 ? ".º escaño" : ".º") + "</th>"; }
+    html += "</tr></thead><tbody>";
+    datos.escalera.forEach((fila) => {
+      html += '<tr><td class="col-partido"><span class="ficha" style="background:' + colorDe(fila.partido) + '"></span>' + escapar(nombreDe(fila.partido, nombre, true)) + "</td>";
+      for (let n = 0; n < columnas; n += 1) {
+        const probabilidad = fila.p[n];
+        html += probabilidad === undefined ? "<td>–</td>" : '<td class="' + clase(probabilidad) + '">' + porcentajeEntero(probabilidad) + "</td>";
+      }
+      html += "</tr>";
+    });
+    html += "</tbody></table></div>" +
+      '<p class="nota">Probabilidad de que el partido saque al menos ese número de escaños: <span class="vu-seguro vu-etiqueta">casi seguro</span> (desde el ' + Math.round(100 * umbralSeguro) + " %), " +
+      '<span class="vu-probable-celda vu-etiqueta">probable</span> (desde el ' + Math.round(100 * umbralProbable) + ' %) y <span class="vu-aire-celda vu-etiqueta">en el aire</span> (por debajo). Una coalición (UPN-PP en Navarra) cuenta como un solo partido.</p>';
+    return html;
   }
 
   function barras(nombre, datos) {
@@ -147,7 +185,7 @@
     filas.forEach((fila, i) => { if (fila.entra) { ultimaQueEntra[fila.partido] = i; } else if (primeraQueNo[fila.partido] === undefined) { primeraQueNo[fila.partido] = i; } });
     const ultimoEscano = filas.filter((f) => f.entra).length;
     let html = '<h3>Cómo se reparten los cocientes</h3><p class="nota">Cada barra es un cociente D’Hondt: los votos del partido divididos entre 1, 2, 3… El número de la izquierda es el del escaño: el 1 es el primero que se reparte y el último que entra es el ' + (filas.filter((f) => f.entra).length) + '. Los ' + ultimoEscano + (ultimoEscano === 1 ? " mayor se lleva el escaño" : " mayores se llevan los escaños") +
-      " de " + escapar(nombre) + ". El último escaño se lo lleva " + escapar(nombreDe(filas[ultimoEscano - 1].partido, nombre)) + " con " + formatoEntero.format(ultimo) + " votos por escaño (" + formatoPct.format(filas[ultimoEscano - 1].pct) + " % del voto a candidaturas); el primero que se queda fuera es " + escapar(nombreDe(filas[ultimoEscano].partido, nombre)) + " con " + formatoEntero.format(primeroFuera) + ". Es el reparto central, sin ruido: no dice cuán probable es cada resultado (eso es lo que enseña «Quién se lo lleva»), sino dónde está hoy cada cociente y cuántos votos separan a cada partido del corte.</p>";
+      " de " + escapar(nombre) + ". El último escaño se lo lleva " + escapar(nombreDe(filas[ultimoEscano - 1].partido, nombre)) + " con " + formatoEntero.format(ultimo) + " votos por escaño (" + formatoPct.format(filas[ultimoEscano - 1].pct) + " % del voto a candidaturas); el primero que se queda fuera es " + escapar(nombreDe(filas[ultimoEscano].partido, nombre)) + " con " + formatoEntero.format(primeroFuera) + ". Es el reparto central, sin ruido: no dice cuán probable es cada resultado (eso es lo que enseñan la «Disputa por el último escaño» y la escalera de probabilidades), sino dónde está hoy cada cociente y cuántos votos separan a cada partido del corte.</p>";
     filas.forEach((fila, i) => {
       if (i === ultimoEscano) {
         html += '<div class="vq-corte"><span></span><span class="linea"></span><span class="rotulo">corte: ' + formatoEntero.format(Math.round((ultimo + primeroFuera) / 2)) + ' votos</span></div>';
@@ -186,12 +224,12 @@
     if (!datos) { return; }
     document.getElementById("vu-titular").textContent = titular(provincia.nombre, datos);
     document.getElementById("vu-barrera").innerHTML = barreraDeFacto(provincia.nombre, datos);
-    document.getElementById("vu-escanos").innerHTML = '<p class="nota">' + (datos.escanos === 1 ? "El escaño" : "Los " + datos.escanos + " escaños") + " de " + escapar(provincia.nombre) + "</p>" + cuadrados(provincia.nombre, datos) + quienSeLoLleva(provincia.nombre, datos);
+    document.getElementById("vu-escanos").innerHTML = '<p class="nota">' + (datos.escanos === 1 ? "El escaño" : "Los " + datos.escanos + " escaños") + " de " + escapar(provincia.nombre) + "</p>" + cuadrados(provincia.nombre, datos) + disputaDelUltimo(provincia.nombre, datos) + escalera(provincia.nombre, datos);
     document.getElementById("vu-barras").innerHTML = barras(provincia.nombre, datos);
     document.getElementById("vu-cocientes").innerHTML = cocientes(provincia.nombre, datos);
     const fecha = VOTO_UTIL.fecha_promedio ? new Date(VOTO_UTIL.fecha_promedio + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" }) : "";
-    document.getElementById("vu-nota").innerHTML = "Casi decidido: el partido saca ese escaño en al menos el " + Math.round(100 * datos.umbral) + "% de las " + entero(VOTO_UTIL.sorteos) +
-      " simulaciones. Valor de un voto: escaños que gana de media el partido por cada voto más en esta provincia (se suma un " + Math.round(100 * VOTO_UTIL.delta) + "% de sus votos y se repite el reparto con las mismas simulaciones), " +
+    document.getElementById("vu-nota").innerHTML = "Casi seguro: el partido saca ese escaño en al menos el " + Math.round(100 * datos.umbral) + "% de las " + entero(VOTO_UTIL.sorteos) +
+      " simulaciones. Probable: en al menos el " + Math.round(100 * datos.umbral_probable) + " %. En el aire: en menos. «Disputa por el último escaño»: en qué parte de las simulaciones el último escaño del reparto es de cada partido. Valor de un voto: escaños que gana de media el partido por cada voto más en esta provincia (se suma un " + Math.round(100 * VOTO_UTIL.delta) + "% de sus votos y se repite el reparto con las mismas simulaciones), " +
       "dividido por lo que vale un voto medio en España (un escaño por cada " + entero(VOTO_UTIL.votos_por_escano_medio) + " votos). Para el bloque se cuentan los escaños que gana el conjunto de su bloque: un escaño que un partido le quita a otro del mismo bloque no suma, y uno que le quita al bloque contrario sí. Promedio a " + fecha + ". <a href=\"metodologia.html#voto-util\">Cómo se calcula</a>.";
   }
 

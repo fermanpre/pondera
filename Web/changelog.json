@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Escaños en juego: casi seguros, probables y en el aire",
+    "texto": "En la página de provincias, los escaños se clasifican en casi seguros (desde el 95 % de las simulaciones), probables (desde el 75 %) y en el aire. Nueva escalera de probabilidades de cada escaño en las provincias de hasta 8 escaños, y la «disputa por el último escaño» sustituye a los «escaños de más de media». La coalición UPN-PP de Navarra cuenta como un solo partido."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Aragón: Frente Amplio y Podemos",
     "texto": "Corregido un efecto del promedio autonómico con una sola encuesta: en Aragón la encuesta de A+M se contaba sin la columna de CHA (que va dentro del Frente Amplio) y, además, ya entraba como indicio del Frente Amplio. Ahora CHA suma al Frente Amplio en el promedio de Aragón (12,0 % en esa encuesta) y la encuesta no se cuenta dos veces: Podemos recupera su cuota en las tres provincias aragonesas."
   },
