@@ -139,7 +139,7 @@
       '<div class="mr-linea"><span class="mr-pista"><span class="mr-relleno absoluta" style="width:' + (100 * probabilidades[i].absoluta).toFixed(1) + '%"></span></span><span class="mr-valor">' + porcentajeEntero(probabilidades[i].absoluta) + "</span></div>" +
       '<div class="mr-linea"><span class="mr-pista"><span class="mr-relleno tres" style="width:' + (100 * probabilidades[i].tres).toFixed(1) + '%"></span></span><span class="mr-valor">' + porcentajeEntero(probabilidades[i].tres) + "</span></div>" +
       "</div></div>").join("") +
-      '<p class="mg-leyenda"><span><span class="ficha" style="background:#1d6fb8"></span>mayoría absoluta (' + MAYORIA_ABSOLUTA + ' de ' + TAMANO_DEL_SENADO + ')</span><span><span class="ficha" style="background:#e08a1e"></span>tres quintos (' + TRES_QUINTOS + ' de ' + TAMANO_DEL_SENADO + ')</span></p>';
+      '<p class="mg-leyenda"><span><span class="ficha" style="background:#1d6fb8"></span>mayoría absoluta (' + MAYORIA_ABSOLUTA + ' de ' + TAMANO_DEL_SENADO + ')</span><span><span class="ficha" style="background:#2e9e5b"></span>tres quintos (' + TRES_QUINTOS + ' de ' + TAMANO_DEL_SENADO + ')</span></p>';
     const enSimulaciones = (p) => PROBABILIDAD.enLasSimulaciones(p, Math.round(100 * p) + " %");
     document.getElementById("mayorias-titular").innerHTML = PROBABILIDAD.activo()
       ? "Con los " + designadosDerecha + " designados, la derecha logra la mayoría absoluta del Senado (" + MAYORIA_ABSOLUTA + ") " + enSimulaciones(probabilidades[0].absoluta) + " y los tres quintos (" + TRES_QUINTOS + ") " +

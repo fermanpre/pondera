@@ -374,7 +374,8 @@ button.principal { font-weight: 600; }
 .mg-svg { width: 100%; height: auto; display: block; }
 .mg-barra-baja { fill: var(--suave); opacity: 0.4; }
 .mg-barra-absoluta { fill: #1d6fb8; }
-.mg-barra-tres { fill: #e08a1e; }
+.mg-barra-izquierda { fill: #d6232b; }
+.mg-barra-tres { fill: #2e9e5b; }
 .mg-eje, .mg-texto { fill: var(--suave); font-size: 11px; }
 .mg-umbral { stroke: var(--texto); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: 0.7; }
 .mg-etiqueta { fill: var(--texto); font-size: 12px; font-weight: 700; }
@@ -388,7 +389,8 @@ button.principal { font-weight: 600; }
 .mr-pista { position: relative; height: 16px; background: var(--fondo); border-radius: 3px; overflow: hidden; }
 .mr-relleno { display: block; height: 100%; border-radius: 3px; }
 .mr-relleno.absoluta { background: #1d6fb8; }
-.mr-relleno.tres { background: #e08a1e; }
+.mr-relleno.absoluta.izquierda { background: #d6232b; }
+.mr-relleno.tres { background: #2e9e5b; }
 .mr-valor { font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .prob-frecuencias .mr-linea { grid-template-columns: 1fr 150px; }   /* «999 de cada 1.000» no cabe en 52 px; ancho fijo para que las barras sigan alineadas */
 .mr-etiqueta-umbral { font-size: 0.75rem; color: var(--suave); font-weight: 400; }

@@ -33,7 +33,8 @@ function pintarHistogramasDeMayoria() {
     return cuentas;
   }
 
-  function graficoSvg(sumas) {
+  // claseDeLaAbsoluta: color de la mayoría absoluta (azul para la derecha, rojo para el bloque de la izquierda); los tres quintos van siempre en verde
+  function graficoSvg(sumas, claseDeLaAbsoluta) {
     const cuentas = histograma(sumas);
     const totales = Object.keys(cuentas).map(Number);
     const minimo = Math.max(0, Math.min(Math.min.apply(null, totales), ABSOLUTA) - 10);
@@ -48,7 +49,7 @@ function pintarHistogramasDeMayoria() {
     for (let total = minimo; total <= maximo; total += 1) {
       if (!cuentas[total]) { continue; }
       const p = cuentas[total] / sorteos;
-      const clase = total >= TRES_QUINTOS ? "mg-barra-tres" : (total >= ABSOLUTA ? "mg-barra-absoluta" : "mg-barra-baja");
+      const clase = total >= TRES_QUINTOS ? "mg-barra-tres" : (total >= ABSOLUTA ? claseDeLaAbsoluta : "mg-barra-baja");
       svg += '<rect class="' + clase + '" x="' + x(total).toFixed(1) + '" y="' + y(p).toFixed(1) + '" width="' + Math.max(1, anchoDeBarra - 0.6).toFixed(1) + '" height="' + (margen.arriba + altoUtil - y(p)).toFixed(1) +
         '"><title>' + escanosEnTexto(total) + ": " + (100 * p).toFixed(1).replace(".", ",") + " %</title></rect>";
     }
@@ -92,15 +93,15 @@ function pintarHistogramasDeMayoria() {
       : '<p class="subtitulo">La derecha ampliada tiene un ' + porcentajeEntero(pDerecha.absoluta) + ' de probabilidad de mayoría absoluta (' + ABSOLUTA + ') y un ' + porcentajeEntero(pDerecha.tres) + ' de tres quintos (' + TRES_QUINTOS +
         '); el bloque de investidura de 2023 con Podemos y Adelante, un ' + porcentajeEntero(pInvestidura.absoluta) + ' y un ' + porcentajeEntero(pInvestidura.tres) + '.</p>') +
     '<div class="mayorias-rejilla">' +
-    '<figure class="mayorias-grafico"><figcaption>' + escaparTexto(derecha.nombre) + '</figcaption>' + graficoSvg(sumasDerecha) + '</figure>' +
-    '<figure class="mayorias-grafico"><figcaption>' + escaparTexto(investidura.nombre) + '</figcaption>' + graficoSvg(sumasInvestidura) + '</figure></div>' +
+    '<figure class="mayorias-grafico"><figcaption>' + escaparTexto(derecha.nombre) + '</figcaption>' + graficoSvg(sumasDerecha, "mg-barra-absoluta") + '</figure>' +
+    '<figure class="mayorias-grafico"><figcaption>' + escaparTexto(investidura.nombre) + '</figcaption>' + graficoSvg(sumasInvestidura, "mg-barra-izquierda") + '</figure></div>' +
     '<h3 class="mayorias-subtitulo">Probabilidad de llegar a cada umbral</h3>' +
     resumen.map((elemento) =>
       '<div class="mr-fila"><div class="mr-nombre">' + escaparTexto(elemento.combinacion.nombre) + '</div><div class="mr-barras">' +
-      '<div class="mr-linea"><span class="mr-pista"><span class="mr-relleno absoluta" style="width:' + (100 * elemento.absoluta).toFixed(1) + '%"></span></span><span class="mr-valor">' + porcentajeEntero(elemento.absoluta) + '</span></div>' +
+      '<div class="mr-linea"><span class="mr-pista"><span class="mr-relleno absoluta' + (elemento.combinacion.partidos.indexOf("PP") < 0 ? " izquierda" : "") + '" style="width:' + (100 * elemento.absoluta).toFixed(1) + '%"></span></span><span class="mr-valor">' + porcentajeEntero(elemento.absoluta) + '</span></div>' +
       '<div class="mr-linea"><span class="mr-pista"><span class="mr-relleno tres" style="width:' + (100 * elemento.tres).toFixed(1) + '%"></span></span><span class="mr-valor">' + porcentajeEntero(elemento.tres) + '</span></div>' +
       '</div></div>').join("") +
-    '<p class="mg-leyenda"><span><span class="ficha" style="background:#1d6fb8"></span>mayoría absoluta (' + ABSOLUTA + ' de ' + ESCANOS + ')</span><span><span class="ficha" style="background:#e08a1e"></span>tres quintos (' + TRES_QUINTOS + ' de ' + ESCANOS + ')</span></p>' +
+    '<p class="mg-leyenda"><span><span class="ficha" style="background:#1d6fb8"></span>mayoría absoluta de la derecha (' + ABSOLUTA + ' de ' + ESCANOS + ')</span><span><span class="ficha" style="background:#d6232b"></span>mayoría absoluta de la izquierda</span><span><span class="ficha" style="background:#2e9e5b"></span>tres quintos (' + TRES_QUINTOS + ' de ' + ESCANOS + ')</span></p>' +
     '<p class="nota">Cada barra de los histogramas es el número de escaños que suma el bloque en las ' + entero(sorteos) + ' simulaciones, sin contar pactos ni abstenciones. La mayoría absoluta decide las leyes orgánicas y la investidura en primera votación; ' +
     'los tres quintos son los que exige la Constitución al Congreso para proponer cuatro de los doce magistrados del Tribunal Constitucional y para otros nombramientos. Con ' + entero(sorteos) + ' simulaciones, cada probabilidad tiene un error de hasta ±1 punto.</p>';
 }
