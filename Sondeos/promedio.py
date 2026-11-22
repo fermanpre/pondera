@@ -109,11 +109,40 @@ def normalizar_firma(nombre):
     return EQUIVALENCIAS_DE_FIRMA.get(sin_tildes, sin_tildes)
 
 
+# Encuestas que Wikipedia aún no recoge, escritas a mano (22/11/2026): mismo formato largo que sondeos_wikipedia_largo.csv, que se regenera entero en cada ciclo y borraría una fila manual.
+# Una encuesta manual solo cuenta mientras Wikipedia no tenga otra de la misma firma con fin de campo a menos de DIAS_DE_TOLERANCIA_DE_DUPLICADO días (las fuentes discrepan en uno o dos
+# días de campo); en cuanto Wikipedia la añade, gana Wikipedia.
+RUTA_ENCUESTAS_MANUALES = CARPETA / "encuestas_manuales.csv"
+DIAS_DE_TOLERANCIA_DE_DUPLICADO = 3
+
+
+def filas_de_encuestas_manuales(convocatoria, filas_de_wikipedia):
+    """Filas del fichero manual de esa convocatoria cuya encuesta no está ya en las filas de Wikipedia."""
+    if not RUTA_ENCUESTAS_MANUALES.exists():
+        return []
+    fines_de_wikipedia = defaultdict(set)
+    for fila in filas_de_wikipedia:
+        if fila["convocatoria"] == convocatoria and fila["fin_campo"]:
+            fines_de_wikipedia[normalizar_firma(fila["firma"])].add(datetime.strptime(fila["fin_campo"], "%Y-%m-%d").date())
+    filas_nuevas = []
+    with open(RUTA_ENCUESTAS_MANUALES, encoding="utf-8-sig") as fichero:
+        for fila in csv.DictReader(fichero, delimiter=";"):
+            if fila["convocatoria"] != convocatoria or not fila["fin_campo"]:
+                continue
+            fin_manual = datetime.strptime(fila["fin_campo"], "%Y-%m-%d").date()
+            ya_en_wikipedia = any(abs((fin_manual - fin).days) <= DIAS_DE_TOLERANCIA_DE_DUPLICADO for fin in fines_de_wikipedia[normalizar_firma(fila["firma"])])
+            if not ya_en_wikipedia:
+                filas_nuevas.append(fila)
+    return filas_nuevas
+
+
 def leer_encuestas_acumuladas(convocatoria, fusionar_frente_amplio_en_sumar=True):
     """Devuelve {clave de encuesta: {'firma', 'fin', 'muestra', 'valores': {partido: valor}}} de una convocatoria."""
     encuestas = {}
     with open(CARPETA / "sondeos_wikipedia_largo.csv", encoding="utf-8-sig") as fichero:
-        for fila in csv.DictReader(fichero, delimiter=";"):
+        filas_de_wikipedia = list(csv.DictReader(fichero, delimiter=";"))
+    for fila in filas_de_wikipedia + filas_de_encuestas_manuales(convocatoria, filas_de_wikipedia):
+        if True:
             if fila["convocatoria"] != convocatoria or not fila["fin_campo"] or not fila["valor"] or fila["firma"] == "2024 EP election":
                 continue
             if RECALCULO_DEL_CIS.match(fila["firma"]):
