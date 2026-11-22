@@ -23,11 +23,11 @@ const PROBABILIDAD = (function () {
   const logOdds = (p) => Math.log(p / (1 - p));
   const escapar = (texto) => String(texto).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-  // «19 de cada 20» (o «ninguna», «casi todas», «todas», «menos de 1 de cada 1.000» en los extremos)
+  // «19 de cada 20» (o «ninguna», «casi todas», «todas», «<1 de cada 1.000» en los extremos)
   function frecuencia(p) {
     if (!(p > 0)) { return "ninguna"; }
     if (p >= 1) { return "todas"; }
-    if (p < UMBRAL_POR_DEBAJO) { return "menos de 1 de cada 1.000"; }
+    if (p < UMBRAL_POR_DEBAJO) { return "<1 de cada 1.000"; }
     if (p > UMBRAL_POR_ENCIMA) { return "casi todas"; }
     let mejor = FRACCIONES[0];
     let mejorDistancia = Infinity;
