@@ -11,7 +11,7 @@
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
     <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-22-0</guid>
     <pubDate>Sun, 22 Nov 2026 12:00:00 +0000</pubDate>
-    <description>Añadidos los datos por provincia de la encuesta de Ágora Integral (16-20 nov) en Las Palmas y Santa Cruz de Tenerife, mediante un fichero persistente de encuestas regionales manuales. Entran en el promedio de cada provincia junto a GCEMOP.</description>
+    <description>Añadidos los datos por provincia de la encuesta de Ágora Integral (16-20 nov) en Las Palmas y Santa Cruz de Tenerife, mediante un fichero persistente de encuestas regionales manuales. Entran en el promedio de cada provincia junto a GCEMOP. El promedio de la comunidad se calcula y se enseña con todas sus encuestas, aunque en el blend no se cuente dos veces lo que ya está en las provincias.</description>
   </item>
   <item>
     <title>Promedio autonómico con una sola encuesta</title>
