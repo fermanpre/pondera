@@ -463,6 +463,11 @@ function cabeceraDeLaTablaNacional() {
 
 // Orden fijo de la tabla nacional: primero los partidos de ámbito estatal (con Front Valencià, Unidad del Pueblo Canario y Podemos pegados a Frente Amplio, para comparar con 2023) y después los
 // periféricos por voto estimado (orden del 18/11/2026: ERC, Adelante, Bildu, Junts, BNG, PNV, UPN, CC y Existe), con PACMA al final
+// Nombre del partido en la tabla nacional, con enlace a su página (partidos/<slug>.html, de assets/partidos.js) cuando existe
+function nombreConEnlaceDelPartido(partido) {
+  if (typeof PARTIDOS_PAGINAS === "undefined" || !PARTIDOS_PAGINAS[partido]) return NOMBRES[partido];
+  return '<a class="enlace-partido" href="' + PARTIDOS_PAGINAS[partido] + '" title="Voto previsto de ' + NOMBRES[partido] + ' en cada circunscripción">' + NOMBRES[partido] + '</a>';
+}
 const ORDEN_DE_LA_TABLA = ["PP", "PSOE", "VOX", "SUMAR", "FV", "UPC", "PODEMOS", "SALF", "ERC", "ADELANTE", "BILDU", "JUNTS", "BNG", "PNV", "UPN", "CC", "EXISTE", "GBAI", "PACMA"];
 
 function partidosEnElOrdenDeLaTabla() {
@@ -542,7 +547,7 @@ function pintarNacional() {
     }
     const fila = document.createElement("tr");
     // Orden de columnas: voto 2023, voto 2026, dif. voto, escaños 2023, escaños 2026, dif. escaños, rango 80%, rango 95%
-    fila.innerHTML = '<td>' + ficha(partido) + NOMBRES[partido] + '</td><td>' + celdasDe2023[0] + '</td><td>' + porcentaje(voto) + '</td><td>' + celdasDe2023[1] + '</td>' +
+    fila.innerHTML = '<td>' + ficha(partido) + nombreConEnlaceDelPartido(partido) + '</td><td>' + celdasDe2023[0] + '</td><td>' + porcentaje(voto) + '</td><td>' + celdasDe2023[1] + '</td>' +
       '<td>' + celdasDe2023[2] + '</td><td>' + entero(escanos) + '</td><td>' + celdasDe2023[3] + '</td>' +
       (votoSimulado ? '<td>' + textoDeRangoDeVoto(votoSimulado[partido], 0.1, 0.9) + '</td><td>' + textoDeRangoDeVoto(votoSimulado[partido], 0.025, 0.975) + '</td><td class="col-histograma">' + histogramaDeVoto(partido, votoSimulado[partido], voto) + '</td>'
         : '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td><td class="col-histograma">' + histogramaNacional(partido, modelo.partidos.indexOf(partido), escanos) + '</td>');

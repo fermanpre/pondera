@@ -116,6 +116,32 @@ a.boton:hover { border-color: var(--acento); }
 /* Etiqueta «de parte» en los listados de sondeos */
 .etiqueta-de-parte { display: inline-block; font-size: .72em; padding: 1px 6px; border: 1px solid var(--linea, #999); border-radius: 999px; vertical-align: 1px; white-space: nowrap; opacity: .85; }
 
+/* Páginas de partido */
+.enlace-partido { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--suave); }
+.enlace-partido:hover, .enlace-partido:focus { border-bottom-style: solid; }
+.tarjetas-partido { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 10px 0 16px; }
+.tarjeta-partido { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 8px; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
+.tarjeta-partido b { font-size: 1.5rem; line-height: 1.2; }
+.tarjeta-titulo { color: var(--suave); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.tarjeta-detalle { color: var(--suave); font-size: 0.85rem; }
+.partido-cuerpo { display: grid; grid-template-columns: 1fr; gap: 18px 28px; align-items: start; }
+@media (min-width: 1100px) { .partido-cuerpo { grid-template-columns: minmax(300px, 3fr) minmax(0, 8fr); } }
+.partido-lista h2 { margin-top: 0; }
+.tabla-partido { border-collapse: collapse; font-size: 0.9rem; }
+.tabla-partido th, .tabla-partido td { padding: 4px 6px; border-bottom: 1px solid var(--linea); white-space: nowrap; text-align: left; }
+.tabla-partido th.num, .tabla-partido td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tabla-partido .suave { color: var(--suave); }
+.franjas { position: relative; display: block; width: 110px; height: 14px; background: var(--fondo); border-radius: 3px; }
+.franja { position: absolute; top: 3px; height: 8px; border-radius: 2px; background: var(--color); }
+.franja-95 { opacity: 0.3; }
+.franja-80 { opacity: 0.7; }
+.franja-central { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--texto); }
+.partidos-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 12px 0 18px; }
+.partido-tarjeta { display: flex; flex-direction: column; gap: 4px; padding: 10px 14px; background: var(--tarjeta); border: 1px solid var(--linea); border-left: 6px solid var(--color); border-radius: 8px; color: inherit; text-decoration: none; }
+.partido-tarjeta:hover, .partido-tarjeta:focus { border-color: var(--color); }
+.partido-nombre { display: flex; align-items: center; gap: 6px; font-size: 1.05rem; }
+.partido-cifras { color: var(--suave); font-size: 0.85rem; }
+
 /* Página del mapa */
 .mapas-pareja { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 760px) { .mapas-pareja { grid-template-columns: 1fr; } }

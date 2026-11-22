@@ -91,6 +91,8 @@ jobs:
 
       - name: Precalcular el escenario representativo (10.000 sorteos)
         run: node Web/escenario_representativo.js
+      - name: Calcular el voto de cada partido por circunscripción (páginas de partido)
+        run: node Web/datos_partidos.js
 
       - name: Actualizar la serie de previsión (escaños, mayorías y primera fuerza de cada día)
         run: python Web/serie_prevision_diaria.py --ultimos 3

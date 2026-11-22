@@ -1,0 +1,28 @@
+<div class="cabecera-pagina">
+  <h1>Partido</h1>
+  <p class="subtitulo">Voto previsto por circunscripción.</p>
+</div>
+
+<section id="partido-resumen" class="partido-resumen" aria-live="polite"></section>
+
+<div class="partido-cuerpo">
+  <figure class="figura-mapa partido-mapa">
+    <figcaption>Voto previsto por provincia <span class="nota">(a más oscuro, más voto)</span></figcaption>
+    <div id="mapa-partido" class="mapa" aria-label="Mapa de España con el voto previsto del partido en cada provincia"></div>
+    <div id="leyenda-mapa-partido" class="leyenda-mapa" aria-hidden="true"></div>
+    <div id="ficha-provincia" class="ficha-provincia" aria-live="polite">
+      <p class="nota">Pasa el ratón (o toca) una provincia para ver sus cifras.</p>
+    </div>
+  </figure>
+
+  <section id="partido-lista" class="partido-lista">
+    <h2>Circunscripciones por voto</h2>
+    <div id="partido-tabla"></div>
+  </section>
+</div>
+
+<p id="partido-notas" class="nota"></p>
+<p class="nota">El voto es el previsto por el modelo para cada circunscripción, en porcentaje de los votos a candidaturas (sin blancos ni nulos). Las franjas son los rangos del 80 % y del 95 % de las 10.000 simulaciones (percentiles 10-90 y 2,5-97,5): fuera del rango del 95 % queda el 5 % de las simulaciones, la mitad por cada lado. Los resultados de 2023 son los de las generales de ese año; las comparaciones solo valen donde el partido o su equivalente concurría. <a href="metodologia.html">Cómo se calcula</a>. Mapa de provincias: «Provinces of Spain (Blank map)», <a href="https://commons.wikimedia.org/wiki/File:Provinces_of_Spain_(Blank_map).png">Wikimedia Commons</a>, licencia <a href="https://creativecommons.org/licenses/by-sa/3.0/deed.es">CC BY-SA 3.0</a>.</p>
+<p class="nota"><a href="partidos.html">Todos los partidos</a></p>
+
+<template id="svg-provincias"><!--SVG_PROVINCIAS--></template>

@@ -1,6 +1,16 @@
 [
   {
     "fecha": "2026-11-23",
+    "titulo": "Una página para cada partido",
+    "texto": "Cada partido tiene ahora su propia página (partidos/pp.html, partidos/bng.html...), a la que se llega desde su nombre en la tabla de la previsión nacional o desde el nuevo apartado Partidos. Enseña su voto previsto en cada circunscripción, ordenado, con los rangos del 80 % y del 95 %, una barra de franjas, el voto y los escaños de 2023 y un mapa de España en el que el color del partido se oscurece con el voto."
+  },
+  {
+    "fecha": "2026-11-23",
+    "titulo": "UPN-PP unificado en el promedio de Navarra",
+    "texto": "En el promedio de encuestas de Navarra, UPN y PP aparecían por separado (la encuesta daba el PP y el modelo, UPN) y se cruzaban las cifras. Ahora son una sola fila, UPN-PP, con el promedio de las encuestas junto a la previsión de la coalición."
+  },
+  {
+    "fecha": "2026-11-23",
     "titulo": "Nuevo mundo raro: la Coalición Existe obtiene un diputado por Teruel",
     "texto": "Existe saca escaño en Teruel en unas tres de cada mil simulaciones: necesita un voto muy alto (más del 16-18 %) y que el último escaño de la provincia cueste poco. Entra en la página de Mundos raros con una de esas simulaciones."
   },

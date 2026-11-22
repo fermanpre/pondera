@@ -28,18 +28,19 @@ NOMBRE_SITIO = "PONDERA"
 LEMA = "Elecciones generales 2026"
 URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
-SCRIPTS_DE_PREVISION = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js"]
+SCRIPTS_DE_PREVISION = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/partidos.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js"]
 SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/territorios.js", "motor.js", "assets/hemiciclo.js", "serie_territorial.js", "assets/serie_territorial.js", "assets/cis_otros_por_comunidad.js", "assets/origen_escanos_fv.js", "assets/promedio_territorio.js", "escenario_representativo.js", "assets/app_prevision.js"]
+SCRIPTS_DE_PARTIDOS = ["assets/comun.js", "assets/territorios.js", "datos_partidos.js", "assets/app_partido.js"]
 SCRIPTS_DE_PROVINCIAS = SCRIPTS_DE_COMUNIDADES + ["voto_util.js", "assets/voto_util.js"]  # voto_util.js: escaños en juego y voto útil (Web/voto_util_provincias.js)
 # Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
 SCRIPTS_DEL_SENADO = ["senado.js", "senado_designados.js", "assets/comun.js", "assets/app_senado.js"]
 SCRIPTS_DE_MUNDOS = ["mundos.js", "assets/comun.js", "assets/hemiciclo.js", "assets/mundos_posibles.js"]  # mundos.js lo calcula Web/mundos_posibles.js (node) en el workflow
 SCRIPTS_DE_MUNDOS_RAROS = ["mundos_raros.js", "assets/comun.js", "assets/hemiciclo.js", "assets/mundos_posibles.js"]  # mundos_raros.js lo calcula Web/mundos_raros.js (node) en el workflow
 SCRIPTS_DE_CURIOSIDADES = ["curiosidades.js", "assets/comun.js", "assets/curiosidades.js", "assets/app_curiosidades.js"]
-SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js", "assets/mayorias_congreso.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js", "curiosidades.js", "assets/curiosidades.js"]
+SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/partidos.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js", "assets/mayorias_congreso.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js", "curiosidades.js", "assets/curiosidades.js"]
 
 # Cinta principal (grupo, texto, página a la que lleva) y segunda cinta de cada grupo (texto, destino; «#...» = sección de la misma página)
-MENU_PRINCIPAL = [("prevision", "Congreso", "index.html"), ("territorio", "Territorios", "territorios.html"), ("simulador", "Simulador", "simulador.html"),
+MENU_PRINCIPAL = [("prevision", "Congreso", "index.html"), ("territorio", "Territorios", "territorios.html"), ("partido", "Partidos", "partidos.html"), ("simulador", "Simulador", "simulador.html"),
                   ("mundos", "Mundos posibles", "mundos.html"), ("mundos_raros", "Mundos raros", "mundos_raros.html"), ("curiosidades", "Datos curiosos", "curiosidades.html"),
                   ("senado", "Senado", "senado.html"), ("metodologia", "Metodología", "metodologia.html"), ("acerca", "Acerca de", "acerca.html")]
 SUBMENUS = {
@@ -64,6 +65,8 @@ PAGINAS = [
      "descripcion": "Listado de los datos curiosos de la previsión: partidos que caen por la barrera, votos que separan de un escaño, provincias inciertas y votos que más pesan."},
     {"archivo": "territorios.html", "plantilla": "territorios", "titulo": "Territorios", "grupo": "territorio", "scripts": [],
      "descripcion": "Una página propia para cada provincia y cada comunidad autónoma: previsión de voto y escaños, probabilidades y promedio de encuestas en las generales de 2026."},
+    {"archivo": "partidos.html", "plantilla": "partidos", "titulo": "Partidos", "grupo": "partido", "scripts": [],
+     "descripcion": "Una página para cada partido: voto previsto en cada circunscripción con sus rangos del 80 % y del 95 %, y mapa de España con el voto como tono de su color, en las generales de 2026."},
     {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "grupo": "territorio", "scripts": SCRIPTS_DE_PROVINCIAS, "probabilidades": True,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
     {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "grupo": "territorio", "scripts": SCRIPTS_DE_COMUNIDADES, "probabilidades": True,
@@ -477,6 +480,79 @@ def construir_subpaginas(provincias, comunidades):
     return direcciones
 
 
+SLUGS_DE_PARTIDOS = {
+    "PP": "pp", "PSOE": "psoe", "VOX": "vox", "SUMAR": "frente-amplio", "PODEMOS": "podemos", "SALF": "salf", "ADELANTE": "adelante-andalucia", "FV": "front-valencia",
+    "UPC": "upc", "ERC": "erc", "JUNTS": "junts", "BILDU": "eh-bildu", "PNV": "pnv", "BNG": "bng", "CC": "coalicion-canaria", "UPN": "upn", "PACMA": "pacma",
+    "EXISTE": "coalicion-existe", "GBAI": "geroa-bai",
+}
+# Nota al pie de la página de cada partido que lo necesita (HTML)
+NOTAS_DE_PARTIDO = {
+    "PP": 'En Navarra el PP concurre en coalición con UPN (UPN-PP): sus votos y escaños están en la página de <a href="partidos/upn.html">UPN</a>, y por eso Navarra no figura en esta lista.',
+    "UPN": 'En Navarra UPN concurre en coalición con el PP (UPN-PP): las cifras son las de la coalición, y sus escaños son los de UPN más los del PP en Navarra.',
+    "SUMAR": 'El Frente Amplio es la marca de Sumar en 2026 con sus socios territoriales. No concurre con esa marca en Teruel, Ceuta ni Melilla, y en la Comunitat Valenciana y en Canarias va como <a href="partidos/front-valencia.html">Front Valencià</a> y <a href="partidos/upc.html">Unidad del Pueblo Canario</a>. Su 2023 es el de Sumar.',
+    "PODEMOS": 'Podemos tiene cifra propia solo donde el modelo la separa del Frente Amplio; en 2023 su voto iba dentro de Sumar, así que no hay comparación con 2023.',
+    "FV": 'Front Valencià reúne a Compromís, IU, Podemos y ERC en la Comunitat Valenciana. Su 2023 es el de Sumar (con Compromís) en esas tres provincias.',
+    "UPC": 'Unidad del Pueblo Canario reúne a Podemos, Nueva Canarias e IU. Su 2023 es el de Sumar más Nueva Canarias en las dos provincias canarias.',
+    "EXISTE": 'La Coalición Existe (Teruel Existe y Aragón Existe) tiene resultado de 2023 solo en Teruel; en Huesca y en Zaragoza no concurría con esa marca.',
+    "GBAI": 'Geroa Bai tiene línea propia en el modelo desde el 22/11/2026 (antes estaba dentro de «Otros»). Su 2023 es el de la candidatura en Navarra.',
+}
+
+
+def leer_datos_de_partidos():
+    """sitio/datos_partidos.json (lo escribe Web/datos_partidos.js) o None si aún no existe."""
+    ruta = CARPETA_SITIO / "datos_partidos.json"
+    return json.loads(ruta.read_text(encoding="utf-8")) if ruta.exists() else None
+
+
+def escribir_direcciones_de_partidos():
+    """assets/partidos.js: clave del partido en el modelo -> dirección de su página, para los enlaces de la tabla de la previsión nacional."""
+    direcciones = {clave: "partidos/%s.html" % slug for clave, slug in SLUGS_DE_PARTIDOS.items()}
+    (CARPETA_SITIO / "assets" / "partidos.js").write_text("// Direcciones de las páginas de cada partido (las genera Web/generar_sitio.py)\nconst PARTIDOS_PAGINAS = %s;\n" % json.dumps(direcciones, ensure_ascii=False), encoding="utf-8")
+
+
+def lista_de_partidos_en_html(datos_de_partidos):
+    """Índice de partidos: una tarjeta por partido, de mayor a menor voto nacional previsto."""
+    nombres, colores = leer_nombres_y_colores_de_partidos()
+    formato = lambda valor: ("%.1f" % valor).replace(".", ",")
+    partes = ['<div class="partidos-rejilla">']
+    for clave in sorted(datos_de_partidos["partidos"], key=lambda c: -datos_de_partidos["partidos"][c]["objetivo"]):
+        datos = datos_de_partidos["partidos"][clave]
+        escanos = datos["escanos"]
+        rango = "%d-%d" % (escanos["p025"], escanos["p975"]) if escanos["p025"] != escanos["p975"] else "%d" % escanos["p025"]
+        partes.append('<a class="partido-tarjeta" href="partidos/%s.html" style="--color:%s"><span class="partido-nombre"><span class="ficha" style="background:%s"></span><b>%s</b></span>'
+                      '<span class="partido-cifras">%s %% del voto · %d escaños (%s) · %d %s</span></a>' % (
+                          SLUGS_DE_PARTIDOS[clave], colores.get(clave, "#7a7a75"), colores.get(clave, "#7a7a75"), escapar(nombres.get(clave, clave)),
+                          formato(datos["objetivo"]), escanos["mediana"], rango, len(datos["provincias"]), "circunscripción" if len(datos["provincias"]) == 1 else "circunscripciones"))
+    partes.append("</div>")
+    return "\n".join(partes)
+
+
+def construir_paginas_de_partidos(datos_de_partidos):
+    """Una página por partido (partidos/<slug>.html) a partir de plantillas/partido.html y de sitio/datos_partidos.json. Devuelve las direcciones creadas."""
+    direcciones = []
+    if not datos_de_partidos:
+        return direcciones
+    nombres, _colores = leer_nombres_y_colores_de_partidos()
+    (CARPETA_SITIO / "partidos").mkdir(parents=True, exist_ok=True)
+    base_de_la_plantilla = incluir_fragmentos((CARPETA_PLANTILLAS / "partido.html").read_text(encoding="utf-8").rstrip())
+    base_de_la_plantilla = base_de_la_plantilla.replace("<!--SVG_PROVINCIAS-->", svg_de_provincias_para_incrustar())
+    for clave, datos in datos_de_partidos["partidos"].items():
+        nombre = nombres.get(clave, clave)
+        slug = SLUGS_DE_PARTIDOS[clave]
+        circunscripciones = len(datos["provincias"])
+        titulo = "%s: voto previsto por circunscripción" % nombre
+        subtitulo = "Voto previsto de %s en %s, con sus rangos del 80 %% y del 95 %%, y su voto en el mapa." % (nombre, "las %d circunscripciones donde concurre" % circunscripciones if circunscripciones > 1 else "la única circunscripción donde concurre")
+        descripcion = "Voto previsto de %s en cada circunscripción en las elecciones generales de 2026, con rangos del 80 %% y del 95 %%, escaños y mapa de España." % nombre
+        contenido = re.sub(r"<h1>.*?</h1>", lambda _m: "<h1>%s</h1>" % escapar(nombre), base_de_la_plantilla, count=1, flags=re.S)
+        contenido = re.sub(r'<p class="subtitulo">.*?</p>', lambda _m: '<p class="subtitulo">%s</p>' % escapar(subtitulo), contenido, count=1, flags=re.S)
+        contenido = '<script>window.PARTIDO_INICIAL = %s; window.NOTA_DEL_PARTIDO = %s;</script>\n' % (json.dumps(clave), json.dumps(NOTAS_DE_PARTIDO.get(clave, ""), ensure_ascii=False)) + contenido
+        archivo = "partidos/%s.html" % slug
+        pagina = {"archivo": archivo, "titulo": titulo, "descripcion": descripcion, "grupo": "partido", "scripts": SCRIPTS_DE_PARTIDOS, "base": "../"}
+        (CARPETA_SITIO / archivo).write_text(construir_pagina(pagina, contenido), encoding="utf-8")
+        direcciones.append(archivo)
+    return direcciones
+
+
 def pagina_de_redireccion(destino):
     return """<!doctype html>
 <html lang="es">
@@ -515,15 +591,20 @@ def main():
 
     provincias_del_modelo, comunidades_del_modelo = leer_territorios()
     escribir_nombres_de_territorios(provincias_del_modelo, comunidades_del_modelo)
+    escribir_direcciones_de_partidos()
+    datos_de_partidos = leer_datos_de_partidos()
     for pagina in PAGINAS:
         contenido = (CARPETA_PLANTILLAS / (pagina["plantilla"] + ".html")).read_text(encoding="utf-8").rstrip()
         contenido = incluir_fragmentos(contenido)
         contenido = contenido.replace("<!--LISTA_DE_TERRITORIOS-->", lista_de_territorios_en_html(provincias_del_modelo, comunidades_del_modelo))
+        if "<!--LISTA_DE_PARTIDOS-->" in contenido:
+            contenido = contenido.replace("<!--LISTA_DE_PARTIDOS-->", lista_de_partidos_en_html(datos_de_partidos) if datos_de_partidos else '<p class="nota">Los datos de los partidos aún no se han calculado.</p>')
         if "<!--SVG_PROVINCIAS-->" in contenido:
             contenido = contenido.replace("<!--SVG_PROVINCIAS-->", svg_de_provincias_para_incrustar())
         (CARPETA_SITIO / pagina["archivo"]).write_text(construir_pagina(pagina, contenido), encoding="utf-8")
 
     direcciones_de_territorios = construir_subpaginas(provincias_del_modelo, comunidades_del_modelo)
+    direcciones_de_territorios += construir_paginas_de_partidos(datos_de_partidos)
 
     for archivo_antiguo, destino in REDIRECCIONES.items():
         (CARPETA_SITIO / archivo_antiguo).write_text(pagina_de_redireccion(destino), encoding="utf-8")

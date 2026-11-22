@@ -12,11 +12,24 @@ function htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto) {
   const promedio = promedios[config.comunidad + " (comunidad)"];
   if (!promedio) { return ""; }
   const fecha = (texto) => { const trozos = texto.split("-"); return parseInt(trozos[2], 10) + "/" + parseInt(trozos[1], 10); };
-  const partidos = Object.keys(promedio.medias).sort((a, b) => promedio.medias[b] - promedio.medias[a]);
+  // Coalición UPN-PP (Navarra, 23/11/2026): las encuestas dan el PP (la coalición) y a veces UPN; se enseñan como una sola fila, con el nombre de la coalición
+  const medias = Object.assign({}, promedio.medias);
+  const nombresPropios = {};
+  if (typeof modelo !== "undefined" && modelo.coaliciones) {
+    modelo.coaliciones.forEach(function (c) {
+      if (modelo.provincias[c.provincia].comunidad !== config.comunidad) { return; }
+      const columna = modelo.partidos[c.columna], socio = modelo.partidos[c.socio];
+      if (medias[columna] === undefined && medias[socio] === undefined) { return; }
+      medias[columna] = (medias[columna] || 0) + (medias[socio] || 0);
+      delete medias[socio];
+      nombresPropios[columna] = c.nombre;
+    });
+  }
+  const partidos = Object.keys(medias).sort((a, b) => medias[b] - medias[a]);
   const filas = partidos.map(function (partido) {
     const color = (typeof COLORES !== "undefined" && COLORES[partido]) || "#9a9a94";
-    const nombre = (typeof NOMBRES !== "undefined" && NOMBRES[partido]) || partido;
-    return '<tr><td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + escaparTexto(nombre) + '</td><td>' + porcentaje(promedio.medias[partido]) + '</td></tr>';
+    const nombre = nombresPropios[partido] || (typeof NOMBRES !== "undefined" && NOMBRES[partido]) || partido;
+    return '<tr><td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + escaparTexto(nombre) + '</td><td>' + porcentaje(medias[partido]) + '</td></tr>';
   }).join("");
   const casas = promedio.encuestas.map(function (e) { return escaparTexto(e.casa) + " (" + fecha(e.fin) + ", " + Math.round(100 * e.peso) + " %)"; }).join("; ");
   return '<h3>Promedio de la comunidad: ' + escaparTexto(config.comunidad) + '</h3>' +
@@ -71,6 +84,19 @@ function pintarPromedioDelTerritorio(config) {
     const cuota = cuotaDelModeloDe(k);
     if (cuota >= 1) { filas.push({ partido: partido, encuestas: null, modelo: cuota }); }
   });
+  // Coalición UPN-PP en Navarra (23/11/2026): una sola fila. Las encuestas dan el PP (la coalición) y el modelo da los escaños y el voto en la columna UPN, así que por separado se cruzaban el dato de
+  // uno con el del otro. Se suman las dos filas: encuesta = UPN + PP de las encuestas (lo que haya), modelo = columna UPN + socio.
+  modelo.coaliciones.filter(function (c) { return indices.indexOf(c.provincia) >= 0; }).forEach(function (c) {
+    const columna = modelo.partidos[c.columna], socio = modelo.partidos[c.socio];
+    const propia = filas.find(function (f) { return f.partido === columna; });
+    const delSocio = filas.find(function (f) { return f.partido === socio; });
+    if (!propia || !delSocio) { return; }
+    const suma = function (a, b) { return a === null && b === null ? null : (a || 0) + (b || 0); };
+    propia.encuestas = suma(propia.encuestas, delSocio.encuestas);
+    propia.modelo = suma(propia.modelo, delSocio.modelo);
+    propia.nombre = c.nombre;
+    filas.splice(filas.indexOf(delSocio), 1);
+  });
   const pesoDeLaFila = (f) => f.encuestas !== null ? f.encuestas : f.modelo;
   filas.sort(function (a, b) { return pesoDeLaFila(b) - pesoDeLaFila(a); });
   const cifra = (valor) => valor === null ? "–" : porcentaje(valor);
@@ -90,7 +116,7 @@ function pintarPromedioDelTerritorio(config) {
     '<div class="tabla-ancha"><table><thead><tr><th>Partido</th><th>Promedio de encuestas</th><th>Previsión del modelo</th><th>Diferencia</th></tr></thead><tbody>' +
     filas.map(function (f) {
       const diferencia = f.encuestas !== null && f.modelo !== null ? conTriangulo(f.modelo - f.encuestas, 1) : "–";
-      return '<tr><td class="col-partido"><span class="ficha" style="background:' + colorDe(f.partido) + '"></span>' + escaparTexto(nombreDe(f.partido)) + '</td><td>' + cifra(f.encuestas) + '</td><td>' + cifra(f.modelo) + '</td><td>' + diferencia + '</td></tr>';
+      return '<tr><td class="col-partido"><span class="ficha" style="background:' + colorDe(f.partido) + '"></span>' + escaparTexto(f.nombre || nombreDe(f.partido)) + '</td><td>' + cifra(f.encuestas) + '</td><td>' + cifra(f.modelo) + '</td><td>' + diferencia + '</td></tr>';
     }).join("") +
     '<tr class="fila-suma"><td class="col-partido">Suma de los partidos</td><td>' + porcentaje(sumaDeLaEncuesta) + '</td><td>' + porcentaje(sumaDelModelo) + '</td><td></td></tr>' +
     '<tr class="fila-resto"><td class="col-partido">Otros y en blanco (por diferencia)</td><td' + claseDelResto(restoDeLaEncuesta) + '>' + porcentaje(restoDeLaEncuesta) + '</td><td' + claseDelResto(restoDelModelo) + '>' + porcentaje(restoDelModelo) +
