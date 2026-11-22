@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>Galicia: previsión por comunidad autónoma · PONDERA</title>
+<meta name="description" content="Previsión de voto y escaños en Galicia (23 escaños) en las elecciones generales de 2026: probabilidad de cada resultado, promedio de encuestas y escaños en juego.">
+<link rel="canonical" href="https://fermanpre.github.io/pondera/comunidades/galicia.html">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="alternate" type="application/rss+xml" title="PONDERA · Historial de cambios" href="feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="PONDERA">
+<meta property="og:title" content="Galicia: previsión por comunidad autónoma · PONDERA">
+<meta property="og:description" content="Previsión de voto y escaños en Galicia (23 escaños) en las elecciones generales de 2026: probabilidad de cada resultado, promedio de encuestas y escaños en juego.">
+<meta property="og:url" content="https://fermanpre.github.io/pondera/comunidades/galicia.html">
+<meta property="og:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Galicia: previsión por comunidad autónoma · PONDERA">
+<meta name="twitter:description" content="Previsión de voto y escaños en Galicia (23 escaños) en las elecciones generales de 2026: probabilidad de cada resultado, promedio de encuestas y escaños en juego.">
+<meta name="twitter:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<link rel="stylesheet" href="assets/estilo.css">
+<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>
+</head>
+<body>
+<header class="cabecera-sitio">
+  <div class="interior">
+    <a class="marca" href="index.html">PONDERA<small>Elecciones generales 2026</small></a>
+    <nav class="principal" aria-label="Principal">
+      <a href="index.html">Congreso</a>
+      <a href="territorios.html" aria-current="page">Territorios</a>
+      <a href="simulador.html">Simulador</a>
+      <a href="mundos.html">Mundos posibles</a>
+      <a href="mundos_raros.html">Mundos raros</a>
+      <a href="curiosidades.html">Datos curiosos</a>
+      <a href="senado.html">Senado</a>
+      <a href="metodologia.html">Metodología</a>
+      <a href="acerca.html">Acerca de</a>
+    </nav>
+    <button id="boton-probabilidades" type="button" aria-label="Mostrar las probabilidades como porcentajes o como x de cada y">Probabilidades: %</button>
+    <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
+  </div>
+</header>
+<div class="retroacronimo"><div class="interior"><b>P</b>ronóstico <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
+<nav class="subnav" aria-label="Secciones de esta página"><div class="interior"><a href="territorios.html">Todos los territorios</a><a href="provincias.html">Provincias</a><a href="comunidades.html">Comunidades</a><a href="resumen.html">Resumen</a></div></nav>
+<main class="contenedor">
+<script>window.TERRITORIO_INICIAL = {"tipo": "comunidad", "nombre": "Galicia"};</script>
+<div class="cabecera-pagina">
+  <h1>Galicia: previsión por comunidad autónoma</h1>
+  <p class="subtitulo">Voto previsto, escaños y probabilidad de cada resultado en Galicia (23 escaños), sumando sus provincias.</p>
+</div>
+<p class="nota" id="fecha-promedio"></p>
+
+<section id="comunidades">
+  <h2>Por comunidad</h2>
+  <div class="controles">
+    <label>Comunidad <select id="selector-comunidad"></select></label>
+    <label>Rangos y distribución de
+      <select id="vista-territorio">
+        <option value="escanos">Escaños</option>
+        <option value="voto">Voto</option>
+      </select>
+    </label>
+    <label>Resultados de 2023
+      <select id="posicion-2023">
+        <option value="antes">A la izquierda del partido</option>
+        <option value="tras-partido">Entre el partido y la previsión</option>
+        <option value="final">A la derecha de la previsión</option>
+      </select>
+    </label>
+    <span class="nota" id="resumen-comunidad"></span>
+  </div>
+  <div class="tabla-ancha">
+    <table id="tabla-comunidad" data-con-2023>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="nota">Los rangos del 80% y del 95% (de voto y de escaños) dejan fuera el 10% y el 2,5% de las simulaciones por cada extremo; el rango de voto de una comunidad sale, en cada sorteo, de la media ponderada del voto de sus provincias.</p>
+</section>
+
+<section id="origen-fv" hidden></section>
+
+<section id="promedio-territorio" hidden></section>
+
+<p class="nota">El voto previsto de una comunidad es la media del de sus provincias ponderada por sus votos; los escaños son la suma de los de sus provincias, y la distribución suma, en cada sorteo, los escaños de todas ellas. Las columnas de 2023 son los resultados definitivos del Congreso sumados por comunidad (BOE, con voto CERA); el porcentaje es sobre los votos válidos, blancos incluidos. Se muestran las candidaturas con al menos el 0,5% de los votos de la comunidad y PACMA. En la fila de Frente Amplio figura Sumar, que fue la candidatura de 2023; las filas en cursiva son candidaturas de 2023 sin previsión en esa comunidad. En Navarra, UPN y PP concurren en coalición: su fila («UPN-PP») suma el voto de 2023 de ambos y los escaños de la coalición; en el total nacional se reparten por orden de lista (UPN, PP, PP, UPN).</p>
+<p class="nota">Vox no concurrió en 2023 en Santa Cruz de Tenerife, así que en las columnas de 2023 de Canarias figura solo con los votos de Las Palmas; la previsión parte de una estimación de lo que habría obtenido (ver la <a href="metodologia.html">metodología</a>).</p>
+<p class="nota">Las columnas «Dif.» son la previsión de 2026 menos el resultado de 2023: puntos de voto (con 2023 calculado sobre los votos a candidaturas, la misma base que el voto previsto, por lo que puede no coincidir exactamente con restar a la mano las columnas de 2023, que van sobre votos válidos) y escaños (reparto central menos los de 2023). ▲ verde: sube; ▼ roja: baja; «=»: se mantiene. En la Comunitat Valenciana, Front Valencià se compara con lo que fue Sumar allí en 2023; en Navarra, UPN-PP con la suma de UPN y PP.</p>
+<p class="nota">Las dos últimas filas son un control de cordura: la suma de los partidos de la tabla y, por diferencia hasta el 100 %, «otros y en blanco» (en 2023 sobre votos válidos, con los blancos; en la previsión, sobre votos a candidaturas, sin ellos). Se marca en rojo a partir del 8 % en la previsión, porque un cajón tan grande suele indicar un partido que falta.</p>
+<p class="nota">Para ver cada circunscripción por separado, usa <a href="provincias.html">Provincias</a>; para otras hipótesis de voto, el <a href="simulador.html">simulador</a>.</p>
+<p class="nota"><a href="territorios.html">Todos los territorios</a></p>
+</main>
+<footer class="pie contenedor">
+  <p class="nota" id="actualizacion-pie"></p>
+  <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
+  <nav aria-label="Pie">
+    <a href="LICENSE">Licencia</a>
+    <a href="privacidad.html">Privacidad y cookies</a>
+    <a href="#" id="abrir-cookies">Preferencias de cookies</a>
+    <a href="changelog.html">Historial de cambios</a>
+    <a href="feed.xml">RSS</a>
+    <a href="acerca.html">Acerca de</a>
+    <a href="autor.html">Sobre el autor</a>
+    <a href="enlaces.html">Enlaces</a>
+    <a href="cerveza.html">Invítame a una cerveza</a>
+    <a href="https://github.com/fermanpre/pondera">GitHub</a>
+  </nav>
+</footer>
+<script src="assets/tema.js"></script>
+<script src="assets/probabilidad.js"></script>
+<script src="assets/veda.js"></script>
+<script src="assets/cookies.js"></script>
+<script src="ultima_actualizacion.js"></script>
+<script src="assets/actualizacion.js"></script>
+<script src="datos_modelo.js"></script>
+<script src="datos_mapa_2023.js"></script>
+<script src="resultados_2023.js"></script>
+<script src="assets/comun.js"></script>
+<script src="assets/territorios.js"></script>
+<script src="motor.js"></script>
+<script src="assets/hemiciclo.js"></script>
+<script src="serie_territorial.js"></script>
+<script src="assets/serie_territorial.js"></script>
+<script src="assets/cis_otros_por_comunidad.js"></script>
+<script src="assets/origen_escanos_fv.js"></script>
+<script src="assets/promedio_territorio.js"></script>
+<script src="escenario_representativo.js"></script>
+<script src="assets/app_prevision.js"></script>
+</body>
+</html>

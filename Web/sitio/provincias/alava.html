@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>Araba/Álava: previsión por provincia · PONDERA</title>
+<meta name="description" content="Previsión de voto y escaños en Araba/Álava (4 escaños) en las elecciones generales de 2026: probabilidad de cada resultado, promedio de encuestas y escaños en juego.">
+<link rel="canonical" href="https://fermanpre.github.io/pondera/provincias/alava.html">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="alternate" type="application/rss+xml" title="PONDERA · Historial de cambios" href="feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="PONDERA">
+<meta property="og:title" content="Araba/Álava: previsión por provincia · PONDERA">
+<meta property="og:description" content="Previsión de voto y escaños en Araba/Álava (4 escaños) en las elecciones generales de 2026: probabilidad de cada resultado, promedio de encuestas y escaños en juego.">
+<meta property="og:url" content="https://fermanpre.github.io/pondera/provincias/alava.html">
+<meta property="og:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Araba/Álava: previsión por provincia · PONDERA">
+<meta name="twitter:description" content="Previsión de voto y escaños en Araba/Álava (4 escaños) en las elecciones generales de 2026: probabilidad de cada resultado, promedio de encuestas y escaños en juego.">
+<meta name="twitter:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
+<link rel="stylesheet" href="assets/estilo.css">
+<script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>
+</head>
+<body>
+<header class="cabecera-sitio">
+  <div class="interior">
+    <a class="marca" href="index.html">PONDERA<small>Elecciones generales 2026</small></a>
+    <nav class="principal" aria-label="Principal">
+      <a href="index.html">Congreso</a>
+      <a href="territorios.html" aria-current="page">Territorios</a>
+      <a href="simulador.html">Simulador</a>
+      <a href="mundos.html">Mundos posibles</a>
+      <a href="mundos_raros.html">Mundos raros</a>
+      <a href="curiosidades.html">Datos curiosos</a>
+      <a href="senado.html">Senado</a>
+      <a href="metodologia.html">Metodología</a>
+      <a href="acerca.html">Acerca de</a>
+    </nav>
+    <button id="boton-probabilidades" type="button" aria-label="Mostrar las probabilidades como porcentajes o como x de cada y">Probabilidades: %</button>
+    <button id="boton-tema" type="button" aria-label="Cambiar tema claro, oscuro o automático">Tema: auto</button>
+  </div>
+</header>
+<div class="retroacronimo"><div class="interior"><b>P</b>ronóstico <b>O</b>rdenado de <b>N</b>oticias, <b>D</b>atos y <b>E</b>ncuestas, con <b>R</b>esultados y <b>A</b>nálisis</div></div>
+<nav class="subnav" aria-label="Secciones de esta página"><div class="interior"><a href="territorios.html">Todos los territorios</a><a href="provincias.html">Provincias</a><a href="comunidades.html">Comunidades</a><a href="resumen.html">Resumen</a></div></nav>
+<main class="contenedor">
+<script>window.TERRITORIO_INICIAL = {"tipo": "provincia", "nombre": "Araba/Álava"};</script>
+<div class="cabecera-pagina">
+  <h1>Araba/Álava: previsión por provincia</h1>
+  <p class="subtitulo">Voto previsto, escaños y probabilidad de cada resultado en Araba/Álava (País Vasco, 4 escaños).</p>
+</div>
+<p class="nota" id="fecha-promedio"></p>
+
+<section id="provincias">
+  <h2>Por provincia</h2>
+  <div class="controles">
+    <label>Provincia <select id="selector-provincia"></select></label>
+    <label>Rangos y distribución de
+      <select id="vista-territorio">
+        <option value="escanos">Escaños</option>
+        <option value="voto">Voto</option>
+      </select>
+    </label>
+    <label>Resultados de 2023
+      <select id="posicion-2023">
+        <option value="antes">A la izquierda del partido</option>
+        <option value="tras-partido">Entre el partido y la previsión</option>
+        <option value="final">A la derecha de la previsión</option>
+      </select>
+    </label>
+    <span class="nota" id="resumen-provincia"></span>
+  </div>
+  <div class="tabla-ancha">
+    <table id="tabla-provincia" data-con-2023>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="nota">Los rangos del 80% y del 95% (de voto y de escaños) dejan fuera el 10% y el 2,5% de las simulaciones por cada extremo; el rango de voto de una comunidad sale, en cada sorteo, de la media ponderada del voto de sus provincias.</p>
+</section>
+
+<section id="origen-fv" hidden></section>
+
+<section id="promedio-territorio" hidden></section>
+
+<section id="voto-util">
+  <h2>Escaños en juego y voto útil</h2>
+  <p class="subtitulo" id="vu-titular"></p>
+  <p class="vu-barrera" id="vu-barrera"></p>
+  <div class="vu-rejilla">
+    <div class="vu-escanos" id="vu-escanos"></div>
+    <div class="vu-barras" id="vu-barras"></div>
+  </div>
+  <div class="vu-cocientes" id="vu-cocientes"></div>
+  <details class="vu-detalle" open>
+    <summary>¿Por qué un voto puede valer más aunque el partido tenga menos probabilidad de llevarse el escaño?</summary>
+    <p>Son dos medidas distintas. La probabilidad de cada escaño (la «disputa por el último escaño» y la escalera de probabilidades) dice dónde está hoy cada partido: en cuántas de las simulaciones se queda ese escaño. El valor del voto dice cuánto sube esa probabilidad con un voto más: la pendiente, no la posición.</p>
+    <p>En el reparto D'Hondt cada partido compite con un cociente: sus votos divididos entre sus escaños más uno. Un partido que pelea por su primer escaño divide entre 1, y uno que pelea por su segundo divide entre 2. Un voto más le sube el cociente al primero el doble que al segundo, y por eso al primero le faltan menos votos para llegar al escaño. Puede ocurrir entonces que un partido tenga hoy menos probabilidad de llevárselo, pero que un voto adicional le sirva más.</p>
+    <p>El valor para el bloque cuenta los escaños que gana el conjunto de la izquierda o de la derecha, no solo el partido. Si el escaño que gana un partido se lo quita a otro de su mismo bloque, el bloque no gana nada; si se lo quita a un partido del bloque contrario, sí. Por eso un voto a un partido pequeño puede valer mucho para el propio partido y bastante menos para su bloque.</p>
+  </details>
+  <p class="nota" id="vu-nota"></p>
+</section>
+
+<p class="nota">Las columnas de 2023 son los resultados definitivos del Congreso en cada provincia (BOE, con voto CERA); el porcentaje es sobre los votos válidos, blancos incluidos. Se muestran las candidaturas con al menos el 0,5% de los votos y PACMA. En la fila de Frente Amplio figura Sumar, que fue la candidatura de 2023; las filas en cursiva son candidaturas de 2023 sin previsión en esa provincia. En Navarra, UPN y PP concurren en coalición: su fila («UPN-PP») suma el voto de 2023 de ambos y los escaños de la coalición; en el total nacional se reparten por orden de lista (UPN, PP, PP, UPN).</p>
+<p class="nota">Vox no concurrió en 2023 en Santa Cruz de Tenerife, así que allí no figura en las columnas de 2023; la previsión parte de una estimación de lo que habría obtenido (ver la <a href="metodologia.html">metodología</a>).</p>
+<p class="nota">Las columnas «Dif.» son la previsión de 2026 menos el resultado de 2023: puntos de voto (con 2023 calculado sobre los votos a candidaturas, la misma base que el voto previsto, por lo que puede no coincidir exactamente con restar a la mano las columnas de 2023, que van sobre votos válidos) y escaños (reparto central menos los de 2023). ▲ verde: sube; ▼ roja: baja; «=»: se mantiene. En la Comunitat Valenciana, Front Valencià se compara con lo que fue Sumar allí en 2023; en Navarra, UPN-PP con la suma de UPN y PP.</p>
+<p class="nota">Las dos últimas filas son un control de cordura: la suma de los partidos de la tabla y, por diferencia hasta el 100 %, «otros y en blanco» (en 2023 sobre votos válidos, con los blancos; en la previsión, sobre votos a candidaturas, sin ellos). Se marca en rojo a partir del 8 % en la previsión, porque un cajón tan grande suele indicar un partido que falta.</p>
+<p class="nota">Para ver cómo cambia con otras hipótesis de voto, usa el <a href="simulador.html">simulador</a>.</p>
+<p class="nota"><a href="territorios.html">Todos los territorios</a></p>
+</main>
+<footer class="pie contenedor">
+  <p class="nota" id="actualizacion-pie"></p>
+  <p>PONDERA es un proyecto personal, no está asociado a ningún partido, medio ni empresa demoscópica. Es una previsión estadística, no una encuesta. Encuestas: tablas de Wikipedia (CC BY-SA 4.0).</p>
+  <nav aria-label="Pie">
+    <a href="LICENSE">Licencia</a>
+    <a href="privacidad.html">Privacidad y cookies</a>
+    <a href="#" id="abrir-cookies">Preferencias de cookies</a>
+    <a href="changelog.html">Historial de cambios</a>
+    <a href="feed.xml">RSS</a>
+    <a href="acerca.html">Acerca de</a>
+    <a href="autor.html">Sobre el autor</a>
+    <a href="enlaces.html">Enlaces</a>
+    <a href="cerveza.html">Invítame a una cerveza</a>
+    <a href="https://github.com/fermanpre/pondera">GitHub</a>
+  </nav>
+</footer>
+<script src="assets/tema.js"></script>
+<script src="assets/probabilidad.js"></script>
+<script src="assets/veda.js"></script>
+<script src="assets/cookies.js"></script>
+<script src="ultima_actualizacion.js"></script>
+<script src="assets/actualizacion.js"></script>
+<script src="datos_modelo.js"></script>
+<script src="datos_mapa_2023.js"></script>
+<script src="resultados_2023.js"></script>
+<script src="assets/comun.js"></script>
+<script src="assets/territorios.js"></script>
+<script src="motor.js"></script>
+<script src="assets/hemiciclo.js"></script>
+<script src="serie_territorial.js"></script>
+<script src="assets/serie_territorial.js"></script>
+<script src="assets/cis_otros_por_comunidad.js"></script>
+<script src="assets/origen_escanos_fv.js"></script>
+<script src="assets/promedio_territorio.js"></script>
+<script src="escenario_representativo.js"></script>
+<script src="assets/app_prevision.js"></script>
+<script src="voto_util.js"></script>
+<script src="assets/voto_util.js"></script>
+</body>
+</html>
