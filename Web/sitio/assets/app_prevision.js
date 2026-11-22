@@ -627,6 +627,24 @@ function moverPartido(partido, nuevoPorcentaje) {
 
 /* ---------- Provincias y comunidades ---------- */
 
+// Territorio fijado por la dirección: la subpágina (provincias/navarra.html lleva window.TERRITORIO_INICIAL) o la marca de las páginas con selector (provincias.html#navarra)
+function nombreDeTerritorioInicial(tipo) {
+  if (typeof TERRITORIOS === "undefined") return null;
+  if (window.TERRITORIO_INICIAL && window.TERRITORIO_INICIAL.tipo === tipo) return window.TERRITORIO_INICIAL.nombre;
+  const grupo = TERRITORIOS[tipo === "provincia" ? "provincias" : "comunidades"];
+  const marca = decodeURIComponent((window.location.hash || "").replace(/^#/, ""));
+  return Object.keys(grupo).filter(function (nombre) { return grupo[nombre] === marca; })[0] || null;
+}
+
+// Al elegir otro territorio: en una subpágina se va a la suya; en las páginas con selector se pone su marca en la dirección
+function alElegirTerritorio(tipo, nombre) {
+  if (typeof TERRITORIOS === "undefined") return;
+  const slug = TERRITORIOS[tipo === "provincia" ? "provincias" : "comunidades"][nombre];
+  if (!slug) return;
+  if (window.TERRITORIO_INICIAL) { window.location.href = (tipo === "provincia" ? "provincias/" : "comunidades/") + slug + ".html"; return; }  // la dirección base de las subpáginas es la raíz del sitio
+  try { window.history.replaceState(null, "", "#" + slug); } catch (error) { /* sin historial: no pasa nada */ }
+}
+
 function crearSelectorDeProvincias() {
   const selector = document.getElementById("selector-provincia");
   if (!selector) return;
@@ -639,7 +657,9 @@ function crearSelectorDeProvincias() {
     opcion.textContent = elemento.provincia.nombre + " (" + elemento.provincia.escanos + ")";
     selector.appendChild(opcion);
   });
-  selector.addEventListener("change", pintarProvincia);
+  const inicial = nombreDeTerritorioInicial("provincia");
+  if (inicial) { selector.value = String(modelo.provincias.findIndex(function (provincia) { return provincia.nombre === inicial; })); }
+  selector.addEventListener("change", function () { alElegirTerritorio("provincia", modelo.provincias[parseInt(selector.value, 10)].nombre); pintarProvincia(); });
 }
 
 /* Comunidades autónomas: nombre y índices de sus provincias, en orden alfabético */
@@ -666,7 +686,9 @@ function crearSelectorDeComunidades() {
     opcion.textContent = comunidad.nombre + " (" + comunidad.escanos + ")";
     selector.appendChild(opcion);
   });
-  selector.addEventListener("change", pintarComunidad);
+  const inicial = nombreDeTerritorioInicial("comunidad");
+  if (inicial) { selector.value = String(COMUNIDADES.findIndex(function (comunidad) { return comunidad.nombre === inicial; })); }
+  selector.addEventListener("change", function () { alElegirTerritorio("comunidad", COMUNIDADES[parseInt(selector.value, 10)].nombre); pintarComunidad(); });
 }
 
 // Votos a candidaturas de 2023 (sin blancos ni nulos) de un conjunto de provincias, que es la base del voto previsto de 2026; null si no están los datos

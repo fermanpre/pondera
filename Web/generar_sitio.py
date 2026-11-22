@@ -14,6 +14,7 @@ import json
 import re
 import shutil
 import sys
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -28,7 +29,7 @@ LEMA = "Elecciones generales 2026"
 URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js"]
-SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "serie_territorial.js", "assets/serie_territorial.js", "assets/cis_otros_por_comunidad.js", "assets/origen_escanos_fv.js", "assets/promedio_territorio.js", "escenario_representativo.js", "assets/app_prevision.js"]
+SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/territorios.js", "motor.js", "assets/hemiciclo.js", "serie_territorial.js", "assets/serie_territorial.js", "assets/cis_otros_por_comunidad.js", "assets/origen_escanos_fv.js", "assets/promedio_territorio.js", "escenario_representativo.js", "assets/app_prevision.js"]
 SCRIPTS_DE_PROVINCIAS = SCRIPTS_DE_COMUNIDADES + ["voto_util.js", "assets/voto_util.js"]  # voto_util.js: escaños en juego y voto útil (Web/voto_util_provincias.js)
 # Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
 SCRIPTS_DEL_SENADO = ["senado.js", "senado_designados.js", "assets/comun.js", "assets/app_senado.js"]
@@ -38,12 +39,12 @@ SCRIPTS_DE_CURIOSIDADES = ["curiosidades.js", "assets/comun.js", "assets/curiosi
 SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js", "assets/mayorias_congreso.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js", "curiosidades.js", "assets/curiosidades.js"]
 
 # Cinta principal (grupo, texto, página a la que lleva) y segunda cinta de cada grupo (texto, destino; «#...» = sección de la misma página)
-MENU_PRINCIPAL = [("prevision", "Congreso", "index.html"), ("territorio", "Territorio", "provincias.html"), ("simulador", "Simulador", "simulador.html"),
+MENU_PRINCIPAL = [("prevision", "Congreso", "index.html"), ("territorio", "Territorios", "territorios.html"), ("simulador", "Simulador", "simulador.html"),
                   ("mundos", "Mundos posibles", "mundos.html"), ("mundos_raros", "Mundos raros", "mundos_raros.html"), ("curiosidades", "Datos curiosos", "curiosidades.html"),
                   ("senado", "Senado", "senado.html"), ("metodologia", "Metodología", "metodologia.html"), ("acerca", "Acerca de", "acerca.html")]
 SUBMENUS = {
     "prevision": [("Escaños", "#nacional"), ("Mayorías", "#mayorias"), ("Mapa", "#mapa"), ("Evolución", "#evolucion"), ("Promedio", "#promedio"), ("Sondeos", "#sondeos")],
-    "territorio": [("Provincias", "provincias.html"), ("Comunidades", "comunidades.html"), ("Resumen", "resumen.html")],
+    "territorio": [("Todos los territorios", "territorios.html"), ("Provincias", "provincias.html"), ("Comunidades", "comunidades.html"), ("Resumen", "resumen.html")],
     "acerca": [("Acerca de", "acerca.html"), ("Enlaces", "enlaces.html"), ("Sobre el autor", "autor.html"), ("Privacidad y cookies", "privacidad.html"), ("Historial de cambios", "changelog.html")],
 }
 # Páginas que se integraron en Inicio: se conservan como redirecciones para que los enlaces antiguos sigan funcionando
@@ -61,6 +62,8 @@ PAGINAS = [
      "descripcion": "Sucesos que ocurren en una de cada cien o de cada mil simulaciones del Congreso, cada uno con un mundo en el que pasa: partidos que aparecen, que desaparecen o que suben mucho."},
     {"archivo": "curiosidades.html", "plantilla": "curiosidades", "titulo": "Datos curiosos", "grupo": "curiosidades", "scripts": SCRIPTS_DE_CURIOSIDADES, "probabilidades": True,
      "descripcion": "Listado de los datos curiosos de la previsión: partidos que caen por la barrera, votos que separan de un escaño, provincias inciertas y votos que más pesan."},
+    {"archivo": "territorios.html", "plantilla": "territorios", "titulo": "Territorios", "grupo": "territorio", "scripts": [],
+     "descripcion": "Una página propia para cada provincia y cada comunidad autónoma: previsión de voto y escaños, probabilidades y promedio de encuestas en las generales de 2026."},
     {"archivo": "provincias.html", "plantilla": "provincias", "titulo": "Previsión por provincia", "grupo": "territorio", "scripts": SCRIPTS_DE_PROVINCIAS, "probabilidades": True,
      "descripcion": "Voto previsto, escaños y probabilidad de cada resultado en las 52 circunscripciones de las generales de 2026."},
     {"archivo": "comunidades.html", "plantilla": "comunidades", "titulo": "Previsión por comunidad", "grupo": "territorio", "scripts": SCRIPTS_DE_COMUNIDADES, "probabilidades": True,
@@ -141,7 +144,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{titulo_completo}</title>
+{etiqueta_base}<title>{titulo_completo}</title>
 <meta name="description" content="{descripcion}">
 <link rel="canonical" href="{url_canonica}">
 <link rel="icon" type="image/svg+xml" href="{prefijo}assets/favicon.svg">
@@ -197,7 +200,8 @@ def construir_pagina(pagina, contenido, prefijo=""):
 """.format(
         titulo_completo=escapar(titulo_completo), descripcion=escapar(pagina["descripcion"]), url_canonica=url_canonica, prefijo=prefijo,
         nombre=NOMBRE_SITIO, lema=escapar(LEMA), base_url=BASE_URL, script_de_tema=SCRIPT_DE_TEMA_EN_CABECERA + ETIQUETA_DE_GOOGLE_ANALYTICS, menu="\n      ".join(enlaces_del_menu),
-        contenido=contenido, scripts=scripts, url_repositorio=URL_REPOSITORIO, segunda_cinta=segunda_cinta, boton_probabilidades=boton_probabilidades)
+        contenido=contenido, scripts=scripts, url_repositorio=URL_REPOSITORIO, segunda_cinta=segunda_cinta, boton_probabilidades=boton_probabilidades,
+        etiqueta_base=('<base href="%s">\n' % pagina["base"]) if pagina.get("base") else "")
 
 
 def contenido_del_changelog(entradas):
@@ -237,9 +241,9 @@ def construir_feed(entradas):
 """.format(nombre=NOMBRE_SITIO, base=BASE_URL, elementos="\n".join(elementos))
 
 
-def construir_mapa_del_sitio(entradas):
+def construir_mapa_del_sitio(entradas, direcciones_extra=()):
     ultima_modificacion = entradas[0]["fecha"]
-    direcciones = ["", "changelog.html"] + [pagina["archivo"] for pagina in PAGINAS if pagina["archivo"] != "index.html"]
+    direcciones = ["", "changelog.html"] + [pagina["archivo"] for pagina in PAGINAS if pagina["archivo"] != "index.html"] + list(direcciones_extra)
     lineas = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for direccion in direcciones:
         lineas.append("  <url><loc>%s/%s</loc><lastmod>%s</lastmod></url>" % (BASE_URL, direccion, ultima_modificacion))
@@ -304,6 +308,98 @@ def incluir_fragmentos(contenido):
     return re.sub(r"<!--INCLUIR (\w+)((?: \| .+?)?)-->", leer_fragmento, contenido)
 
 
+# Direcciones de las subpáginas: nombre del modelo -> nombre en la dirección (provincias/navarra.html, comunidades/madrid.html)
+SLUGS_ESPECIALES = {"Araba/Álava": "alava", "Balears (Illes)": "baleares", "Illes Balears": "baleares", "Comunidad de Madrid": "madrid", "Región de Murcia": "murcia",
+                    "Coruña (A)": "a-coruna", "Palmas (Las)": "las-palmas", "Rioja (La)": "la-rioja", "La Rioja": "la-rioja"}
+
+
+def quitar_tildes(texto):
+    return "".join(letra for letra in unicodedata.normalize("NFD", texto) if unicodedata.category(letra) != "Mn")
+
+
+def slug_de(nombre):
+    if nombre in SLUGS_ESPECIALES:
+        return SLUGS_ESPECIALES[nombre]
+    primera_parte = nombre.split("/")[0]
+    return re.sub(r"[^a-z0-9]+", "-", quitar_tildes(primera_parte).lower()).strip("-")
+
+
+def nombre_visible(nombre):
+    """«Coruña (A)» -> «A Coruña», «Palmas (Las)» -> «Las Palmas», «Balears (Illes)» -> «Illes Balears»; los demás, tal cual."""
+    coincidencia = re.match(r"^(.*) \((.*)\)$", nombre)
+    return "%s %s" % (coincidencia.group(2), coincidencia.group(1)) if coincidencia else nombre
+
+
+def clave_alfabetica(nombre):
+    return quitar_tildes(nombre).lower()
+
+
+def leer_territorios():
+    """(provincias, comunidades) del modelo: provincias = [{nombre, comunidad, escanos}], comunidades = {nombre: {escanos, provincias: [nombres]}}."""
+    datos = json.loads((CARPETA_SITIO / "datos_modelo.json").read_text(encoding="utf-8"))
+    provincias = sorted(({"nombre": p["nombre"], "comunidad": p["comunidad"], "escanos": p["escanos"]} for p in datos["provincias"]), key=lambda p: clave_alfabetica(p["nombre"]))
+    comunidades = {}
+    for provincia in provincias:
+        comunidad = comunidades.setdefault(provincia["comunidad"], {"escanos": 0, "provincias": []})
+        comunidad["escanos"] += provincia["escanos"]
+        comunidad["provincias"].append(provincia["nombre"])
+    return provincias, comunidades
+
+
+def escribir_nombres_de_territorios(provincias, comunidades):
+    """assets/territorios.js: nombre del modelo -> dirección, para que el selector de las páginas lleve a la subpágina del territorio elegido."""
+    contenido = {"provincias": {p["nombre"]: slug_de(p["nombre"]) for p in provincias}, "comunidades": {nombre: slug_de(nombre) for nombre in comunidades}}
+    (CARPETA_SITIO / "assets" / "territorios.js").write_text("// Direcciones de las subpáginas de cada territorio (las genera Web/generar_sitio.py)\nconst TERRITORIOS = %s;\n" % json.dumps(contenido, ensure_ascii=False), encoding="utf-8")
+
+
+def lista_de_territorios_en_html(provincias, comunidades):
+    """Índice de todos los territorios: cada comunidad con sus provincias, con enlaces a sus subpáginas."""
+    partes = ['<div class="territorios-rejilla">']
+    for nombre in sorted(comunidades, key=clave_alfabetica):
+        comunidad = comunidades[nombre]
+        escanos_de = {p["nombre"]: p["escanos"] for p in provincias}
+        partes.append('<section class="territorio-comunidad"><h3><a href="comunidades/%s.html">%s</a> <small>%d escaños</small></h3>' % (slug_de(nombre), escapar(nombre_visible(nombre)), comunidad["escanos"]))
+        if len(comunidad["provincias"]) > 1 or comunidad["provincias"][0] != nombre:
+            partes.append("<ul>")
+            for provincia in comunidad["provincias"]:
+                partes.append('<li><a href="provincias/%s.html">%s</a> <small>%d</small></li>' % (slug_de(provincia), escapar(nombre_visible(provincia)), escanos_de[provincia]))
+            partes.append("</ul>")
+        else:
+            partes.append('<p class="nota"><a href="provincias/%s.html">Provincia de %s</a> (uniprovincial)</p>' % (slug_de(comunidad["provincias"][0]), escapar(nombre_visible(nombre))))
+        partes.append("</section>")
+    partes.append("</div>")
+    return "\n".join(partes)
+
+
+def construir_subpaginas(provincias, comunidades):
+    """Una página por provincia y por comunidad: la misma de provincias.html o comunidades.html con el territorio ya elegido, su propio título, descripción y dirección. Devuelve las direcciones creadas."""
+    direcciones = []
+    for tipo, plantilla, carpeta, scripts in (("provincia", "provincias", "provincias", SCRIPTS_DE_PROVINCIAS), ("comunidad", "comunidades", "comunidades", SCRIPTS_DE_COMUNIDADES)):
+        (CARPETA_SITIO / carpeta).mkdir(parents=True, exist_ok=True)
+        base_de_la_plantilla = incluir_fragmentos((CARPETA_PLANTILLAS / (plantilla + ".html")).read_text(encoding="utf-8").rstrip())
+        territorios = provincias if tipo == "provincia" else [{"nombre": n, "comunidad": n, "escanos": c["escanos"]} for n, c in comunidades.items()]
+        for territorio in territorios:
+            nombre_del_modelo, escanos = territorio["nombre"], territorio["escanos"]
+            nombre = nombre_visible(nombre_del_modelo)
+            slug = slug_de(nombre_del_modelo)
+            etiqueta = "provincia" if tipo == "provincia" else "comunidad autónoma"
+            titulo = "%s: previsión por %s" % (nombre, etiqueta)
+            if tipo == "provincia":
+                subtitulo = "Voto previsto, escaños y probabilidad de cada resultado en %s (%s, %d %s)." % (nombre, territorio["comunidad"], escanos, "escaño" if escanos == 1 else "escaños")
+            else:
+                subtitulo = "Voto previsto, escaños y probabilidad de cada resultado en %s (%d escaños), sumando sus provincias." % (nombre, escanos)
+            descripcion = "Previsión de voto y escaños en %s (%d %s) en las elecciones generales de 2026: probabilidad de cada resultado, promedio de encuestas y escaños en juego." % (nombre, escanos, "escaño" if escanos == 1 else "escaños")
+            contenido = re.sub(r"<h1>.*?</h1>", lambda _m: "<h1>%s</h1>" % escapar(titulo), base_de_la_plantilla, count=1, flags=re.S)
+            contenido = re.sub(r'<p class="subtitulo">.*?</p>', lambda _m: '<p class="subtitulo">%s</p>' % escapar(subtitulo), contenido, count=1, flags=re.S)
+            contenido = ('<script>window.TERRITORIO_INICIAL = %s;</script>\n' % json.dumps({"tipo": tipo, "nombre": nombre_del_modelo}, ensure_ascii=False)) + contenido
+            contenido += '\n<p class="nota"><a href="territorios.html">Todos los territorios</a></p>'
+            archivo = "%s/%s.html" % (carpeta, slug)
+            pagina = {"archivo": archivo, "titulo": titulo, "descripcion": descripcion, "grupo": "territorio", "scripts": scripts, "probabilidades": True, "base": "../"}
+            (CARPETA_SITIO / archivo).write_text(construir_pagina(pagina, contenido), encoding="utf-8")
+            direcciones.append(archivo)
+    return direcciones
+
+
 def pagina_de_redireccion(destino):
     return """<!doctype html>
 <html lang="es">
@@ -340,12 +436,17 @@ def main():
     (CARPETA_SITIO / "ultima_actualizacion.js").write_text('const ULTIMA_ACTUALIZACION = "%s";\n' % datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"), encoding="utf-8")
     unir_estilos()
 
+    provincias_del_modelo, comunidades_del_modelo = leer_territorios()
+    escribir_nombres_de_territorios(provincias_del_modelo, comunidades_del_modelo)
     for pagina in PAGINAS:
         contenido = (CARPETA_PLANTILLAS / (pagina["plantilla"] + ".html")).read_text(encoding="utf-8").rstrip()
         contenido = incluir_fragmentos(contenido)
+        contenido = contenido.replace("<!--LISTA_DE_TERRITORIOS-->", lista_de_territorios_en_html(provincias_del_modelo, comunidades_del_modelo))
         if "<!--SVG_PROVINCIAS-->" in contenido:
             contenido = contenido.replace("<!--SVG_PROVINCIAS-->", svg_de_provincias_para_incrustar())
         (CARPETA_SITIO / pagina["archivo"]).write_text(construir_pagina(pagina, contenido), encoding="utf-8")
+
+    direcciones_de_territorios = construir_subpaginas(provincias_del_modelo, comunidades_del_modelo)
 
     for archivo_antiguo, destino in REDIRECCIONES.items():
         (CARPETA_SITIO / archivo_antiguo).write_text(pagina_de_redireccion(destino), encoding="utf-8")
@@ -360,11 +461,11 @@ def main():
 
     shutil.copyfile(CARPETA / "Mapa_provincias" / "provincias_espana.svg", CARPETA_SITIO / "assets" / "provincias_espana.svg")
     (CARPETA_SITIO / "feed.xml").write_text(construir_feed(entradas), encoding="utf-8")
-    (CARPETA_SITIO / "sitemap.xml").write_text(construir_mapa_del_sitio(entradas), encoding="utf-8")
+    (CARPETA_SITIO / "sitemap.xml").write_text(construir_mapa_del_sitio(entradas, direcciones_de_territorios), encoding="utf-8")
     (CARPETA_SITIO / "robots.txt").write_text("User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n" % BASE_URL, encoding="utf-8")
     (CARPETA_SITIO / "assets" / "favicon.svg").write_text(FAVICON_SVG, encoding="utf-8")
     crear_imagen_para_compartir(CARPETA_SITIO / "assets" / "og-image.png")
-    print("Sitio generado en %s: %d páginas, %d entradas de changelog." % (CARPETA_SITIO, len(PAGINAS) + 2, len(entradas)))
+    print("Sitio generado en %s: %d páginas, %d entradas de changelog." % (CARPETA_SITIO, len(PAGINAS) + 2 + len(direcciones_de_territorios), len(entradas)))
 
 
 if __name__ == "__main__":

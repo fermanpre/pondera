@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Una página para cada territorio",
+    "texto": "Cada provincia y cada comunidad autónoma tiene ahora su propia dirección (por ejemplo provincias/navarra.html o comunidades/galicia.html), con su título y descripción para compartir, y hay una página índice con todas (territorios.html). Las páginas con selector siguen funcionando y ahora también admiten una marca en la dirección (provincias.html#navarra)."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Escaños en juego: casi seguros, probables y en el aire",
     "texto": "En la página de provincias, los escaños se clasifican en casi seguros (desde el 95 % de las simulaciones), probables (desde el 75 %) y en el aire. Nueva escalera de probabilidades de cada escaño en las provincias de hasta 8 escaños, y la «disputa por el último escaño» sustituye a los «escaños de más de media». La coalición UPN-PP de Navarra cuenta como un solo partido."
   },
