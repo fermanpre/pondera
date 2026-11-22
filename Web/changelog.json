@@ -7,7 +7,7 @@
   {
     "fecha": "2026-11-22",
     "titulo": "Probabilidades como «x de cada y»",
-    "texto": "Un botón «Probabilidades» en la cabecera de las páginas con probabilidades cambia los porcentajes por frecuencias aproximadas (95 % pasa a «19 de cada 20»), con el porcentaje exacto en el texto emergente. Solo afecta a probabilidades, no al voto; se recuerda la elección."
+    "texto": "Un botón «Probabilidades» en la cabecera de las páginas con probabilidades cambia los porcentajes por frecuencias aproximadas (95 % pasa a «19 de cada 20»), con el porcentaje exacto en el texto emergente. También cambia la gráfica de evolución de la previsión. Solo afecta a probabilidades, no al voto; se recuerda la elección."
   },
   {
     "fecha": "2026-11-22",

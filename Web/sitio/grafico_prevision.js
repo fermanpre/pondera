@@ -30,6 +30,8 @@
   function textoDeFecha(indice) { const fecha = fechaDelIndice(indice); return fecha.getUTCDate() + " " + MESES[fecha.getUTCMonth()] + " " + fecha.getUTCFullYear(); }
   function indiceDeFecha(textoIso) { return Math.round((Date.parse(textoIso + "T00:00:00Z") - primerDia) / MILISEGUNDOS_POR_DIA); }
   const porcentaje = (probabilidad) => (probabilidad === null || probabilidad === undefined ? "–" : (probabilidad > 0 && probabilidad < 0.001 ? "< 0,1%" : formatoUnDecimal.format(100 * probabilidad) + "%"));
+  // Igual, pero en el modo «x de cada y» del botón de la cabecera (el porcentaje exacto queda en el texto emergente)
+  const probabilidadEnTexto = (probabilidad) => (probabilidad === null || probabilidad === undefined ? "–" : PROBABILIDAD.html(probabilidad, porcentaje(probabilidad)));
 
   /* ---------- Definición de cada gráfico: series, eje y selección de partidos ---------- */
 
@@ -64,9 +66,9 @@
           return { id, nombre: combinacion.nombre, color: COLOR_DE_GRUPO[combinacion.grupo], trazo: ["", "6 3", "2 3", "8 3 2 3"][orden % 4], valores: S.mayorias[id], formatear: porcentaje };
         });
       },
-      eje: () => ({ minimo: 0, maximo: 1, paso: 0.2, formatear: (v) => Math.round(100 * v) + "%" }),
+      eje: () => ({ minimo: 0, maximo: 1, paso: 0.2, formatear: (v) => PROBABILIDAD.plano(v, Math.round(100 * v) + "%") }),
       referencia: null,
-      detalle: (serie, indice) => porcentaje(serie.valores[indice]),
+      detalle: (serie, indice) => probabilidadEnTexto(serie.valores[indice]),
       nota: "Porcentaje de simulaciones en que la combinación suma 176 escaños o más (las mismas combinaciones que en «Probabilidad de mayoría absoluta»).",
     },
     bloques: {
@@ -95,9 +97,9 @@
         const nombre = { PP: "PP (con UPN)", PSOE: "PSOE", empate: "Empate", otro: "Vox" };
         return seleccion.filter((id) => datos[id]).map((id) => ({ id, nombre: nombre[id], color: color[id], valores: datos[id], formatear: porcentaje }));
       },
-      eje: () => ({ minimo: 0, maximo: 1, paso: 0.2, formatear: (v) => Math.round(100 * v) + "%" }),
+      eje: () => ({ minimo: 0, maximo: 1, paso: 0.2, formatear: (v) => PROBABILIDAD.plano(v, Math.round(100 * v) + "%") }),
       referencia: null,
-      detalle: (serie, indice) => porcentaje(serie.valores[indice]),
+      detalle: (serie, indice) => probabilidadEnTexto(serie.valores[indice]),
       nota: "Probabilidad de que cada uno sea la primera fuerza: en escaños, quien tiene más diputados; en voto, quien saca más porcentaje en el voto nacional simulado. El PP se cuenta con UPN, como en el resto de la página.",
     },
     alMenosUno: {
@@ -107,9 +109,9 @@
       series(seleccion) {
         return seleccion.map((id) => ({ id, nombre: nombreDe(id), color: colorDe(id), valores: S.al_menos_uno[id], formatear: porcentaje }));
       },
-      eje: () => ({ minimo: 0, maximo: 1, paso: 0.2, formatear: (v) => Math.round(100 * v) + "%" }),
+      eje: () => ({ minimo: 0, maximo: 1, paso: 0.2, formatear: (v) => PROBABILIDAD.plano(v, Math.round(100 * v) + "%") }),
       referencia: null,
-      detalle: (serie, indice) => porcentaje(serie.valores[indice]),
+      detalle: (serie, indice) => probabilidadEnTexto(serie.valores[indice]),
       nota: "Probabilidad de que el partido obtenga al menos un diputado en el conjunto de España (partidos en el filo o con pocos escaños).",
     },
     aire: {
@@ -165,6 +167,10 @@
     const visibles = seriesVisibles();
     const conBanda = definicion.admiteBanda && estado.banda;
     const eje = definicion.eje(visibles, conBanda);
+    // Margen izquierdo a la medida de la etiqueta más larga del eje («4 de cada 5» ocupa más que «80%»)
+    let etiquetaMasLarga = 0;
+    for (let valor = eje.minimo; valor <= eje.maximo + 1e-9; valor += eje.paso) { etiquetaMasLarga = Math.max(etiquetaMasLarga, String(eje.formatear(valor)).length); }
+    MARGEN.izquierda = Math.max(46, Math.ceil(etiquetaMasLarga * 6.4) + 14);
     const ancho = anchura - MARGEN.izquierda - MARGEN.derecha;
     const alto = altura - MARGEN.arriba - MARGEN.abajo;
     const x = (indice) => MARGEN.izquierda + ((indice - desde) / Math.max(1, hasta - desde)) * ancho;
@@ -334,6 +340,7 @@
   construirPestanasYRangos();
   pintarControles();
   dibujar();
+  PROBABILIDAD.alCambiar(dibujar);
   let temporizadorDeCambioDeTamano = null;
   window.addEventListener("resize", () => { clearTimeout(temporizadorDeCambioDeTamano); temporizadorDeCambioDeTamano = setTimeout(dibujar, 120); });
 })();
