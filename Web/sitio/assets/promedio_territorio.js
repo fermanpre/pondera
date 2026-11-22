@@ -20,9 +20,9 @@ function htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto) {
   }).join("");
   const casas = promedio.encuestas.map(function (e) { return escaparTexto(e.casa) + " (" + fecha(e.fin) + ", " + Math.round(100 * e.peso) + " %)"; }).join("; ");
   return '<h3>Promedio de la comunidad: ' + escaparTexto(config.comunidad) + '</h3>' +
-    '<p class="subtitulo">' + promedio.k + (promedio.k === 1 ? " encuesta" : " encuestas") + ' de toda la comunidad, sin datos por provincia: ' + casas + '.</p>' +
+    '<p class="subtitulo">' + promedio.k + (promedio.k === 1 ? " encuesta" : " encuestas") + ' de toda la comunidad: ' + casas + '.</p>' +
     '<div class="tabla-ancha"><table><thead><tr><th>Partido</th><th>Promedio de la comunidad</th></tr></thead><tbody>' + filas + '</tbody></table></div>' +
-    '<p class="nota">Estas encuestas no entran en el promedio de la provincia, pero sí anclan el total de la comunidad en la previsión; donde la provincia tiene encuestas propias, mandan estas dentro de la comunidad.</p>';
+    '<p class="nota">Promedio de todas las encuestas de la comunidad, también las que ya dan datos por provincia. En la previsión no se cuenta dos veces lo mismo: las encuestas con detalle provincial pesan en sus provincias, y en el total de la comunidad solo pesan las que no lo tienen.</p>';
 }
 
 function pintarPromedioDelTerritorio(config) {

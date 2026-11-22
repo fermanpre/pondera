@@ -205,9 +205,13 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None, 
     """{unidad: ({bloque: cuota en tanto por uno}, k, ruido)} de los territorios con al menos MINIMO_DE_ENCUESTAS encuestas en su promedio (una en las provincias con peso por varianza).
     «ruido» = (suma(w^2 / n), suma(w^2 x días de antigüedad), suma(w^2 x error de casa^2)) / suma(w)^2 de las encuestas del promedio.
     Con «detalle» (un diccionario) rellena además, para mostrarlo en la web (21/11/2026): {unidad: {"k", "medias": {candidatura: porcentaje}, "encuestas": [{casa, fin, muestra, peso}]}}."""
-    por_unidad = {unidad: entregas_vigentes(lista) for unidad, lista in leer_encuestas(dia, nombres_de_provincia).items()}
+    por_unidad_completo = {unidad: entregas_vigentes(lista) for unidad, lista in leer_encuestas(dia, nombres_de_provincia).items()}
+    por_unidad = dict(por_unidad_completo)
     if provincias_de:
         quitar_dias_con_detalle_provincial(por_unidad, provincias_de)
+    # Para enseñarlo (22/11/2026) cada comunidad se promedia también con todas sus encuestas, aunque alguna ya esté en sus provincias; para el blend solo cuentan las que quedan tras quitar lo que cubren las provincias
+    trabajos = [(unidad, encuestas, True) for unidad, encuestas in por_unidad.items()]
+    trabajos += [(unidad, encuestas, False) for unidad, encuestas in por_unidad_completo.items() if unidad[0] == "comunidad" and detalle is not None]
     ultimos = {}
     for region, (_lista, resultados) in atipicas.encuestas_regionales().items():
         unidad = unidad_de_region(region, nombres_de_provincia)
@@ -221,7 +225,7 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None, 
         promedio.VENTANA_DIAS = VENTANA_DIAS
         promedio.FILTRO_DE_ATIPICAS["activo"] = False
         promedio.AJUSTE_MANUAL_DE_PESO.update(penalizadas)
-        for unidad, encuestas in por_unidad.items():
+        for unidad, encuestas, para_el_blend in trabajos:
             encuestas, _descartes = filtro_atipicos.filtrar(encuestas, ultimos.get(unidad, {}), atipicas.EQUIVALENCIAS_REGIONALES)
             encuestas = [e for e in encuestas if e["valores"]]
             minimo = MINIMO_DE_ENCUESTAS
@@ -245,7 +249,8 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None, 
                 if bloque and cuenta[nombre] * 2 >= usadas:
                     por_bloque[bloque] += valor / 100.0
             if len(por_bloque) >= 3:
-                resultado[unidad] = (dict(por_bloque), usadas, ruido)
+                if para_el_blend:
+                    resultado[unidad] = (dict(por_bloque), usadas, ruido)
                 if detalle is not None:
                     medias_por_candidatura = {}
                     for nombre, valor in medias.items():
