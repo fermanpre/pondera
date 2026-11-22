@@ -11,7 +11,7 @@
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
     <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-22-0</guid>
     <pubDate>Sun, 22 Nov 2026 12:00:00 +0000</pubDate>
-    <description>Las tablas de cada provincia y comunidad llevan ahora el rango del 80 % y del 95 % de las simulaciones, tanto del voto (que antes no se mostraba) como de los escaños, junto a la distribución gráfica.</description>
+    <description>Las tablas de cada provincia y comunidad llevan ahora el rango del 80 % y del 95 % de las simulaciones, con un selector para verlos por escaños (por defecto) o por voto (que antes no se mostraba), junto a su distribución gráfica.</description>
   </item>
   <item>
     <title>Listas de provincias y comunidades sin tildes en el orden</title>
