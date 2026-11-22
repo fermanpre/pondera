@@ -121,7 +121,7 @@ function recalcular() {
     const inicio = performance.now();
     const central = MotorElectoral.repartoSinRuido(modelo, objetivosActuales);
     const primeros = Math.min(sorteos, SORTEOS_RAPIDOS);
-    const simulacion = MotorElectoral.simular(modelo, { sorteos: primeros, semilla: 20261129, objetivos: objetivosActuales });
+    const simulacion = MotorElectoral.simular(modelo, { sorteos: primeros, semilla: 20261129, objetivos: objetivosActuales, guardarCuotas: true });
     central.escanos = escenarioRepresentativoIncrustado(sorteos) || escanosDelEscenarioRepresentativo(simulacion, primeros);
     ultimoResultado = { central: central, simulacion: simulacion, sorteos: primeros };
     pintarTodoConElResultado();
@@ -140,7 +140,7 @@ function recalcular() {
       if (typeof alTerminarElCalculo === "function") alTerminarElCalculo();
     };
     const enElHiloPrincipal = function () {
-      setTimeout(function () { terminar(MotorElectoral.simular(modelo, { sorteos: sorteos, semilla: 20261129, objetivos: objetivosActuales })); }, 20);
+      setTimeout(function () { terminar(MotorElectoral.simular(modelo, { sorteos: sorteos, semilla: 20261129, objetivos: objetivosActuales, guardarCuotas: true })); }, 20);
     };
     try {
       const trabajador = new Worker("assets/trabajador_simulacion.js");
@@ -734,6 +734,7 @@ function pintarTablaDeTerritorio(config) {
       });
     });
     const cuentas = {};
+    const escanosPorSorteo = new Int16Array(sorteos);
     for (let s = 0; s < sorteos; s++) {
       let cantidad = 0;
       indices.forEach(function (p) {
@@ -745,13 +746,27 @@ function pintarTablaDeTerritorio(config) {
         });
       });
       cuentas[cantidad] = (cuentas[cantidad] || 0) + 1;
+      escanosPorSorteo[s] = cantidad;
+    }
+    escanosPorSorteo.sort();
+    // Voto simulado del territorio (en %): media de las cuotas de sus provincias en cada sorteo, ponderada por su peso, como el voto previsto
+    let votoPorSorteo = null;
+    const cuotasSimuladas = ultimoResultado.simulacion.cuotas;
+    if (cuotasSimuladas) {
+      votoPorSorteo = new Float64Array(sorteos);
+      for (let s = 0; s < sorteos; s++) {
+        let suma = 0;
+        indices.forEach(function (p) { suma += cuotasSimuladas[(s * P + p) * K + k] * modelo.provincias[p].peso; });
+        votoPorSorteo[s] = 100 * suma / (65535 * pesoTotal);
+      }
+      votoPorSorteo.sort();
     }
     let masProbable = 0;
     let mejor = -1;
     Object.keys(cuentas).forEach(function (cantidad) {
       if (cuentas[cantidad] > mejor) { mejor = cuentas[cantidad]; masProbable = parseInt(cantidad, 10); }
     });
-    filas.push({ partido: partido, nombre: nombreDeCoalicion || NOMBRES[partido], cuota: cuota, central: central, masProbable: masProbable, cuentas: cuentas, coalicion: coalicionDeLaFila });
+    filas.push({ partido: partido, nombre: nombreDeCoalicion || NOMBRES[partido], cuota: cuota, central: central, masProbable: masProbable, cuentas: cuentas, coalicion: coalicionDeLaFila, escanosPorSorteo: escanosPorSorteo, votoPorSorteo: votoPorSorteo });
   });
   filas.sort(function (a, b) { return b.cuota - a.cuota; });
   const tabla = document.getElementById(config.idTabla);
@@ -786,6 +801,18 @@ function pintarTablaDeTerritorio(config) {
     const dato = resultados2023 ? datosDe2023ParaLaDiferencia(f) : null;
     return '<td>' + (dato ? conTriangulo(f.central - dato.escanos, 0) : "–") + '</td>';
   }
+  // Rangos del 80 % y del 95 % de las simulaciones (dejan fuera el 10 % y el 2,5 % por cada extremo), de voto y de escaños
+  function rangosDeVoto(f) {
+    if (!f.votoPorSorteo) return '<td class="rango">–</td><td class="rango">–</td>';
+    return '<td class="rango">' + textoDeRangoDeVoto(f.votoPorSorteo, 0.1, 0.9) + '</td><td class="rango">' + textoDeRangoDeVoto(f.votoPorSorteo, 0.025, 0.975) + '</td>';
+  }
+  function textoDeRangoDeEscanos(ordenados, fraccionInferior, fraccionSuperior) {
+    const n = ordenados.length;
+    return textoDeRango(ordenados[Math.floor(fraccionInferior * (n - 1))], ordenados[Math.ceil(fraccionSuperior * (n - 1))]);
+  }
+  function rangosDeEscanos(f) {
+    return '<td class="rango">' + textoDeRangoDeEscanos(f.escanosPorSorteo, 0.1, 0.9) + '</td><td class="rango">' + textoDeRangoDeEscanos(f.escanosPorSorteo, 0.025, 0.975) + '</td>';
+  }
   const cuerpo = tabla.querySelector("tbody");
   cuerpo.innerHTML = "";
   const orden2023 = ordenElegidoDeLos2023();
@@ -806,8 +833,8 @@ function pintarTablaDeTerritorio(config) {
   filas.forEach(function (f) {
     const fila = document.createElement("tr");
     const celdaPartido = '<td class="col-partido">' + ficha(f.partido) + f.nombre + '</td>';
-    const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + '</td>' + diferenciaDeVoto(f) + '<td>' + f.central + '</td>' + diferenciaDeEscanos(f) + '<td>' + f.masProbable +
-      '</td><td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>';
+    const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + '</td>' + diferenciaDeVoto(f) + rangosDeVoto(f) + '<td>' + f.central + '</td>' + diferenciaDeEscanos(f) + '<td>' + f.masProbable +
+      '</td>' + rangosDeEscanos(f) + '<td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>';
     fila.innerHTML = ordenarFila(celdaPartido, celdasPrevision, celdas2023(f.partido));
     cuerpo.appendChild(fila);
   });
@@ -822,7 +849,7 @@ function pintarTablaDeTerritorio(config) {
       const color = COLORES[c.clave] || "#9a9a94";
       const fila = document.createElement("tr");
       fila.className = "solo-2023";
-      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="6" class="suave">Sin previsión en ' + config.territorio + '</td>', celdas2023(c.clave));
+      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="10" class="suave">Sin previsión en ' + config.territorio + '</td>', celdas2023(c.clave));
       cuerpo.appendChild(fila);
     });
   }
@@ -843,7 +870,7 @@ function pintarTablaDeTerritorio(config) {
     const fila = document.createElement("tr");
     fila.className = clase;
     const marcaDeAviso = avisar && votoPrevisto >= UMBRAL_DE_AVISO_DE_OTROS ? ' class="resto-alto"' : "";
-    fila.innerHTML = ordenarFila('<td class="col-partido">' + nombre + '</td>', '<td' + marcaDeAviso + '>' + porcentaje(votoPrevisto) + '</td><td></td><td>' + escanosPrevistos + '</td><td></td><td></td><td></td>', celdasPasado);
+    fila.innerHTML = ordenarFila('<td class="col-partido">' + nombre + '</td>', '<td' + marcaDeAviso + '>' + porcentaje(votoPrevisto) + '</td><td></td><td></td><td></td><td>' + escanosPrevistos + '</td><td></td><td></td><td></td><td></td><td></td>', celdasPasado);
     cuerpo.appendChild(fila);
   }
   const validos2023 = resultados2023 ? resultados2023.validos : 0;
@@ -913,8 +940,9 @@ function construirCabeceraConPasado(tabla, orden) {
   const marcaDeInicio = orden === "final" ? " borde-izq" : "";
   const grupoPasado = '<th colspan="3" class="grupo2023' + marcaDeInicio + ' borde-der">Resultado de 2023 (definitivo)</th>';
   const subPasado = '<th class="' + marcaDeInicio.trim() + '">Votos</th><th>%</th><th class="borde-der">Escaños</th>';
-  const grupoPrevision = '<th colspan="6" style="text-align:center">Previsión 2026</th>';
-  const subPrevision = '<th>Voto previsto</th><th title="Puntos de voto respecto a 2023 (sobre votos a candidaturas)">Dif.</th><th>Escaños</th><th title="Escaños respecto a 2023">Dif.</th><th>Más probable</th><th style="text-align:left">Distribución (oscuro: central)</th>';
+  const grupoPrevision = '<th colspan="10" style="text-align:center">Previsión 2026</th>';
+  const subPrevision = '<th>Voto previsto</th><th title="Puntos de voto respecto a 2023 (sobre votos a candidaturas)">Dif.</th><th title="Rango del 80% de las simulaciones: deja fuera el 10% por cada extremo">Voto 80%</th><th title="Rango del 95% de las simulaciones: deja fuera el 2,5% por cada extremo">Voto 95%</th>' +
+    '<th>Escaños</th><th title="Escaños respecto a 2023">Dif.</th><th>Más probable</th><th title="Rango del 80% de las simulaciones: deja fuera el 10% por cada extremo">Esc. 80%</th><th title="Rango del 95% de las simulaciones: deja fuera el 2,5% por cada extremo">Esc. 95%</th><th style="text-align:left">Distribución (oscuro: central)</th>';
   const partido = '<th rowspan="2" class="col-partido">Partido</th>';
   let primeraFila, segundaFila;
   if (orden === "antes") { primeraFila = grupoPasado + partido + grupoPrevision; segundaFila = subPasado + subPrevision; }

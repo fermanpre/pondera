@@ -8,6 +8,6 @@ importScripts("../motor.js");
 self.onmessage = function (evento) {
   const entrada = evento.data;
   const modelo = MotorElectoral.prepararModelo(entrada.datos);
-  const simulacion = MotorElectoral.simular(modelo, { sorteos: entrada.sorteos, semilla: entrada.semilla, objetivos: entrada.objetivos });
-  self.postMessage({ simulacion: simulacion }, [simulacion.nacionales.buffer, simulacion.provinciales.buffer]);
+  const simulacion = MotorElectoral.simular(modelo, { sorteos: entrada.sorteos, semilla: entrada.semilla, objetivos: entrada.objetivos, guardarCuotas: true });
+  self.postMessage({ simulacion: simulacion }, [simulacion.nacionales.buffer, simulacion.provinciales.buffer, simulacion.cuotas.buffer]);
 };

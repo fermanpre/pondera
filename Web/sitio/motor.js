@@ -295,6 +295,8 @@
     const palancaSigma = opciones.palancaSigma || 0;
     const nacionales = new Int16Array(sorteos * K);
     const provinciales = new Uint8Array(sorteos * P * K);
+    // Voto de cada provincia en cada sorteo (cuota x 65535, sin pérdida apreciable: 0,0015 puntos), solo si se pide: lo usa la web para los rangos de voto de provincias y comunidades
+    const cuotas = opciones.guardarCuotas ? new Uint16Array(sorteos * P * K) : null;
     const objetivos = new Float32Array(sorteos * K);  // voto nacional simulado de cada sorteo (antes del reparto por provincia); lo usa la serie de previsión, la web no
     for (let sorteo = 0; sorteo < sorteos; sorteo++) {
       const palanca = (palancaMedia || palancaSigma) ? generador.gauss(palancaMedia, palancaSigma) : 0;
@@ -304,6 +306,10 @@
       const ruidoso = ruidoProvincial(modelo, primero, generador);
       const final = repartirProporcional(modelo, ruidoso, objetivo);
       const escanos = escanosDeReparto(modelo, final);
+      if (cuotas) {
+        const inicioDelSorteo = sorteo * P * K;
+        for (let i = 0; i < P * K; i++) cuotas[inicioDelSorteo + i] = Math.round(final[i] * 65535);
+      }
       if (opciones.alRepartir) opciones.alRepartir(sorteo, final, escanos);  // gancho opcional (serie de voto útil): recibe el reparto final de cada sorteo
       for (let p = 0; p < P; p++) {
         for (let k = 0; k < K; k++) {
@@ -317,7 +323,7 @@
       if (opciones.alProgreso && (sorteo + 1) % 25 === 0) opciones.alProgreso(sorteo + 1, sorteos);
     }
     if (opciones.alProgreso) opciones.alProgreso(sorteos, sorteos);
-    return { nacionales: nacionales, provinciales: provinciales, objetivos: objetivos, sorteos: sorteos };
+    return { nacionales: nacionales, provinciales: provinciales, objetivos: objetivos, cuotas: cuotas, sorteos: sorteos };
   }
 
   /* ---------- Resúmenes ---------- */
