@@ -137,12 +137,25 @@ margenes.slice(0, MAXIMO_DE_DATOS_POR_TIPO.margen).forEach(function (dato) { cur
 inciertas.sort(function (a, b) { return a.probabilidad - b.probabilidad; });
 inciertas.slice(0, MAXIMO_DE_DATOS_POR_TIPO.incierta).forEach(function (dato) { curiosidades.push(dato); });
 
-// ---- Nacional: partidos que pueden quedarse sin ningún diputado
+// Escaños de Podemos dentro de Compromís-Front Valencià en cada sorteo (primer puesto de Alicante, etc.; Web/sitio/assets/origen_escanos_fv.js): cuentan como diputados de Podemos (22/11/2026)
+const origenDeFV = require(path.join(__dirname, "sitio", "assets", "origen_escanos_fv.js"));
+const columnaDeFV = modelo.partidos.indexOf("FV");
+const columnaDePodemos = modelo.partidos.indexOf("PODEMOS");
+const diputadosDePodemosEnFV = new Int16Array(SORTEOS);
+if (columnaDeFV >= 0) {
+  for (let s = 0; s < SORTEOS; s++) {
+    for (let p = 0; p < P; p++) {
+      diputadosDePodemosEnFV[s] += origenDeFV.origenDeEscanosFVEnProvincia(modelo.provincias[p].nombre, resultado.provinciales[(s * P + p) * K + columnaDeFV])["Podemos"] || 0;
+    }
+  }
+}
+
+// ---- Nacional: partidos que pueden quedarse sin ningún diputado (Podemos, contando su cupo en FV)
 const nacionales = [];
 for (let k = 0; k < K; k++) {
   if (!sinEscano[modelo.partidos[k]]) {
     let sinNinguno = 0;
-    for (let s = 0; s < SORTEOS; s++) if (resultado.nacionales[s * K + k] === 0) sinNinguno++;
+    for (let s = 0; s < SORTEOS; s++) if (resultado.nacionales[s * K + k] + (k === columnaDePodemos ? diputadosDePodemosEnFV[s] : 0) === 0) sinNinguno++;
     const probabilidad = sinNinguno / SORTEOS;
     if (probabilidad >= 0.05 && probabilidad <= 0.95) nacionales.push({ tipo: "nacional", partido: modelo.partidos[k], probabilidad: Math.round(1000 * probabilidad) / 1000 });
   }
@@ -151,21 +164,13 @@ nacionales.sort(function (a, b) { return Math.abs(a.probabilidad - 0.5) - Math.a
 nacionales.slice(0, MAXIMO_DE_DATOS_POR_TIPO.nacional).forEach(function (dato) { curiosidades.push(dato); });
 
 // ---- Podemos con su puesto en Compromís-Front Valencià (primero de Alicante): probabilidad de tener al menos un diputado con y sin ese cupo (22/11/2026)
-const origenDeFV = require(path.join(__dirname, "sitio", "assets", "origen_escanos_fv.js"));
-const columnaDeFV = modelo.partidos.indexOf("FV");
-const columnaDePodemos = modelo.partidos.indexOf("PODEMOS");
 if (columnaDeFV >= 0 && columnaDePodemos >= 0) {
   let conPodemosPropio = 0;
   let conElCupoDeFV = 0;
   for (let s = 0; s < SORTEOS; s++) {
-    let deFV = 0;
-    for (let p = 0; p < P; p++) {
-      const cuentas = origenDeFV.origenDeEscanosFVEnProvincia(modelo.provincias[p].nombre, resultado.provinciales[(s * P + p) * K + columnaDeFV]);
-      deFV += cuentas["Podemos"] || 0;
-    }
     const propios = resultado.nacionales[s * K + columnaDePodemos];
     if (propios > 0) conPodemosPropio++;
-    if (propios + deFV > 0) conElCupoDeFV++;
+    if (propios + diputadosDePodemosEnFV[s] > 0) conElCupoDeFV++;
   }
   curiosidades.push({ tipo: "podemos_fv", propia: Math.round(1000 * conPodemosPropio / SORTEOS) / 1000, con_fv: Math.round(1000 * conElCupoDeFV / SORTEOS) / 1000 });
 }
