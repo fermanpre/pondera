@@ -133,7 +133,13 @@ for (let p = 0; p < P; p++) {
   const escalera = Object.keys(alMenos).map(function (partido) {
     const probabilidades = [];
     for (let n = 0; n < alMenos[partido].length; n++) { if (alMenos[partido][n] >= 0.01) probabilidades.push(Math.round(1000 * alMenos[partido][n]) / 1000); }
-    return { partido: partido, p: probabilidades };
+    // Rango del 95 % de las simulaciones (del percentil 2,5 al 97,5): el mínimo es el mayor número de escaños que se alcanza con un 97,5 % o más, y el máximo, el mayor que se alcanza con un 2,5 % o más
+    let minimo = 0, maximo = 0;
+    for (let n = 1; n <= alMenos[partido].length; n++) {
+      if (alMenos[partido][n - 1] >= 0.975) minimo = n;
+      if (alMenos[partido][n - 1] >= 0.025) maximo = n;
+    }
+    return { partido: partido, p: probabilidades, min: minimo, max: maximo };
   }).filter(function (fila) { return fila.p.length > 0; })
     .sort(function (a, b) { return b.p.reduce(function (x, y) { return x + y; }, 0) - a.p.reduce(function (x, y) { return x + y; }, 0); });
   // Valor de un voto a cada partido

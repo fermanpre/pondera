@@ -292,38 +292,20 @@ button.principal { font-weight: 600; }
 /* Escaños en juego y voto útil (página de provincias) */
 .vu-rejilla { display: grid; grid-template-columns: 1fr; gap: 20px 40px; margin-top: 12px; }
 @media (min-width: 900px) { .vu-rejilla { grid-template-columns: minmax(300px, 5fr) minmax(340px, 6fr); } }
-.vu-cuadrados { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 14px; }
-.vu-cuadro { display: flex; flex-direction: column; align-items: center; width: 84px; }
-.vu-cuadro .caja { width: 84px; height: 84px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
-.vu-cuadro b { margin-top: 6px; font-size: 0.9rem; text-align: center; }
-.vu-aire .caja { background: transparent; border: 2px dashed var(--suave); color: var(--texto); font-size: 2.2rem; font-weight: 800; }
-.vu-probable .caja { opacity: 0.55; border: 2px dashed var(--texto); }
-.vu-muestra-cuadro { display: inline-block; width: 14px; height: 14px; border-radius: 3px; background: var(--suave); vertical-align: -2px; margin-right: 2px; }
-.vu-muestra-probable { opacity: 0.55; border: 2px dashed var(--texto); box-sizing: border-box; }
-.vu-muestra-aire { background: transparent; border: 2px dashed var(--suave); box-sizing: border-box; font-size: 0.6rem; line-height: 10px; text-align: center; font-weight: 800; color: var(--texto); }
 .vu-fuera { margin-top: 0; }
 .vu-escalera-titulo { margin: 16px 0 6px; }
 /* Rejilla de escaños (provincias de más de 8 escaños): un cuadrado por escaño de cada partido, con su probabilidad dentro */
 .vu-rejilla-escanos { display: grid; gap: 8px; margin: 6px 0 8px; }
-.vu-rejilla-fila { display: grid; grid-template-columns: 112px 1fr; gap: 8px; align-items: start; }
-.vu-rejilla-partido { font-weight: 700; display: flex; align-items: center; gap: 4px; padding-top: 6px; }
+.vu-rejilla-fila { display: grid; grid-template-columns: 150px 1fr; gap: 8px; align-items: start; }
+.vu-rejilla-partido { font-weight: 700; display: flex; align-items: flex-start; gap: 4px; padding-top: 5px; line-height: 1.2; }
+.vu-rejilla-partido .ficha { margin-top: 3px; }
+.vu-rejilla-rango { font-weight: 400; color: var(--suave); white-space: nowrap; }
 .vu-rejilla-partido .ficha { flex: none; }
 .vu-rejilla-cuadros { display: flex; flex-wrap: wrap; gap: 4px; }
 .vu-rej-cuadro { box-sizing: border-box; min-width: 38px; height: 32px; padding: 0 3px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.vu-rej-seguro { background: var(--color); color: #fff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.55); }
-.vu-rej-probable { background: color-mix(in srgb, var(--color) 28%, transparent); border: 2px dashed var(--color); color: var(--texto); }
-.vu-rej-aire { background: transparent; border: 1px dashed var(--suave); color: var(--suave); font-weight: 400; }
-.vu-rej-muestra { height: auto; min-width: 0; padding: 0 5px; font-size: inherit; }
-.vu-escalera td, .vu-escalera th { text-align: center; font-variant-numeric: tabular-nums; }
-.vu-escalera td.col-partido, .vu-escalera th:first-child { text-align: left; }
-.vu-seguro { background: rgba(46, 125, 50, 0.28); font-weight: 700; }
-.vu-probable-celda { background: rgba(245, 166, 35, 0.28); }
-.vu-aire-celda { background: rgba(127, 127, 127, 0.14); color: var(--suave); }
-.vu-etiqueta { padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
-.vu-compacto { gap: 6px; }
-.vu-compacto .vu-cuadro { width: 26px; }
-.vu-compacto .vu-cuadro .caja { width: 26px; height: 26px; border-radius: 4px; font-size: 1rem; }
-.vu-leyenda span { white-space: nowrap; }
+.vu-rej-seguro { background: var(--color); border: 2px solid var(--color); color: #fff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.55); }
+.vu-rej-parcial { background: color-mix(in srgb, var(--color) var(--relleno), transparent); border: 2px dashed var(--color); color: var(--texto); }
+.vu-rej-fuerte { color: #fff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.55); }
 .vu-quien span { white-space: nowrap; }
 .vu-explicacion { margin: 0 0 4px; color: var(--suave); }
 .vu-barras h4 { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.06em; color: var(--suave); margin: 14px 0 6px; }
@@ -365,7 +347,7 @@ button.principal { font-weight: 600; }
 .vu-detalle summary { cursor: pointer; font-weight: 700; }
 .vu-detalle p { margin: 8px 0; }
 .vu-casi0 { color: var(--suave); font-weight: 400; }
-@media (max-width: 520px) { .vu-rejilla-fila { grid-template-columns: 1fr; gap: 2px; } .vu-rejilla-partido { padding-top: 0; } .vu-fila { grid-template-columns: 96px 1fr 70px; } .vu-cuadro, .vu-cuadro .caja { width: 64px; } .vu-cuadro .caja { height: 64px; } }
+@media (max-width: 520px) { .vu-rejilla-fila { grid-template-columns: 1fr; gap: 2px; } .vu-rejilla-partido { padding-top: 0; } .vu-fila { grid-template-columns: 96px 1fr 70px; } }
 
 /* Página del Senado */
 .senado-barra { display: flex; height: 38px; border-radius: 6px; overflow: hidden; margin: 12px 0 16px; background: var(--fondo); }

@@ -16,8 +16,6 @@
   ];
   const ESCALA_MINIMA = 4;           // la barra llena corresponde a ×4 como mínimo
   const CASI_CERO = 0.05;            // por debajo de ×0,05 se escribe «casi 0»
-  const MAXIMO_DE_CUADROS_GRANDES = 8;
-  const MAXIMO_DE_ESCANOS_PARA_TABLA = 8;   // la escalera es tabla hasta 8 escaños; por encima, rejilla de cuadrados
   const formatoValor = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const formatoMedia = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -53,41 +51,6 @@
     return "De los " + datos.escanos + " escaños de " + nombre + ", " + lista(partes) + ".";
   }
 
-  function cuadrados(nombre, datos) {
-    const compacto = datos.escanos > MAXIMO_DE_CUADROS_GRANDES;
-    const porVoto = (cuentas) => Object.keys(cuentas || {}).sort((a, b) => cuentas[b] - cuentas[a] || (datos.voto[b] || 0) - (datos.voto[a] || 0));
-    const ordenados = porVoto(datos.seguros);
-    const ordenadosProbables = porVoto(datos.probables);
-    let html = '<div class="vu-cuadrados' + (compacto ? " vu-compacto" : "") + '">';
-    ordenados.forEach((partido) => {
-      for (let i = 0; i < datos.seguros[partido]; i += 1) {
-        const rotulo = nombreDe(partido, nombre, true);
-        html += '<div class="vu-cuadro" title="' + escapar(rotulo) + ': casi seguro"><span class="caja" style="background:' + colorDe(partido) + '"></span>' + (compacto ? "" : "<b>" + escapar(rotulo) + "</b>") + "</div>";
-      }
-    });
-    ordenadosProbables.forEach((partido) => {
-      for (let i = 0; i < datos.probables[partido]; i += 1) {
-        const rotulo = nombreDe(partido, nombre, true);
-        html += '<div class="vu-cuadro vu-probable" title="' + escapar(rotulo) + ': probable"><span class="caja" style="background:' + colorDe(partido) + '"></span>' + (compacto ? "" : "<b>" + escapar(rotulo) + "</b>") + "</div>";
-      }
-    });
-    for (let i = 0; i < datos.aire; i += 1) {
-      html += '<div class="vu-cuadro vu-aire" title="En el aire"><span class="caja">?</span>' + (compacto ? "" : "<b>En el aire</b>") + "</div>";
-    }
-    html += "</div>";
-    const conProbables = sumaDe(datos.probables) > 0;
-    if (compacto) {
-      const partes = ordenados.map((partido) => '<span><span class="ficha" style="background:' + colorDe(partido) + '"></span>' + escapar(nombreDe(partido, nombre, true)) + " <b>" + datos.seguros[partido] + "</b></span>");
-      const partesProbables = ordenadosProbables.map((partido) => '<span><span class="ficha" style="background:' + colorDe(partido) + '"></span>' + escapar(nombreDe(partido, nombre, true)) + " <b>" + datos.probables[partido] + "</b></span>");
-      html += '<p class="nota vu-leyenda">Casi seguros: ' + partes.join(" · ") + (conProbables ? ". Probables: " + partesProbables.join(" · ") : "") +
-        (datos.aire ? '. <span class="vu-aire-leyenda">En el aire <b>' + datos.aire + "</b></span>" : "") + ".</p>";
-    } else {
-      html += '<p class="nota vu-leyenda"><span class="vu-muestra-cuadro"></span> casi seguro' + (conProbables ? ' · <span class="vu-muestra-cuadro vu-muestra-probable"></span> probable' : "") +
-        (datos.aire ? ' · <span class="vu-muestra-cuadro vu-muestra-aire">?</span> en el aire' : "") + "</p>";
-    }
-    return html;
-  }
-
   // Disputa por el último escaño: en qué parte de las simulaciones se lo lleva cada partido (y quién es el primero que se queda fuera)
   const MINIMO_EN_LA_DISPUTA = 0.03;
   function disputaDelUltimo(nombre, datos) {
@@ -100,29 +63,6 @@
     return '<p class="vu-quien"><b>Disputa por el último escaño:</b> ' + ultimo + "</p>" + (fuera ? '<p class="vu-quien vu-fuera"><b>El primero que se queda fuera:</b> ' + fuera + "</p>" : "");
   }
 
-  // Escalera de probabilidades (provincias de pocos escaños): para cada partido, la probabilidad de sacar al menos 1, 2, 3... escaños
-  function escalera(nombre, datos) {
-    if (!datos.escalera || !datos.escalera.length) { return ""; }
-    const umbralSeguro = datos.umbral, umbralProbable = datos.umbral_probable;
-    const columnas = Math.max.apply(null, datos.escalera.map((fila) => fila.p.length));
-    const clase = (probabilidad) => (probabilidad >= umbralSeguro ? "vu-seguro" : probabilidad >= umbralProbable ? "vu-probable-celda" : "vu-aire-celda");
-    let html = '<h4 class="vu-escalera-titulo">Probabilidad de cada escaño</h4><div class="tabla-ancha"><table class="vu-escalera"><thead><tr><th>Partido</th>';
-    for (let n = 1; n <= columnas; n += 1) { html += "<th>" + n + (n === 1 ? ".º escaño" : ".º") + "</th>"; }
-    html += "</tr></thead><tbody>";
-    datos.escalera.forEach((fila) => {
-      html += '<tr><td class="col-partido"><span class="ficha" style="background:' + colorDe(fila.partido) + '"></span>' + escapar(nombreDe(fila.partido, nombre, true)) + "</td>";
-      for (let n = 0; n < columnas; n += 1) {
-        const probabilidad = fila.p[n];
-        html += probabilidad === undefined ? "<td>–</td>" : '<td class="' + clase(probabilidad) + '">' + porcentajeEntero(probabilidad) + "</td>";
-      }
-      html += "</tr>";
-    });
-    html += "</tbody></table></div>" +
-      '<p class="nota">Probabilidad de que el partido saque al menos ese número de escaños: <span class="vu-seguro vu-etiqueta">casi seguro</span> (desde el ' + Math.round(100 * umbralSeguro) + " %), " +
-      '<span class="vu-probable-celda vu-etiqueta">probable</span> (desde el ' + Math.round(100 * umbralProbable) + ' %) y <span class="vu-aire-celda vu-etiqueta">en el aire</span> (por debajo). Una coalición (UPN-PP en Navarra) cuenta como un solo partido.</p>';
-    return html;
-  }
-
   // Texto corto para dentro de un cuadrado: «97%», o «19/20» en el modo de frecuencias
   function textoCortoDeProbabilidad(probabilidad) {
     if (!PROBABILIDAD.activo()) { return textoDePorcentaje(probabilidad); }
@@ -130,24 +70,32 @@
     return frecuencia === "casi todas" ? "~1" : frecuencia.replace(" de cada ", "/");
   }
 
-  // Rejilla de escaños (provincias de más de 8 escaños, donde la tabla de la escalera no cabe): una fila por partido y un cuadrado por escaño, con la probabilidad de sacar al menos ese escaño
+  // Rejilla de escaños: una fila por partido (nombre, escaños casi seguros y rango del 95 %) y un cuadrado por escaño, con la probabilidad de sacar al menos ese escaño.
+  // El relleno es del color del partido y va perdiendo intensidad con la probabilidad; por debajo del casi seguro, el borde es discontinuo.
+  const RELLENO_MINIMO = 6;   // % de color en un cuadrado de probabilidad del 1 %: casi vacío, pero con el color del partido
+  function rangoDelNoventaYCinco(fila) { return fila.min === fila.max ? "(" + fila.min + ")" : "(" + fila.min + "-" + fila.max + ")"; }
   function rejillaDeEscanos(nombre, datos) {
     if (!datos.escalera || !datos.escalera.length) { return ""; }
-    const umbralSeguro = datos.umbral, umbralProbable = datos.umbral_probable;
-    let html = '<h4 class="vu-escalera-titulo">Probabilidad de cada escaño</h4><div class="vu-rejilla-escanos">';
+    const umbralSeguro = datos.umbral;
+    const titular = datos.escanos === 1 ? "El escaño de " : "Los " + datos.escanos + " escaños de ";
+    let html = '<h4 class="vu-escalera-titulo">' + titular + escapar(nombre) + ": probabilidad de cada uno</h4>" + '<div class="vu-rejilla-escanos">';
     datos.escalera.forEach((fila) => {
       const rotuloDelPartido = nombreDe(fila.partido, nombre, true);
-      html += '<div class="vu-rejilla-fila"><span class="vu-rejilla-partido"><span class="ficha" style="background:' + colorDe(fila.partido) + '"></span>' + escapar(rotuloDelPartido) + '</span><span class="vu-rejilla-cuadros">';
+      const casiSeguros = fila.p.filter((probabilidad) => probabilidad >= umbralSeguro).length;
+      html += '<div class="vu-rejilla-fila"><span class="vu-rejilla-partido"><span class="ficha" style="background:' + colorDe(fila.partido) + '"></span><span>' + escapar(rotuloDelPartido) +
+        ' <b>' + casiSeguros + '</b> <span class="vu-rejilla-rango" title="Rango del 95 % de las simulaciones">' + rangoDelNoventaYCinco(fila) + "</span></span></span><span class=\"vu-rejilla-cuadros\">";
       fila.p.forEach((probabilidad, indice) => {
-        const estado = probabilidad >= umbralSeguro ? "vu-rej-seguro" : probabilidad >= umbralProbable ? "vu-rej-probable" : "vu-rej-aire";
+        const seguro = probabilidad >= umbralSeguro;
+        const relleno = seguro ? 100 : Math.max(RELLENO_MINIMO, Math.round(100 * probabilidad));
+        const estado = seguro ? "vu-rej-seguro" : "vu-rej-parcial" + (relleno >= 60 ? " vu-rej-fuerte" : "");
         const titulo = escapar(rotuloDelPartido) + ", " + (indice + 1) + ".º escaño: " + PROBABILIDAD.plano(probabilidad, textoDePorcentaje(probabilidad));
-        html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + colorDe(fila.partido) + '" title="' + titulo + '">' + escapar(textoCortoDeProbabilidad(probabilidad)) + "</span>";
+        html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + colorDe(fila.partido) + ";--relleno:" + relleno + '%" title="' + titulo + '">' + escapar(textoCortoDeProbabilidad(probabilidad)) + "</span>";
       });
       html += "</span></div>";
     });
     html += "</div>" +
-      '<p class="nota">Cada cuadrado es un escaño del partido, con la probabilidad de que saque al menos ese número de escaños: <span class="vu-rej-cuadro vu-rej-seguro vu-rej-muestra" style="--color:var(--suave)">casi seguro</span> (desde el ' + Math.round(100 * umbralSeguro) + " %), " +
-      '<span class="vu-rej-cuadro vu-rej-probable vu-rej-muestra" style="--color:var(--suave)">probable</span> (línea discontinua, desde el ' + Math.round(100 * umbralProbable) + ' %) y <span class="vu-rej-cuadro vu-rej-aire vu-rej-muestra">en el aire</span> (por debajo). Solo se enseñan los escaños con un 1 % o más. Una coalición cuenta como un solo partido.</p>';
+      '<p class="nota">Cada cuadrado es un escaño del partido, con la probabilidad de que saque al menos ese número de escaños; cuanto más pálido, menos probable. Relleno completo y línea continua: <b>casi seguro</b> (desde el ' + Math.round(100 * umbralSeguro) +
+      ' %). Línea discontinua: por debajo de ese umbral. Junto al nombre, los escaños casi seguros y, entre paréntesis, el rango del 95 % de las simulaciones. Solo se enseñan los escaños con un 1 % o más. Una coalición cuenta como un solo partido.</p>';
     return html;
   }
 
@@ -265,7 +213,7 @@
     if (!datos) { return; }
     document.getElementById("vu-titular").textContent = titular(provincia.nombre, datos);
     document.getElementById("vu-barrera").innerHTML = barreraDeFacto(provincia.nombre, datos);
-    document.getElementById("vu-escanos").innerHTML = '<p class="nota">' + (datos.escanos === 1 ? "El escaño" : "Los " + datos.escanos + " escaños") + " de " + escapar(provincia.nombre) + "</p>" + cuadrados(provincia.nombre, datos) + disputaDelUltimo(provincia.nombre, datos) + (datos.escanos <= MAXIMO_DE_ESCANOS_PARA_TABLA ? escalera(provincia.nombre, datos) : rejillaDeEscanos(provincia.nombre, datos));
+    document.getElementById("vu-escanos").innerHTML = rejillaDeEscanos(provincia.nombre, datos) + disputaDelUltimo(provincia.nombre, datos);
     document.getElementById("vu-barras").innerHTML = barras(provincia.nombre, datos);
     document.getElementById("vu-cocientes").innerHTML = cocientes(provincia.nombre, datos);
     const fecha = VOTO_UTIL.fecha_promedio ? new Date(VOTO_UTIL.fecha_promedio + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" }) : "";
