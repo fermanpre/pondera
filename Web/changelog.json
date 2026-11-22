@@ -2,7 +2,7 @@
   {
     "fecha": "2026-11-22",
     "titulo": "Rangos de voto y de escaños en provincias y comunidades",
-    "texto": "Las tablas de cada provincia y comunidad llevan ahora el rango del 80 % y del 95 % de las simulaciones, tanto del voto (que antes no se mostraba) como de los escaños, junto a la distribución gráfica."
+    "texto": "Las tablas de cada provincia y comunidad llevan ahora el rango del 80 % y del 95 % de las simulaciones, con un selector para verlos por escaños (por defecto) o por voto (que antes no se mostraba), junto a su distribución gráfica."
   },
   {
     "fecha": "2026-11-22",

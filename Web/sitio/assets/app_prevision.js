@@ -833,8 +833,9 @@ function pintarTablaDeTerritorio(config) {
   filas.forEach(function (f) {
     const fila = document.createElement("tr");
     const celdaPartido = '<td class="col-partido">' + ficha(f.partido) + f.nombre + '</td>';
-    const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + '</td>' + diferenciaDeVoto(f) + rangosDeVoto(f) + '<td>' + f.central + '</td>' + diferenciaDeEscanos(f) + '<td>' + f.masProbable +
-      '</td>' + rangosDeEscanos(f) + '<td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>';
+    const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + '</td>' + diferenciaDeVoto(f) + '<td>' + f.central + '</td>' + diferenciaDeEscanos(f) + '<td>' + f.masProbable + '</td>' +
+      (vistaTerritorio === "voto" ? rangosDeVoto(f) + '<td style="text-align:left">' + (f.votoPorSorteo ? histogramaDeVoto(f.partido, f.votoPorSorteo, 100 * f.cuota) : "") + '</td>'
+        : rangosDeEscanos(f) + '<td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>');
     fila.innerHTML = ordenarFila(celdaPartido, celdasPrevision, celdas2023(f.partido));
     cuerpo.appendChild(fila);
   });
@@ -849,7 +850,7 @@ function pintarTablaDeTerritorio(config) {
       const color = COLORES[c.clave] || "#9a9a94";
       const fila = document.createElement("tr");
       fila.className = "solo-2023";
-      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="10" class="suave">Sin previsión en ' + config.territorio + '</td>', celdas2023(c.clave));
+      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="8" class="suave">Sin previsión en ' + config.territorio + '</td>', celdas2023(c.clave));
       cuerpo.appendChild(fila);
     });
   }
@@ -870,7 +871,7 @@ function pintarTablaDeTerritorio(config) {
     const fila = document.createElement("tr");
     fila.className = clase;
     const marcaDeAviso = avisar && votoPrevisto >= UMBRAL_DE_AVISO_DE_OTROS ? ' class="resto-alto"' : "";
-    fila.innerHTML = ordenarFila('<td class="col-partido">' + nombre + '</td>', '<td' + marcaDeAviso + '>' + porcentaje(votoPrevisto) + '</td><td></td><td></td><td></td><td>' + escanosPrevistos + '</td><td></td><td></td><td></td><td></td><td></td>', celdasPasado);
+    fila.innerHTML = ordenarFila('<td class="col-partido">' + nombre + '</td>', '<td' + marcaDeAviso + '>' + porcentaje(votoPrevisto) + '</td><td></td><td>' + escanosPrevistos + '</td><td></td><td></td><td></td><td></td><td></td>', celdasPasado);
     cuerpo.appendChild(fila);
   }
   const validos2023 = resultados2023 ? resultados2023.validos : 0;
@@ -940,9 +941,11 @@ function construirCabeceraConPasado(tabla, orden) {
   const marcaDeInicio = orden === "final" ? " borde-izq" : "";
   const grupoPasado = '<th colspan="3" class="grupo2023' + marcaDeInicio + ' borde-der">Resultado de 2023 (definitivo)</th>';
   const subPasado = '<th class="' + marcaDeInicio.trim() + '">Votos</th><th>%</th><th class="borde-der">Escaños</th>';
-  const grupoPrevision = '<th colspan="10" style="text-align:center">Previsión 2026</th>';
-  const subPrevision = '<th>Voto previsto</th><th title="Puntos de voto respecto a 2023 (sobre votos a candidaturas)">Dif.</th><th title="Rango del 80% de las simulaciones: deja fuera el 10% por cada extremo">Voto 80%</th><th title="Rango del 95% de las simulaciones: deja fuera el 2,5% por cada extremo">Voto 95%</th>' +
-    '<th>Escaños</th><th title="Escaños respecto a 2023">Dif.</th><th>Más probable</th><th title="Rango del 80% de las simulaciones: deja fuera el 10% por cada extremo">Esc. 80%</th><th title="Rango del 95% de las simulaciones: deja fuera el 2,5% por cada extremo">Esc. 95%</th><th style="text-align:left">Distribución (oscuro: central)</th>';
+  const grupoPrevision = '<th colspan="8" style="text-align:center">Previsión 2026</th>';
+  const subPrevision = '<th>Voto previsto</th><th title="Puntos de voto respecto a 2023 (sobre votos a candidaturas)">Dif.</th><th>Escaños</th><th title="Escaños respecto a 2023">Dif.</th><th>Más probable</th>' +
+    '<th title="Rango del 80% de las simulaciones: deja fuera el 10% por cada extremo">' + (vistaTerritorio === "voto" ? "Voto 80%" : "Esc. 80%") + '</th><th title="Rango del 95% de las simulaciones: deja fuera el 2,5% por cada extremo">' + (vistaTerritorio === "voto" ? "Voto 95%" : "Esc. 95%") + '</th>' +
+    '<th style="text-align:left" title="' + (vistaTerritorio === "voto" ? "Probabilidad de cada tramo de voto en el 50% central de las simulaciones (del percentil 25 al 75). La banda oscura es el voto del modelo." : "Probabilidad de cada número de escaños. La banda oscura es el reparto central.") + '">' +
+    (vistaTerritorio === "voto" ? "Distribución del voto (50% central)" : "Distribución (oscuro: central)") + '</th>';
   const partido = '<th rowspan="2" class="col-partido">Partido</th>';
   let primeraFila, segundaFila;
   if (orden === "antes") { primeraFila = grupoPasado + partido + grupoPrevision; segundaFila = subPasado + subPrevision; }
@@ -968,6 +971,25 @@ function activarSelectorDePosicion2023() {
 /* ---------- Arranque ---------- */
 
 activarSelectorDePosicion2023();
+
+/* Vista de las tres últimas columnas de las tablas de provincia y comunidad (rangos del 80% y del 95% y distribución): de escaños (por defecto) o de voto. Se recuerda la elección. */
+let vistaTerritorio = "escanos";
+function activarSelectorDeVistaTerritorio() {
+  const selector = document.getElementById("vista-territorio");
+  if (!selector) return;
+  try {
+    const guardada = localStorage.getItem("pondera-vista-territorio");
+    if (guardada && selector.querySelector('option[value="' + guardada + '"]')) selector.value = guardada;
+  } catch (error) { /* sin almacenamiento: se usa el valor por defecto */ }
+  vistaTerritorio = selector.value;
+  selector.addEventListener("change", function () {
+    vistaTerritorio = selector.value;
+    try { localStorage.setItem("pondera-vista-territorio", selector.value); } catch (error) { /* ignorar */ }
+    pintarProvincia();
+    pintarComunidad();
+  });
+}
+activarSelectorDeVistaTerritorio();
 
 /* Vista de las tres últimas columnas de la tabla nacional (rango del 80%, rango del 95% y distribución del 50% central): de escaños o de voto. Se recuerda la elección del visitante. */
 let vistaNacional = "escanos";
