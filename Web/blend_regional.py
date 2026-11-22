@@ -36,6 +36,8 @@ import solapamiento_de_campo  # noqa: E402
 from motor_reparto import ProblemaDeReparto, repartir_proporcional  # noqa: E402
 
 RUTA_ENCUESTAS = CARPETA_WEB.parent / "Sondeos" / "sondeos_regionales_largo.csv"
+# Encuestas regionales o provinciales que ningún extractor recoge (p. ej. los gráficos de Ágora Integral por provincia, 22/11/2026): mismo formato que el fichero anterior, que se regenera en cada ciclo; este es persistente
+RUTA_ENCUESTAS_MANUALES = CARPETA_WEB.parent / "Sondeos" / "encuestas_regionales_manuales.csv"
 LAMBDA = 1.0
 K0 = 3.0
 MINIMO_DE_ENCUESTAS = 1  # desde el 22/11/2026 también las comunidades con una sola encuesta (antes dos); su peso es w = k / (k + K0), así que una sola pesa 0,25
@@ -96,8 +98,13 @@ def leer_encuestas(dia, nombres_de_provincia):
     """{unidad: [encuesta con la estructura de promedio.py, con los valores en nombres nacionales]} de los VENTANA_DIAS días anteriores a «dia»."""
     desde = dia - timedelta(days=VENTANA_DIAS)
     brutas = defaultdict(dict)
-    with open(RUTA_ENCUESTAS, encoding="utf-8-sig", newline="") as fichero:
-        for fila in csv.DictReader(fichero, delimiter=";"):
+    filas_de_encuestas = []
+    for ruta_de_encuestas in (RUTA_ENCUESTAS, RUTA_ENCUESTAS_MANUALES):
+        if ruta_de_encuestas.exists():
+            with open(ruta_de_encuestas, encoding="utf-8-sig", newline="") as fichero:
+                filas_de_encuestas.extend(csv.DictReader(fichero, delimiter=";"))
+    if True:
+        for fila in filas_de_encuestas:
             if fila["es_resultado_real"] == "1" or fila["porcentaje"] == "" or not fila["fin_campo"] or promedio.RECALCULO_DEL_CIS.match(fila["firma"]) or RESULTADO_DE_ELECCION.search(fila["firma"]):
                 continue
             unidad = unidad_de_region(fila["region"], nombres_de_provincia)
