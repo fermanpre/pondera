@@ -110,12 +110,14 @@ def calcular_objetivos(base, configuracion, promedio, dia=None):
     cuota_pacma = sum(p["cuotas"]["PACMA"] * p["votos_candidaturas"] for p in provincias.values()) / total_candidaturas
     cuota_otros = sum(p["cuotas"]["OTROS"] * p["votos_candidaturas"] for p in provincias.values()) / total_candidaturas
     cuota_existe = sum(p["cuotas"]["EXISTE"] * p["votos_candidaturas"] for p in provincias.values()) / total_candidaturas
+    cuota_gbai = sum(p["cuotas"].get("GBAI", 0.0) * p["votos_candidaturas"] for p in provincias.values()) / total_candidaturas   # Geroa Bai (Navarra), como Existe: cuota fija de la base; el blend la acerca a sus encuestas
     suma_de_encuestas = sum(objetivos.values())
-    escala = (1.0 - cuota_pacma - cuota_otros - cuota_existe) / suma_de_encuestas
+    escala = (1.0 - cuota_pacma - cuota_otros - cuota_existe - cuota_gbai) / suma_de_encuestas
     objetivos = {identificador: valor * escala for identificador, valor in objetivos.items()}
     reasignacion = {destino: valor * escala for destino, valor in reasignacion.items()}
     objetivos["PACMA"] = cuota_pacma
     objetivos["EXISTE"] = cuota_existe
+    objetivos["GBAI"] = cuota_gbai
     objetivos["NC"] = 0.0
     objetivos["OTROS"] = cuota_otros
     return objetivos, factor_blancos, dict(reasignacion)

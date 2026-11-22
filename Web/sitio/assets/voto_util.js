@@ -12,7 +12,7 @@
   const GRUPOS = [
     { clave: "izquierda", titulo: "Si votas a la izquierda", partidos: ["PSOE", "SUMAR", "PODEMOS", "FV", "UPC", "ERC", "BILDU", "BNG", "ADELANTE"] },
     { clave: "derecha", titulo: "Si votas a la derecha", partidos: ["PP", "VOX", "SALF", "UPN"] },
-    { clave: "otros", titulo: "Otras opciones", partidos: ["PNV", "JUNTS", "CC", "EXISTE"] },
+    { clave: "otros", titulo: "Otras opciones", partidos: ["PNV", "JUNTS", "CC", "EXISTE", "GBAI"] },
   ];
   const ESCALA_MINIMA = 4;           // la barra llena corresponde a ×4 como mínimo
   const CASI_CERO = 0.05;            // por debajo de ×0,05 se escribe «casi 0»
@@ -147,7 +147,7 @@
 
   // Cocientes D'Hondt del reparto central: cada barra es un cociente (votos del partido entre su divisor); entran los N mayores
   // Siglas para el gráfico de cocientes (el nombre completo sale al pasar el ratón)
-  const SIGLAS = { PP: "PP", PSOE: "PSOE", VOX: "Vox", SUMAR: "FA", PODEMOS: "Podemos", SALF: "SALF", ADELANTE: "AA", FV: "FV", UPC: "UPC", ERC: "ERC", JUNTS: "Junts", BILDU: "Bildu", PNV: "PNV", BNG: "BNG", UPN: "UPN", CC: "CC", EXISTE: "Existe", PACMA: "PACMA" };
+  const SIGLAS = { PP: "PP", PSOE: "PSOE", VOX: "Vox", SUMAR: "FA", PODEMOS: "Podemos", SALF: "SALF", ADELANTE: "AA", FV: "FV", UPC: "UPC", ERC: "ERC", JUNTS: "Junts", BILDU: "Bildu", PNV: "PNV", BNG: "BNG", UPN: "UPN", CC: "CC", EXISTE: "Existe", GBAI: "Geroa Bai", PACMA: "PACMA" };
   const siglasDe = (partido, provincia) => (partido === "UPN" && provincia === "Navarra" ? "UPN-PP" : (SIGLAS[partido] || partido));
 
   // Aviso de que el reparto sin ruido puede no coincidir con los escaños de la previsión (los de un sorteo representativo) ni con el más probable, con la probabilidad del último partido que entra

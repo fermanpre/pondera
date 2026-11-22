@@ -28,10 +28,10 @@ RUTA_XLSX = CARPETA_SITIO / "resumen_provincias.xlsx"
 NOMBRES_DE_PARTIDO = {
     "PP": "PP", "PSOE": "PSOE", "VOX": "Vox", "SUMAR": "Frente Amplio", "PODEMOS": "Podemos", "SALF": "SALF", "ADELANTE": "Adelante Andalucía",
     "FV": "Front Valencià", "UPC": "Unidad del Pueblo Canario", "ERC": "ERC", "JUNTS": "Junts", "BILDU": "EH Bildu", "PNV": "PNV", "BNG": "BNG", "CC": "Coalición Canaria",
-    "UPN": "UPN (en Navarra, UPN-PP)", "PACMA": "PACMA", "EXISTE": "Coalición Existe", "OTROS": "Otros",
+    "UPN": "UPN (en Navarra, UPN-PP)", "PACMA": "PACMA", "EXISTE": "Coalición Existe", "GBAI": "Geroa Bai", "OTROS": "Otros",
 }
 GUION = "–"
-ORDEN_DE_LOS_PARTIDOS = ["PP", "PSOE", "VOX", "SUMAR", "FV", "UPC", "PODEMOS", "SALF", "ERC", "ADELANTE", "BILDU", "JUNTS", "BNG", "PNV", "UPN", "CC", "EXISTE", "PACMA"]
+ORDEN_DE_LOS_PARTIDOS = ["PP", "PSOE", "VOX", "SUMAR", "FV", "UPC", "PODEMOS", "SALF", "ERC", "ADELANTE", "BILDU", "JUNTS", "BNG", "PNV", "UPN", "CC", "EXISTE", "GBAI", "PACMA"]
 
 
 def cargar_datos():

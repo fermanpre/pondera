@@ -118,10 +118,11 @@
     objetivos[c.socio] -= objetivoCoalicion * (c.votos_pp_dentro / c.votos_coalicion_base);
     let sumaDeEncuestas = 0;
     Object.keys(objetivos).forEach(function (clave) { sumaDeEncuestas += objetivos[clave]; });
-    const escala = (1 - TRADUCCION.cuota_pacma - TRADUCCION.cuota_otros - TRADUCCION.cuota_existe) / sumaDeEncuestas;
+    const escala = (1 - TRADUCCION.cuota_pacma - TRADUCCION.cuota_otros - TRADUCCION.cuota_existe - (TRADUCCION.cuota_gbai || 0)) / sumaDeEncuestas;
     Object.keys(objetivos).forEach(function (clave) { objetivos[clave] *= escala; });
     objetivos.PACMA = TRADUCCION.cuota_pacma;
     objetivos.EXISTE = TRADUCCION.cuota_existe;
+    objetivos.GBAI = TRADUCCION.cuota_gbai || 0;
     objetivos.OTROS = TRADUCCION.cuota_otros;
     // Solo los partidos del modelo, normalizados a 1; los que ninguna encuesta incluida publica se quedan en un valor mínimo para no romper el reparto
     const resultado = {};

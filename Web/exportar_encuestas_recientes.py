@@ -43,8 +43,8 @@ def parametros_de_traduccion():
         "votos_pp_dentro": sum((p["parte_pp_de_la_coalicion"] or 0.0) * p["cuotas"][coalicion["columna"]] * p["votos_candidaturas"] for p in provincias.values()) / total_candidaturas,
         "votos_pp_fuera": sum(p["cuotas"][coalicion["socio"]] * p["votos_candidaturas"] for p in provincias.values()) / total_candidaturas,
     }
-    for clave in ("PACMA", "OTROS", "EXISTE"):
-        parametros["cuota_" + clave.lower()] = sum(p["cuotas"][clave] * p["votos_candidaturas"] for p in provincias.values()) / total_candidaturas
+    for clave in ("PACMA", "OTROS", "EXISTE", "GBAI"):
+        parametros["cuota_" + clave.lower()] = sum(p["cuotas"].get(clave, 0.0) * p["votos_candidaturas"] for p in provincias.values()) / total_candidaturas
     from calcular_prevision_base import EQUIVALENCIAS_ENCUESTA_A_CANDIDATURA
     parametros["equivalencias"] = EQUIVALENCIAS_ENCUESTA_A_CANDIDATURA
     return parametros

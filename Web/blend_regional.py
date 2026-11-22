@@ -65,10 +65,10 @@ ERROR_DE_CASA_PUNTOS = 2.0  # error sistemático de una casa de nota n, en punto
 PESO_POR_VARIANZA_EN_PROVINCIAS = True  # provincias: w de cada bloque = V modelo / (V modelo + V encuesta); comunidades: w = k / (k + K0)
 RESULTADO_DE_ELECCION = re.compile(r"elections?", re.IGNORECASE)
 # Bloques que solo se usan en los indicios territoriales manuales (Sondeos/indicios_territoriales.csv); no entran en el promedio de las encuestas regionales
-BLOQUES_MANUALES = {"FA": ["SUMAR"], "EXISTE": ["EXISTE"]}
+BLOQUES_MANUALES = {"FA": ["SUMAR"], "EXISTE": ["EXISTE"], "GBAI": ["GBAI"]}
 RUTA_INDICIOS = CARPETA_WEB.parent / "Sondeos" / "indicios_territoriales.csv"
 BLOQUES = {"PP": ["PP"], "PSOE": ["PSOE"], "VOX": ["VOX"], "IZQ": ["SUMAR", "PODEMOS"], "FV": ["FV"], "ERC": ["ERC"], "JUNTS": ["JUNTS"], "BILDU": ["BILDU"], "PNV": ["PNV"], "BNG": ["BNG"], "CC": ["CC"], "UPC": ["UPC"], "ADELANTE": ["ADELANTE"]}
-LIBRES = ("PNV", "BILDU", "BNG", "ERC", "JUNTS", "FV", "UPC", "CC", "ADELANTE")   # UPC, CC y Adelante Andalucía (22/11/2026): partidos de un solo territorio que siguen a sus encuestas también en el total nacional
+LIBRES = ("PNV", "BILDU", "BNG", "ERC", "JUNTS", "FV", "UPC", "CC", "ADELANTE", "GBAI")   # UPC, CC y Adelante Andalucía (22/11/2026): partidos de un solo territorio que siguen a sus encuestas también en el total nacional; Geroa Bai (solo Navarra), igual
 # Columna de la tabla de Wikipedia -> candidatura del modelo -> nombre nacional (para la corrección de partido y las medias)
 CANDIDATURA_DE_COLUMNA = {"PP": "PP", "PSOE": "PSOE", "PSE–EE (PSOE)": "PSOE", "PSdeG–PSOE": "PSOE", "PSC": "PSOE", "Vox": "VOX", "Sumar": "SUMAR", "FA": "SUMAR", "CHA": "SUMAR", "Podemos": "PODEMOS",  # CHA (Aragón, 22/11/2026): va dentro del Frente Amplio (CHA-FA), así que su columna suma a la de Sumar; sin ella la encuesta de A+M daba solo 5,4 en lugar de 12,0
                           
@@ -78,7 +78,7 @@ CANDIDATURA_DE_NOMBRE_NACIONAL = {v: k for k, v in NOMBRE_NACIONAL.items()}
 BLOQUE_DE_CANDIDATURA = {i: b for b, ids in BLOQUES.items() for i in ids}
 COLUMNAS_QUE_SE_SOLAPAN = [("Sumar", ["Podemos", "IU", "Unidas Podemos"]), ("FA", ["Podemos", "IU"])]
 # Columnas de las encuestas regionales que no pasan al blend (no tienen bloque propio) pero sí se enseñan en el promedio de cada territorio (22/11/2026): columna de Wikipedia -> candidatura del modelo
-CANDIDATURA_PARA_MOSTRAR = {"Adelante Andalucía (2021)": "ADELANTE", "Adelante Andalucía": "ADELANTE", "SALF": "SALF", "UPN": "UPN", "CCa": "CC", "Existe": "EXISTE", "PACMA": "PACMA"}
+CANDIDATURA_PARA_MOSTRAR = {"Adelante Andalucía (2021)": "ADELANTE", "Adelante Andalucía": "ADELANTE", "SALF": "SALF", "UPN": "UPN", "CCa": "CC", "Existe": "EXISTE", "GBai": "GBAI", "PACMA": "PACMA"}
 COMUNIDADES = {
     "Andalusia": "Andalucía", "Aragon": "Aragón", "Asturias": "Asturias", "Balearic Islands": "Illes Balears", "Basque Country": "País Vasco", "Canary Islands": "Canarias",
     "Cantabria": "Cantabria", "Castile and León": "Castilla y León", "Castilla–La Mancha": "Castilla-La Mancha", "Catalonia": "Cataluña", "Extremadura": "Extremadura",

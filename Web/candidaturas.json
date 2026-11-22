@@ -172,7 +172,8 @@
     "NC",
     "UPC",
     "ADELANTE",
-    "EXISTE"
+    "EXISTE",
+    "GBAI"
    ]
   },
   "upc_en_frente_amplio": {
@@ -347,6 +348,18 @@
     "Teruel"
    ],
    "nota": "Teruel Existe y Aragón Existe registraron la Coalición Existe el 16/10/2026. Base: Teruel Existe en Teruel (2023). Sin base en Huesca y Zaragoza, donde también concurre."
+  },
+  {
+   "id": "GBAI",
+   "nombre": "Geroa Bai",
+   "claves_2023": [
+    "X:GBAI"
+   ],
+   "ambito": "regional",
+   "provincias": [
+    "Navarra"
+   ],
+   "nota": "Geroa Bai (9.938 votos, 2,9 % en Navarra en 2023; sin línea propia en 2019). Hasta el 22/11/2026 estaba dentro de OTROS. Base: 0,75 x su resultado de 2023, aplicada con aplicar_geroa_bai.py; la estimación se acerca a las encuestas con los indicios de Sondeos/indicios_territoriales.csv."
   },
   {
    "id": "OTROS",

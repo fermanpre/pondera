@@ -36,16 +36,16 @@ BLOQUES = {
 SIGMA_BLOQUE = {"DERECHA": 3.09, "IZQUIERDA": 4.44, "NACIONALISTAS": 1.81}  # puntos de voto (parámetro del generador, no error efectivo)
 SIGMA_PARTIDO = {
     "PP": 0.0, "PSOE": 0.281, "VOX": 0.20, "SUMAR": 0.0, "FV": 0.0, "UPC": 0.0, "PODEMOS": 0.0, "ERC": 0.10, "JUNTS": 0.10, "BILDU": 0.10, "PNV": 0.10, "BNG": 0.10, "CC": 0.10,
-    "UPN": 0.10, "SALF": 0.35, "ADELANTE": 0.30, "PACMA": 0.15, "EXISTE": 0.10, "OTROS": 0.15,
+    "UPN": 0.10, "SALF": 0.35, "ADELANTE": 0.30, "PACMA": 0.15, "EXISTE": 0.10, "GBAI": 0.20, "OTROS": 0.15,
 }
 SIGMA_PROVINCIAL = {
     "PP": 0.08, "PSOE": 0.08, "VOX": 0.10, "SUMAR": 0.10, "FV": 0.12, "UPC": 0.12, "PODEMOS": 0.15, "ERC": 0.08, "JUNTS": 0.08, "BILDU": 0.08, "PNV": 0.08, "BNG": 0.08, "CC": 0.08,
-    "UPN": 0.08, "SALF": 0.20, "ADELANTE": 0.25, "PACMA": 0.10, "EXISTE": 0.08, "OTROS": 0.15,
+    "UPN": 0.08, "SALF": 0.20, "ADELANTE": 0.25, "PACMA": 0.10, "EXISTE": 0.08, "GBAI": 0.12, "OTROS": 0.15,
 }
 # Sigma provincial calibrada con las 15 transiciones entre elecciones generales (calibrar_sigma_provincial.py, 09/11/2026): error log(real/previsto) del reparto
 # provincial dado el total nacional, por clase de partido y tramo de cuota (cuota mínima, sigma). No se amplía ×1,2: se mide directamente sobre los datos.
 CLASE_DE_PARTIDO = {"PP": "GRANDE", "PSOE": "GRANDE", "VOX": "VOX", "SUMAR": "IZQ_ALT", "FV": "IZQ_ALT", "UPC": "IZQ_ALT", "PODEMOS": "IZQ_ALT", "ADELANTE": "IZQ_ALT",
-                    "ERC": "REGIONAL", "JUNTS": "REGIONAL", "BILDU": "REGIONAL", "PNV": "REGIONAL", "BNG": "REGIONAL", "CC": "REGIONAL", "UPN": "REGIONAL", "EXISTE": "REGIONAL",
+                    "ERC": "REGIONAL", "JUNTS": "REGIONAL", "BILDU": "REGIONAL", "PNV": "REGIONAL", "BNG": "REGIONAL", "CC": "REGIONAL", "UPN": "REGIONAL", "EXISTE": "REGIONAL", "GBAI": "REGIONAL",
                     "SALF": "NUEVO", "PACMA": "NUEVO", "OTROS": "NUEVO"}
 # Recalibrada el 12/11/2026 con el histórico CORREGIDO (extraer_historico_circunscripciones.py: las celdas combinadas con rowspan desplazaban los partidos regionales y los etiquetaban como otros,
 # lo que inflaba la σ de los regionales hasta 0,28-0,34). Con el fichero corregido (calibrar_sigma_provincial.py, 15 transiciones): regionales 0,05 (cuota >30 %), 0,08 (15-30 %) y 0,14 (<15 %);

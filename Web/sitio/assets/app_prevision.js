@@ -256,7 +256,7 @@ function pintarMayorias() {
 /* ---------- Tabla nacional: 2026 frente a 2023 ---------- */
 
 // Clave de cada partido del modelo en resultados_2023.js. Podemos, SALF y Front Valencià no tuvieron candidatura propia en 2023 (Podemos y Compromís iban dentro de Sumar).
-const CLAVE_EN_2023 = { PP: "PP", PSOE: "PSOE", VOX: "VOX", SUMAR: "SUMAR", FV: "FV", UPC: "UPC", ERC: "ERC", JUNTS: "JUNTS", BILDU: "BILDU", PNV: "PNV", BNG: "BNG", CC: "CC", UPN: "UPN", EXISTE: "EXISTE", ADELANTE: "ADELANTE", PACMA: "PACMA" };
+const CLAVE_EN_2023 = { PP: "PP", PSOE: "PSOE", VOX: "VOX", SUMAR: "SUMAR", FV: "FV", UPC: "UPC", ERC: "ERC", JUNTS: "JUNTS", BILDU: "BILDU", PNV: "PNV", BNG: "BNG", CC: "CC", UPN: "UPN", EXISTE: "EXISTE", GBAI: "X:GBAI", ADELANTE: "ADELANTE", PACMA: "PACMA" };
 
 function resultadosNacionalesDe2023() {
   if (typeof RESULTADOS_2023_NACIONAL === "undefined" || typeof MAPA_2023 === "undefined") return null;
@@ -434,7 +434,7 @@ function cabeceraDeLaTablaNacional() {
 
 // Orden fijo de la tabla nacional: primero los partidos de ámbito estatal (con Front Valencià, Unidad del Pueblo Canario y Podemos pegados a Frente Amplio, para comparar con 2023) y después los
 // periféricos por voto estimado (orden del 18/11/2026: ERC, Adelante, Bildu, Junts, BNG, PNV, UPN, CC y Existe), con PACMA al final
-const ORDEN_DE_LA_TABLA = ["PP", "PSOE", "VOX", "SUMAR", "FV", "UPC", "PODEMOS", "SALF", "ERC", "ADELANTE", "BILDU", "JUNTS", "BNG", "PNV", "UPN", "CC", "EXISTE", "PACMA"];
+const ORDEN_DE_LA_TABLA = ["PP", "PSOE", "VOX", "SUMAR", "FV", "UPC", "PODEMOS", "SALF", "ERC", "ADELANTE", "BILDU", "JUNTS", "BNG", "PNV", "UPN", "CC", "EXISTE", "GBAI", "PACMA"];
 
 function partidosEnElOrdenDeLaTabla() {
   const resto = partidosPorVoto().filter(function (partido) { return ORDEN_DE_LA_TABLA.indexOf(partido) < 0; });
@@ -797,7 +797,9 @@ function pintarTablaDeTerritorio(config) {
   const tablaConResultados2023 = tabla.hasAttribute("data-con-2023") && !!config.resultados2023;
   const resultados2023 = tablaConResultados2023 ? config.resultados2023 : null;
   const porClave2023 = {};
-  if (resultados2023) resultados2023.candidaturas.forEach(function (c) { porClave2023[c.clave] = c; });
+  // Geroa Bai se llama X:GBAI en los resultados de 2023 (no tenía línea propia) y GBAI en el modelo
+  const claveDelModeloEn2023 = function (clave) { return clave === "X:GBAI" ? "GBAI" : clave; };
+  if (resultados2023) resultados2023.candidaturas.forEach(function (c) { porClave2023[claveDelModeloEn2023(c.clave)] = c; });
   const nombresDeProvincias = indices.map(function (p) { return modelo.provincias[p].nombre; });
   const todoEnLaValenciana = nombresDeProvincias.every(function (nombre) { return PROVINCIAS_VALENCIANAS.indexOf(nombre) >= 0; });
   if (todoEnLaValenciana && porClave2023.SUMAR) { porClave2023.FV = porClave2023.SUMAR; delete porClave2023.SUMAR; }
@@ -868,13 +870,13 @@ function pintarTablaDeTerritorio(config) {
     const mostradas = {};
     filas.forEach(function (f) { mostradas[f.partido] = true; });
     resultados2023.candidaturas.forEach(function (c) {
-      if (mostradas[c.clave]) return;
+      if (mostradas[claveDelModeloEn2023(c.clave)]) return;
       if (c.clave === "X:NC- bc" && porClave2023.UPC) return;  // sus votos ya cuentan en la fila de Unidad del Pueblo Canario
       const nombre = NOMBRES[c.clave] || c.siglas || c.clave;
       const color = COLORES[c.clave] || "#9a9a94";
       const fila = document.createElement("tr");
       fila.className = "solo-2023";
-      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="8" class="suave">Sin previsión en ' + config.territorio + '</td>', celdas2023(c.clave));
+      fila.innerHTML = ordenarFila('<td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + nombre + '</td>', '<td colspan="8" class="suave">Sin previsión en ' + config.territorio + '</td>', celdas2023(claveDelModeloEn2023(c.clave)));
       cuerpo.appendChild(fila);
     });
   }

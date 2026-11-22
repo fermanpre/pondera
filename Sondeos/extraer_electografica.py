@@ -67,7 +67,7 @@ REGION_DE_TITULAR = {
 PARTIDOS_COMUNES = {
     "PP": "PP", "PSOE": "PSOE", "VOX": "Vox", "FA": "FA", "SUMAR": "Sumar", "PODEMOS": "Podemos", "PODEM": "Podem", "ERC": "ERC", "JUNTS": "Junts", "EHBILDU": "EH Bildu",
     "PNV": "PNV", "EAJPNV": "PNV", "BNG": "BNG", "CCA": "CCa", "CCA1CAN": "CCa", "CCA1ACAN": "CCa", "UPN": "UPN", "SALF": "SALF", "CHA": "CHA", "CUP": "CUP", "COMPROMIS": "Compromís", "EXISTE": "Existe",
-    "GBAI": "GBai", "IE": "IE", "SUMARECP": "FA", "CUPPR": "CUP", "FV": "FV", "ADELANTEANDALUCIA": "Adelante Andalucía (2021)",
+    "GBAI": "GBai", "IE": "IE", "CHAIUMSFA": "CHA", "TERUELEXISTE": "Existe", "SUMARECP": "FA", "CUPPR": "CUP", "FV": "FV", "ADELANTEANDALUCIA": "Adelante Andalucía (2021)",
 }
 PARTIDOS_REGIONALES_POR_REGION = {
     "Galicia": {"PSDEGPSOE": "PSdeG–PSOE", "PSOE": "PSdeG–PSOE"},

@@ -99,7 +99,7 @@ def main():
         for partido, n in provincia.items():
             total[partido] = total.get(partido, 0) + n
     generar_resumen.main()
-    cambios = {partido: round(100 * (datos["objetivos"][partido] - antes[partido]), 2) for partido in datos["partidos"] if abs(datos["objetivos"][partido] - antes[partido]) > 5e-5}
+    cambios = {partido: round(100 * (datos["objetivos"][partido] - antes.get(partido, 0.0)), 2) for partido in datos["partidos"] if abs(datos["objetivos"][partido] - antes.get(partido, 0.0)) > 5e-5}
     print("Previsión actualizada con el promedio de %s. Cambios en los objetivos (puntos): %s" % (dia, cambios or "ninguno"))
     print("Escaños sin ruido:", dict(sorted(total.items(), key=lambda par: -par[1])))
 
