@@ -70,6 +70,29 @@ function escenarioRepresentativoIncrustado(sorteos) {
   return Uint8Array.from(ESCENARIO_REPRESENTATIVO.escanos);
 }
 
+/* Filtro previo del escenario representativo (23/11/2026): solo compiten los sorteos en los que PP, PSOE y Vox quedan a menos de «tolerancia» escaños de su mediana nacional. La tolerancia es la
+   menor (1, 2, 3...) que deja al menos el 0,3 % de los sorteos como candidatos (30 de 10.000); si ni con 6 hay suficientes, no se filtra. Sin él, el sorteo elegido por la distancia provincial podía
+   quedar cuatro o seis escaños lejos de la mediana de un partido grande (22/11/2026: PP de 130 a 134 y Vox de 62 a 56 al cambiar el generador, con la mediana casi igual). Mismo código que escenario_representativo.js. */
+const PARTIDOS_DEL_FILTRO_DEL_ESCENARIO = ["PP", "PSOE", "VOX"];
+const FRACCION_MINIMA_DE_CANDIDATOS = 0.003;
+const TOLERANCIA_MAXIMA_DEL_ESCENARIO = 6;
+function toleranciaDelEscenario(nacionales, numeroDePartidos, medianas, sorteos) {
+  const columnas = PARTIDOS_DEL_FILTRO_DEL_ESCENARIO.map(function (partido) { return modelo.partidos.indexOf(partido); }).filter(function (k) { return k >= 0; });
+  const minimoDeCandidatos = Math.max(1, Math.ceil(FRACCION_MINIMA_DE_CANDIDATOS * sorteos));
+  for (let tolerancia = 1; tolerancia <= TOLERANCIA_MAXIMA_DEL_ESCENARIO; tolerancia++) {
+    let candidatos = 0;
+    for (let s = 0; s < sorteos; s++) {
+      let dentro = true;
+      for (let i = 0; i < columnas.length; i++) {
+        if (Math.abs(nacionales[s * numeroDePartidos + columnas[i]] - medianas[columnas[i]]) > tolerancia) { dentro = false; break; }
+      }
+      if (dentro) candidatos++;
+    }
+    if (candidatos >= minimoDeCandidatos) return { tolerancia: tolerancia, columnas: columnas };
+  }
+  return { tolerancia: Infinity, columnas: columnas };
+}
+
 function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
   const nacionales = simulacion.nacionales;
   const numeroDePartidos = modelo.numeroDePartidos;
@@ -91,9 +114,15 @@ function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
   }
   // Distancia = parte nacional (desviaciones robustas) + parte provincial (suma de diferencias al cuadrado respecto a la mediana de cada provincia y partido, peso 1). Sin la parte provincial
   // el sorteo elegido heredaba el ruido propio de cada provincia (Badajoz salía 3-1-1 cuando el 88 % de los sorteos dan 2-2-1).
+  const filtro = toleranciaDelEscenario(nacionales, numeroDePartidos, medianas, sorteos);
   let mejorSorteo = 0;
   let mejorDistancia = Infinity;
   for (let s = 0; s < sorteos; s++) {
+    let fueraDelFiltro = false;
+    for (let i = 0; i < filtro.columnas.length; i++) {
+      if (Math.abs(nacionales[s * numeroDePartidos + filtro.columnas[i]] - medianas[filtro.columnas[i]]) > filtro.tolerancia) { fueraDelFiltro = true; break; }
+    }
+    if (fueraDelFiltro) continue;
     let distancia = 0;
     for (let k = 0; k < numeroDePartidos; k++) {
       const diferencia = (nacionales[s * numeroDePartidos + k] - medianas[k]) / escalas[k];

@@ -45,9 +45,30 @@ for (let celda = 0; celda < porProvincia; celda++) {
   while (acumulado + histograma[escanos] <= Math.floor(SORTEOS / 2)) { acumulado += histograma[escanos]; escanos++; }
   medianasProvinciales[celda] = escanos;
 }
+// Filtro previo (23/11/2026): solo compiten los sorteos en los que PP, PSOE y Vox quedan a menos de «tolerancia» escaños de su mediana nacional. La tolerancia es la menor (1, 2, 3...) que deja al menos
+// el 0,3 % de los sorteos como candidatos (30 de 10.000); si ni con 6 hay suficientes, no se filtra. Mismo código que toleranciaDelEscenario de assets/app_prevision.js.
+const columnasDelFiltro = ["PP", "PSOE", "VOX"].map(function (partido) { return modelo.partidos.indexOf(partido); }).filter(function (k) { return k >= 0; });
+const minimoDeCandidatos = Math.max(1, Math.ceil(0.003 * SORTEOS));
+let tolerancia = Infinity;
+for (let candidata = 1; candidata <= 6 && tolerancia === Infinity; candidata++) {
+  let candidatos = 0;
+  for (let s = 0; s < SORTEOS; s++) {
+    let dentro = true;
+    for (let i = 0; i < columnasDelFiltro.length; i++) {
+      if (Math.abs(simulacion.nacionales[s * numeroDePartidos + columnasDelFiltro[i]] - medianas[columnasDelFiltro[i]]) > candidata) { dentro = false; break; }
+    }
+    if (dentro) candidatos++;
+  }
+  if (candidatos >= minimoDeCandidatos) tolerancia = candidata;
+}
 let mejorSorteo = 0;
 let mejorDistancia = Infinity;
 for (let s = 0; s < SORTEOS; s++) {
+  let fueraDelFiltro = false;
+  for (let i = 0; i < columnasDelFiltro.length; i++) {
+    if (Math.abs(simulacion.nacionales[s * numeroDePartidos + columnasDelFiltro[i]] - medianas[columnasDelFiltro[i]]) > tolerancia) { fueraDelFiltro = true; break; }
+  }
+  if (fueraDelFiltro) continue;
   let distancia = 0;
   for (let k = 0; k < numeroDePartidos; k++) {
     const diferencia = (simulacion.nacionales[s * numeroDePartidos + k] - medianas[k]) / escalas[k];
@@ -69,4 +90,4 @@ fs.writeFileSync(path.join(__dirname, "sitio", "escenario_representativo.json"),
 fs.writeFileSync(path.join(__dirname, "sitio", "escenario_representativo.js"), "const ESCENARIO_REPRESENTATIVO = " + texto + ";\n");
 const nacionales = {};
 modelo.partidos.forEach(function (partido, k) { nacionales[partido] = simulacion.nacionales[mejorSorteo * numeroDePartidos + k]; });
-console.log("Escenario representativo: sorteo " + mejorSorteo + " de " + SORTEOS + ", distancia " + mejorDistancia.toFixed(1) + " | escaños " + JSON.stringify(nacionales));
+console.log("Escenario representativo: sorteo " + mejorSorteo + " de " + SORTEOS + ", tolerancia ±" + tolerancia + " en PP, PSOE y Vox, distancia " + mejorDistancia.toFixed(1) + " | escaños " + JSON.stringify(nacionales));
