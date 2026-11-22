@@ -27,7 +27,6 @@ const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 10000;
 const SEMILLA = 20261129;
 const UMBRALES_DE_SEGURIDAD = [0.95, 0.975, 0.99];  // «casi seguro»: desde el 22/11/2026 el 95 % (antes el 90 %)
 const UMBRAL_PROBABLE = 0.75;                        // «probable»: entre este umbral y el de «casi seguro»; por debajo, «en el aire»
-const MAXIMO_DE_ESCANOS_PARA_ESCALERA = 8;           // la escalera de probabilidades solo en las provincias de hasta 8 escaños
 const VENTANA_DECISIVA = 0.0025;  // fracción de los votos de la provincia que, sumada o restada a un partido, define si su voto es decisivo
 const DELTA = 0.01;  // fracción de los votos de la provincia que se suma al partido para medir el valor de su voto
 const BLOQUES = {
@@ -129,16 +128,14 @@ for (let p = 0; p < P; p++) {
   const N = provincia.escanos;
   const { seguros, probables, suma, sumaProbables, umbral, alMenos } = clasificarEscanos(p, N);
   const enElAire = N - suma - sumaProbables;
-  // Escalera de probabilidades (provincias pequeñas): para cada partido o coalición, la probabilidad de sacar al menos 1, 2, 3... escaños, mientras sea de un 1 % o más
-  let escalera = null;
-  if (N <= MAXIMO_DE_ESCANOS_PARA_ESCALERA) {
-    escalera = Object.keys(alMenos).map(function (partido) {
-      const probabilidades = [];
-      for (let n = 0; n < alMenos[partido].length; n++) { if (alMenos[partido][n] >= 0.01) probabilidades.push(Math.round(1000 * alMenos[partido][n]) / 1000); }
-      return { partido: partido, p: probabilidades };
-    }).filter(function (fila) { return fila.p.length > 0; })
-      .sort(function (a, b) { return b.p.reduce(function (x, y) { return x + y; }, 0) - a.p.reduce(function (x, y) { return x + y; }, 0); });
-  }
+  // Escalera de probabilidades: para cada partido o coalición, la probabilidad de sacar al menos 1, 2, 3... escaños, mientras sea de un 1 % o más
+  // (la web la enseña como tabla en las provincias de hasta 8 escaños y como rejilla de cuadrados en las demás)
+  const escalera = Object.keys(alMenos).map(function (partido) {
+    const probabilidades = [];
+    for (let n = 0; n < alMenos[partido].length; n++) { if (alMenos[partido][n] >= 0.01) probabilidades.push(Math.round(1000 * alMenos[partido][n]) / 1000); }
+    return { partido: partido, p: probabilidades };
+  }).filter(function (fila) { return fila.p.length > 0; })
+    .sort(function (a, b) { return b.p.reduce(function (x, y) { return x + y; }, 0) - a.p.reduce(function (x, y) { return x + y; }, 0); });
   // Valor de un voto a cada partido
   const delta = DELTA * modelo.peso[p];
   const base = new Int32Array(SORTEOS * K);

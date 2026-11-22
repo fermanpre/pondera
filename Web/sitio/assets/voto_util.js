@@ -17,6 +17,7 @@
   const ESCALA_MINIMA = 4;           // la barra llena corresponde a ×4 como mínimo
   const CASI_CERO = 0.05;            // por debajo de ×0,05 se escribe «casi 0»
   const MAXIMO_DE_CUADROS_GRANDES = 8;
+  const MAXIMO_DE_ESCANOS_PARA_TABLA = 8;   // la escalera es tabla hasta 8 escaños; por encima, rejilla de cuadrados
   const formatoValor = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const formatoMedia = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -122,6 +123,34 @@
     return html;
   }
 
+  // Texto corto para dentro de un cuadrado: «97%», o «19/20» en el modo de frecuencias
+  function textoCortoDeProbabilidad(probabilidad) {
+    if (!PROBABILIDAD.activo()) { return textoDePorcentaje(probabilidad); }
+    const frecuencia = PROBABILIDAD.frecuencia(probabilidad);
+    return frecuencia === "casi todas" ? "~1" : frecuencia.replace(" de cada ", "/");
+  }
+
+  // Rejilla de escaños (provincias de más de 8 escaños, donde la tabla de la escalera no cabe): una fila por partido y un cuadrado por escaño, con la probabilidad de sacar al menos ese escaño
+  function rejillaDeEscanos(nombre, datos) {
+    if (!datos.escalera || !datos.escalera.length) { return ""; }
+    const umbralSeguro = datos.umbral, umbralProbable = datos.umbral_probable;
+    let html = '<h4 class="vu-escalera-titulo">Probabilidad de cada escaño</h4><div class="vu-rejilla-escanos">';
+    datos.escalera.forEach((fila) => {
+      const rotuloDelPartido = nombreDe(fila.partido, nombre, true);
+      html += '<div class="vu-rejilla-fila"><span class="vu-rejilla-partido"><span class="ficha" style="background:' + colorDe(fila.partido) + '"></span>' + escapar(rotuloDelPartido) + '</span><span class="vu-rejilla-cuadros">';
+      fila.p.forEach((probabilidad, indice) => {
+        const estado = probabilidad >= umbralSeguro ? "vu-rej-seguro" : probabilidad >= umbralProbable ? "vu-rej-probable" : "vu-rej-aire";
+        const titulo = escapar(rotuloDelPartido) + ", " + (indice + 1) + ".º escaño: " + PROBABILIDAD.plano(probabilidad, textoDePorcentaje(probabilidad));
+        html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + colorDe(fila.partido) + '" title="' + titulo + '">' + escapar(textoCortoDeProbabilidad(probabilidad)) + "</span>";
+      });
+      html += "</span></div>";
+    });
+    html += "</div>" +
+      '<p class="nota">Cada cuadrado es un escaño del partido, con la probabilidad de que saque al menos ese número de escaños: <span class="vu-rej-cuadro vu-rej-seguro vu-rej-muestra" style="--color:var(--suave)">casi seguro</span> (desde el ' + Math.round(100 * umbralSeguro) + " %), " +
+      '<span class="vu-rej-cuadro vu-rej-probable vu-rej-muestra" style="--color:var(--suave)">probable</span> (línea discontinua, desde el ' + Math.round(100 * umbralProbable) + ' %) y <span class="vu-rej-cuadro vu-rej-aire vu-rej-muestra">en el aire</span> (por debajo). Solo se enseñan los escaños con un 1 % o más. Una coalición cuenta como un solo partido.</p>';
+    return html;
+  }
+
   function barras(nombre, datos) {
     const valoresDeBloque = datos.valor_bloque || {};
     const valores = Object.keys(datos.valor).filter((partido) => datos.voto[partido] !== undefined || datos.valor[partido] >= CASI_CERO);
@@ -173,6 +202,18 @@
   const SIGLAS = { PP: "PP", PSOE: "PSOE", VOX: "Vox", SUMAR: "FA", PODEMOS: "Podemos", SALF: "SALF", ADELANTE: "AA", FV: "FV", UPC: "UPC", ERC: "ERC", JUNTS: "Junts", BILDU: "Bildu", PNV: "PNV", BNG: "BNG", UPN: "UPN", CC: "CC", EXISTE: "Existe", PACMA: "PACMA" };
   const siglasDe = (partido, provincia) => (partido === "UPN" && provincia === "Navarra" ? "UPN-PP" : (SIGLAS[partido] || partido));
 
+  // Aviso de que el reparto sin ruido puede no coincidir con los escaños de la previsión (los de un sorteo representativo) ni con el más probable, con la probabilidad del último partido que entra
+  function fraseDeContraste(nombre, datos, filas, ultimoEscano) {
+    const ultimaFila = filas[ultimoEscano - 1];
+    const filaDeEscalera = (datos.escalera || []).find((fila) => fila.partido === ultimaFila.partido);
+    const probabilidad = filaDeEscalera ? filaDeEscalera.p[ultimaFila.divisor - 1] : undefined;
+    if (probabilidad === undefined) { return ""; }
+    const numero = ultimaFila.divisor;
+    const escanos = numero === 1 ? "al menos un escaño" : numero + " o más escaños";
+    return " Ojo: este reparto, con los votos medios y sin ruido, puede no coincidir con los escaños de la previsión (los de un sorteo representativo de las simulaciones) ni con el «más probable». Aquí el último escaño es el " + numero + ".º de " +
+      escapar(nombreDe(ultimaFila.partido, nombre, true)) + ", y ese partido saca " + escanos + " " + PROBABILIDAD.enLasSimulaciones(probabilidad, textoDePorcentaje(probabilidad)) + ".";
+  }
+
   function cocientes(nombre, datos) {
     const filas = datos.cocientes;
     if (!filas || !filas.length || !datos.corte) { return ""; }
@@ -185,7 +226,7 @@
     filas.forEach((fila, i) => { if (fila.entra) { ultimaQueEntra[fila.partido] = i; } else if (primeraQueNo[fila.partido] === undefined) { primeraQueNo[fila.partido] = i; } });
     const ultimoEscano = filas.filter((f) => f.entra).length;
     let html = '<h3>Cómo se reparten los cocientes</h3><p class="nota">Cada barra es un cociente D’Hondt: los votos del partido divididos entre 1, 2, 3… El número de la izquierda es el del escaño: el 1 es el primero que se reparte y el último que entra es el ' + (filas.filter((f) => f.entra).length) + '. Los ' + ultimoEscano + (ultimoEscano === 1 ? " mayor se lleva el escaño" : " mayores se llevan los escaños") +
-      " de " + escapar(nombre) + ". El último escaño se lo lleva " + escapar(nombreDe(filas[ultimoEscano - 1].partido, nombre)) + " con " + formatoEntero.format(ultimo) + " votos por escaño (" + formatoPct.format(filas[ultimoEscano - 1].pct) + " % del voto a candidaturas); el primero que se queda fuera es " + escapar(nombreDe(filas[ultimoEscano].partido, nombre)) + " con " + formatoEntero.format(primeroFuera) + ". Es el reparto central, sin ruido: no dice cuán probable es cada resultado (eso es lo que enseñan la «Disputa por el último escaño» y la escalera de probabilidades), sino dónde está hoy cada cociente y cuántos votos separan a cada partido del corte.</p>";
+      " de " + escapar(nombre) + ". El último escaño se lo lleva " + escapar(nombreDe(filas[ultimoEscano - 1].partido, nombre)) + " con " + formatoEntero.format(ultimo) + " votos por escaño (" + formatoPct.format(filas[ultimoEscano - 1].pct) + " % del voto a candidaturas); el primero que se queda fuera es " + escapar(nombreDe(filas[ultimoEscano].partido, nombre)) + " con " + formatoEntero.format(primeroFuera) + ". Es el reparto central, sin ruido: no dice cuán probable es cada resultado (eso es lo que enseñan la «Disputa por el último escaño» y la escalera de probabilidades), sino dónde está hoy cada cociente y cuántos votos separan a cada partido del corte." + fraseDeContraste(nombre, datos, filas, ultimoEscano) + "</p>";
     filas.forEach((fila, i) => {
       if (i === ultimoEscano) {
         html += '<div class="vq-corte"><span></span><span class="linea"></span><span class="rotulo">corte: ' + formatoEntero.format(Math.round((ultimo + primeroFuera) / 2)) + ' votos</span></div>';
@@ -224,7 +265,7 @@
     if (!datos) { return; }
     document.getElementById("vu-titular").textContent = titular(provincia.nombre, datos);
     document.getElementById("vu-barrera").innerHTML = barreraDeFacto(provincia.nombre, datos);
-    document.getElementById("vu-escanos").innerHTML = '<p class="nota">' + (datos.escanos === 1 ? "El escaño" : "Los " + datos.escanos + " escaños") + " de " + escapar(provincia.nombre) + "</p>" + cuadrados(provincia.nombre, datos) + disputaDelUltimo(provincia.nombre, datos) + escalera(provincia.nombre, datos);
+    document.getElementById("vu-escanos").innerHTML = '<p class="nota">' + (datos.escanos === 1 ? "El escaño" : "Los " + datos.escanos + " escaños") + " de " + escapar(provincia.nombre) + "</p>" + cuadrados(provincia.nombre, datos) + disputaDelUltimo(provincia.nombre, datos) + (datos.escanos <= MAXIMO_DE_ESCANOS_PARA_TABLA ? escalera(provincia.nombre, datos) : rejillaDeEscanos(provincia.nombre, datos));
     document.getElementById("vu-barras").innerHTML = barras(provincia.nombre, datos);
     document.getElementById("vu-cocientes").innerHTML = cocientes(provincia.nombre, datos);
     const fecha = VOTO_UTIL.fecha_promedio ? new Date(VOTO_UTIL.fecha_promedio + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" }) : "";
@@ -234,5 +275,6 @@
   }
 
   selector.addEventListener("change", pintar);
+  PROBABILIDAD.alCambiar(pintar);
   pintar();
 })();

@@ -303,6 +303,17 @@ button.principal { font-weight: 600; }
 .vu-muestra-aire { background: transparent; border: 2px dashed var(--suave); box-sizing: border-box; font-size: 0.6rem; line-height: 10px; text-align: center; font-weight: 800; color: var(--texto); }
 .vu-fuera { margin-top: 0; }
 .vu-escalera-titulo { margin: 16px 0 6px; }
+/* Rejilla de escaños (provincias de más de 8 escaños): un cuadrado por escaño de cada partido, con su probabilidad dentro */
+.vu-rejilla-escanos { display: grid; gap: 8px; margin: 6px 0 8px; }
+.vu-rejilla-fila { display: grid; grid-template-columns: 112px 1fr; gap: 8px; align-items: start; }
+.vu-rejilla-partido { font-weight: 700; display: flex; align-items: center; gap: 4px; padding-top: 6px; }
+.vu-rejilla-partido .ficha { flex: none; }
+.vu-rejilla-cuadros { display: flex; flex-wrap: wrap; gap: 4px; }
+.vu-rej-cuadro { box-sizing: border-box; min-width: 38px; height: 32px; padding: 0 3px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vu-rej-seguro { background: var(--color); color: #fff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.55); }
+.vu-rej-probable { background: color-mix(in srgb, var(--color) 28%, transparent); border: 2px dashed var(--color); color: var(--texto); }
+.vu-rej-aire { background: transparent; border: 1px dashed var(--suave); color: var(--suave); font-weight: 400; }
+.vu-rej-muestra { height: auto; min-width: 0; padding: 0 5px; font-size: inherit; }
 .vu-escalera td, .vu-escalera th { text-align: center; font-variant-numeric: tabular-nums; }
 .vu-escalera td.col-partido, .vu-escalera th:first-child { text-align: left; }
 .vu-seguro { background: rgba(46, 125, 50, 0.28); font-weight: 700; }
@@ -354,7 +365,7 @@ button.principal { font-weight: 600; }
 .vu-detalle summary { cursor: pointer; font-weight: 700; }
 .vu-detalle p { margin: 8px 0; }
 .vu-casi0 { color: var(--suave); font-weight: 400; }
-@media (max-width: 520px) { .vu-fila { grid-template-columns: 96px 1fr 70px; } .vu-cuadro, .vu-cuadro .caja { width: 64px; } .vu-cuadro .caja { height: 64px; } }
+@media (max-width: 520px) { .vu-rejilla-fila { grid-template-columns: 1fr; gap: 2px; } .vu-rejilla-partido { padding-top: 0; } .vu-fila { grid-template-columns: 96px 1fr 70px; } .vu-cuadro, .vu-cuadro .caja { width: 64px; } .vu-cuadro .caja { height: 64px; } }
 
 /* Página del Senado */
 .senado-barra { display: flex; height: 38px; border-radius: 6px; overflow: hidden; margin: 12px 0 16px; background: var(--fondo); }

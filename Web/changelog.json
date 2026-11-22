@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Rejilla de escaños en las provincias grandes",
+    "texto": "En las provincias de más de 8 escaños (Madrid, Barcelona, Valencia, Alicante, Sevilla, Málaga y Murcia), la probabilidad de cada escaño se enseña como una rejilla: una fila por partido y un cuadrado por escaño, con la probabilidad dentro (relleno si es casi seguro, línea discontinua si es probable, hueco si está en el aire). La explicación de la tabla de cocientes avisa ahora de que ese reparto, con los votos medios y sin ruido, puede no coincidir con los escaños de la previsión ni con el más probable, y da la probabilidad del último partido que entra."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Una página para cada territorio",
     "texto": "Cada provincia y cada comunidad autónoma tiene ahora su propia dirección (por ejemplo provincias/navarra.html o comunidades/galicia.html), con su título y descripción para compartir, y hay una página índice con todas (territorios.html). Las páginas con selector siguen funcionando y ahora también admiten una marca en la dirección (provincias.html#navarra)."
   },
