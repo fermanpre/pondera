@@ -106,7 +106,7 @@ function pintarSerieDelTerritorio(config, contenedor) {
     '<p class="subtitulo">' + unidad.encuestas.length + (unidad.encuestas.length === 1 ? " encuesta" : " encuestas") + ' de ' + escaparTexto(config.nombre) + ' desde las generales de 2023. ' +
     'La línea es el promedio de cada día (ventana de ' + SERIE_TERRITORIAL.ventana_dias + ' días, las mismas reglas que la tabla); los círculos, cada encuesta.</p>' +
     '<div class="grafico-territorio">' + svg + '</div><p class="leyenda-territorio">' + leyenda + '</p>' +
-    '<p class="nota">Solo hay línea los días en que el territorio reúne encuestas suficientes (' + (config.tipo === "comunidad" ? "dos" : "una") + ' en los ' + SERIE_TERRITORIAL.ventana_dias +
+    '<p class="nota">Solo hay línea los días en que el territorio reúne encuestas suficientes (una en los ' + SERIE_TERRITORIAL.ventana_dias +
     ' días anteriores): fuera de esos tramos el promedio no se calcula ni se interpola, y por eso la línea se corta.' + (hayPromedioHoy ? "" : " Hoy no hay encuestas suficientes para un promedio vigente.") + '</p>';
   contenedor.appendChild(bloque);
 }

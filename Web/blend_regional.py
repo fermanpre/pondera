@@ -1,7 +1,7 @@
 """
 Blend con las encuestas subnacionales (comunidad y provincia). (17/11/2026)
 
-Parte del problema de reparto que ya incluye el promedio nacional (objetivos) y el ancla del CIS (base_2026.json) y lo acerca a las encuestas de cada territorio con al menos dos encuestas
+Parte del problema de reparto que ya incluye el promedio nacional (objetivos) y el ancla del CIS (base_2026.json) y lo acerca a las encuestas de cada territorio con al menos una encuesta (desde el 22/11/2026; antes, dos en las comunidades)
 en el promedio regional. Decisión del usuario (17/11/2026): lambda 1 y k0 3.
 
   - Promedio regional de cada territorio con las MISMAS reglas que el nacional: se construyen encuestas con la estructura de promedio.py y se llama a promedio.calcular_promedio (nota de la
@@ -38,7 +38,7 @@ from motor_reparto import ProblemaDeReparto, repartir_proporcional  # noqa: E402
 RUTA_ENCUESTAS = CARPETA_WEB.parent / "Sondeos" / "sondeos_regionales_largo.csv"
 LAMBDA = 1.0
 K0 = 3.0
-MINIMO_DE_ENCUESTAS = 2
+MINIMO_DE_ENCUESTAS = 1  # desde el 22/11/2026 también las comunidades con una sola encuesta (antes dos); su peso es w = k / (k + K0), así que una sola pesa 0,25
 VENTANA_DIAS = 90
 VIDA_MEDIA_DIAS = 21  # vida media mínima del peso por antigüedad en los promedios regionales (la regla nacional la baja a 3 días cerca de la elección y anula las encuestas de más de dos semanas)
 CONSISTENTE = False
@@ -217,7 +217,7 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None, 
         for unidad, encuestas in por_unidad.items():
             encuestas, _descartes = filtro_atipicos.filtrar(encuestas, ultimos.get(unidad, {}), atipicas.EQUIVALENCIAS_REGIONALES)
             encuestas = [e for e in encuestas if e["valores"]]
-            minimo = 1 if (unidad[0] == "provincia" and PESO_POR_VARIANZA_EN_PROVINCIAS) else MINIMO_DE_ENCUESTAS
+            minimo = MINIMO_DE_ENCUESTAS
             if len(encuestas) < minimo:
                 continue
             pesos = []

@@ -5,6 +5,26 @@
  * (nota de la casa, antigüedad, tamaño de muestra, una entrega por casa) pero con ventana de 90 días. Se enseña junto a la previsión del modelo en ese territorio.
  * Lo llaman pintarProvincia() y pintarComunidad() de app_prevision.js.
  */
+// En la página de una provincia, el promedio de las encuestas de toda su comunidad (22/11/2026), si lo hay: una encuesta autonómica, como la de Ágora Integral en Canarias, no trae datos por provincia
+// y por eso no entra en el promedio de ninguna de ellas, pero sí en el de la comunidad y, con su peso, en la previsión de sus provincias.
+function htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto) {
+  if (config.tipo !== "provincia" || !config.comunidad) { return ""; }
+  const promedio = promedios[config.comunidad + " (comunidad)"];
+  if (!promedio) { return ""; }
+  const fecha = (texto) => { const trozos = texto.split("-"); return parseInt(trozos[2], 10) + "/" + parseInt(trozos[1], 10); };
+  const partidos = Object.keys(promedio.medias).sort((a, b) => promedio.medias[b] - promedio.medias[a]);
+  const filas = partidos.map(function (partido) {
+    const color = (typeof COLORES !== "undefined" && COLORES[partido]) || "#9a9a94";
+    const nombre = (typeof NOMBRES !== "undefined" && NOMBRES[partido]) || partido;
+    return '<tr><td class="col-partido"><span class="ficha" style="background:' + color + '"></span>' + escaparTexto(nombre) + '</td><td>' + porcentaje(promedio.medias[partido]) + '</td></tr>';
+  }).join("");
+  const casas = promedio.encuestas.map(function (e) { return escaparTexto(e.casa) + " (" + fecha(e.fin) + ", " + Math.round(100 * e.peso) + " %)"; }).join("; ");
+  return '<h3>Promedio de la comunidad: ' + escaparTexto(config.comunidad) + '</h3>' +
+    '<p class="subtitulo">' + promedio.k + (promedio.k === 1 ? " encuesta" : " encuestas") + ' de toda la comunidad, sin datos por provincia: ' + casas + '.</p>' +
+    '<div class="tabla-ancha"><table><thead><tr><th>Partido</th><th>Promedio de la comunidad</th></tr></thead><tbody>' + filas + '</tbody></table></div>' +
+    '<p class="nota">Estas encuestas no entran en el promedio de la provincia, pero sí anclan el total de la comunidad en la previsión; donde la provincia tiene encuestas propias, mandan estas dentro de la comunidad.</p>';
+}
+
 function pintarPromedioDelTerritorio(config) {
   const contenedor = document.getElementById("promedio-territorio");
   if (!contenedor) { return; }
@@ -14,7 +34,7 @@ function pintarPromedioDelTerritorio(config) {
   contenedor.hidden = false;
   if (!promedio) {
     contenedor.innerHTML = '<h2>Promedio de encuestas</h2><p class="nota">No hay encuestas suficientes de ' + escaparTexto(config.nombre) +
-      ' con porcentajes de voto para calcular un promedio propio (hacen falta ' + (config.tipo === "comunidad" ? "dos" : "una") + '); la previsión parte del promedio nacional.</p>';
+      ' con porcentajes de voto para calcular un promedio propio (hace falta una); la previsión parte del promedio nacional.</p>' + htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto);
     if (typeof pintarSerieDelTerritorio === "function") { pintarSerieDelTerritorio(config, contenedor); }   // aunque hoy no haya promedio, puede haber historia
     return;
   }
@@ -66,6 +86,6 @@ function pintarPromedioDelTerritorio(config) {
       return '<tr><td>' + escaparTexto(e.casa) + '</td><td>' + fecha(e.fin) + '</td><td>' + (e.muestra ? entero(e.muestra) : "–") + '</td><td>' + Math.round(100 * e.peso) + ' %</td></tr>';
     }).join("") + '</tbody></table></div></details>' +
     '<p class="nota">La diferencia es previsión menos promedio, en puntos: el modelo no sigue a la encuesta al cien por cien, sino que la mezcla con el promedio nacional y la elección de 2023 (ver la <a href="metodologia.html">metodología</a>). ' +
-    'El promedio solo incluye los partidos que figuran en al menos la mitad de las encuestas. «Otros y en blanco» es lo que falta hasta el 100 %: se marca en rojo a partir del ' + UMBRAL_DE_AVISO + ' %, porque un cajón tan grande suele indicar un partido sin cifra en la encuesta o una cifra descartada.</p>';
+    'El promedio solo incluye los partidos que figuran en al menos la mitad de las encuestas. «Otros y en blanco» es lo que falta hasta el 100 %: se marca en rojo a partir del ' + UMBRAL_DE_AVISO + ' %, porque un cajón tan grande suele indicar un partido sin cifra en la encuesta o una cifra descartada.</p>' + htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto);
   if (typeof pintarSerieDelTerritorio === "function") { pintarSerieDelTerritorio(config, contenedor); }
 }
