@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Aragón: Frente Amplio y Podemos",
+    "texto": "Corregido un efecto del promedio autonómico con una sola encuesta: en Aragón la encuesta de A+M se contaba sin la columna de CHA (que va dentro del Frente Amplio) y, además, ya entraba como indicio del Frente Amplio. Ahora CHA suma al Frente Amplio en el promedio de Aragón (12,0 % en esa encuesta) y la encuesta no se cuenta dos veces: Podemos recupera su cuota en las tres provincias aragonesas."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Escaños de Compromís-Front Valencià por partido",
     "texto": "Las páginas de provincia y comunidad de la Comunitat Valenciana reparten los escaños de FV entre Podemos, Compromís, EUPV y ERPV según el puesto de cada partido en la lista proclamada (BOE del 3 de noviembre). Podemos, que encabeza la lista de Alicante, tiene al menos un diputado en casi todas las simulaciones por esa vía. Nuevo dato curioso sobre Podemos y nuevo mundo raro: FV con dos diputados en Castellón y ERPV con uno. Además, el texto de los territorios sin encuestas en los últimos 90 días aclara que no hay promedio vigente y que el gráfico es solo historial."
   },

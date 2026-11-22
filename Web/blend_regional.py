@@ -70,7 +70,8 @@ RUTA_INDICIOS = CARPETA_WEB.parent / "Sondeos" / "indicios_territoriales.csv"
 BLOQUES = {"PP": ["PP"], "PSOE": ["PSOE"], "VOX": ["VOX"], "IZQ": ["SUMAR", "PODEMOS"], "FV": ["FV"], "ERC": ["ERC"], "JUNTS": ["JUNTS"], "BILDU": ["BILDU"], "PNV": ["PNV"], "BNG": ["BNG"], "CC": ["CC"], "UPC": ["UPC"], "ADELANTE": ["ADELANTE"]}
 LIBRES = ("PNV", "BILDU", "BNG", "ERC", "JUNTS", "FV", "UPC", "CC", "ADELANTE")   # UPC, CC y Adelante Andalucía (22/11/2026): partidos de un solo territorio que siguen a sus encuestas también en el total nacional
 # Columna de la tabla de Wikipedia -> candidatura del modelo -> nombre nacional (para la corrección de partido y las medias)
-CANDIDATURA_DE_COLUMNA = {"PP": "PP", "PSOE": "PSOE", "PSE–EE (PSOE)": "PSOE", "PSdeG–PSOE": "PSOE", "PSC": "PSOE", "Vox": "VOX", "Sumar": "SUMAR", "FA": "SUMAR", "Podemos": "PODEMOS",
+CANDIDATURA_DE_COLUMNA = {"PP": "PP", "PSOE": "PSOE", "PSE–EE (PSOE)": "PSOE", "PSdeG–PSOE": "PSOE", "PSC": "PSOE", "Vox": "VOX", "Sumar": "SUMAR", "FA": "SUMAR", "CHA": "SUMAR", "Podemos": "PODEMOS",  # CHA (Aragón, 22/11/2026): va dentro del Frente Amplio (CHA-FA), así que su columna suma a la de Sumar; sin ella la encuesta de A+M daba solo 5,4 en lugar de 12,0
+                          
                           "Podem": "PODEMOS", "FV": "FV", "Compromís": "FV", "ERC": "ERC", "Junts": "JUNTS", "EH Bildu": "BILDU", "PNV": "PNV", "BNG": "BNG", "CCa": "CC", "UPC": "UPC", "Adelante Andalucía (2021)": "ADELANTE", "Adelante Andalucía": "ADELANTE"}
 NOMBRE_NACIONAL = {"PP": "PP", "PSOE": "PSOE", "VOX": "Vox", "SUMAR": "Sumar", "PODEMOS": "Podemos", "FV": "FV", "ERC": "ERC", "JUNTS": "Junts", "BILDU": "EH Bildu", "PNV": "PNV", "BNG": "BNG", "CC": "CCa", "UPC": "UPC", "ADELANTE": "Adelante Andalucía"}
 CANDIDATURA_DE_NOMBRE_NACIONAL = {v: k for k, v in NOMBRE_NACIONAL.items()}
@@ -338,9 +339,12 @@ def peso_del_bloque(unidad, bloque, cuota_modelo, cuota_encuesta, k, ruido, comu
 def objetivos_territoriales(problema, reparto0, promedios, provincias_de, manuales=None):
     """{unidad: {bloque cubierto: objetivo T}} con T = (1 - w) modelo + w encuesta (la encuesta repartida entre los bloques cubiertos, con la masa del modelo)."""
     fijos, modelo_de = {}, {}
+    # Territorios con un indicio manual del Frente Amplio (Aragón: A+M, CIS, GAD3 y SocioMétrica): su total de FA ya entra por ahí, con la columna de CHA que el extractor no recoge. Si el bloque IZQ (Sumar + Podemos) de la
+    # encuesta también contara, la misma encuesta pesaría dos veces y, como las encuestas no traen a Podemos aparte, aplastaría a Podemos (22/11/2026: en Aragón lo bajaba de 1,4 a 0,4 %).
+    con_indicio_de_fa = {unidad for unidad, (cuotas_manuales, _k) in (manuales or {}).items() if "FA" in cuotas_manuales}
     for unidad, (cuotas_encuesta, k, ruido) in promedios.items():
         modelo = {b: cuota_de_bloque(reparto0, problema, provincias_de[unidad], ids) for b, ids in BLOQUES.items()}
-        cubiertos = [b for b in cuotas_encuesta if modelo[b] > 0.002]
+        cubiertos = [b for b in cuotas_encuesta if modelo[b] > 0.002 and not (b == "IZQ" and unidad in con_indicio_de_fa)]
         if len(cubiertos) < 3:
             continue
         masa_modelo = sum(modelo[b] for b in cubiertos)
