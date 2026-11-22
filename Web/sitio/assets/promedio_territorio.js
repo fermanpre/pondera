@@ -47,8 +47,8 @@ function pintarPromedioDelTerritorio(config) {
   const promedio = promedios[config.nombre + " (" + config.tipo + ")"];
   contenedor.hidden = false;
   if (!promedio) {
-    contenedor.innerHTML = '<h2>Promedio de encuestas</h2><p class="nota">No hay encuestas suficientes de ' + escaparTexto(config.nombre) +
-      ' con porcentajes de voto para calcular un promedio propio (hace falta una); la previsión parte del promedio nacional.</p>' + htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto) + htmlDeOtrosDelCis(config, escaparTexto);
+    contenedor.innerHTML = '<h2>Promedio de encuestas</h2><p class="nota">No hay ninguna encuesta de ' + escaparTexto(config.nombre) +
+      ' con porcentajes de voto en los últimos 90 días: hoy no hay promedio vigente y la previsión parte del promedio nacional. El gráfico de abajo es solo el historial de las encuestas anteriores.</p>' + htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto) + htmlDeOtrosDelCis(config, escaparTexto);
     if (typeof pintarSerieDelTerritorio === "function") { pintarSerieDelTerritorio(config, contenedor); }   // aunque hoy no haya promedio, puede haber historia
     return;
   }

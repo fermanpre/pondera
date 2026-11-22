@@ -150,6 +150,26 @@ for (let k = 0; k < K; k++) {
 nacionales.sort(function (a, b) { return Math.abs(a.probabilidad - 0.5) - Math.abs(b.probabilidad - 0.5); });
 nacionales.slice(0, MAXIMO_DE_DATOS_POR_TIPO.nacional).forEach(function (dato) { curiosidades.push(dato); });
 
+// ---- Podemos con su puesto en Compromís-Front Valencià (primero de Alicante): probabilidad de tener al menos un diputado con y sin ese cupo (22/11/2026)
+const origenDeFV = require(path.join(__dirname, "sitio", "assets", "origen_escanos_fv.js"));
+const columnaDeFV = modelo.partidos.indexOf("FV");
+const columnaDePodemos = modelo.partidos.indexOf("PODEMOS");
+if (columnaDeFV >= 0 && columnaDePodemos >= 0) {
+  let conPodemosPropio = 0;
+  let conElCupoDeFV = 0;
+  for (let s = 0; s < SORTEOS; s++) {
+    let deFV = 0;
+    for (let p = 0; p < P; p++) {
+      const cuentas = origenDeFV.origenDeEscanosFVEnProvincia(modelo.provincias[p].nombre, resultado.provinciales[(s * P + p) * K + columnaDeFV]);
+      deFV += cuentas["Podemos"] || 0;
+    }
+    const propios = resultado.nacionales[s * K + columnaDePodemos];
+    if (propios > 0) conPodemosPropio++;
+    if (propios + deFV > 0) conElCupoDeFV++;
+  }
+  curiosidades.push({ tipo: "podemos_fv", propia: Math.round(1000 * conPodemosPropio / SORTEOS) / 1000, con_fv: Math.round(1000 * conElCupoDeFV / SORTEOS) / 1000 });
+}
+
 // ---- Primera plaza de cada provincia, giros desde 2023 y partidos que entran o no
 const primeras = [];
 const giros = [];

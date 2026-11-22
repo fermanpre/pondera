@@ -40,7 +40,7 @@ function pintarListaDeMundos(idDelContenedor, mundos, cabecera) {
   if (!contenedor) { return; }
   contenedor.innerHTML = mundos.map((mundo, i) =>
     '<figure class="mundo">' + cabecera(mundo, i) +
-    '<p class="mundo-veredicto">' + veredictoDelMundo(mundo) + '</p>' +
+    '<p class="mundo-veredicto">' + veredictoDelMundo(mundo) + '</p>' + (mundo.nota ? '<p class="nota">' + mundo.nota + '</p>' : '') +
     '<p class="nota">Derecha ampliada ' + mundo.derecha + ' · bloque de investidura ' + mundo.investidura + '</p>' +
     '<div class="mundo-cuerpo"><div class="hemiciclo" id="' + idDelContenedor + '-' + i + '"></div>' + tablaDelMundo(mundo) + '</div></figure>').join("");
   mundos.forEach((mundo, i) => pintarHemiciclo(document.getElementById(idDelContenedor + "-" + i), mundo.escanos));

@@ -9,6 +9,7 @@ const TIPOS_DE_CURIOSIDAD = {
   barrera: { titulo: "Fuera por la barrera", explicacion: "Partidos que se quedan sin escaño en una provincia por no llegar al 3 % de los votos válidos aunque por cociente les tocaría uno. En cada simulación se repite el reparto D'Hondt sin barrera: solo cuentan las simulaciones en las que, sin barrera, el partido habría sacado al menos un escaño y, con ella, se queda fuera. Solo en las provincias donde el último escaño cuesta menos del 3 % del voto (hoy Madrid): en las demás, el propio reparto D'Hondt exige más de un 3 % y la barrera no actúa. Se muestran los que lo sufren en el 5 % de las simulaciones o más." },
   margen: { titulo: "Votos que separan de un escaño", explicacion: "En el reparto central (sin ruido), cuántos votos le faltan al primer partido que se queda fuera para quitarle el último escaño de la provincia al último que entra. Se muestran las provincias con el margen más pequeño." },
   incierta: { titulo: "Provincias con el reparto más incierto", explicacion: "Probabilidad de que el reparto central de escaños de una provincia (entre 3 y 10 escaños) sea exactamente el que sale en una simulación. Cuanto más baja, más puede moverse el resultado. Las provincias grandes no se cuentan: allí cualquier reparto exacto es improbable y el dato no dice nada." },
+  podemos_fv: { titulo: "Podemos dentro de Compromís-Front Valencià", explicacion: "Probabilidad de que Podemos tenga al menos un diputado contando el primer puesto de la lista de FV por Alicante (que es de Podemos), frente a la de su candidatura propia." },
   nacional: { titulo: "Partidos que pueden quedarse sin diputados", explicacion: "Probabilidad de que un partido no saque ningún escaño en toda España, para los partidos cuya probabilidad está entre el 5 y el 95 %." },
   primera: { titulo: "Disputa por la primera plaza", explicacion: "Provincias de cuatro escaños o más donde dos partidos se disputan ser el que más escaños saca: probabilidad de cada uno de quedar primero en las simulaciones (los empates no cuentan), con la segunda opción por encima del 15 %. Se muestran las más igualadas." },
   giro: { titulo: "Los mayores giros desde 2023", explicacion: "El mayor cambio en el porcentaje de votos válidos de cada partido respecto a las generales de 2023 (resultado real) en una provincia, comparado con el reparto central de 2026. Solo partidos con al menos un 3 % en 2023, un dato por partido." },
@@ -45,6 +46,9 @@ const TIPOS_DE_CURIOSIDAD = {
     }
     if (dato.tipo === "incierta") {
       return { texto: "En " + escapar(dato.provincia) + " (" + escanosEnTexto(dato.escanos) + "), el reparto central solo se repite " + enSimulaciones(dato.probabilidad) + ": es una de las provincias donde más puede moverse el resultado.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+    }
+    if (dato.tipo === "podemos_fv") {
+      return { texto: etiquetaDe("PODEMOS", "") + " tiene al menos un diputado " + enSimulaciones(dato.con_fv) + " si se cuenta el primer puesto de Alicante en Compromís-Front Valencià, que es suyo; con su candidatura propia sola, " + enSimulaciones(dato.propia) + ".", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "nacional") {
       return { texto: etiquetaDe(dato.partido, "") + " se queda sin ningún diputado en toda España " + enSimulaciones(dato.probabilidad) + ".", enlace: "index.html#nacional", rotulo: "Ver los escaños" };

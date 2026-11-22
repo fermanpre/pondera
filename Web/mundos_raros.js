@@ -81,6 +81,22 @@ if (coalicionDeNavarra) {
   }
 }
 
+// Suceso propio: Compromís-Front Valencià con dos diputados en Castellón, de modo que el segundo puesto de su lista, de Esquerra Republicana del País Valencià (ERPV), entra en el Congreso (22/11/2026).
+// Es de las pocas simulaciones del conjunto: basta con que ocurra al menos una vez.
+const columnaDeFV = modelo.partidos.indexOf("FV");
+const provinciaDeCastellon = modelo.provincias.findIndex(function (provincia) { return provincia.nombre === "Castellón/Castelló"; });
+if (columnaDeFV >= 0 && provinciaDeCastellon >= 0) {
+  const cumpleErpv = function (sorteo) { return simulacion.provinciales[(sorteo * numeroDeProvincias + provinciaDeCastellon) * numeroDePartidos + columnaDeFV] >= 2; };
+  let cuentaErpv = 0;
+  for (let sorteo = 0; sorteo < SORTEOS; sorteo++) { if (cumpleErpv(sorteo)) { cuentaErpv += 1; } }
+  if (cuentaErpv >= 1) {
+    candidatos.push({ tipo: "aparece", partido: "ERPV", sentido: "coalicion", umbral: 2, probabilidad: cuentaErpv / SORTEOS, distancia: -1, cumple: cumpleErpv, destacado: "FV",
+                      titulo: "Compromís-Front Valencià saca dos diputados en Castellón y ERPV logra un escaño",
+                      nota: "El segundo puesto de la lista de Compromís-Front Valencià por Castellón es de Núria Calduch, de Esquerra Republicana del País Valencià (ERPV), que no tiene candidatura propia en el modelo: " +
+                            "este mundo es uno de los pocos en que FV gana allí un segundo escaño." });
+  }
+}
+
 // Reparto por tipos: una vuelta completa cada cuatro sucesos, un suceso por partido, los más cercanos al 0,5 % primero (el suceso propio de Navarra, que pasa lista el primero)
 const porTipo = {};
 candidatos.forEach(function (candidato) { (porTipo[candidato.tipo] = porTipo[candidato.tipo] || []).push(candidato); });
@@ -124,6 +140,7 @@ const mundos = elegidos.map(function (candidato) {
   mundo.simulaciones = grupo.length;
   mundo.probabilidad = Math.round(1000 * candidato.probabilidad) / 10;
   if (candidato.titulo) { mundo.titulo = candidato.titulo; mundo.destacado = candidato.destacado; }
+  if (candidato.nota) { mundo.nota = candidato.nota; }
   return mundo;
 });
 mundos.sort(function (a, b) { return b.probabilidad - a.probabilidad; });

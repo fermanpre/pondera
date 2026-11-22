@@ -692,6 +692,7 @@ function pintarProvincia() {
     resultados2023: typeof RESULTADOS_2023 !== "undefined" ? RESULTADOS_2023[provincia.nombre] : null,
     candidaturas2023: candidaturasDe2023([provincia.nombre]),
   });
+  if (typeof pintarOrigenDeEscanosFV === "function") pintarOrigenDeEscanosFV({ indices: [p] });
   if (typeof pintarPromedioDelTerritorio === "function") pintarPromedioDelTerritorio({ nombre: provincia.nombre, tipo: "provincia", indices: [p], comunidad: provincia.comunidad });
 }
 
@@ -705,6 +706,7 @@ function pintarComunidad() {
     resultados2023: typeof RESULTADOS_2023_COMUNIDADES !== "undefined" ? RESULTADOS_2023_COMUNIDADES[comunidad.nombre] : null,
     candidaturas2023: candidaturasDe2023(comunidad.indices.map(function (p) { return modelo.provincias[p].nombre; })),
   });
+  if (typeof pintarOrigenDeEscanosFV === "function") pintarOrigenDeEscanosFV({ indices: comunidad.indices });
   if (typeof pintarPromedioDelTerritorio === "function") pintarPromedioDelTerritorio({ nombre: comunidad.nombre, tipo: "comunidad", indices: comunidad.indices });
 }
 
