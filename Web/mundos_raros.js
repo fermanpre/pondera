@@ -97,6 +97,22 @@ if (columnaDeFV >= 0 && provinciaDeCastellon >= 0) {
   }
 }
 
+// Suceso propio: la Coalición Existe (Teruel Existe y Aragón Existe) obtiene el diputado por Teruel (23/11/2026). Su voto llega al 17 % solo en el 2,5 % de las simulaciones y el último escaño de Teruel
+// cuesta entre el 17,7 y el 24,5 % de los votos, así que solo ocurre cuando coinciden un voto muy alto de Existe y un coste bajo del último escaño. Basta con que ocurra al menos una vez.
+const columnaDeExiste = modelo.partidos.indexOf("EXISTE");
+const provinciaDeTeruel = modelo.provincias.findIndex(function (provincia) { return provincia.nombre === "Teruel"; });
+if (columnaDeExiste >= 0 && provinciaDeTeruel >= 0) {
+  const cumpleExiste = function (sorteo) { return simulacion.provinciales[(sorteo * numeroDeProvincias + provinciaDeTeruel) * numeroDePartidos + columnaDeExiste] >= 1; };
+  let cuentaExiste = 0;
+  for (let sorteo = 0; sorteo < SORTEOS; sorteo++) { if (cumpleExiste(sorteo)) { cuentaExiste += 1; } }
+  if (cuentaExiste >= 1) {
+    candidatos.push({ tipo: "aparece", partido: "EXISTE", sentido: "coalicion", umbral: 1, probabilidad: cuentaExiste / SORTEOS, distancia: -1, cumple: cumpleExiste, destacado: "EXISTE",
+                      titulo: "La Coalición Existe obtiene un diputado por Teruel",
+                      nota: "Es uno de los pocos mundos en que la Coalición Existe, que solo concurre en Aragón, entra en el Congreso: necesita un voto muy alto en Teruel (más del 16-18 %) y, a la vez, que el último escaño " +
+                            "de Teruel cueste poco, porque PP, PSOE y Vox se quedan algo más abajo." });
+  }
+}
+
 // Reparto por tipos: una vuelta completa cada cuatro sucesos, un suceso por partido, los más cercanos al 0,5 % primero (el suceso propio de Navarra, que pasa lista el primero)
 const porTipo = {};
 candidatos.forEach(function (candidato) { (porTipo[candidato.tipo] = porTipo[candidato.tipo] || []).push(candidato); });
