@@ -88,7 +88,7 @@ function pintarHemiciclo(contenedor, escanosPorPartido, sinEscano) {
     const nombre = NOMBRES[partido] || partido;
     for (let i = 0; i < cantidad; i++, indice++) {
       const asiento = disposicion.asientos[indice];
-      svg += '<circle cx="' + asiento.x.toFixed(1) + '" cy="' + asiento.y.toFixed(1) + '" r="' + disposicion.radioDelAsiento.toFixed(1) + '" fill="' + (COLORES[partido] || "#9a9a94") + '"><title>' + nombre + ": " + cantidad + ' escaños</title></circle>';
+      svg += '<circle cx="' + asiento.x.toFixed(1) + '" cy="' + asiento.y.toFixed(1) + '" r="' + disposicion.radioDelAsiento.toFixed(1) + '" fill="' + (COLORES[partido] || "#9a9a94") + '"><title>' + nombre + ": " + escanosEnTexto(cantidad) + '</title></circle>';
     }
   });
   // Marcador de la mayoría absoluta: una línea quebrada que bordea los círculos (nunca los atraviesa) y deja 174 asientos a su izquierda y 176 a su derecha

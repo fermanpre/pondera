@@ -39,7 +39,7 @@
       .sort((a, b) => datos.reparto_aire[b] - datos.reparto_aire[a]).slice(0, 4).map((partido) => nombreDe(partido, nombre));
     let frase;
     if (datos.aire === 0) {
-      frase = "Los " + datos.escanos + " escaños de " + nombre + " están casi decididos.";
+      frase = datos.escanos === 1 ? "El único escaño de " + nombre + " está casi decidido." : "Los " + datos.escanos + " escaños de " + nombre + " están casi decididos.";
     } else if (seguros === 0) {
       frase = datos.escanos === 1 ? "El único escaño de " + nombre + " se lo juegan " + lista(probables) + "."
         : "Ninguno de los " + datos.escanos + " escaños de " + nombre + " está decidido del todo: se los juegan sobre todo " + lista(probables) + ".";
@@ -186,7 +186,7 @@
     if (!datos) { return; }
     document.getElementById("vu-titular").textContent = titular(provincia.nombre, datos);
     document.getElementById("vu-barrera").innerHTML = barreraDeFacto(provincia.nombre, datos);
-    document.getElementById("vu-escanos").innerHTML = '<p class="nota">Los ' + datos.escanos + (datos.escanos === 1 ? " escaño" : " escaños") + " de " + escapar(provincia.nombre) + "</p>" + cuadrados(provincia.nombre, datos) + quienSeLoLleva(provincia.nombre, datos);
+    document.getElementById("vu-escanos").innerHTML = '<p class="nota">' + (datos.escanos === 1 ? "El escaño" : "Los " + datos.escanos + " escaños") + " de " + escapar(provincia.nombre) + "</p>" + cuadrados(provincia.nombre, datos) + quienSeLoLleva(provincia.nombre, datos);
     document.getElementById("vu-barras").innerHTML = barras(provincia.nombre, datos);
     document.getElementById("vu-cocientes").innerHTML = cocientes(provincia.nombre, datos);
     const fecha = VOTO_UTIL.fecha_promedio ? new Date(VOTO_UTIL.fecha_promedio + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" }) : "";

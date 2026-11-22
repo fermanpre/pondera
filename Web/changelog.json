@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "«1 escaño» en singular",
+    "texto": "Corregidos los textos que decían «1 escaños» (provincias y comunidades de un solo escaño, textos emergentes de las gráficas y frases de voto útil y datos curiosos)."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Rangos de voto y de escaños en provincias y comunidades",
     "texto": "Las tablas de cada provincia y comunidad llevan ahora el rango del 80 % y del 95 % de las simulaciones, con un selector para verlos por escaños (por defecto) o por voto (que antes no se mostraba), junto a su distribución gráfica."
   },

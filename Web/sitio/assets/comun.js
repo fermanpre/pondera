@@ -16,6 +16,8 @@ const formatoPorcentaje = new Intl.NumberFormat("es-ES", { minimumFractionDigits
 const formatoEntero = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0, useGrouping: "always" });
 const porcentaje = (valor) => formatoPorcentaje.format(valor) + "%";
 const entero = (valor) => formatoEntero.format(valor);
+// «1 escaño», «2 escaños»
+const escanosEnTexto = (cantidad) => cantidad + (cantidad === 1 ? " escaño" : " escaños");
 const ficha = (partido) => '<span class="ficha" style="background:' + COLORES[partido] + '"></span>';
 
 // Logos cuadrados de los partidos (solo el emblema, o una ficha con siglas cuando no lo hay), en assets/logos/cuadrados/. Marcas de sus titulares (Wikimedia Commons).

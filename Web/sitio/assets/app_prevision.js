@@ -686,7 +686,7 @@ function pintarProvincia() {
   if (!ultimoResultado || !document.getElementById("selector-provincia")) return;
   const p = parseInt(document.getElementById("selector-provincia").value, 10);
   const provincia = modelo.provincias[p];
-  document.getElementById("resumen-provincia").textContent = provincia.comunidad + ": " + provincia.escanos + " escaños, " + entero(provincia.votos_validos) + " votos válidos (base 2023 sobre residentes).";
+  document.getElementById("resumen-provincia").textContent = provincia.comunidad + ": " + escanosEnTexto(provincia.escanos) + ", " + entero(provincia.votos_validos) + " votos válidos (base 2023 sobre residentes).";
   pintarTablaDeTerritorio({
     idTabla: "tabla-provincia", indices: [p], territorio: "esta provincia",
     resultados2023: typeof RESULTADOS_2023 !== "undefined" ? RESULTADOS_2023[provincia.nombre] : null,
@@ -699,7 +699,7 @@ function pintarComunidad() {
   if (!ultimoResultado || !document.getElementById("selector-comunidad")) return;
   const comunidad = COMUNIDADES[parseInt(document.getElementById("selector-comunidad").value, 10)];
   const votosValidos = comunidad.indices.reduce(function (suma, p) { return suma + modelo.provincias[p].votos_validos; }, 0);
-  document.getElementById("resumen-comunidad").textContent = comunidad.indices.length + (comunidad.indices.length === 1 ? " provincia" : " provincias") + ", " + comunidad.escanos + " escaños, " + entero(votosValidos) + " votos válidos (base 2023 sobre residentes).";
+  document.getElementById("resumen-comunidad").textContent = comunidad.indices.length + (comunidad.indices.length === 1 ? " provincia" : " provincias") + ", " + escanosEnTexto(comunidad.escanos) + ", " + entero(votosValidos) + " votos válidos (base 2023 sobre residentes).";
   pintarTablaDeTerritorio({
     idTabla: "tabla-comunidad", indices: comunidad.indices, territorio: "esta comunidad",
     resultados2023: typeof RESULTADOS_2023_COMUNIDADES !== "undefined" ? RESULTADOS_2023_COMUNIDADES[comunidad.nombre] : null,
@@ -905,14 +905,14 @@ function histogramaDeEscanos(f, sorteos, opciones) {
     const altura = Math.max(1, ALTO_BARRAS * probabilidad / probabilidadMaxima);
     const x = (n - desde) * anchoDeBarra;
     svg += '<rect x="' + (x + 0.5).toFixed(1) + '" y="' + (MARGEN_ARRIBA + ALTO_BARRAS - altura).toFixed(1) + '" width="' + Math.max(1, anchoDeBarra - 1).toFixed(1) + '" height="' + altura.toFixed(1) +
-      '" fill="' + color + '" opacity="0.9"><title>' + n + " escaños: " + porcentaje(100 * probabilidad) + (PROBABILIDAD.activo() ? " (" + PROBABILIDAD.frecuencia(probabilidad) + ")" : "") + '</title></rect>';
+      '" fill="' + color + '" opacity="0.9"><title>' + escanosEnTexto(n) + ": " + porcentaje(100 * probabilidad) + (PROBABILIDAD.activo() ? " (" + PROBABILIDAD.frecuencia(probabilidad) + ")" : "") + '</title></rect>';
     if (n === f.masProbable) {
       etiquetaDeLaMasProbable = etiquetaDeProbabilidadSvg(x + anchoDeBarra / 2, MARGEN_ARRIBA + ALTO_BARRAS - altura - 2, probabilidad, entero(100 * probabilidad) + "%", ANCHO);
     }
   }
   if (f.central >= desde && f.central <= hasta) {
     const bandaCentral = (f.central - desde) * anchoDeBarra;
-    svg += '<rect x="' + bandaCentral.toFixed(1) + '" y="' + (MARGEN_ARRIBA - 6) + '" width="' + anchoDeBarra.toFixed(1) + '" height="' + (ALTO_BARRAS + 6) + '" fill="var(--texto)" opacity="0.35"><title>Reparto central: ' + f.central + ' escaños</title></rect>';
+    svg += '<rect x="' + bandaCentral.toFixed(1) + '" y="' + (MARGEN_ARRIBA - 6) + '" width="' + anchoDeBarra.toFixed(1) + '" height="' + (ALTO_BARRAS + 6) + '" fill="var(--texto)" opacity="0.35"><title>Reparto central: ' + escanosEnTexto(f.central) + '</title></rect>';
   }
   svg += etiquetaDeLaMasProbable;
   svg += '<line x1="0" x2="' + ANCHO + '" y1="' + (MARGEN_ARRIBA + ALTO_BARRAS + 0.5) + '" y2="' + (MARGEN_ARRIBA + ALTO_BARRAS + 0.5) + '" stroke="var(--linea)" />';

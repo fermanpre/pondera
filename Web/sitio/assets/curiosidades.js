@@ -44,7 +44,7 @@ const TIPOS_DE_CURIOSIDAD = {
       return { texto: "En " + escapar(dato.provincia) + ", " + formatoEntero.format(dato.votos) + " votos separan a " + etiquetaDe(dato.partido_fuera, dato.provincia) + " de arrebatarle el último escaño a " + etiquetaDe(dato.partido_dentro, dato.provincia) + ", en el reparto central (" + dato.escanos + " escaños en juego).", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "incierta") {
-      return { texto: "En " + escapar(dato.provincia) + " (" + dato.escanos + " escaños), el reparto central solo se repite " + enSimulaciones(dato.probabilidad) + ": es una de las provincias donde más puede moverse el resultado.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+      return { texto: "En " + escapar(dato.provincia) + " (" + escanosEnTexto(dato.escanos) + "), el reparto central solo se repite " + enSimulaciones(dato.probabilidad) + ": es una de las provincias donde más puede moverse el resultado.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "nacional") {
       return { texto: etiquetaDe(dato.partido, "") + " se queda sin ningún diputado en toda España " + enSimulaciones(dato.probabilidad) + ".", enlace: "index.html#nacional", rotulo: "Ver los escaños" };
@@ -53,14 +53,14 @@ const TIPOS_DE_CURIOSIDAD = {
       return { texto: "Un voto a " + etiquetaDe(dato.partido, dato.provincia) + " en " + escapar(dato.provincia) + " vale ×" + formatoDecimal.format(dato.valor) + " el voto medio de España: es de los votos que más pesan en el reparto de escaños.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "primera") {
-      return { texto: "En " + escapar(dato.provincia) + " (" + dato.escanos + " escaños) la primera plaza está disputada: " + etiquetaDe(dato.partido_a, dato.provincia) + " queda primero " + enSimulaciones(dato.probabilidad_a) + " y " + etiquetaDe(dato.partido_b, dato.provincia) + " " + enSimulaciones(dato.probabilidad_b) + ".", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+      return { texto: "En " + escapar(dato.provincia) + " (" + escanosEnTexto(dato.escanos) + ") la primera plaza está disputada: " + etiquetaDe(dato.partido_a, dato.provincia) + " queda primero " + enSimulaciones(dato.probabilidad_a) + " y " + etiquetaDe(dato.partido_b, dato.provincia) + " " + enSimulaciones(dato.probabilidad_b) + ".", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "giro") {
       const sube = dato.puntos > 0;
       return { texto: etiquetaDe(dato.partido, dato.provincia) + " " + (sube ? "sube" : "baja") + " " + formatoDecimal.format(Math.abs(dato.puntos)) + " puntos en " + escapar(dato.provincia) + " respecto a 2023: pasa del " + porcentajeDeVoto(dato.de) + " % al " + porcentajeDeVoto(dato.a) + " % de los votos válidos. Es el mayor giro de este partido en cualquier provincia.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     if (dato.tipo === "entra") {
-      return { texto: etiquetaDe(dato.partido, dato.provincia) + (PROBABILIDAD.activo() ? " saca al menos un escaño en " + escapar(dato.provincia) + " (" + dato.escanos + " escaños en juego) " + enSimulaciones(dato.probabilidad) + "." : " tiene un " + porcentaje(dato.probabilidad) + " de probabilidad de sacar al menos un escaño en " + escapar(dato.provincia) + " (" + dato.escanos + " escaños en juego)."), enlace: "provincias.html", rotulo: "Ver la página de provincias" };
+      return { texto: etiquetaDe(dato.partido, dato.provincia) + (PROBABILIDAD.activo() ? " saca al menos un escaño en " + escapar(dato.provincia) + " (" + escanosEnTexto(dato.escanos) + " en juego) " + enSimulaciones(dato.probabilidad) + "." : " tiene un " + porcentaje(dato.probabilidad) + " de probabilidad de sacar al menos un escaño en " + escapar(dato.provincia) + " (" + dato.escanos + " escaños en juego)."), enlace: "provincias.html", rotulo: "Ver la página de provincias" };
     }
     return null;
   };

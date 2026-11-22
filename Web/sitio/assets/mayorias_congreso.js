@@ -50,7 +50,7 @@ function pintarHistogramasDeMayoria() {
       const p = cuentas[total] / sorteos;
       const clase = total >= TRES_QUINTOS ? "mg-barra-tres" : (total >= ABSOLUTA ? "mg-barra-absoluta" : "mg-barra-baja");
       svg += '<rect class="' + clase + '" x="' + x(total).toFixed(1) + '" y="' + y(p).toFixed(1) + '" width="' + Math.max(1, anchoDeBarra - 0.6).toFixed(1) + '" height="' + (margen.arriba + altoUtil - y(p)).toFixed(1) +
-        '"><title>' + total + " escaños: " + (100 * p).toFixed(1).replace(".", ",") + " %</title></rect>";
+        '"><title>' + escanosEnTexto(total) + ": " + (100 * p).toFixed(1).replace(".", ",") + " %</title></rect>";
     }
     svg += '<line x1="' + margen.izquierda + '" x2="' + (ancho - margen.derecha) + '" y1="' + (margen.arriba + altoUtil) + '" y2="' + (margen.arriba + altoUtil) + '" stroke="var(--linea)" />';
     for (let marca = Math.ceil(minimo / 10) * 10; marca <= maximo; marca += 10) {
