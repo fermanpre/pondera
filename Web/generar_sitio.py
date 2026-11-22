@@ -155,11 +155,11 @@ def construir_pagina(pagina, contenido, prefijo=""):
 <meta property="og:title" content="{titulo_completo}">
 <meta property="og:description" content="{descripcion}">
 <meta property="og:url" content="{url_canonica}">
-<meta property="og:image" content="{base_url}/assets/og-image.png">
+<meta property="og:image" content="{imagen}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{titulo_completo}">
 <meta name="twitter:description" content="{descripcion}">
-<meta name="twitter:image" content="{base_url}/assets/og-image.png">
+<meta name="twitter:image" content="{imagen}">
 <link rel="stylesheet" href="{prefijo}assets/estilo.css">
 {script_de_tema}
 </head>
@@ -201,7 +201,8 @@ def construir_pagina(pagina, contenido, prefijo=""):
         titulo_completo=escapar(titulo_completo), descripcion=escapar(pagina["descripcion"]), url_canonica=url_canonica, prefijo=prefijo,
         nombre=NOMBRE_SITIO, lema=escapar(LEMA), base_url=BASE_URL, script_de_tema=SCRIPT_DE_TEMA_EN_CABECERA + ETIQUETA_DE_GOOGLE_ANALYTICS, menu="\n      ".join(enlaces_del_menu),
         contenido=contenido, scripts=scripts, url_repositorio=URL_REPOSITORIO, segunda_cinta=segunda_cinta, boton_probabilidades=boton_probabilidades,
-        etiqueta_base=('<base href="%s">\n' % pagina["base"]) if pagina.get("base") else "")
+        etiqueta_base=('<base href="%s">\n' % pagina["base"]) if pagina.get("base") else "",
+        imagen=pagina.get("imagen") or (BASE_URL + "/assets/og-image.png"))
 
 
 def contenido_del_changelog(entradas):
@@ -251,6 +252,57 @@ def construir_mapa_del_sitio(entradas, direcciones_extra=()):
     return "\n".join(lineas) + "\n"
 
 
+def leer_nombres_y_colores_de_partidos():
+    """(NOMBRES, COLORES) de assets/comun.js, para dibujar los partidos con el mismo nombre y color que la web."""
+    texto = (CARPETA_SITIO / "assets" / "comun.js").read_text(encoding="utf-8")
+
+    def leer_objeto(nombre):
+        bloque = re.search(r"const %s = \{(.*?)\};" % nombre, texto, flags=re.S).group(1)
+        return {clave: valor for clave, valor in re.findall(r'(\w+):\s*"([^"]*)"', bloque)}
+    return leer_objeto("NOMBRES"), leer_objeto("COLORES")
+
+
+def cargar_fuente_de_imagen(tamano, negrita):
+    from PIL import ImageFont
+    nombres = ["segoeuib.ttf", "arialbd.ttf", "DejaVuSans-Bold.ttf"] if negrita else ["segoeui.ttf", "arial.ttf", "DejaVuSans.ttf"]
+    for nombre in nombres:
+        try:
+            return ImageFont.truetype(nombre, tamano)
+        except OSError:
+            continue
+    return ImageFont.load_default()
+
+
+def crear_imagen_de_territorio(ruta, nombre, escanos_totales, filas, etiqueta_de_tipo):
+    """Tarjeta de 1200x630: nombre del territorio, escaños en juego y, para los partidos con más escaños en la previsión central, barra, escaños y voto previsto.
+    filas = [(nombre del partido, color, escaños, % de voto)]. Si Pillow no está disponible, se omite."""
+    try:
+        from PIL import Image, ImageDraw
+    except ImportError:
+        return False
+    imagen = Image.new("RGB", (1200, 630), "#16171a")
+    lienzo = ImageDraw.Draw(imagen)
+    lienzo.rectangle([0, 0, 1200, 10], fill="#1f4e79")
+    tamano_del_nombre = 84 if len(nombre) <= 14 else 66 if len(nombre) <= 22 else 54
+    lienzo.text((60, 40), nombre, font=cargar_fuente_de_imagen(tamano_del_nombre, True), fill="#ececea")
+    lienzo.text((62, 150), "%s · %d %s en el Congreso" % (etiqueta_de_tipo, escanos_totales, "escaño" if escanos_totales == 1 else "escaños"), font=cargar_fuente_de_imagen(32, False), fill="#a3a39d")
+    lienzo.text((62, 196), "Previsión central, elecciones generales del 29N", font=cargar_fuente_de_imagen(26, False), fill="#7fb0dd")
+    maximo = max([fila[2] for fila in filas] + [1])
+    alto_de_fila = 52
+    arriba = 262
+    for posicion, (partido, color, escanos, voto) in enumerate(filas[:6]):
+        y = arriba + posicion * (alto_de_fila + 8)
+        lienzo.rounded_rectangle([60, y, 78, y + alto_de_fila - 8], radius=4, fill=color)
+        lienzo.text((96, y + 2), partido, font=cargar_fuente_de_imagen(30, True), fill="#ececea")
+        ancho_de_barra = max(8, int(500 * escanos / maximo)) if escanos else 8
+        lienzo.rounded_rectangle([420, y + 6, 420 + ancho_de_barra, y + alto_de_fila - 14], radius=6, fill=color)
+        lienzo.text((420 + ancho_de_barra + 16, y), str(escanos), font=cargar_fuente_de_imagen(34, True), fill="#ececea")
+        lienzo.text((1040, y + 6), ("%.1f %%" % voto).replace(".", ","), font=cargar_fuente_de_imagen(28, False), fill="#a3a39d")
+    lienzo.text((60, 584), "PONDERA · fermanpre.github.io/pondera", font=cargar_fuente_de_imagen(24, False), fill="#7fb0dd")
+    imagen.save(ruta, optimize=True)
+    return True
+
+
 def crear_imagen_para_compartir(ruta):
     """Tarjeta de 1200x630 para Twitter y LinkedIn. Si Pillow no está disponible, se omite."""
     try:
@@ -260,7 +312,7 @@ def crear_imagen_para_compartir(ruta):
         return
 
     def cargar_fuente(tamano, negrita):
-        nombres = ["segoeuib.ttf", "arialbd.ttf"] if negrita else ["segoeui.ttf", "arial.ttf"]
+        nombres = ["segoeuib.ttf", "arialbd.ttf", "DejaVuSans-Bold.ttf"] if negrita else ["segoeui.ttf", "arial.ttf", "DejaVuSans.ttf"]
         for nombre in nombres:
             try:
                 return ImageFont.truetype(nombre, tamano)
@@ -374,6 +426,10 @@ def lista_de_territorios_en_html(provincias, comunidades):
 def construir_subpaginas(provincias, comunidades):
     """Una página por provincia y por comunidad: la misma de provincias.html o comunidades.html con el territorio ya elegido, su propio título, descripción y dirección. Devuelve las direcciones creadas."""
     direcciones = []
+    nombres_de_partido, colores_de_partido = leer_nombres_y_colores_de_partidos()
+    datos_del_modelo = json.loads((CARPETA_SITIO / "datos_modelo.json").read_text(encoding="utf-8"))
+    escanos_centrales = json.loads((CARPETA_SITIO / "prueba_python.json").read_text(encoding="utf-8"))["escanos"]
+    (CARPETA_SITIO / "assets" / "og").mkdir(parents=True, exist_ok=True)
     for tipo, plantilla, carpeta, scripts in (("provincia", "provincias", "provincias", SCRIPTS_DE_PROVINCIAS), ("comunidad", "comunidades", "comunidades", SCRIPTS_DE_COMUNIDADES)):
         (CARPETA_SITIO / carpeta).mkdir(parents=True, exist_ok=True)
         base_de_la_plantilla = incluir_fragmentos((CARPETA_PLANTILLAS / (plantilla + ".html")).read_text(encoding="utf-8").rstrip())
@@ -395,6 +451,27 @@ def construir_subpaginas(provincias, comunidades):
             contenido += '\n<p class="nota"><a href="territorios.html">Todos los territorios</a></p>'
             archivo = "%s/%s.html" % (carpeta, slug)
             pagina = {"archivo": archivo, "titulo": titulo, "descripcion": descripcion, "grupo": "territorio", "scripts": scripts, "probabilidades": True, "base": "../"}
+            provincias_del_territorio = [nombre_del_modelo] if tipo == "provincia" else comunidades[nombre_del_modelo]["provincias"]
+            escanos_por_partido, voto_por_partido, peso_total = {}, {}, 0.0
+            for provincia_del_modelo in datos_del_modelo["provincias"]:
+                if provincia_del_modelo["nombre"] not in provincias_del_territorio:
+                    continue
+                peso_total += provincia_del_modelo["peso"]
+                for partido, escanos_del_partido in escanos_centrales.get(provincia_del_modelo["nombre"], {}).items():
+                    escanos_por_partido[partido] = escanos_por_partido.get(partido, 0) + escanos_del_partido
+                for partido, cuota in provincia_del_modelo["cuotas"].items():
+                    voto_por_partido[partido] = voto_por_partido.get(partido, 0.0) + cuota * provincia_del_modelo["peso"]
+            nombres_de_coalicion = {}
+            for coalicion in datos_del_modelo.get("coaliciones", []):
+                if coalicion["provincia"] in provincias_del_territorio:   # UPN-PP en Navarra: una sola fila con los escaños de los dos
+                    escanos_por_partido[coalicion["columna"]] = escanos_por_partido.get(coalicion["columna"], 0) + escanos_por_partido.pop(coalicion["socio"], 0)
+                    nombres_de_coalicion[coalicion["columna"]] = coalicion["nombre"]
+            filas_de_imagen = []
+            for partido in sorted(escanos_por_partido, key=lambda p: (-escanos_por_partido[p], -voto_por_partido.get(p, 0))):
+                filas_de_imagen.append((nombres_de_coalicion.get(partido) or nombres_de_partido.get(partido, partido), colores_de_partido.get(partido, "#7a7a75"), escanos_por_partido[partido], 100 * voto_por_partido.get(partido, 0.0) / peso_total))
+            nombre_de_imagen = "%s-%s.png" % (carpeta, slug)
+            if crear_imagen_de_territorio(CARPETA_SITIO / "assets" / "og" / nombre_de_imagen, nombre, escanos, filas_de_imagen, "Provincia" if tipo == "provincia" else "Comunidad"):
+                pagina["imagen"] = "%s/assets/og/%s" % (BASE_URL, nombre_de_imagen)
             (CARPETA_SITIO / archivo).write_text(construir_pagina(pagina, contenido), encoding="utf-8")
             direcciones.append(archivo)
     return direcciones
@@ -464,7 +541,8 @@ def main():
     (CARPETA_SITIO / "sitemap.xml").write_text(construir_mapa_del_sitio(entradas, direcciones_de_territorios), encoding="utf-8")
     (CARPETA_SITIO / "robots.txt").write_text("User-agent: *\nAllow: /\n\nSitemap: %s/sitemap.xml\n" % BASE_URL, encoding="utf-8")
     (CARPETA_SITIO / "assets" / "favicon.svg").write_text(FAVICON_SVG, encoding="utf-8")
-    crear_imagen_para_compartir(CARPETA_SITIO / "assets" / "og-image.png")
+    if not (CARPETA_SITIO / "assets" / "og-image.png").exists():
+        crear_imagen_para_compartir(CARPETA_SITIO / "assets" / "og-image.png")
     print("Sitio generado en %s: %d páginas, %d entradas de changelog." % (CARPETA_SITIO, len(PAGINAS) + 2 + len(direcciones_de_territorios), len(entradas)))
 
 

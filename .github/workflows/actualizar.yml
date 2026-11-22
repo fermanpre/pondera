@@ -47,7 +47,7 @@ jobs:
           python-version: "3.12"
 
       - name: Instalar dependencias
-        run: pip install lxml openpyxl
+        run: pip install lxml openpyxl pillow
 
       - name: Bajar las encuestas nuevas de Wikipedia (solo la próxima elección)
         run: python Sondeos/extraer_sondeos_wikipedia.py --solo-proxima

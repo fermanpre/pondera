@@ -1,2 +1,4 @@
 __pycache__/
 *.pyc
+# Imágenes para compartir de cada territorio: se regeneran en cada ciclo del flujo de trabajo
+Web/sitio/assets/og/
