@@ -16,7 +16,10 @@ function tablaDelMundo(mundo) {
   return '<div class="tabla-ancha"><table class="mundo-tabla"><thead><tr><th>Partido</th><th>Votos</th><th>Voto</th><th>Escaños</th></tr></thead><tbody>' + filas + '</tbody></table></div>';
 }
 
+// Tres quintos del Congreso (210 de 350): la mayoría reforzada que exige, por ejemplo, la reforma de la Constitución por el procedimiento ordinario
 function veredictoDelMundo(mundo) {
+  if (mundo.derecha >= 210) { return "La derecha ampliada tiene mayoría de tres quintos"; }
+  if (mundo.investidura >= 210) { return "El bloque de investidura de 2023 tiene mayoría de tres quintos"; }
   if (mundo.derecha >= 176) { return "La derecha ampliada tiene mayoría absoluta"; }
   if (mundo.investidura >= 176) { return "El bloque de investidura de 2023 tiene mayoría absoluta"; }
   return "Ningún bloque llega a 176";
