@@ -18,7 +18,7 @@
     <link>https://fermanpre.github.io/pondera/changelog.html</link>
     <guid isPermaLink="false">https://fermanpre.github.io/pondera/changelog.html#2026-11-22-1</guid>
     <pubDate>Sun, 22 Nov 2026 12:00:00 +0000</pubDate>
-    <description>Un botón «Probabilidades» en la cabecera de las páginas con probabilidades cambia los porcentajes por frecuencias aproximadas (95 % pasa a «19 de cada 20»), con el porcentaje exacto en el texto emergente. Solo afecta a probabilidades, no al voto; se recuerda la elección.</description>
+    <description>Un botón «Probabilidades» en la cabecera de las páginas con probabilidades cambia los porcentajes por frecuencias aproximadas (95 % pasa a «19 de cada 20»), con el porcentaje exacto en el texto emergente. También cambia la gráfica de evolución de la previsión. Solo afecta a probabilidades, no al voto; se recuerda la elección.</description>
   </item>
   <item>
     <title>Rangos y distribución del voto en la tabla nacional</title>
