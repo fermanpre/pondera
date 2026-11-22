@@ -290,6 +290,18 @@ button.principal { font-weight: 600; }
 .vu-cuadro .caja { width: 84px; height: 84px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
 .vu-cuadro b { margin-top: 6px; font-size: 0.9rem; text-align: center; }
 .vu-aire .caja { background: transparent; border: 2px dashed var(--suave); color: var(--texto); font-size: 2.2rem; font-weight: 800; }
+.vu-probable .caja { opacity: 0.55; border: 2px dashed var(--texto); }
+.vu-muestra-cuadro { display: inline-block; width: 14px; height: 14px; border-radius: 3px; background: var(--suave); vertical-align: -2px; margin-right: 2px; }
+.vu-muestra-probable { opacity: 0.55; border: 2px dashed var(--texto); box-sizing: border-box; }
+.vu-muestra-aire { background: transparent; border: 2px dashed var(--suave); box-sizing: border-box; font-size: 0.6rem; line-height: 10px; text-align: center; font-weight: 800; color: var(--texto); }
+.vu-fuera { margin-top: 0; }
+.vu-escalera-titulo { margin: 16px 0 6px; }
+.vu-escalera td, .vu-escalera th { text-align: center; font-variant-numeric: tabular-nums; }
+.vu-escalera td.col-partido, .vu-escalera th:first-child { text-align: left; }
+.vu-seguro { background: rgba(46, 125, 50, 0.28); font-weight: 700; }
+.vu-probable-celda { background: rgba(245, 166, 35, 0.28); }
+.vu-aire-celda { background: rgba(127, 127, 127, 0.14); color: var(--suave); }
+.vu-etiqueta { padding: 1px 6px; border-radius: 3px; white-space: nowrap; }
 .vu-compacto { gap: 6px; }
 .vu-compacto .vu-cuadro { width: 26px; }
 .vu-compacto .vu-cuadro .caja { width: 26px; height: 26px; border-radius: 4px; font-size: 1rem; }
