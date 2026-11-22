@@ -25,6 +25,20 @@ function htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto) {
     '<p class="nota">Promedio de todas las encuestas de la comunidad, también las que ya dan datos por provincia. En la previsión no se cuenta dos veces lo mismo: las encuestas con detalle provincial pesan en sus provincias, y en el total de la comunidad solo pesan las que no lo tienen.</p>';
 }
 
+// Candidaturas que el CIS cita en voto directo y que no tienen línea propia en el modelo (Drago Canarias Verdes, Democracia 21, Frente Obrero...): se enseñan como dato, su voto está en «Otros».
+function htmlDeOtrosDelCis(config, escaparTexto) {
+  const comunidad = config.tipo === "comunidad" ? config.nombre : config.comunidad;
+  const otros = (typeof CIS_OTROS_POR_COMUNIDAD !== "undefined" && CIS_OTROS_POR_COMUNIDAD[comunidad]) || [];
+  if (!otros.length) { return ""; }
+  const cifra = (valor) => String(valor).replace(".", ",") + " %";
+  const lista = otros.map(function (partido) {
+    const aviso = partido.nombre === "Democracia 21" ? " (el CIS incluye ahí las menciones a Ciudadanos en Barcelona y Madrid)" : "";
+    return escaparTexto(partido.nombre) + " " + cifra(partido.directo) + " (" + cifra(partido.citados) + " de quienes citan un partido)" + aviso;
+  }).join("; ");
+  return '<p class="nota">Otras candidaturas sin línea propia en el modelo. El preelectoral del CIS (estudio 3584) recoge en ' + escaparTexto(comunidad) + ', en voto directo: ' + lista +
+    '. Son cifras de unas pocas respuestas, indicativas, y no alcanzan la barrera del 3 %: su voto está dentro de «Otros».</p>';
+}
+
 function pintarPromedioDelTerritorio(config) {
   const contenedor = document.getElementById("promedio-territorio");
   if (!contenedor) { return; }
@@ -34,7 +48,7 @@ function pintarPromedioDelTerritorio(config) {
   contenedor.hidden = false;
   if (!promedio) {
     contenedor.innerHTML = '<h2>Promedio de encuestas</h2><p class="nota">No hay encuestas suficientes de ' + escaparTexto(config.nombre) +
-      ' con porcentajes de voto para calcular un promedio propio (hace falta una); la previsión parte del promedio nacional.</p>' + htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto);
+      ' con porcentajes de voto para calcular un promedio propio (hace falta una); la previsión parte del promedio nacional.</p>' + htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto) + htmlDeOtrosDelCis(config, escaparTexto);
     if (typeof pintarSerieDelTerritorio === "function") { pintarSerieDelTerritorio(config, contenedor); }   // aunque hoy no haya promedio, puede haber historia
     return;
   }
@@ -86,6 +100,6 @@ function pintarPromedioDelTerritorio(config) {
       return '<tr><td>' + escaparTexto(e.casa) + '</td><td>' + fecha(e.fin) + '</td><td>' + (e.muestra ? entero(e.muestra) : "–") + '</td><td>' + Math.round(100 * e.peso) + ' %</td></tr>';
     }).join("") + '</tbody></table></div></details>' +
     '<p class="nota">La diferencia es previsión menos promedio, en puntos: el modelo no sigue a la encuesta al cien por cien, sino que la mezcla con el promedio nacional y la elección de 2023 (ver la <a href="metodologia.html">metodología</a>). ' +
-    'El promedio solo incluye los partidos que figuran en al menos la mitad de las encuestas. «Otros y en blanco» es lo que falta hasta el 100 %: se marca en rojo a partir del ' + UMBRAL_DE_AVISO + ' %, porque un cajón tan grande suele indicar un partido sin cifra en la encuesta o una cifra descartada.</p>' + htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto);
+    'El promedio solo incluye los partidos que figuran en al menos la mitad de las encuestas. «Otros y en blanco» es lo que falta hasta el 100 %: se marca en rojo a partir del ' + UMBRAL_DE_AVISO + ' %, porque un cajón tan grande suele indicar un partido sin cifra en la encuesta o una cifra descartada.</p>' + htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto) + htmlDeOtrosDelCis(config, escaparTexto);
   if (typeof pintarSerieDelTerritorio === "function") { pintarSerieDelTerritorio(config, contenedor); }
 }

@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-22",
+    "titulo": "Otras candidaturas del CIS en cada territorio",
+    "texto": "Las páginas de provincia y comunidad enseñan, como dato, las candidaturas sin línea propia en el modelo que el preelectoral del CIS recoge en voto directo (Drago Canarias Verdes, Democracia 21, Frente Obrero, Falange, Geroa Bai, Soria Ya). Su voto sigue dentro de «Otros»."
+  },
+  {
+    "fecha": "2026-11-22",
     "titulo": "Ágora Integral por provincias en Canarias",
     "texto": "Añadidos los datos por provincia de la encuesta de Ágora Integral (16-20 nov) en Las Palmas y Santa Cruz de Tenerife, mediante un fichero persistente de encuestas regionales manuales. Entran en el promedio de cada provincia junto a GCEMOP. El promedio de la comunidad se calcula y se enseña con todas sus encuestas, aunque en el blend no se cuente dos veces lo que ya está en las provincias."
   },
