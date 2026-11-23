@@ -13,6 +13,7 @@ import re
 import sys
 from pathlib import Path
 
+import correcciones_de_atribucion
 import extraer_sondeos_wikipedia as wiki
 
 PAGINA = "Sub-national_opinion_polling_for_the_2026_Spanish_general_election"
@@ -107,6 +108,7 @@ def extraer_filas():
 
 def main():
     filas_salida = extraer_filas()
+    correcciones_de_atribucion.corregir_filas(filas_salida)   # casas mal atribuidas en la fuente (ver correcciones_de_atribucion.py)
     with open(SALIDA, "w", encoding="utf-8-sig", newline="") as fichero:
         escritor = csv.DictWriter(fichero, fieldnames=list(filas_salida[0].keys()), delimiter=";")
         escritor.writeheader()

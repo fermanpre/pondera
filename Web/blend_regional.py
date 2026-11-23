@@ -77,6 +77,9 @@ NOMBRE_NACIONAL = {"PP": "PP", "PSOE": "PSOE", "VOX": "Vox", "SUMAR": "Sumar", "
 CANDIDATURA_DE_NOMBRE_NACIONAL = {v: k for k, v in NOMBRE_NACIONAL.items()}
 BLOQUE_DE_CANDIDATURA = {i: b for b, ids in BLOQUES.items() for i in ids}
 COLUMNAS_QUE_SE_SOLAPAN = [("Sumar", ["Podemos", "IU", "Unidas Podemos"]), ("FA", ["Podemos", "IU"])]
+# Encuestas que publican Podemos aparte del Frente Amplio, sin que la columna FA lo incluya (23/11/2026): se les quita el solape (casa tal como viene en la fuente, comunidad, fin de campo).
+# Social Data en Andalucía (14/11/2026): «Por Andalucía» (FA) 4,9 % y Podemos 0,7-1,7 % (se guarda el punto medio, 1,2 %), como listas separadas. Solo este caso, por decisión del usuario.
+ENCUESTAS_CON_PODEMOS_APARTE = {("Social Data", "Andalucía", "2026-11-14")}
 # Columnas de las encuestas regionales que no pasan al blend (no tienen bloque propio) pero sí se enseñan en el promedio de cada territorio (22/11/2026): columna de Wikipedia -> candidatura del modelo
 CANDIDATURA_PARA_MOSTRAR = {"Adelante Andalucía (2021)": "ADELANTE", "Adelante Andalucía": "ADELANTE", "SALF": "SALF", "UPN": "UPN", "CCa": "CC", "Existe": "EXISTE", "GBai": "GBAI", "PACMA": "PACMA"}
 COMUNIDADES = {
@@ -130,7 +133,8 @@ def leer_encuestas(dia, nombres_de_provincia):
         lista = []
         for encuesta in por_clave.values():
             columnas = encuesta.pop("columnas")
-            for principal, solapadas in COLUMNAS_QUE_SE_SOLAPAN:
+            podemos_aparte = (encuesta["firma_original"], unidad[1], encuesta["fin"].isoformat()) in ENCUESTAS_CON_PODEMOS_APARTE
+            for principal, solapadas in ([] if podemos_aparte else COLUMNAS_QUE_SE_SOLAPAN):
                 if principal in columnas:
                     for solapada in solapadas:
                         columnas.pop(solapada, None)

@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-23",
+    "titulo": "Social Data en Andalucía completa y A+M de Aragón bien atribuida",
+    "texto": "Entra la estimación provincial de Social Data (22/11) para las ocho provincias andaluzas: sube el PSOE andaluz en el modelo unas décimas y Adelante baja. Podemos aparece (1,2 %, punto medio de su horquilla) en el promedio de Andalucía. Y la encuesta de Aragón de Heraldo (A+M), que la fuente atribuía por error a Social Data, vuelve a figurar como A+M: contaba dos veces en el promedio de la comunidad."
+  },
+  {
+    "fecha": "2026-11-23",
     "titulo": "Una página para cada partido",
     "texto": "Cada partido tiene ahora su propia página (partidos/pp.html, partidos/bng.html...), a la que se llega desde su nombre en la tabla de la previsión nacional o desde el nuevo apartado Partidos. Enseña su voto previsto en cada circunscripción, ordenado, con los rangos del 80 % y del 95 %, una barra de franjas, el voto y los escaños de 2023 y un mapa de España en el que el color del partido se oscurece con el voto."
   },

@@ -38,6 +38,7 @@ from pathlib import Path
 
 CARPETA = Path(__file__).resolve().parent
 sys.path.insert(0, str(CARPETA))
+import correcciones_de_atribucion  # noqa: E402  (casas mal atribuidas en la fuente)
 import solapamiento_de_campo  # noqa: E402  (inicio_de_campo: primer día de una fecha en texto de Wikipedia)
 
 RUTA_REGIONAL = CARPETA / "sondeos_regionales_largo.csv"
@@ -324,6 +325,7 @@ def completar_regionales(simular, hoy):
         print("  [regional] NUEVA %-20s %-14s %s (muestra %s) %d partidos%s" % (region, encuesta["casa"], fecha_como_en_wikipedia(encuesta["primer_dia"], encuesta["ultimo_dia"]),
                                                                        encuesta["muestra"], len(filas), ("; sin mapear: %s" % ", ".join(sin_mapa)) if sin_mapa else ""))
     if nuevas and not simular:
+        correcciones_de_atribucion.corregir_filas(filas_existentes)
         guardar_filas(RUTA_REGIONAL, nombres_de_columnas, filas_existentes + nuevas)
     return len(nuevas)
 
