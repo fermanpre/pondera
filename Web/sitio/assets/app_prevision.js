@@ -38,105 +38,8 @@ function textoDeSegundos(inicio) { return ((performance.now() - inicio) / 1000).
 
 // Con más de SORTEOS_RAPIDOS sorteos se calcula en dos pasadas: primero 2.000 en el hilo principal (la página se pinta enseguida) y, a continuación, el total pedido en un
 // trabajador (Web Worker) para no bloquear la página; al llegar, se repinta todo. Si el navegador no admite el trabajador, el total se calcula en el hilo principal.
-/* Escenario representativo (22/11/2026): el sorteo de la simulación cuyos escaños nacionales se parecen más a la mediana de cada partido (distancia en desviaciones robustas, rango
-   intercuartílico / 1,349, con un mínimo de 1 escaño). Las medianas por partido no suman 350 (cada una sale de sorteos distintos); este sorteo sí, y es un resultado que podría darse.
-   Devuelve los escaños de ese sorteo por provincia y partido, con el mismo formato que el reparto central sin ruido (provincia x partidos + partido). */
-function medianasYEscalasDeLosSorteos(simulacion, sorteos) {
-  const nacionales = simulacion.nacionales;
-  const numeroDePartidos = modelo.numeroDePartidos;
-  const medianas = [];
-  const escalas = [];
-  for (let k = 0; k < numeroDePartidos; k++) {
-    const valores = new Int16Array(sorteos);
-    for (let s = 0; s < sorteos; s++) valores[s] = nacionales[s * numeroDePartidos + k];
-    valores.sort();
-    medianas.push(valores[Math.floor(sorteos / 2)]);
-    escalas.push(Math.max(1, (valores[Math.floor(sorteos * 0.75)] - valores[Math.floor(sorteos * 0.25)]) / 1.349));
-  }
-  return { medianas: medianas, escalas: escalas };
-}
-
-/* Escenario representativo precalculado (Web/escenario_representativo.js, con los 10.000 sorteos de la semilla de la web): evita que el sorteo elegido cambie entre la primera pasada (2.000 sorteos)
-   y la final, y que un partido con una distribución ancha de escaños (Adelante Andalucía) pase de 4 a 2 diputados al terminar el cálculo. Solo vale con los objetivos del modelo y el número de
-   sorteos de por defecto; si el visitante cambia los objetivos o el número de sorteos, se calcula en el navegador. Devuelve null si no vale. */
-function escenarioRepresentativoIncrustado(sorteos) {
-  if (typeof ESCENARIO_REPRESENTATIVO === "undefined" || ESCENARIO_REPRESENTATIVO.sorteos !== sorteos) return null;
-  if (ESCENARIO_REPRESENTATIVO.partidos.length !== modelo.numeroDePartidos || ESCENARIO_REPRESENTATIVO.escanos.length !== P * modelo.numeroDePartidos) return null;
-  for (let k = 0; k < modelo.numeroDePartidos; k++) {
-    const partido = modelo.partidos[k];
-    if (ESCENARIO_REPRESENTATIVO.partidos[k] !== partido) return null;
-    if (Math.abs((objetivosActuales[partido] || 0) - ESCENARIO_REPRESENTATIVO.objetivos[partido]) > 1e-9) return null;
-  }
-  return Uint8Array.from(ESCENARIO_REPRESENTATIVO.escanos);
-}
-
-/* Filtro previo del escenario representativo (23/11/2026): solo compiten los sorteos en los que PP, PSOE y Vox quedan a menos de «tolerancia» escaños de su mediana nacional. La tolerancia es la
-   menor (1, 2, 3...) que deja al menos el 0,3 % de los sorteos como candidatos (30 de 10.000); si ni con 6 hay suficientes, no se filtra. Sin él, el sorteo elegido por la distancia provincial podía
-   quedar cuatro o seis escaños lejos de la mediana de un partido grande (22/11/2026: PP de 130 a 134 y Vox de 62 a 56 al cambiar el generador, con la mediana casi igual). Mismo código que escenario_representativo.js. */
-const PARTIDOS_DEL_FILTRO_DEL_ESCENARIO = ["PP", "PSOE", "VOX"];
-const FRACCION_MINIMA_DE_CANDIDATOS = 0.003;
-const TOLERANCIA_MAXIMA_DEL_ESCENARIO = 6;
-function toleranciaDelEscenario(nacionales, numeroDePartidos, medianas, sorteos) {
-  const columnas = PARTIDOS_DEL_FILTRO_DEL_ESCENARIO.map(function (partido) { return modelo.partidos.indexOf(partido); }).filter(function (k) { return k >= 0; });
-  const minimoDeCandidatos = Math.max(1, Math.ceil(FRACCION_MINIMA_DE_CANDIDATOS * sorteos));
-  for (let tolerancia = 1; tolerancia <= TOLERANCIA_MAXIMA_DEL_ESCENARIO; tolerancia++) {
-    let candidatos = 0;
-    for (let s = 0; s < sorteos; s++) {
-      let dentro = true;
-      for (let i = 0; i < columnas.length; i++) {
-        if (Math.abs(nacionales[s * numeroDePartidos + columnas[i]] - medianas[columnas[i]]) > tolerancia) { dentro = false; break; }
-      }
-      if (dentro) candidatos++;
-    }
-    if (candidatos >= minimoDeCandidatos) return { tolerancia: tolerancia, columnas: columnas };
-  }
-  return { tolerancia: Infinity, columnas: columnas };
-}
-
-function escanosDelEscenarioRepresentativo(simulacion, sorteos) {
-  const nacionales = simulacion.nacionales;
-  const numeroDePartidos = modelo.numeroDePartidos;
-  const resumenDeLosSorteos = medianasYEscalasDeLosSorteos(simulacion, sorteos);
-  const medianas = resumenDeLosSorteos.medianas;
-  const escalas = resumenDeLosSorteos.escalas;
-  // Mediana de los escaños de cada partido en cada provincia (histograma por celda: los escaños de una provincia son pocos)
-  const porProvincia = P * numeroDePartidos;
-  const provinciales = simulacion.provinciales;
-  const medianasProvinciales = new Uint8Array(porProvincia);
-  const histograma = new Uint32Array(64);
-  for (let celda = 0; celda < porProvincia; celda++) {
-    histograma.fill(0);
-    for (let s = 0; s < sorteos; s++) histograma[provinciales[s * porProvincia + celda]]++;
-    let acumulado = 0;
-    let escanos = 0;
-    while (acumulado + histograma[escanos] <= Math.floor(sorteos / 2)) { acumulado += histograma[escanos]; escanos++; }
-    medianasProvinciales[celda] = escanos;
-  }
-  // Distancia = parte nacional (desviaciones robustas) + parte provincial (suma de diferencias al cuadrado respecto a la mediana de cada provincia y partido, peso 1). Sin la parte provincial
-  // el sorteo elegido heredaba el ruido propio de cada provincia (Badajoz salía 3-1-1 cuando el 88 % de los sorteos dan 2-2-1).
-  const filtro = toleranciaDelEscenario(nacionales, numeroDePartidos, medianas, sorteos);
-  let mejorSorteo = 0;
-  let mejorDistancia = Infinity;
-  for (let s = 0; s < sorteos; s++) {
-    let fueraDelFiltro = false;
-    for (let i = 0; i < filtro.columnas.length; i++) {
-      if (Math.abs(nacionales[s * numeroDePartidos + filtro.columnas[i]] - medianas[filtro.columnas[i]]) > filtro.tolerancia) { fueraDelFiltro = true; break; }
-    }
-    if (fueraDelFiltro) continue;
-    let distancia = 0;
-    for (let k = 0; k < numeroDePartidos; k++) {
-      const diferencia = (nacionales[s * numeroDePartidos + k] - medianas[k]) / escalas[k];
-      distancia += diferencia * diferencia;
-    }
-    const inicio = s * porProvincia;
-    for (let celda = 0; celda < porProvincia; celda++) {
-      const diferenciaProvincial = provinciales[inicio + celda] - medianasProvinciales[celda];
-      distancia += diferenciaProvincial * diferenciaProvincial;
-    }
-    if (distancia < mejorDistancia) { mejorDistancia = distancia; mejorSorteo = s; }
-  }
-  return Uint8Array.from(simulacion.provinciales.subarray(mejorSorteo * porProvincia, (mejorSorteo + 1) * porProvincia));
-}
+/* Escenario que enseñan el hemiciclo, las mayorías y las tablas (23/11/2026): el reparto central, D'Hondt en cada provincia con el voto previsto (MotorElectoral.repartoSinRuido), con los objetivos que
+   tenga el visitante. Hasta ese día era un sorteo de las simulaciones parecido a las medianas, que siempre se torcía en unas pocas provincias (en Cádiz daba 2-2-2-2 con un voto que da 3-2-2-1). */
 
 function recalcular() {
   const selectorDeSorteos = document.getElementById("numero-sorteos");
@@ -151,7 +54,6 @@ function recalcular() {
     const central = MotorElectoral.repartoSinRuido(modelo, objetivosActuales);
     const primeros = Math.min(sorteos, SORTEOS_RAPIDOS);
     const simulacion = MotorElectoral.simular(modelo, { sorteos: primeros, semilla: 20261129, objetivos: objetivosActuales, guardarCuotas: true });
-    central.escanos = escenarioRepresentativoIncrustado(sorteos) || escanosDelEscenarioRepresentativo(simulacion, primeros);
     ultimoResultado = { central: central, simulacion: simulacion, sorteos: primeros };
     pintarTodoConElResultado();
     if (sorteos <= primeros) {
@@ -162,7 +64,6 @@ function recalcular() {
     estado.textContent = "Mostrando " + entero(primeros) + " sorteos; calculando " + entero(sorteos) + "…";
     const terminar = function (resultadoCompleto) {
       if (generacion !== generacionDeCalculo) return;
-      central.escanos = escenarioRepresentativoIncrustado(sorteos) || escanosDelEscenarioRepresentativo(resultadoCompleto, sorteos);
       ultimoResultado = { central: central, simulacion: resultadoCompleto, sorteos: sorteos };
       estado.textContent = "Calculado en " + textoDeSegundos(inicio) + " s";
       pintarTodoConElResultado();

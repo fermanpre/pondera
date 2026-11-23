@@ -150,7 +150,7 @@
   const SIGLAS = { PP: "PP", PSOE: "PSOE", VOX: "Vox", SUMAR: "FA", PODEMOS: "Podemos", SALF: "SALF", ADELANTE: "AA", FV: "FV", UPC: "UPC", ERC: "ERC", JUNTS: "Junts", BILDU: "Bildu", PNV: "PNV", BNG: "BNG", UPN: "UPN", CC: "CC", EXISTE: "Existe", GBAI: "Geroa Bai", PACMA: "PACMA" };
   const siglasDe = (partido, provincia) => (partido === "UPN" && provincia === "Navarra" ? "UPN-PP" : (SIGLAS[partido] || partido));
 
-  // Aviso de que el reparto sin ruido puede no coincidir con los escaños de la previsión (los de un sorteo representativo) ni con el más probable, con la probabilidad del último partido que entra
+  // Aviso de que el reparto sin ruido (el escenario de la previsión) puede no coincidir con el escaño más probable ni con la mediana, con la probabilidad del último partido que entra
   function fraseDeContraste(nombre, datos, filas, ultimoEscano) {
     const ultimaFila = filas[ultimoEscano - 1];
     const filaDeEscalera = (datos.escalera || []).find((fila) => fila.partido === ultimaFila.partido);
@@ -158,7 +158,7 @@
     if (probabilidad === undefined) { return ""; }
     const numero = ultimaFila.divisor;
     const escanos = numero === 1 ? "al menos un escaño" : numero + " o más escaños";
-    return " Ojo: este reparto, con los votos medios y sin ruido, puede no coincidir con los escaños de la previsión (los de un sorteo representativo de las simulaciones) ni con el «más probable». Aquí el último escaño es el " + numero + ".º de " +
+    return " Ojo: este reparto, con los votos medios y sin ruido, es el escenario de la previsión, pero puede no coincidir con el «más probable» ni con la mediana de las simulaciones. Aquí el último escaño es el " + numero + ".º de " +
       escapar(nombreDe(ultimaFila.partido, nombre, true)) + ", y ese partido saca " + escanos + " " + PROBABILIDAD.enLasSimulaciones(probabilidad, textoDePorcentaje(probabilidad)) + ".";
   }
 

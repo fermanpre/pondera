@@ -57,7 +57,7 @@
     const escanos2023 = datos.escanos2023_donde_concurre === null ? "" : " En 2023, donde concurre, sacó " + datos.escanos2023_donde_concurre + ".";
     document.getElementById("partido-resumen").innerHTML = '<div class="tarjetas-partido">' +
       tarjeta("Voto previsto en España", porcentaje(datos.objetivo), "Sobre los votos a candidaturas de toda España." + diferenciaDe2023) +
-      tarjeta("Escaños (mediana)", String(nacional.mediana), "Rango del 95 %: " + nacional.p025 + "–" + nacional.p975 + ". En el escenario representativo, " + nacional.escenario + "." + escanos2023) +
+      tarjeta("Escaños (mediana)", String(nacional.mediana), "Rango del 95 %: " + nacional.p025 + "–" + nacional.p975 + ". En el escenario (reparto central), " + nacional.escenario + "." + escanos2023) +
       tarjeta("Dónde concurre", total + (total === 1 ? " circunscripción" : " circunscripciones"), "De las 52 de España." + (total < 52 ? " No concurre, o no se le calcula voto, en las otras " + (52 - total) + "." : "")) +
       tarjeta("Su mejor circunscripción", escapar(nombreVisible(mejor.nombre)), porcentaje(mejor.voto) + (total > 1 ? ". La peor: " + escapar(nombreVisible(peor.nombre)) + ", " + porcentaje(peor.voto) + "." : "")) +
       "</div>";
@@ -169,12 +169,12 @@
         '<td class="num">' + rangoDeEscanos(fila.escanos.p10, fila.escanos.p90) + '</td><td class="num">' + rangoDeEscanos(fila.escanos.p025, fila.escanos.p975) + "</td><td>" + distribucionDeEscanos(fila) + "</td>" +
         '<td class="num">' + porcentaje(100 * fila.probabilidad_de_escano) + "</td>" + escanos2023;
     }).join("");
-    const cabeceraDeVoto = '<th class="num">Rango 80 %</th><th class="num">Rango 95 %</th><th>Franjas</th><th class="num">Voto 2023</th><th class="num">Dif.</th><th class="num" title="Escaños del escenario representativo">Esc. 2026</th><th class="num">Esc. 2023</th>';
-    const cabeceraDeEscanos = '<th class="num" title="Mediana de los escaños de las 10.000 simulaciones">Mediana</th><th class="num" title="Escaños del escenario representativo: un solo sorteo que se parece a las medianas">Escenario</th><th class="num" title="Número de escaños más probable">Más prob.</th>' +
+    const cabeceraDeVoto = '<th class="num">Rango 80 %</th><th class="num">Rango 95 %</th><th>Franjas</th><th class="num">Voto 2023</th><th class="num">Dif.</th><th class="num" title="Escaños del escenario (reparto central)">Esc. 2026</th><th class="num">Esc. 2023</th>';
+    const cabeceraDeEscanos = '<th class="num" title="Mediana de los escaños de las 10.000 simulaciones">Mediana</th><th class="num" title="Escaños del escenario: D’Hondt con el voto previsto de la circunscripción">Escenario</th><th class="num" title="Número de escaños más probable">Más prob.</th>' +
       '<th class="num">Esc. 80 %</th><th class="num">Esc. 95 %</th><th>Distribución</th><th class="num" title="Probabilidad de sacar al menos un escaño">Prob. ≥ 1</th><th class="num">Esc. 2023</th>';
     const nota = deVoto
       ? '<p class="nota">Franjas: la clara es el rango del 95 %, la oscura el del 80 % y la raya, el voto previsto; todas con la misma escala (de 0 a ' + porcentaje(techo) + ").</p>"
-      : '<p class="nota">Mediana: los escaños que quedan en el medio de las 10.000 simulaciones de esa circunscripción. Escenario: los de un solo sorteo representativo del conjunto. No tienen por qué coincidir ni sumar el total de España, porque cada mediana sale de sorteos distintos. ' +
+      : '<p class="nota">Mediana: los escaños que quedan en el medio de las 10.000 simulaciones de esa circunscripción. Escenario: D’Hondt con el voto previsto de la circunscripción (el mismo de la previsión, el hemiciclo y las tablas). No tienen por qué coincidir ni sumar el total de España, porque cada mediana sale de sorteos distintos. ' +
         'En la distribución, la barra más oscura es el número de escaños más probable.</p>';
     document.getElementById("partido-tabla").innerHTML = '<div class="tabla-ancha"><table class="tabla-partido"><thead><tr><th class="num">#</th><th>Circunscripción <small class="suave">(escaños)</small></th>' +
       '<th class="num">Voto previsto</th>' + (deVoto ? cabeceraDeVoto : cabeceraDeEscanos) + "</tr></thead><tbody>" + cuerpo + "</tbody></table></div>" + nota;

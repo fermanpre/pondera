@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-23",
+    "titulo": "El escenario vuelve a ser el reparto central",
+    "texto": "El hemiciclo, las mayorías y las tablas de provincias y comunidades enseñan otra vez el reparto central: en cada provincia, D'Hondt sobre el voto previsto. El sorteo de las simulaciones que usábamos como escenario siempre se torcía en unas pocas provincias (en Cádiz daba 2-2-2-2 con un voto que da 3-2-2-1). Ahora cada fila es coherente con su voto y suma 350 escaños; los totales pueden diferir en unos escaños de las medianas, que siguen siendo las de las 10.000 simulaciones."
+  },
+  {
+    "fecha": "2026-11-23",
     "titulo": "Escaños en la página de cada partido y escenario más estable",
     "texto": "La página de cada partido deja elegir, como las de provincia y comunidad, entre rangos y distribución de escaños o de voto (la elección se recuerda en todo el sitio): enseña la mediana, el escenario representativo, el escaño más probable, los rangos del 80 % y del 95 % y la distribución por circunscripción. El escenario representativo se elige ahora entre 100.000 simulaciones y deja a los partidos medianos (Adelante Andalucía, ERC, Bildu, Sumar...) a no más de un escaño de su mediana, y a PP, PSOE y Vox a no más de dos, para que no salte entre actualizaciones. Y los ficheros del sitio llevan una versión para que dos páginas no enseñen datos de ciclos distintos por la caché del navegador."
   },

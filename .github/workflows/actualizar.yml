@@ -89,7 +89,7 @@ jobs:
       - name: Calcular los mundos raros del Congreso
         run: node Web/mundos_raros.js
 
-      - name: Precalcular el escenario representativo (fondo de 100.000 sorteos)
+      - name: Precalcular el escenario (reparto central por D'Hondt)
         run: node Web/escenario_representativo.js
       - name: Calcular el voto de cada partido por circunscripción (páginas de partido)
         run: node Web/datos_partidos.js
