@@ -65,7 +65,7 @@
   /* ---------- Escaños en disputa ---------- */
   // Los mismos umbrales que las páginas de provincia (voto_util_provincias.js): casi seguro 95 %, probable 75 %; por debajo, «en el aire», que aquí se enseña desde el 10 %.
   const UMBRAL_CASI_SEGURO = 0.95, UMBRAL_PROBABLE = 0.75, UMBRAL_MINIMO_EN_EL_AIRE = 0.10;
-  const textoDeProbabilidadEnCuadro = (probabilidad) => (probabilidad >= 0.995 ? "100" : String(Math.round(100 * probabilidad))) + " %";
+  const textoDeProbabilidadEnCuadro = (probabilidad) => String(Math.min(99, Math.round(100 * probabilidad))) + " %";   // el 100 % se sustituye por el número de escaño (ver más abajo)
   // Una fila por circunscripción con un cuadrado por cada escaño que el partido tiene al menos al 10 % de probabilidad de sacar («al menos k escaños»)
   function filasDeEscanosEnDisputa() {
     const resultado = [];
@@ -111,19 +111,20 @@
       "Las circunscripciones van ordenadas por escaños casi seguros y, a igualdad, por probables y por escaños esperados.</p>" +
       '<div class="vu-rejilla-escanos disputa-rejilla">';
     lista.forEach(function (fila) {
-      html += '<div class="vu-rejilla-fila"><span class="vu-rejilla-partido"><span>' + enlaceDeProvincia(fila.nombre) + ' <b>' + fila.seguros + "</b></span></span><span class=\"vu-rejilla-cuadros\">";
+      const horquilla = fila.seguros === fila.probabilidades.length ? String(fila.seguros) : fila.seguros + "–" + fila.probabilidades.length;
+      html += '<div class="vu-rejilla-fila"><span class="vu-rejilla-partido"><span>' + enlaceDeProvincia(fila.nombre) + ' <b title="Escaños casi seguros y, tras el guion, todos los que se pintan">' + horquilla + "</b></span></span><span class=\"vu-rejilla-cuadros\">";
       fila.probabilidades.forEach(function (probabilidad, indice) {
         const seguro = probabilidad >= UMBRAL_CASI_SEGURO;
         const relleno = seguro ? 100 : Math.max(6, Math.round(100 * probabilidad));
         const estado = seguro ? "vu-rej-seguro" : "vu-rej-parcial" + (relleno >= 60 ? " vu-rej-fuerte" : "");
-        const titulo = (indice + 1) + ".º escaño por " + nombreVisible(fila.nombre) + ": " + textoDeProbabilidadEnCuadro(probabilidad);
-        html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + color + ";--relleno:" + relleno + '%" title="' + escapar(titulo) + '">' + textoDeProbabilidadEnCuadro(probabilidad) + "</span>";
+        const titulo = (indice + 1) + ".º escaño por " + nombreVisible(fila.nombre) + ": " + (probabilidad >= 0.995 ? "100 %" : textoDeProbabilidadEnCuadro(probabilidad));
+        html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + color + ";--relleno:" + relleno + '%" title="' + escapar(titulo) + '">' + (probabilidad >= 0.995 ? String(indice + 1) : textoDeProbabilidadEnCuadro(probabilidad)) + "</span>";
       });
       html += "</span></div>";
     });
     html += "</div>" +
-      '<p class="nota">Relleno completo y línea continua: casi seguro (' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % o más de las 10.000 simulaciones). Línea discontinua: probable (desde el " + Math.round(100 * UMBRAL_PROBABLE) + " %) o en el aire; cuanto más pálido, menos probable. " +
-      "El número junto al nombre son los escaños casi seguros. Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia.</p>";
+      '<p class="nota">Relleno completo y línea continua: casi seguro (' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % o más de las 10.000 simulaciones); en los que llegan al 100 % el cuadrado lleva el número del escaño en lugar del porcentaje. Línea discontinua: probable (desde el " + Math.round(100 * UMBRAL_PROBABLE) + " %) o en el aire; cuanto más pálido, menos probable. " +
+      "Junto al nombre, la horquilla: los escaños casi seguros y, tras el guion, todos los que se pintan (si son los mismos, un solo número). Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia.</p>";
     contenedor.innerHTML = html;
   }
 
