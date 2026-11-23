@@ -35,7 +35,7 @@ Araba/Álava;País Vasco;PACMA;0,6;0
 Araba/Álava;País Vasco;Otros;0,9;0
 Asturias;Asturias;PP;35,4;3
 Asturias;Asturias;PSOE;31,7;3
-Asturias;Asturias;Vox;18,8;1
+Asturias;Asturias;Vox;18,9;1
 Asturias;Asturias;Frente Amplio;8,2;0
 Asturias;Asturias;Podemos;2,3;0
 Asturias;Asturias;SALF;1,6;0
@@ -201,9 +201,9 @@ Huelva;Andalucía;SALF;2,1;0
 Huelva;Andalucía;Adelante Andalucía;8,4;0
 Huelva;Andalucía;PACMA;0,8;0
 Huelva;Andalucía;Otros;1,0;0
-Huesca;Aragón;PP;37,4;2
-Huesca;Aragón;PSOE;31,3;1
-Huesca;Aragón;Vox;18,6;0
+Huesca;Aragón;PP;37,5;2
+Huesca;Aragón;PSOE;31,2;1
+Huesca;Aragón;Vox;18,5;0
 Huesca;Aragón;Frente Amplio;8,6;0
 Huesca;Aragón;Podemos;0,9;0
 Huesca;Aragón;SALF;1,1;0
@@ -254,7 +254,7 @@ Madrid;Comunidad de Madrid;SALF;2,2;0
 Madrid;Comunidad de Madrid;PACMA;0,7;0
 Madrid;Comunidad de Madrid;Otros;0,7;0
 Melilla;Melilla;PP;45,4;1
-Melilla;Melilla;PSOE;19,0;0
+Melilla;Melilla;PSOE;19,1;0
 Melilla;Melilla;Vox;21,3;0
 Melilla;Melilla;Podemos;0,9;0
 Melilla;Melilla;SALF;2,6;0
@@ -324,7 +324,7 @@ Pontevedra;Galicia;PACMA;1,0;0
 Pontevedra;Galicia;Otros;0,8;0
 Rioja (La);La Rioja;PP;47,1;3
 Rioja (La);La Rioja;PSOE;30,3;1
-Rioja (La);La Rioja;Vox;14,6;0
+Rioja (La);La Rioja;Vox;14,7;0
 Rioja (La);La Rioja;Frente Amplio;2,9;0
 Rioja (La);La Rioja;Podemos;1,6;0
 Rioja (La);La Rioja;SALF;1,7;0
@@ -332,7 +332,7 @@ Rioja (La);La Rioja;PACMA;0,5;0
 Rioja (La);La Rioja;Otros;1,2;0
 Salamanca;Castilla y León;PP;45,8;2
 Salamanca;Castilla y León;PSOE;26,6;1
-Salamanca;Castilla y León;Vox;21,1;1
+Salamanca;Castilla y León;Vox;21,2;1
 Salamanca;Castilla y León;Frente Amplio;1,8;0
 Salamanca;Castilla y León;Podemos;1,4;0
 Salamanca;Castilla y León;SALF;1,7;0
@@ -380,15 +380,15 @@ Tarragona;Cataluña;ERC;17,5;1
 Tarragona;Cataluña;Junts;9,6;0
 Tarragona;Cataluña;PACMA;1,2;0
 Tarragona;Cataluña;Otros;0,5;0
-Teruel;Aragón;PP;35,7;1
+Teruel;Aragón;PP;35,8;1
 Teruel;Aragón;PSOE;28,7;1
-Teruel;Aragón;Vox;19,9;1
+Teruel;Aragón;Vox;19,8;1
 Teruel;Aragón;Podemos;0,6;0
 Teruel;Aragón;SALF;1,2;0
 Teruel;Aragón;Coalición Existe;13,0;0
 Teruel;Aragón;PACMA;0,2;0
 Teruel;Aragón;Otros;0,7;0
-Toledo;Castilla-La Mancha;PP;35,4;2
+Toledo;Castilla-La Mancha;PP;35,3;2
 Toledo;Castilla-La Mancha;PSOE;28,1;2
 Toledo;Castilla-La Mancha;Vox;27,9;2
 Toledo;Castilla-La Mancha;Frente Amplio;4,1;0
@@ -419,16 +419,16 @@ Zamora;Castilla y León;Podemos;1,1;0
 Zamora;Castilla y León;SALF;1,5;0
 Zamora;Castilla y León;PACMA;0,3;0
 Zamora;Castilla y León;Otros;2,0;0
-Zaragoza;Aragón;PP;35,4;3
+Zaragoza;Aragón;PP;35,5;3
 Zaragoza;Aragón;PSOE;28,3;2
-Zaragoza;Aragón;Vox;21,5;2
+Zaragoza;Aragón;Vox;21,4;2
 Zaragoza;Aragón;Frente Amplio;10,1;0
 Zaragoza;Aragón;Podemos;1,1;0
 Zaragoza;Aragón;SALF;1,3;0
 Zaragoza;Aragón;Coalición Existe;1,3;0
 Zaragoza;Aragón;PACMA;0,3;0
 Zaragoza;Aragón;Otros;0,8;0
-Ávila;Castilla y León;PP;42,7;1
+Ávila;Castilla y León;PP;42,6;1
 Ávila;Castilla y León;PSOE;23,3;1
 Ávila;Castilla y León;Vox;21,6;1
 Ávila;Castilla y León;Frente Amplio;1,6;0
