@@ -23,7 +23,6 @@
   const filas = datos.provincias.slice();           // ya vienen por voto previsto decreciente
   const porNombre = {};
   filas.forEach(function (fila) { porNombre[fila.nombre] = fila; });
-  const minimo = Math.min.apply(null, filas.map((fila) => fila.voto));
   const maximo = Math.max.apply(null, filas.map((fila) => fila.voto));
 
   /* ---------- Color: el del partido, de claro (poco voto) a oscuro (mucho voto) ---------- */
@@ -40,9 +39,9 @@
     return { h: tono, s: saturacion, l: luz };
   }
   const base = hexAHsl(color);
-  const LUZ_CLARA = 93, LUZ_OSCURA = 24;
+  const LUZ_CLARA = 100, LUZ_OSCURA = 24;   // el blanco es el 0 % de voto y el tono más oscuro, la mejor provincia del partido (23/11/2026; antes el blanco era la peor)
   function tonoDelVoto(voto) {
-    const posicion = maximo > minimo ? (voto - minimo) / (maximo - minimo) : 1;
+    const posicion = maximo > 0 ? Math.min(1, Math.max(0, voto / maximo)) : 0;
     const luz = LUZ_CLARA - posicion * (LUZ_CLARA - LUZ_OSCURA);
     return "hsl(" + base.h.toFixed(0) + "," + Math.round(100 * Math.max(base.s, 0.25)) + "%," + luz.toFixed(1) + "%)";
   }
@@ -167,12 +166,12 @@
     const pasos = 40;
     const tramos = [];
     for (let i = 0; i < pasos; i++) {
-      const voto = minimo + (maximo - minimo) * (i + 0.5) / pasos;
+      const voto = maximo * (i + 0.5) / pasos;
       tramos.push(tonoDelVoto(voto) + " " + (100 * i / pasos).toFixed(2) + "%," + tonoDelVoto(voto) + " " + (100 * (i + 1) / pasos).toFixed(2) + "%");
     }
     document.getElementById("leyenda-mapa-partido").innerHTML = '<div class="barra-escala" style="background:linear-gradient(to right,' + tramos.join(",") + ')"></div>' +
-      '<div class="marcas-escala"><span style="left:0%;transform:none">' + porcentaje(minimo) + '</span><span style="left:100%;transform:translateX(-100%)">' + porcentaje(maximo) + "</span></div>" +
-      '<p class="nota">Voto previsto del partido en cada provincia. La escala va de su peor a su mejor provincia; en gris, donde no concurre.</p>';
+      '<div class="marcas-escala"><span style="left:0%;transform:none">' + porcentaje(0) + '</span><span style="left:100%;transform:translateX(-100%)">' + porcentaje(maximo) + "</span></div>" +
+      '<p class="nota">Voto previsto del partido en cada provincia. La escala va del 0 % (blanco) a su mejor provincia (el tono más oscuro); en gris, donde no concurre.</p>';
   }
 
   /* ---------- Lista ordenada ---------- */
