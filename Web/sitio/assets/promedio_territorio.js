@@ -55,9 +55,11 @@ function htmlDeLaTablaDeEncuestas(titulo, promedio, indices, escaparTexto) {
   const nombreDe = (partido) => nombresPropios[partido] || (typeof NOMBRES !== "undefined" && NOMBRES[partido]) || partido;
   const celda = (valor) => '<td class="num col-partido">' + (valor === undefined || valor === null ? "–" : porcentaje(valor)) + "</td>";
   const sumaDe = (valores) => partidos.reduce(function (suma, partido) { return suma + (valores[partido] || 0); }, 0);
+  // Control de cordura (como en la tabla anterior): suma de los partidos de la tabla y, por diferencia hasta el 100 %, «otros y en blanco». Se marca el resto cuando es anormalmente grande
   const celdaDelResto = function (valores) {
-    const resto = 100 - sumaDe(valores);
-    return '<td class="num' + (resto >= UMBRAL_DE_AVISO_DEL_RESTO ? " resto-alto" : "") + '">' + porcentaje(resto) + "</td>";
+    const suma = sumaDe(valores);
+    const resto = 100 - suma;
+    return '<td class="num col-suma">' + porcentaje(suma) + '</td><td class="num' + (resto >= UMBRAL_DE_AVISO_DEL_RESTO ? " resto-alto" : "") + '">' + porcentaje(resto) + "</td>";
   };
   const cabeceras = partidos.map(function (partido) {
     const nombre = nombreDe(partido);
@@ -69,9 +71,9 @@ function htmlDeLaTablaDeEncuestas(titulo, promedio, indices, escaparTexto) {
   const cuerpo = encuestas.map(function (e) {
     const medio = e.cliente ? ' <span class="nota">(' + escaparTexto(e.cliente) + ")</span>" : "";
     return "<tr><td>" + escaparTexto(e.casa) + medio + "</td><td>" + escaparTexto(textoDeCampoSinAnio(e)) + '</td><td class="num">' + (e.muestra ? entero(e.muestra) : "–") + '</td><td class="num">' +
-      Math.round(100 * e.peso) + " %</td>" + partidos.map((partido) => celda(e.valores[partido])).join("") + '<td class="num"></td></tr>';
+      Math.round(100 * e.peso) + " %</td>" + partidos.map((partido) => celda(e.valores[partido])).join("") + celdaDelResto(e.valores) + "</tr>";
   }).join("");
-  return '<div class="tabla-ancha"><table class="tabla-encuestas-territorio"><thead><tr><th>Casa</th><th>Campo</th><th class="num">Muestra</th><th class="num">Peso</th>' + cabeceras + '<th class="num">Otros y en blanco</th></tr>' +
+  return '<div class="tabla-ancha"><table class="tabla-encuestas-territorio"><thead><tr><th>Casa</th><th>Campo</th><th class="num">Muestra</th><th class="num">Peso</th>' + cabeceras + '<th class="num">Suma</th><th class="num">Otros y en blanco</th></tr>' +
     filaDeResumen("Previsión del modelo", "", delModelo) + filaDeResumen("Promedio de las encuestas", "100 %", medias) + "</thead><tbody>" + cuerpo + "</tbody></table></div>";
 }
 
@@ -123,7 +125,7 @@ function pintarPromedioDelTerritorio(config) {
     htmlDeLaTablaDeEncuestas(config.tipo, promedio, config.indices, escaparTexto) +
     '<p class="nota">La previsión del modelo no sigue a la encuesta al cien por cien, sino que la mezcla con el promedio nacional y la elección de 2023 (ver la <a href="metodologia.html">metodología</a>). ' +
     'El peso es el de cada encuesta en el promedio (suman 100 %). Las cifras de cada encuesta son las que entran en el promedio: pueden diferir de las publicadas si el filtro de cifras atípicas ha descartado alguna. ' +
-    'El promedio solo incluye los partidos que figuran en al menos la mitad de las encuestas. «Otros y en blanco» es lo que falta hasta el 100 %: se marca en rojo a partir del ' + UMBRAL_DE_AVISO_DEL_RESTO +
+    'El promedio solo incluye los partidos que figuran en al menos la mitad de las encuestas. «Suma» es la de los partidos de la tabla y «Otros y en blanco» lo que falta hasta el 100 %: se marca en rojo a partir del ' + UMBRAL_DE_AVISO_DEL_RESTO +
     ' %, porque un cajón tan grande suele indicar un partido sin cifra en la encuesta o una cifra descartada.</p>' + htmlDelPromedioDeLaComunidad(config, promedios, escaparTexto) + htmlDeOtrosDelCis(config, escaparTexto);
   if (typeof pintarSerieDelTerritorio === "function") { pintarSerieDelTerritorio(config, contenedor); }
 }

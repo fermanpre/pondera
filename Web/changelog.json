@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Territorios: vuelven los totales en la tabla de encuestas",
+    "texto": "La tabla de encuestas de provincias y comunidades recupera el control de cordura: una columna «Suma» con el total de los partidos de la tabla y «Otros y en blanco» con lo que falta hasta el 100 %, en la previsión del modelo, en el promedio y en cada encuesta."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "País Vasco: Podemos en la encuesta de Ikerfel para el conjunto de Euskadi",
     "texto": "La tabla de Wikipedia no recoge a Podemos en la fila de Euskadi de la encuesta de Ikerfel, aunque el informe sí lo da (1,5 % en la suma territorial, y 2,7 %, 1,1 % y 1,5 % en Álava, Bizkaia y Gipuzkoa). Se añade ese dato, que mejora el promedio de Podemos en la página del País Vasco."
   },
