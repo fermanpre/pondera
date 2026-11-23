@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "País Vasco: Podemos en la encuesta de Ikerfel para el conjunto de Euskadi",
+    "texto": "La tabla de Wikipedia no recoge a Podemos en la fila de Euskadi de la encuesta de Ikerfel, aunque el informe sí lo da (1,5 % en la suma territorial, y 2,7 %, 1,1 % y 1,5 % en Álava, Bizkaia y Gipuzkoa). Se añade ese dato, que mejora el promedio de Podemos en la página del País Vasco."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Territorios: una sola tabla con las encuestas, el promedio y la previsión del modelo",
     "texto": "En las páginas de provincia y de comunidad, «Promedio de encuestas» y «Encuestas del promedio» se unen en una tabla con el formato de la página principal: una fila por casa (campo, muestra, peso en el promedio y cifra de cada partido) y, encima, la previsión del modelo y el promedio de las encuestas. Con el promedio de la comunidad pasa lo mismo en las páginas de sus provincias."
   },
