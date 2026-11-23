@@ -77,9 +77,22 @@ NOMBRE_NACIONAL = {"PP": "PP", "PSOE": "PSOE", "VOX": "Vox", "SUMAR": "Sumar", "
 CANDIDATURA_DE_NOMBRE_NACIONAL = {v: k for k, v in NOMBRE_NACIONAL.items()}
 BLOQUE_DE_CANDIDATURA = {i: b for b, ids in BLOQUES.items() for i in ids}
 COLUMNAS_QUE_SE_SOLAPAN = [("Sumar", ["Podemos", "IU", "Unidas Podemos"]), ("FA", ["Podemos", "IU"])]
-# Encuestas que publican Podemos aparte del Frente Amplio, sin que la columna FA lo incluya (23/11/2026): se les quita el solape (casa tal como viene en la fuente, comunidad, fin de campo).
-# Social Data en Andalucía (14/11/2026): «Por Andalucía» (FA) 4,9 % y Podemos 0,7-1,7 % (se guarda el punto medio, 1,2 %), como listas separadas. Solo este caso, por decisión del usuario.
-ENCUESTAS_CON_PODEMOS_APARTE = {("Social Data", "Andalucía", "2026-11-14")}
+# Podemos concurre por separado del Frente Amplio en todas partes salvo en Canarias, la Comunitat Valenciana y Cataluña (donde va en candidaturas conjuntas: con ERC en Cataluña, sus candidatos son los
+# números 6, 8 y 9 de la lista por Barcelona). Por eso, fuera de esos tres territorios la columna de Podemos de una encuesta NO se solapa con la de Sumar/FA y se conserva; dentro de ellos sí se descarta
+# (el voto de Podemos va ya en la columna de la candidatura conjunta). Corrección del 24/11/2026, a partir de lo que dijo el usuario; antes se descartaba en todas partes salvo en dos encuestas (Social Data y
+# CENTRA, en Andalucía). «IU» se sigue solapando con Sumar/FA en todos los territorios.
+COMUNIDADES_DONDE_PODEMOS_VA_EN_COALICION = {"Canarias", "Comunitat Valenciana", "Cataluña"}
+PROVINCIAS_DONDE_PODEMOS_VA_EN_COALICION = {"Barcelona", "Girona", "Lleida", "Tarragona", "Alicante/Alacant", "Castellón/Castelló", "Valencia/València", "Palmas (Las)", "Santa Cruz de Tenerife"}
+COLUMNAS_DE_PODEMOS = {"Podemos", "Unidas Podemos"}
+ENCUESTAS_CON_PODEMOS_APARTE = set()   # excepciones puntuales, si hicieran falta: (casa tal como viene en la fuente, unidad, fin de campo en ISO)
+
+
+def podemos_va_en_coalicion(unidad):
+    """True si Podemos no concurre por separado en esa unidad (comunidad o provincia de Canarias, Valencia o Cataluña)."""
+    tipo, nombre = unidad
+    return nombre in (COMUNIDADES_DONDE_PODEMOS_VA_EN_COALICION if tipo == "comunidad" else PROVINCIAS_DONDE_PODEMOS_VA_EN_COALICION)
+
+
 # Columnas de las encuestas regionales que no pasan al blend (no tienen bloque propio) pero sí se enseñan en el promedio de cada territorio (22/11/2026): columna de Wikipedia -> candidatura del modelo
 CANDIDATURA_PARA_MOSTRAR = {"Adelante Andalucía (2021)": "ADELANTE", "Adelante Andalucía": "ADELANTE", "SALF": "SALF", "UPN": "UPN", "CCa": "CC", "Existe": "EXISTE", "GBai": "GBAI", "PACMA": "PACMA"}
 COMUNIDADES = {
@@ -133,10 +146,12 @@ def leer_encuestas(dia, nombres_de_provincia):
         lista = []
         for encuesta in por_clave.values():
             columnas = encuesta.pop("columnas")
-            podemos_aparte = (encuesta["firma_original"], unidad[1], encuesta["fin"].isoformat()) in ENCUESTAS_CON_PODEMOS_APARTE
-            for principal, solapadas in ([] if podemos_aparte else COLUMNAS_QUE_SE_SOLAPAN):
+            podemos_aparte = (encuesta["firma_original"], unidad[1], encuesta["fin"].isoformat()) in ENCUESTAS_CON_PODEMOS_APARTE or not podemos_va_en_coalicion(unidad)
+            for principal, solapadas in COLUMNAS_QUE_SE_SOLAPAN:
                 if principal in columnas:
                     for solapada in solapadas:
+                        if podemos_aparte and solapada in COLUMNAS_DE_PODEMOS:
+                            continue
                         columnas.pop(solapada, None)
             valores = defaultdict(float)
             for columna, porcentaje in columnas.items():

@@ -1,5 +1,10 @@
 [
   {
+    "fecha": "2026-11-24",
+    "titulo": "Podemos en los promedios regionales: solo se descarta donde va en coalición",
+    "texto": "En los promedios de comunidades y provincias, la columna de Podemos de una encuesta ya no se descarta por solaparse con el Frente Amplio, salvo en Canarias, la Comunitat Valenciana y Cataluña, donde Podemos no concurre por separado. Así, en Andalucía su promedio es del 0,8 % (CENTRA 0,4 % y Social Data 1,2 %) y no del 1,2 %. Solo usa encuestas publicadas antes de la veda."
+  },
+  {
     "fecha": "2026-11-23",
     "titulo": "Partidos: escaños en disputa en cuadrados, detrás del mapa",
     "texto": "En la página de cada partido, «Escaños en disputa» pasa detrás del mapa y de la lista de circunscripciones, y enseña una fila por circunscripción con un cuadrado por escaño (con su probabilidad), ordenadas por escaños casi seguros. También se corrige un desbordamiento horizontal de la página de partido en pantallas de móvil."

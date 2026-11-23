@@ -1,0 +1,45 @@
+# Publicación manual de la web (24/11/2026).
+# Despliega en GitHub Pages lo que haya en Web/sitio de la rama principal TAL COMO ESTÁ: no baja encuestas, no recalcula nada y no hace commits. Solo se lanza a mano (pestaña Actions, «Run workflow»).
+# Existe porque desde el 24/11/2026 (veda de sondeos, art. 69.7 de la LOREG) el flujo «Actualizar promedio y publicar» no hace nada, y quedan correcciones basadas en encuestas publicadas antes de la veda
+# que se calculan en local y se suben al repositorio. Antes de lanzarlo hay que comprobar que Web/sitio no contiene ninguna encuesta publicada desde el 24/11.
+name: Publicar la web a mano
+
+on:
+  workflow_dispatch:
+    inputs:
+      motivo:
+        description: "Motivo de la publicación (queda en el registro de la ejecución)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Registrar el motivo
+        env:
+          MOTIVO: ${{ inputs.motivo }}
+        run: echo "Publicación manual. Motivo - $MOTIVO"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: Web/sitio
+
+      - id: despliegue
+        uses: actions/deploy-pages@v4
