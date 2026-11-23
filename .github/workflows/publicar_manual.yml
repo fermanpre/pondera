@@ -42,5 +42,18 @@ jobs:
         with:
           path: Web/sitio
 
+      # A veces el despliegue pregunta por el artefacto antes de que la API lo liste («Found 0 artifact(s)»): se espera hasta 2 minutos a que sea visible
+      - name: Esperar a que el artefacto sea visible
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          visibles=0
+          for intento in $(seq 1 12); do
+            visibles=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq '.total_count')
+            if [ "$visibles" -ge 1 ]; then break; fi
+            sleep 10
+          done
+          echo "Artefactos visibles: $visibles"
+
       - id: despliegue
         uses: actions/deploy-pages@v4
