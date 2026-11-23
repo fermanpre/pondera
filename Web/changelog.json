@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Territorios: una sola tabla con las encuestas, el promedio y la previsión del modelo",
+    "texto": "En las páginas de provincia y de comunidad, «Promedio de encuestas» y «Encuestas del promedio» se unen en una tabla con el formato de la página principal: una fila por casa (campo, muestra, peso en el promedio y cifra de cada partido) y, encima, la previsión del modelo y el promedio de las encuestas. Con el promedio de la comunidad pasa lo mismo en las páginas de sus provincias."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Podemos en los promedios regionales: solo se descarta donde va en coalición",
     "texto": "En los promedios de comunidades y provincias, la columna de Podemos de una encuesta ya no se descarta por solaparse con el Frente Amplio, salvo en Canarias, la Comunitat Valenciana y Cataluña, donde Podemos no concurre por separado. Así, en Andalucía su promedio es del 0,8 % (CENTRA 0,4 % y Social Data 1,2 %) y no del 1,2 %. Solo usa encuestas publicadas antes de la veda."
   },

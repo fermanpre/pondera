@@ -224,7 +224,7 @@ def quitar_dias_con_detalle_provincial(por_unidad, provincias_de):
 def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None, detalle=None):
     """{unidad: ({bloque: cuota en tanto por uno}, k, ruido)} de los territorios con al menos MINIMO_DE_ENCUESTAS encuestas en su promedio (una en las provincias con peso por varianza).
     «ruido» = (suma(w^2 / n), suma(w^2 x días de antigüedad), suma(w^2 x error de casa^2)) / suma(w)^2 de las encuestas del promedio.
-    Con «detalle» (un diccionario) rellena además, para mostrarlo en la web (21/11/2026): {unidad: {"k", "medias": {candidatura: porcentaje}, "encuestas": [{casa, fin, muestra, peso}]}}."""
+    Con «detalle» (un diccionario) rellena además, para mostrarlo en la web (21/11/2026): {unidad: {"k", "medias": {candidatura: porcentaje}, "encuestas": [{casa, cliente, campo, fin, muestra, peso, valores}]}}."""
     por_unidad_completo = {unidad: entregas_vigentes(lista) for unidad, lista in leer_encuestas(dia, nombres_de_provincia).items()}
     por_unidad = dict(por_unidad_completo)
     if provincias_de:
@@ -281,8 +281,14 @@ def promedios_por_unidad(dia, nombres_de_provincia, rating, provincias_de=None, 
                         medias_por_candidatura[candidatura] = round(medias_por_candidatura.get(candidatura, 0.0) + valor, 2)
                     encuestas_del_promedio = []
                     for encuesta, peso, _antiguedad in sorted(pesos, key=lambda trio: -trio[1]):
-                        encuestas_del_promedio.append({"casa": encuesta["firma_original"], "fin": encuesta["fin"].isoformat(), "muestra": encuesta["muestra"],
-                                                       "peso": round(peso / suma_pesos, 3) if suma_pesos > 0 else 0})
+                        # Cifra de cada partido que la encuesta aporta al promedio (24/11/2026): con los mismos nombres de candidatura que «medias», para la tabla única de encuestas de cada territorio
+                        valores_de_la_encuesta = {}
+                        for nombre, valor in encuesta["valores"].items():
+                            candidatura = CANDIDATURA_DE_NOMBRE_NACIONAL.get(nombre) or CANDIDATURA_PARA_MOSTRAR.get(nombre) or nombre
+                            valores_de_la_encuesta[candidatura] = round(valores_de_la_encuesta.get(candidatura, 0.0) + valor, 2)
+                        encuestas_del_promedio.append({"casa": encuesta["firma_original"], "cliente": encuesta.get("cliente") or "", "campo": encuesta.get("fecha_texto") or "",
+                                                       "fin": encuesta["fin"].isoformat(), "muestra": encuesta["muestra"], "peso": round(peso / suma_pesos, 3) if suma_pesos > 0 else 0,
+                                                       "valores": valores_de_la_encuesta})
                     detalle[unidad] = {"k": usadas, "medias": medias_por_candidatura, "encuestas": encuestas_del_promedio}
     finally:
         promedio.vida_media_minima = vida

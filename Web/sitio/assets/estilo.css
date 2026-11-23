@@ -454,6 +454,10 @@ button.principal { font-weight: 600; }
 #tabla-provincia .fila-resto td, #tabla-comunidad .fila-resto td { color: var(--suave); }
 #tabla-provincia td.rango, #tabla-comunidad td.rango { white-space: nowrap; }
 #tabla-provincia td.resto-alto, #tabla-comunidad td.resto-alto { color: #b3261e; font-weight: 700; }
+/* Tabla única de encuestas de cada territorio (24/11/2026): previsión del modelo y promedio encima, como en «Crea tu propio promedio» */
+.tabla-encuestas-territorio tr.fila-promedio th { text-align: left; background: color-mix(in srgb, var(--texto) 5%, transparent); }
+.tabla-encuestas-territorio tr.fila-promedio th.num { text-align: right; }
+.tabla-encuestas-territorio tr.fila-promedio td { background: color-mix(in srgb, var(--texto) 5%, transparent); font-weight: 600; }
 #promedio-territorio .fila-resto td { color: var(--suave); }
 #promedio-territorio td.resto-alto { color: #b3261e; font-weight: 700; }
 
