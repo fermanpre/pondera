@@ -25,7 +25,8 @@ def corregir_filas(filas):
     cambiadas = 0
     for fila in filas:
         for correccion in CORRECCIONES:
-            if all(fila.get(columna) == correccion[columna] for columna in ("region", "firma", "cliente", "fin_campo", "muestra")):
+            # Se compara como texto: en memoria la muestra puede ser un número y en el CSV, una cadena
+            if all(str(fila.get(columna, "")) == str(correccion[columna]) for columna in ("region", "firma", "cliente", "fin_campo", "muestra")):
                 fila["firma"] = correccion["firma_correcta"]
                 fila["cliente"] = correccion["cliente_correcto"]
                 cambiadas += 1
