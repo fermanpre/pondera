@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-23",
+    "titulo": "Provincias: escaños en juego antes que el promedio de encuestas",
+    "texto": "En la página de cada provincia, la sección «Escaños en juego y voto útil» (escaños en el aire, disputa por el último escaño y cocientes) pasa justo después de la tabla de previsión, y el promedio de encuestas de la provincia queda al final."
+  },
+  {
+    "fecha": "2026-11-23",
     "titulo": "Escaños en disputa en la página de cada partido",
     "texto": "La página de cada partido enseña, bajo el resumen, todos los escaños que tiene en juego: primero los casi seguros (agrupados por provincia), luego los probables y los que están en el aire, ordenados por probabilidad y con su número de orden en la circunscripción (por ejemplo, el 2.º por Sevilla). Los umbrales son los de las páginas de provincia: 95 % casi seguro, 75 % probable y, desde el 10 %, en el aire."
   },
