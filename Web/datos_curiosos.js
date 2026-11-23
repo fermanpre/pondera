@@ -13,6 +13,7 @@
  *   - margen: votos que separan a un partido de un escaño más en el reparto central (el primero que se queda fuera frente al último que entra).
  *   - incierta: provincias donde el reparto central de escaños es el menos probable de las simulaciones.
  *   - nacional: partidos con una probabilidad apreciable de quedarse sin ningún diputado en toda España.
+ *   - votos_sin_escanos: en qué porcentaje de las simulaciones un partido (PSOE frente a PP) saca más votos que el otro en toda España y, aun así, no más escaños (y al revés). (23/11/2026)
  *   - voto: el voto más valioso de España (sitio/voto_util.json, que genera voto_util_provincias.js: ejecutar antes).
  * Escribe sitio/curiosidades.js (const CURIOSIDADES = {...}) y curiosidades.json. Uso: node datos_curiosos.js [sorteos]
  */
@@ -25,7 +26,7 @@ const SEMILLA = 20261129;
 const CUOTA_MINIMA_PARA_BARRERA = 0.004;   // un partido con menos de un 0,4 % del voto de la provincia no se cuenta como candidato a quedarse sin escaño
 const PROBABILIDAD_BARRERA_MINIMA = 0.05;
 const PROBABILIDAD_BARRERA_MAXIMA = 0.97;
-const MAXIMO_DE_DATOS_POR_TIPO = { barrera: 6, margen: 6, incierta: 5, nacional: 5, voto: 4, primera: 5, giro: 4, entra: 6 };
+const MAXIMO_DE_DATOS_POR_TIPO = { barrera: 6, margen: 6, incierta: 5, nacional: 5, voto: 4, primera: 5, giro: 4, entra: 6, votos_sin_escanos: 1 };
 
 const datos = JSON.parse(fs.readFileSync(path.join(__dirname, "sitio", "datos_modelo.json"), "utf8"));
 // Resultados reales de 2023 por provincia (votos de cada candidatura y votos válidos): sirven para medir los giros
@@ -173,6 +174,31 @@ if (columnaDeFV >= 0 && columnaDePodemos >= 0) {
     if (propios + diputadosDePodemosEnFV[s] > 0) conElCupoDeFV++;
   }
   curiosidades.push({ tipo: "podemos_fv", propia: Math.round(1000 * conPodemosPropio / SORTEOS) / 1000, con_fv: Math.round(1000 * conElCupoDeFV / SORTEOS) / 1000 });
+}
+
+// ---- Más votos pero no más escaños: PSOE frente a PP (23/11/2026). Votos nacionales de cada sorteo = suma de las cuotas por provincia por los votos válidos de la provincia
+const columnaDePP = modelo.partidos.indexOf("PP");
+const columnaDePSOE = modelo.partidos.indexOf("PSOE");
+if (columnaDePP >= 0 && columnaDePSOE >= 0) {
+  let psoeMasVotos = 0, psoeMasVotosSinMasEscanos = 0, ppMasVotos = 0, ppMasVotosSinMasEscanos = 0;
+  for (let s = 0; s < SORTEOS; s++) {
+    let votosPP = 0, votosPSOE = 0;
+    for (let p = 0; p < P; p++) {
+      votosPP += cuotasFinales[(s * P + p) * K + columnaDePP] * modelo.peso[p];
+      votosPSOE += cuotasFinales[(s * P + p) * K + columnaDePSOE] * modelo.peso[p];
+    }
+    const escanosPP = resultado.nacionales[s * K + columnaDePP];
+    const escanosPSOE = resultado.nacionales[s * K + columnaDePSOE];
+    if (votosPSOE > votosPP) { psoeMasVotos++; if (escanosPSOE <= escanosPP) psoeMasVotosSinMasEscanos++; }
+    else if (votosPP > votosPSOE) { ppMasVotos++; if (escanosPP <= escanosPSOE) ppMasVotosSinMasEscanos++; }
+  }
+  curiosidades.push({
+    tipo: "votos_sin_escanos",
+    psoe_mas_votos_sin_mas_escanos: Math.round(1000 * psoeMasVotosSinMasEscanos / SORTEOS) / 1000,
+    pp_mas_votos_sin_mas_escanos: Math.round(1000 * ppMasVotosSinMasEscanos / SORTEOS) / 1000,
+    psoe_mas_votos: Math.round(1000 * psoeMasVotos / SORTEOS) / 1000,
+    pp_mas_votos: Math.round(1000 * ppMasVotos / SORTEOS) / 1000,
+  });
 }
 
 // ---- Primera plaza de cada provincia, giros desde 2023 y partidos que entran o no

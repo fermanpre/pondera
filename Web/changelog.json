@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-23",
+    "titulo": "Nuevo dato curioso: más votos, pero no más escaños",
+    "texto": "Entre los datos curiosos de Inicio y de la página de curiosidades hay uno nuevo: en qué porcentaje de las simulaciones el PSOE saca más votos que el PP en toda España y, aun así, no le supera en escaños (y el caso contrario). Se calcula con las mismas 10.000 simulaciones que el resto de la web, sumando el voto de las 52 circunscripciones en cada una."
+  },
+  {
+    "fecha": "2026-11-23",
     "titulo": "El escenario vuelve a ser el reparto central",
     "texto": "El hemiciclo, las mayorías y las tablas de provincias y comunidades enseñan otra vez el reparto central: en cada provincia, D'Hondt sobre el voto previsto. El sorteo de las simulaciones que usábamos como escenario siempre se torcía en unas pocas provincias (en Cádiz daba 2-2-2-2 con un voto que da 3-2-2-1). Ahora cada fila es coherente con su voto y suma 350 escaños; los totales pueden diferir en unos escaños de las medianas, que siguen siendo las de las 10.000 simulaciones."
   },

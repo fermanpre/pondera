@@ -14,6 +14,7 @@ const TIPOS_DE_CURIOSIDAD = {
   primera: { titulo: "Disputa por la primera plaza", explicacion: "Provincias de cuatro escaños o más donde dos partidos se disputan ser el que más escaños saca: probabilidad de cada uno de quedar primero en las simulaciones (los empates no cuentan), con la segunda opción por encima del 15 %. Se muestran las más igualadas." },
   giro: { titulo: "Los mayores giros desde 2023", explicacion: "El mayor cambio en el porcentaje de votos válidos de cada partido respecto a las generales de 2023 (resultado real) en una provincia, comparado con el reparto central de 2026. Solo partidos con al menos un 3 % en 2023, un dato por partido." },
   entra: { titulo: "¿Entra o no entra?", explicacion: "Partidos con una probabilidad de sacar al menos un escaño en una provincia entre el 30 y el 70 % y un voto central de al menos el 1 %. Se muestran los más cercanos al 50 %." },
+  votos_sin_escanos: { titulo: "Más votos, pero no más escaños", explicacion: "En cada simulación se compara el voto total de PSOE y PP en toda España con sus escaños. Se cuenta cuántas veces un partido saca más votos que el otro y, aun así, no le supera en escaños (un empate a escaños cuenta como no superarle). Los votos de cada simulación son la suma de los de las 52 circunscripciones." },
   voto: { titulo: "Los votos que más pesan", explicacion: "Los votos con mayor valor frente al voto medio de España (el «valor de un voto» de la sección de voto útil), solo de partidos con al menos un 1 % del voto en la provincia y un valor de ×2 o más." },
 };
 
@@ -52,6 +53,9 @@ const TIPOS_DE_CURIOSIDAD = {
     }
     if (dato.tipo === "nacional") {
       return { texto: etiquetaDe(dato.partido, "") + " se queda sin ningún diputado en toda España " + enSimulaciones(dato.probabilidad) + ".", enlace: "index.html#nacional", rotulo: "Ver los escaños" };
+    }
+    if (dato.tipo === "votos_sin_escanos") {
+      return { texto: etiquetaDe("PSOE", "") + " saca más votos que " + etiquetaDe("PP", "") + " en toda España " + enSimulaciones(dato.psoe_mas_votos) + ", y " + enSimulaciones(dato.psoe_mas_votos_sin_mas_escanos) + " lo hace sin superarle en escaños. El caso contrario, que el PP supere en votos al PSOE y no en escaños, ocurre " + enSimulaciones(dato.pp_mas_votos_sin_mas_escanos) + ".", enlace: "index.html#nacional", rotulo: "Ver los escaños" };
     }
     if (dato.tipo === "voto") {
       return { texto: "Un voto a " + etiquetaDe(dato.partido, dato.provincia) + " en " + escapar(dato.provincia) + " vale ×" + formatoDecimal.format(dato.valor) + " el voto medio de España: es de los votos que más pesan en el reparto de escaños.", enlace: "provincias.html", rotulo: "Ver la página de provincias" };
