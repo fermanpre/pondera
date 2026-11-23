@@ -20,7 +20,7 @@
 <meta name="twitter:title" content="PP: voto previsto por circunscripción · PONDERA">
 <meta name="twitter:description" content="Voto previsto de PP en cada circunscripción en las elecciones generales de 2026, con rangos del 80 % y del 95 %, escaños y mapa de España.">
 <meta name="twitter:image" content="https://fermanpre.github.io/pondera/assets/og-image.png">
-<link rel="stylesheet" href="assets/estilo.css">
+<link rel="stylesheet" href="assets/estilo.css?v=202611230042">
 <script>try{var t=localStorage.getItem('pondera-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}</script>
 </head>
 <body>
@@ -65,6 +65,14 @@
 
   <section id="partido-lista" class="partido-lista">
     <h2>Circunscripciones por voto</h2>
+    <div class="controles">
+      <label>Rangos y distribución de
+        <select id="vista-partido">
+          <option value="escanos">Escaños</option>
+          <option value="voto">Voto</option>
+        </select>
+      </label>
+    </div>
     <div id="partido-tabla"></div>
   </section>
 </div>
@@ -315,15 +323,15 @@
     <a href="https://github.com/fermanpre/pondera">GitHub</a>
   </nav>
 </footer>
-<script src="assets/tema.js"></script>
-<script src="assets/probabilidad.js"></script>
-<script src="assets/veda.js"></script>
-<script src="assets/cookies.js"></script>
-<script src="ultima_actualizacion.js"></script>
-<script src="assets/actualizacion.js"></script>
-<script src="assets/comun.js"></script>
-<script src="assets/territorios.js"></script>
-<script src="datos_partidos.js"></script>
-<script src="assets/app_partido.js"></script>
+<script src="assets/tema.js?v=202611230042"></script>
+<script src="assets/probabilidad.js?v=202611230042"></script>
+<script src="assets/veda.js?v=202611230042"></script>
+<script src="assets/cookies.js?v=202611230042"></script>
+<script src="ultima_actualizacion.js?v=202611230042"></script>
+<script src="assets/actualizacion.js?v=202611230042"></script>
+<script src="assets/comun.js?v=202611230042"></script>
+<script src="assets/territorios.js?v=202611230042"></script>
+<script src="datos_partidos.js?v=202611230042"></script>
+<script src="assets/app_partido.js?v=202611230042"></script>
 </body>
 </html>

@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-23",
+    "titulo": "Escaños en la página de cada partido y escenario más estable",
+    "texto": "La página de cada partido deja elegir, como las de provincia y comunidad, entre rangos y distribución de escaños o de voto (la elección se recuerda en todo el sitio): enseña la mediana, el escenario representativo, el escaño más probable, los rangos del 80 % y del 95 % y la distribución por circunscripción. El escenario representativo se elige ahora entre 100.000 simulaciones y deja a los partidos medianos (Adelante Andalucía, ERC, Bildu, Sumar...) a no más de un escaño de su mediana, y a PP, PSOE y Vox a no más de dos, para que no salte entre actualizaciones. Y los ficheros del sitio llevan una versión para que dos páginas no enseñen datos de ciclos distintos por la caché del navegador."
+  },
+  {
+    "fecha": "2026-11-23",
     "titulo": "Social Data en Andalucía completa y A+M de Aragón bien atribuida",
     "texto": "Entra la estimación provincial de Social Data (22/11) para las ocho provincias andaluzas: sube el PSOE andaluz en el modelo unas décimas y Adelante baja. Podemos aparece (1,2 %, punto medio de su horquilla) en el promedio de Andalucía. Y la encuesta de Aragón de Heraldo (A+M), que la fuente atribuía por error a Social Data, vuelve a figurar como A+M: contaba dos veces en el promedio de la comunidad."
   },

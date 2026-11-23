@@ -26,6 +26,9 @@ RUTA_CHANGELOG = CARPETA / "changelog.json"
 BASE_URL = "https://fermanpre.github.io/pondera"
 NOMBRE_SITIO = "PONDERA"
 LEMA = "Elecciones generales 2026"
+# Versión de esta generación del sitio (23/11/2026): se añade como «?v=...» a los scripts y a la hoja de estilo propios. GitHub Pages sirve los ficheros con Cache-Control: max-age=600, así que sin
+# ella una página puede enseñar durante diez minutos un fichero de datos de un ciclo anterior junto a otros del ciclo actual (el escenario de la portada y el de la página de un partido, por ejemplo).
+VERSION_DE_LA_GENERACION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M")
 URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/partidos.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js"]
@@ -140,7 +143,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
     # Botón global de probabilidades (porcentajes o «x de cada y»): solo en las páginas que enseñan probabilidades
     boton_probabilidades = ('<button id="boton-probabilidades" type="button" aria-label="Mostrar las probabilidades como porcentajes o como x de cada y">Probabilidades: %</button>\n    '
                             if pagina.get("probabilidades") else "")
-    scripts = "\n".join('<script src="%s%s"></script>' % (prefijo, ruta) for ruta in ["assets/tema.js", "assets/probabilidad.js", "assets/veda.js", "assets/cookies.js", "ultima_actualizacion.js", "assets/actualizacion.js"] + pagina["scripts"])
+    scripts = "\n".join('<script src="%s%s?v=%s"></script>' % (prefijo, ruta, VERSION_DE_LA_GENERACION) for ruta in ["assets/tema.js", "assets/probabilidad.js", "assets/veda.js", "assets/cookies.js", "ultima_actualizacion.js", "assets/actualizacion.js"] + pagina["scripts"])
 
     return """<!doctype html>
 <html lang="es">
@@ -163,7 +166,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
 <meta name="twitter:title" content="{titulo_completo}">
 <meta name="twitter:description" content="{descripcion}">
 <meta name="twitter:image" content="{imagen}">
-<link rel="stylesheet" href="{prefijo}assets/estilo.css">
+<link rel="stylesheet" href="{prefijo}assets/estilo.css?v={version}">
 {script_de_tema}
 </head>
 <body>
@@ -205,6 +208,7 @@ def construir_pagina(pagina, contenido, prefijo=""):
         nombre=NOMBRE_SITIO, lema=escapar(LEMA), base_url=BASE_URL, script_de_tema=SCRIPT_DE_TEMA_EN_CABECERA + ETIQUETA_DE_GOOGLE_ANALYTICS, menu="\n      ".join(enlaces_del_menu),
         contenido=contenido, scripts=scripts, url_repositorio=URL_REPOSITORIO, segunda_cinta=segunda_cinta, boton_probabilidades=boton_probabilidades,
         etiqueta_base=('<base href="%s">\n' % pagina["base"]) if pagina.get("base") else "",
+        version=VERSION_DE_LA_GENERACION,
         imagen=pagina.get("imagen") or (BASE_URL + "/assets/og-image.png"))
 
 

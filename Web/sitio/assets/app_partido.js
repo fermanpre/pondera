@@ -116,23 +116,68 @@
   }
 
   /* ---------- Lista ordenada ---------- */
+  // Vista de las columnas de rangos y de distribución: de escaños (por defecto) o de voto. Es la misma elección, y se guarda con la misma clave, que en las tablas de provincia y comunidad.
+  let vista = "escanos";
+  const selectorDeVista = document.getElementById("vista-partido");
+  if (selectorDeVista) {
+    try {
+      const guardada = localStorage.getItem("pondera-vista-territorio");
+      if (guardada && selectorDeVista.querySelector('option[value="' + guardada + '"]')) { selectorDeVista.value = guardada; }
+    } catch (error) { /* sin almacenamiento: se usa el valor por defecto */ }
+    vista = selectorDeVista.value;
+    selectorDeVista.addEventListener("change", function () {
+      vista = selectorDeVista.value;
+      try { localStorage.setItem("pondera-vista-territorio", vista); } catch (error) { /* ignorar */ }
+      pintarLista();
+    });
+  }
+  const rangoDeEscanos = (desde, hasta) => (desde === hasta ? String(desde) : desde + "–" + hasta);
+
+  // Distribución de probabilidad de cada número de escaños en la circunscripción: una barra por número, con el más probable en tono pleno
+  function distribucionDeEscanos(fila) {
+    const probabilidades = fila.distribucion_de_escanos;
+    const maxima = Math.max.apply(null, probabilidades);
+    const ANCHO = 112, ALTO = 28, MARGEN = 1;
+    const ancho = ANCHO / probabilidades.length;
+    let svg = '<svg viewBox="0 0 ' + ANCHO + " " + ALTO + '" width="' + ANCHO + '" height="' + ALTO + '" role="img" aria-label="Distribución de escaños de ' + escapar(nombreVisible(fila.nombre)) + '">';
+    probabilidades.forEach(function (probabilidad, escanos) {
+      const alto = Math.max(probabilidad > 0 ? 1 : 0, (ALTO - 2) * probabilidad / maxima);
+      svg += '<rect x="' + (escanos * ancho + MARGEN / 2).toFixed(1) + '" y="' + (ALTO - alto).toFixed(1) + '" width="' + Math.max(1, ancho - MARGEN).toFixed(1) + '" height="' + alto.toFixed(1) + '" fill="' + color +
+        '" opacity="' + (escanos === fila.escanos.mas_probable ? "1" : "0.55") + '"><title>' + escanos + (escanos === 1 ? " escaño: " : " escaños: ") + porcentaje(100 * probabilidad) + "</title></rect>";
+    });
+    return svg + "</svg>";
+  }
+
   function pintarLista() {
-    // Escala común de las franjas: del 0 al mayor extremo del rango del 95 % de todas las filas
+    // Escala común de las franjas de voto: del 0 al mayor extremo del rango del 95 % de todas las filas
     const techo = Math.max.apply(null, filas.map((fila) => fila.p975));
     const posicion = (valor) => (100 * Math.max(0, valor) / techo).toFixed(2);
+    const deVoto = vista === "voto";
     const cuerpo = filas.map(function (fila, indice) {
       const franja = (desde, hasta, clase) => '<span class="franja ' + clase + '" style="left:' + posicion(desde) + "%;width:" + (posicion(hasta) - posicion(desde)).toFixed(2) + '%"></span>';
       const barra = '<span class="franjas" style="--color:' + color + '" title="Voto previsto ' + porcentaje(fila.voto) + "; rango del 80 %: " + rango(fila.p10, fila.p90) + "; rango del 95 %: " + rango(fila.p025, fila.p975) + '">' +
         franja(fila.p025, fila.p975, "franja-95") + franja(fila.p10, fila.p90, "franja-80") + '<span class="franja-central" style="left:' + posicion(fila.voto) + '%"></span></span>';
-      return "<tr><td class=\"num suave\">" + (indice + 1) + "</td><td>" + enlaceDeProvincia(fila.nombre) + ' <small class="suave">' + fila.escanos_de_la_provincia + "</small></td>" +
-        '<td class="num"><b>' + porcentaje(fila.voto) + '</b></td><td class="num">' + rango(fila.p10, fila.p90) + '</td><td class="num">' + rango(fila.p025, fila.p975) + "</td><td>" + barra + "</td>" +
-        '<td class="num">' + (fila.voto2023 === null ? "–" : porcentaje(fila.voto2023)) + '</td><td class="num">' + (fila.voto2023 === null ? "–" : conSigno(fila.voto - fila.voto2023)) + "</td>" +
-        '<td class="num">' + fila.escanos_escenario + '</td><td class="num">' + (fila.escanos2023 === null ? "–" : fila.escanos2023) + "</td></tr>";
+      const comunes = '<tr><td class="num suave">' + (indice + 1) + "</td><td>" + enlaceDeProvincia(fila.nombre) + ' <small class="suave">' + fila.escanos_de_la_provincia + "</small></td>" +
+        '<td class="num"><b>' + porcentaje(fila.voto) + "</b></td>";
+      const escanos2023 = '<td class="num">' + (fila.escanos2023 === null ? "–" : fila.escanos2023) + "</td></tr>";
+      if (deVoto) {
+        return comunes + '<td class="num">' + rango(fila.p10, fila.p90) + '</td><td class="num">' + rango(fila.p025, fila.p975) + "</td><td>" + barra + "</td>" +
+          '<td class="num">' + (fila.voto2023 === null ? "–" : porcentaje(fila.voto2023)) + '</td><td class="num">' + (fila.voto2023 === null ? "–" : conSigno(fila.voto - fila.voto2023)) + "</td>" +
+          '<td class="num">' + fila.escanos_escenario + "</td>" + escanos2023;
+      }
+      return comunes + '<td class="num"><b>' + fila.escanos.mediana + '</b></td><td class="num">' + fila.escanos_escenario + '</td><td class="num">' + fila.escanos.mas_probable + "</td>" +
+        '<td class="num">' + rangoDeEscanos(fila.escanos.p10, fila.escanos.p90) + '</td><td class="num">' + rangoDeEscanos(fila.escanos.p025, fila.escanos.p975) + "</td><td>" + distribucionDeEscanos(fila) + "</td>" +
+        '<td class="num">' + porcentaje(100 * fila.probabilidad_de_escano) + "</td>" + escanos2023;
     }).join("");
+    const cabeceraDeVoto = '<th class="num">Rango 80 %</th><th class="num">Rango 95 %</th><th>Franjas</th><th class="num">Voto 2023</th><th class="num">Dif.</th><th class="num" title="Escaños del escenario representativo">Esc. 2026</th><th class="num">Esc. 2023</th>';
+    const cabeceraDeEscanos = '<th class="num" title="Mediana de los escaños de las 10.000 simulaciones">Mediana</th><th class="num" title="Escaños del escenario representativo: un solo sorteo que se parece a las medianas">Escenario</th><th class="num" title="Número de escaños más probable">Más prob.</th>' +
+      '<th class="num">Esc. 80 %</th><th class="num">Esc. 95 %</th><th>Distribución</th><th class="num" title="Probabilidad de sacar al menos un escaño">Prob. ≥ 1</th><th class="num">Esc. 2023</th>';
+    const nota = deVoto
+      ? '<p class="nota">Franjas: la clara es el rango del 95 %, la oscura el del 80 % y la raya, el voto previsto; todas con la misma escala (de 0 a ' + porcentaje(techo) + ").</p>"
+      : '<p class="nota">Mediana: los escaños que quedan en el medio de las 10.000 simulaciones de esa circunscripción. Escenario: los de un solo sorteo representativo del conjunto. No tienen por qué coincidir ni sumar el total de España, porque cada mediana sale de sorteos distintos. ' +
+        'En la distribución, la barra más oscura es el número de escaños más probable.</p>';
     document.getElementById("partido-tabla").innerHTML = '<div class="tabla-ancha"><table class="tabla-partido"><thead><tr><th class="num">#</th><th>Circunscripción <small class="suave">(escaños)</small></th>' +
-      '<th class="num">Voto previsto</th><th class="num">Rango 80 %</th><th class="num">Rango 95 %</th><th>Franjas</th><th class="num">Voto 2023</th><th class="num">Dif.</th><th class="num" title="Escaños del escenario representativo">Esc. 2026</th><th class="num">Esc. 2023</th></tr></thead>' +
-      "<tbody>" + cuerpo + "</tbody></table></div>" +
-      '<p class="nota">Franjas: la clara es el rango del 95 %, la oscura el del 80 % y la raya, el voto previsto; todas con la misma escala (de 0 a ' + porcentaje(techo) + ").</p>";
+      '<th class="num">Voto previsto</th>' + (deVoto ? cabeceraDeVoto : cabeceraDeEscanos) + "</tr></thead><tbody>" + cuerpo + "</tbody></table></div>" + nota;
   }
 
   pintarResumen();

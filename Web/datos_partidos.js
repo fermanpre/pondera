@@ -8,6 +8,8 @@
  *   - rangos del 80 % (percentiles 10 y 90) y del 95 % (2,5 y 97,5) del voto por sorteo, con el mismo criterio de índices que la tabla de la web (assets/app_prevision.js);
  *   - voto y escaños de 2023 en la provincia (con la misma correspondencia de claves que la tabla: Front Valencià = Sumar 2023 en las provincias valencianas, Unidad del Pueblo Canario = Sumar
  *     más Nueva Canarias en Canarias, Geroa Bai = X:GBAI; Podemos y SALF no tienen 2023 propio);
+ *   - escaños: mediana, escaño más probable, rangos del 80 % y del 95 % (con los índices de textoDeRangoDeEscanos de assets/app_prevision.js) y distribución de probabilidad de cada número de escaños
+ *     (para la vista de escaños de la página, como en las tablas de provincia y comunidad);
  *   - escaños del escenario representativo (sitio/escenario_representativo.json) y probabilidad de sacar al menos uno (para las futuras campanitas de la página: seguros, probables y rivales).
  * Y, por partido, el objetivo nacional, los escaños (mediana, rango del 95 % y escenario) y el voto y los escaños de 2023 en las circunscripciones donde concurre.
  * Escribe sitio/datos_partidos.js (const DATOS_PARTIDOS = {...}) y datos_partidos.json. Uso: node datos_partidos.js [sorteos]
@@ -66,12 +68,26 @@ partidosDelModelo.forEach(function (partido) {
     const cuotaCentral = provinciaDelModelo.cuotas[partido] || 0;
     if (!modelo.presente[p * K + k] || cuotaCentral < 0.0005) { continue; }
     const valores = new Float64Array(SORTEOS);
+    const escanosPorSorteoEnLaProvincia = new Uint8Array(SORTEOS);
+    const cuentasDeEscanos = new Uint32Array(64);
     let conEscano = 0;
     for (let s = 0; s < SORTEOS; s++) {
       valores[s] = 100 * simulacion.cuotas[(s * P + p) * K + k] / 65535;
-      if (simulacion.provinciales[(s * P + p) * K + k] >= 1) { conEscano += 1; }
+      const escanosDelSorteo = simulacion.provinciales[(s * P + p) * K + k];
+      escanosPorSorteoEnLaProvincia[s] = escanosDelSorteo;
+      cuentasDeEscanos[escanosDelSorteo] += 1;
+      if (escanosDelSorteo >= 1) { conEscano += 1; }
     }
     valores.sort();
+    escanosPorSorteoEnLaProvincia.sort();
+    // Distribución de probabilidad de cada número de escaños, hasta el último con un 0,05 % o más, y escaño más probable (el menor en caso de empate)
+    let ultimoConProbabilidad = 0, masProbable = 0;
+    for (let n = 0; n < cuentasDeEscanos.length; n++) {
+      if (cuentasDeEscanos[n] / SORTEOS >= 0.0005) { ultimoConProbabilidad = n; }
+      if (cuentasDeEscanos[n] > cuentasDeEscanos[masProbable]) { masProbable = n; }
+    }
+    const distribucionDeEscanos = [];
+    for (let n = 0; n <= ultimoConProbabilidad; n++) { distribucionDeEscanos.push(redondear(cuentasDeEscanos[n] / SORTEOS, 3)); }
     // En Navarra la columna UPN lleva la coalición UPN-PP: sus escaños son los de UPN más los de PP en esa provincia
     const coalicion = modelo.coaliciones.find((c) => c.provincia === p && c.columna === k);
     const escanosDelEscenarioEnLaProvincia = escanosDelEscenario(p, k) + (coalicion ? escanosDelEscenario(p, coalicion.socio) : 0);
@@ -88,6 +104,12 @@ partidosDelModelo.forEach(function (partido) {
       p025: redondear(percentilInferior(valores, 0.025), 2), p10: redondear(percentilInferior(valores, 0.1), 2), p50: redondear(valores[Math.floor(SORTEOS / 2)], 2),
       p90: redondear(percentilSuperior(valores, 0.9), 2), p975: redondear(percentilSuperior(valores, 0.975), 2),
       voto2023: de2023 ? redondear(de2023.voto, 2) : null, escanos2023: de2023 ? de2023.escanos : null,
+      escanos: {
+        mediana: escanosPorSorteoEnLaProvincia[Math.floor(SORTEOS / 2)], mas_probable: masProbable,
+        p10: percentilInferior(escanosPorSorteoEnLaProvincia, 0.1), p90: percentilSuperior(escanosPorSorteoEnLaProvincia, 0.9),
+        p025: percentilInferior(escanosPorSorteoEnLaProvincia, 0.025), p975: percentilSuperior(escanosPorSorteoEnLaProvincia, 0.975),
+      },
+      distribucion_de_escanos: distribucionDeEscanos,
       escanos_escenario: escanosDelEscenarioEnLaProvincia, probabilidad_de_escano: redondear(conEscano / SORTEOS, 3),
     });
   }
