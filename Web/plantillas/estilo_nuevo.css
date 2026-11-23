@@ -77,10 +77,13 @@
   .tarjeta-partido b { font-size: 1.5rem; line-height: 1.2; }
   .tarjeta-titulo { color: var(--suave); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
   .tarjeta-detalle { color: var(--suave); font-size: 0.85rem; }
-  .partido-cuerpo { display: grid; grid-template-columns: 1fr; gap: 18px 28px; align-items: start; }
+  .partido-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px 28px; align-items: start; }
+  .partido-cuerpo > * { min-width: 0; }
   @media (min-width: 1100px) { .partido-cuerpo { grid-template-columns: minmax(300px, 3fr) minmax(0, 8fr); } }
   .partido-disputa { margin: 4px 0 20px; }
   .partido-disputa h2 { margin: 0 0 4px; }
+  .disputa-rejilla .vu-rejilla-fila { grid-template-columns: 200px 1fr; }
+  @media (max-width: 520px) { .disputa-rejilla .vu-rejilla-fila { grid-template-columns: 1fr; } }
   .disputa-grupo { margin: 10px 0; }
   .disputa-grupo h3 { margin: 0 0 6px; font-size: 1rem; }
   .disputa-fichas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }

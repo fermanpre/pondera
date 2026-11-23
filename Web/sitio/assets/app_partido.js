@@ -65,60 +65,65 @@
   /* ---------- Escaños en disputa ---------- */
   // Los mismos umbrales que las páginas de provincia (voto_util_provincias.js): casi seguro 95 %, probable 75 %; por debajo, «en el aire», que aquí se enseña desde el 10 %.
   const UMBRAL_CASI_SEGURO = 0.95, UMBRAL_PROBABLE = 0.75, UMBRAL_MINIMO_EN_EL_AIRE = 0.10;
-  const ordinal = (numero) => numero + ".º";
-  // Un escaño por cada número de escaños de una provincia en el que el partido tiene al menos un 10 % de probabilidad de sacar «al menos ese número»
-  function escanosDelPartido() {
-    const escanos = [];
+  const textoDeProbabilidadEnCuadro = (probabilidad) => (probabilidad >= 0.995 ? "100" : String(Math.round(100 * probabilidad))) + " %";
+  // Una fila por circunscripción con un cuadrado por cada escaño que el partido tiene al menos al 10 % de probabilidad de sacar («al menos k escaños»)
+  function filasDeEscanosEnDisputa() {
+    const resultado = [];
     filas.forEach(function (fila) {
+      const probabilidades = [];
       let acumulado = 0;   // probabilidad de sacar menos de k escaños
       for (let k = 1; k < fila.distribucion_de_escanos.length; k++) {
         acumulado += fila.distribucion_de_escanos[k - 1];
         const probabilidad = Math.min(1, Math.max(0, 1 - acumulado));
         if (probabilidad < UMBRAL_MINIMO_EN_EL_AIRE) { break; }
-        escanos.push({ provincia: fila.nombre, numero: k, probabilidad: probabilidad });
+        probabilidades.push(probabilidad);
       }
+      if (!probabilidades.length) { return; }
+      resultado.push({
+        nombre: fila.nombre, probabilidades: probabilidades,
+        seguros: probabilidades.filter((p) => p >= UMBRAL_CASI_SEGURO).length,
+        probables: probabilidades.filter((p) => p >= UMBRAL_PROBABLE && p < UMBRAL_CASI_SEGURO).length,
+        esperados: probabilidades.reduce((suma, p) => suma + p, 0),
+      });
     });
-    return escanos;
+    // Orden: más escaños casi seguros primero; a igualdad, más probables; después, más escaños esperados
+    resultado.sort((a, b) => b.seguros - a.seguros || b.probables - a.probables || b.esperados - a.esperados || nombreVisible(a.nombre).localeCompare(nombreVisible(b.nombre), "es"));
+    return resultado;
   }
-  function textoDeRangoDeOrdinales(desde, hasta) { return desde === hasta ? ordinal(desde) : ordinal(desde) + "–" + ordinal(hasta); }
   function pintarEscanosEnDisputa() {
     const contenedor = document.getElementById("partido-disputa");
     if (!contenedor) { return; }
-    const escanos = escanosDelPartido();
-    const seguros = escanos.filter((escano) => escano.probabilidad >= UMBRAL_CASI_SEGURO);
-    const probables = escanos.filter((escano) => escano.probabilidad >= UMBRAL_PROBABLE && escano.probabilidad < UMBRAL_CASI_SEGURO);
-    const enElAire = escanos.filter((escano) => escano.probabilidad < UMBRAL_PROBABLE);
-    const porProbabilidad = (a, b) => b.probabilidad - a.probabilidad || a.numero - b.numero;
-    const ficha = (escano, clase) => '<li class="disputa-ficha ' + clase + '" style="--c:' + color + '">' + ordinal(escano.numero) + " por " + enlaceDeProvincia(escano.provincia) + " <small>" + Math.round(100 * escano.probabilidad) + " %</small></li>";
-    const pluralDe = (cantidad, singular, plural) => cantidad + " " + (cantidad === 1 ? singular : plural);
-    if (!escanos.length) {
+    const lista = filasDeEscanosEnDisputa();
+    if (!lista.length) {
       contenedor.innerHTML = "<h2>Escaños en disputa</h2><p class=\"nota\">En ninguna circunscripción tiene este partido un 10 % de probabilidad o más de sacar escaño.</p>";
       return;
     }
-    // Casi seguros, agrupados por provincia (son todos de un 95 % o más): «Madrid 1.º–8.º»
-    const segurosPorProvincia = {};
-    seguros.forEach(function (escano) { (segurosPorProvincia[escano.provincia] = segurosPorProvincia[escano.provincia] || []).push(escano.numero); });
-    const provinciasConSeguros = Object.keys(segurosPorProvincia).sort((a, b) => segurosPorProvincia[b].length - segurosPorProvincia[a].length || nombreVisible(a).localeCompare(nombreVisible(b), "es"));
-    const fichasDeSeguros = provinciasConSeguros.map(function (provincia) {
-      const numeros = segurosPorProvincia[provincia];
-      return '<li class="disputa-ficha" style="--c:' + color + '">' + enlaceDeProvincia(provincia) + " <small>" + textoDeRangoDeOrdinales(numeros[0], numeros[numeros.length - 1]) + "</small></li>";
-    }).join("");
+    const total = (clave) => lista.reduce((suma, fila) => suma + fila[clave], 0);
+    const seguros = total("seguros"), probables = total("probables");
+    const enElAire = lista.reduce((suma, fila) => suma + fila.probabilidades.length, 0) - seguros - probables;
+    const pluralDe = (cantidad, singular, plural) => cantidad + " " + (cantidad === 1 ? singular : plural);
     const resumen = [];
-    if (seguros.length) { resumen.push(pluralDe(seguros.length, "casi seguro", "casi seguros")); }
-    if (probables.length) { resumen.push(pluralDe(probables.length, "probable", "probables")); }
-    if (enElAire.length) { resumen.push(pluralDe(enElAire.length, "en el aire", "en el aire")); }
+    if (seguros) { resumen.push(pluralDe(seguros, "casi seguro", "casi seguros")); }
+    if (probables) { resumen.push(pluralDe(probables, "probable", "probables")); }
+    if (enElAire) { resumen.push(pluralDe(enElAire, "en el aire", "en el aire")); }
     let html = "<h2>Escaños en disputa</h2>" +
-      '<p class="nota">' + escapar(resumen.join(", ").replace(/, ([^,]*)$/, " y $1")) + ". El 2.º por Sevilla es el segundo escaño del partido en Sevilla: lo consigue si saca al menos dos. Junto a cada escaño, esa probabilidad.</p>";
-    if (seguros.length) {
-      html += '<div class="disputa-grupo"><h3>Casi seguros (' + seguros.length + ")</h3><ul class=\"disputa-fichas\">" + fichasDeSeguros + "</ul></div>";
-    }
-    if (probables.length) {
-      html += '<div class="disputa-grupo"><h3>Probables (' + probables.length + ")</h3><ul class=\"disputa-fichas\">" + probables.sort(porProbabilidad).map((escano) => ficha(escano, "")).join("") + "</ul></div>";
-    }
-    if (enElAire.length) {
-      html += '<div class="disputa-grupo"><h3>En el aire (' + enElAire.length + ")</h3><ul class=\"disputa-fichas\">" + enElAire.sort(porProbabilidad).map((escano) => ficha(escano, "en-el-aire")).join("") + "</ul></div>";
-    }
-    html += '<p class="nota">Casi seguro: el partido saca ese escaño en al menos el ' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % de las 10.000 simulaciones. Probable: en al menos el " + Math.round(100 * UMBRAL_PROBABLE) + " %. En el aire: entre el " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " y el " + Math.round(100 * UMBRAL_PROBABLE) + " %; los que bajan del " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % no se enseñan. Los mismos umbrales que las páginas de provincia.</p>";
+      '<p class="nota">' + escapar(resumen.join(", ").replace(/, ([^,]*)$/, " y $1")) + ". Cada cuadrado es un escaño del partido en esa circunscripción, con la probabilidad de que saque al menos ese número de escaños: el segundo cuadrado de Sevilla es el 2.º por Sevilla. " +
+      "Las circunscripciones van ordenadas por escaños casi seguros y, a igualdad, por probables y por escaños esperados.</p>" +
+      '<div class="vu-rejilla-escanos disputa-rejilla">';
+    lista.forEach(function (fila) {
+      html += '<div class="vu-rejilla-fila"><span class="vu-rejilla-partido"><span>' + enlaceDeProvincia(fila.nombre) + ' <b>' + fila.seguros + "</b></span></span><span class=\"vu-rejilla-cuadros\">";
+      fila.probabilidades.forEach(function (probabilidad, indice) {
+        const seguro = probabilidad >= UMBRAL_CASI_SEGURO;
+        const relleno = seguro ? 100 : Math.max(6, Math.round(100 * probabilidad));
+        const estado = seguro ? "vu-rej-seguro" : "vu-rej-parcial" + (relleno >= 60 ? " vu-rej-fuerte" : "");
+        const titulo = (indice + 1) + ".º escaño por " + nombreVisible(fila.nombre) + ": " + textoDeProbabilidadEnCuadro(probabilidad);
+        html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + color + ";--relleno:" + relleno + '%" title="' + escapar(titulo) + '">' + textoDeProbabilidadEnCuadro(probabilidad) + "</span>";
+      });
+      html += "</span></div>";
+    });
+    html += "</div>" +
+      '<p class="nota">Relleno completo y línea continua: casi seguro (' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % o más de las 10.000 simulaciones). Línea discontinua: probable (desde el " + Math.round(100 * UMBRAL_PROBABLE) + " %) o en el aire; cuanto más pálido, menos probable. " +
+      "El número junto al nombre son los escaños casi seguros. Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia.</p>";
     contenedor.innerHTML = html;
   }
 
