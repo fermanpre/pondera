@@ -13,7 +13,7 @@
  *   - margen: votos que separan a un partido de un escaño más en el reparto central (el primero que se queda fuera frente al último que entra).
  *   - incierta: provincias donde el reparto central de escaños es el menos probable de las simulaciones.
  *   - nacional: partidos con una probabilidad apreciable de quedarse sin ningún diputado en toda España.
- *   - votos_sin_escanos: en qué porcentaje de las simulaciones un partido (PSOE frente a PP) saca más votos que el otro en toda España y, aun así, no más escaños (y al revés). (23/11/2026)
+ *   - votos_sin_escanos: en qué porcentaje de las simulaciones un partido (PSOE frente a PP) saca más votos que el otro en toda España y, aun así, MENOS escaños (y al revés); un empate a escaños no cuenta. (23/11/2026, sin empates desde el 24/11/2026)
  *   - voto: el voto más valioso de España (sitio/voto_util.json, que genera voto_util_provincias.js: ejecutar antes).
  * Escribe sitio/curiosidades.js (const CURIOSIDADES = {...}) y curiosidades.json. Uso: node datos_curiosos.js [sorteos]
  */
@@ -189,8 +189,8 @@ if (columnaDePP >= 0 && columnaDePSOE >= 0) {
     }
     const escanosPP = resultado.nacionales[s * K + columnaDePP];
     const escanosPSOE = resultado.nacionales[s * K + columnaDePSOE];
-    if (votosPSOE > votosPP) { psoeMasVotos++; if (escanosPSOE <= escanosPP) psoeMasVotosSinMasEscanos++; }
-    else if (votosPP > votosPSOE) { ppMasVotos++; if (escanosPP <= escanosPSOE) ppMasVotosSinMasEscanos++; }
+    if (votosPSOE > votosPP) { psoeMasVotos++; if (escanosPSOE < escanosPP) psoeMasVotosSinMasEscanos++; }
+    else if (votosPP > votosPSOE) { ppMasVotos++; if (escanosPP < escanosPSOE) ppMasVotosSinMasEscanos++; }
   }
   curiosidades.push({
     tipo: "votos_sin_escanos",
