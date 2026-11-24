@@ -481,3 +481,5 @@ button.principal { font-weight: 600; }
 .globo-escano li { margin: 6px 0 0; }
 .globo-escano li b { display: block; }
 .globo-escano li span { display: block; color: var(--suave); }
+.globo-escano .globo-barra { display: block; height: 6px; margin-top: 4px; border-radius: 3px; background: var(--linea); overflow: hidden; }
+.globo-escano .globo-barra i { display: block; height: 100%; border-radius: 3px; }

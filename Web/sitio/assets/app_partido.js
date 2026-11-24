@@ -124,11 +124,13 @@
       document.body.appendChild(globo);
     }
     let activo = null, fijado = false;
+    // Barra del color del partido con la longitud proporcional a la probabilidad (la pista completa es el 100 %)
+    const barra = (valor, colorDeLaBarra) => '<span class="globo-barra"><i style="width:' + Math.max(2, Math.round(100 * valor)) + "%;background:" + colorDeLaBarra + '"></i></span>';
     function contenidoDe(detalle) {
-      let html = '<b class="globo-titulo">' + escapar(detalle.titulo) + '</b><span class="globo-prob">Probabilidad: ' + escapar(detalle.probabilidad) + "</span>";
+      let html = '<b class="globo-titulo">' + escapar(detalle.titulo) + '</b><span class="globo-prob">Probabilidad: ' + escapar(detalle.probabilidad) + "</span>" + barra(detalle.valor, detalle.color);
       if (detalle.seguro) { return html; }
       if (detalle.rivales.length) {
-        html += '<span class="globo-sub">Se disputa con:</span><ul>' + detalle.rivales.map((rival) => "<li><b>" + escapar(rival.partido) + "</b><span>su " + rival.escano + ".º escaño, " + escapar(rival.probabilidad) + "</span></li>").join("") + "</ul>";
+        html += '<span class="globo-sub">Se disputa con:</span><ul>' + detalle.rivales.map((rival) => "<li><b>" + escapar(rival.partido) + "</b><span>su " + rival.escano + ".º escaño, " + escapar(rival.probabilidad) + "</span>" + barra(rival.valor, rival.color) + "</li>").join("") + "</ul>";
       } else {
         html += '<span class="globo-sub">Ningún otro partido tiene escaños en el aire en esta circunscripción.</span>';
       }
@@ -190,8 +192,9 @@
         const detalle = {
           titulo: (indice + 1) + ".º escaño por " + nombreVisible(fila.nombre),
           probabilidad: probabilidad >= 0.995 ? "100 %" : textoDeProbabilidadEnCuadro(probabilidad),
+          valor: probabilidad, color: color,
           seguro: seguro,
-          rivales: seguro ? [] : rivalesEnDisputa(fila.nombre).map((rival) => ({ partido: nombreDePartido(rival.partido), escano: rival.escano, probabilidad: textoDeProbabilidadEnCuadro(rival.probabilidad) })),
+          rivales: seguro ? [] : rivalesEnDisputa(fila.nombre).map((rival) => ({ partido: nombreDePartido(rival.partido), color: COLORES[rival.partido] || "#7a7a75", escano: rival.escano, probabilidad: textoDeProbabilidadEnCuadro(rival.probabilidad), valor: rival.probabilidad })),
         };
         html += '<span class="vu-rej-cuadro ' + estado + '" tabindex="0" role="button" style="--color:' + color + ";--relleno:" + relleno + '%" aria-label="' + escapar(detalle.titulo + ": " + detalle.probabilidad) + '" data-globo="' + escapar(JSON.stringify(detalle)) + '">' +
           (probabilidad >= 0.995 ? String(indice + 1) : textoDeProbabilidadEnCuadro(probabilidad)) + "</span>";
@@ -200,7 +203,7 @@
     });
     html += "</div>" +
       '<p class="nota">Relleno completo y línea continua: casi seguro (' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % o más de las " + simulacionesTexto + " simulaciones); en los que llegan al 100 % el cuadrado lleva el número del escaño en lugar del porcentaje. Línea discontinua: probable (desde el " + Math.round(100 * UMBRAL_PROBABLE) + " %) o en el aire; cuanto más pálido, menos probable. " +
-      "Junto al nombre, la horquilla: los escaños casi seguros y, tras el guion, todos los que se pintan (si son los mismos, un solo número). Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia. Al pasar el ratón por un cuadrado (o tocarlo, en el móvil) se abre un globo con la probabilidad y, si el escaño no es casi seguro, los partidos con los que se disputa: los que tienen en esa circunscripción algún escaño en el aire (entre el " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % y el casi seguro), con su escaño más incierto.</p>";
+      "Junto al nombre, la horquilla: los escaños casi seguros y, tras el guion, todos los que se pintan (si son los mismos, un solo número). Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia. Al pasar el ratón por un cuadrado (o tocarlo, en el móvil) se abre un globo con la probabilidad y, si el escaño no es casi seguro, los partidos con los que se disputa, cada uno con una barra de su color proporcional a la probabilidad: los que tienen en esa circunscripción algún escaño en el aire (entre el " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % y el casi seguro), con su escaño más incierto.</p>";
     contenedor.innerHTML = html;
     activarGlobo(contenedor);
   }
