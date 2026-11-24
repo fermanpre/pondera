@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Páginas de partido: la tarjeta de «Circunscripciones por voto» se alinea con la del mapa",
+    "texto": "En pantallas anchas, la tarjeta de «Circunscripciones por voto» empezaba 16 píxeles más abajo que la del mapa. Ahora las dos empiezan a la misma altura."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Explicación de por qué las probabilidades de cada escaño no suman 100 %",
     "texto": "Bajo la rejilla «Escaños en disputa» (página de partido) y «Los N escaños de…» (página de provincia) hay un desplegable «¿Por qué las probabilidades no suman 100 %?»: cada cuadrado es la probabilidad de sacar al menos ese número de escaños (por eso bajan de un cuadrado al siguiente), la de sacar exactamente un número es la del cuadrado menos la del siguiente, y entre partidos tampoco suman 100 % porque todos pueden sacar escaño a la vez. El globo de la página de partido enseña ahora la probabilidad de «k o más» escaños y la de «exactamente k»."
   },

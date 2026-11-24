@@ -498,3 +498,6 @@ button.principal { font-weight: 600; }
 .nota-desplegable { margin-top: 0.6rem; font-size: 0.9rem; color: var(--suave); }
 .nota-desplegable summary { cursor: pointer; font-weight: 600; color: var(--texto); }
 .nota-desplegable p { margin: 0.5rem 0 0; }
+
+/* Página de partido: la tarjeta de «Circunscripciones por voto» empieza a la misma altura que la del mapa (la regla general de section le daba 16 px de margen arriba) (24/11/2026) */
+.partido-lista { margin-top: 0; margin-bottom: 0; }
