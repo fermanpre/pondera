@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Encuesta final de Data10 (23 de noviembre)",
+    "texto": "Entra la última encuesta de Data10 para OKDiario (23 de noviembre, 1.500 entrevistas, 13 partidos): PP 31,8, PSOE 28,3, Vox 18,4, Frente Amplio 6,3. Es la única encuesta publicada antes de la veda que faltaba en nuestras fuentes."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Galicia: último tracking de Sondaxe por provincias",
     "texto": "Se añade el desglose por provincias del tracking de Sondaxe del 18 al 22 de noviembre (La Voz de Galicia, 23/11), que Wikipedia no recoge: A Coruña, Pontevedra, Lugo y Ourense con PP, PSdeG, BNG y Vox. Hasta ahora las provincias gallegas llegaban al tracking del 16 al 20."
   },
