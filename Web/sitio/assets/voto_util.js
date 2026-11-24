@@ -81,9 +81,10 @@
     let html = '<h4 class="vu-escalera-titulo">' + titular + escapar(nombre) + ": probabilidad de cada uno</h4>" + '<div class="vu-rejilla-escanos">';
     datos.escalera.forEach((fila) => {
       const rotuloDelPartido = nombreDe(fila.partido, nombre, true);
-      const casiSeguros = fila.p.filter((probabilidad) => probabilidad >= umbralSeguro).length;
+      // Escaños previstos: los del reparto central de la provincia (los cocientes que entran), los mismos de la tabla de la página; suman los escaños de la circunscripción
+      const previstos = (datos.cocientes || []).filter((cociente) => cociente.partido === fila.partido && cociente.entra).length;
       html += '<div class="vu-rejilla-fila"><span class="vu-rejilla-partido"><span class="ficha" style="background:' + colorDe(fila.partido) + '"></span><span>' + escapar(rotuloDelPartido) +
-        ' <b>' + casiSeguros + '</b> <span class="vu-rejilla-rango" title="Rango del 95 % de las simulaciones">' + rangoDelNoventaYCinco(fila) + "</span></span></span><span class=\"vu-rejilla-cuadros\">";
+        ' <b title="Escaños previstos: los del reparto central">' + previstos + '</b> <span class="vu-rejilla-rango" title="Rango del 95 % de las simulaciones">' + rangoDelNoventaYCinco(fila) + "</span></span></span><span class=\"vu-rejilla-cuadros\">";
       fila.p.forEach((probabilidad, indice) => {
         const seguro = probabilidad >= umbralSeguro;
         const relleno = seguro ? 100 : Math.max(RELLENO_MINIMO, Math.round(100 * probabilidad));
@@ -95,7 +96,7 @@
     });
     html += "</div>" +
       '<p class="nota">Cada cuadrado es un escaño del partido, con la probabilidad de que saque al menos ese número de escaños; cuanto más pálido, menos probable. Relleno completo y línea continua: <b>casi seguro</b> (desde el ' + Math.round(100 * umbralSeguro) +
-      ' %). Línea discontinua: por debajo de ese umbral. Junto al nombre, los escaños casi seguros y, entre paréntesis, el rango del 95 % de las simulaciones. Solo se enseñan los escaños con un 1 % o más. Una coalición cuenta como un solo partido.</p>';
+      ' %). Línea discontinua: por debajo de ese umbral. Junto al nombre, los escaños previstos (los del reparto central, que suman los de la circunscripción) y, entre paréntesis, el rango del 95 % de las simulaciones. Solo se enseñan los escaños con un 1 % o más. Una coalición cuenta como un solo partido.</p>';
     return html;
   }
 
