@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Galicia: último tracking de Sondaxe por provincias",
+    "texto": "Se añade el desglose por provincias del tracking de Sondaxe del 18 al 22 de noviembre (La Voz de Galicia, 23/11), que Wikipedia no recoge: A Coruña, Pontevedra, Lugo y Ourense con PP, PSdeG, BNG y Vox. Hasta ahora las provincias gallegas llegaban al tracking del 16 al 20."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Territorios: vuelven los totales en la tabla de encuestas",
     "texto": "La tabla de encuestas de provincias y comunidades recupera el control de cordura: una columna «Suma» con el total de los partidos de la tabla y «Otros y en blanco» con lo que falta hasta el 100 %, en la previsión del modelo, en el promedio y en cada encuesta."
   },
