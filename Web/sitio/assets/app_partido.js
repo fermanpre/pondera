@@ -91,6 +91,28 @@
     resultado.sort((a, b) => b.seguros - a.seguros || b.probables - a.probables || b.esperados - a.esperados || nombreVisible(a.nombre).localeCompare(nombreVisible(b.nombre), "es"));
     return resultado;
   }
+  // Contra quién se disputa un escaño: los demás partidos con algún escaño «en el aire» (probabilidad entre el 10 % y el casi seguro) en esa circunscripción, cada uno con su escaño más incierto
+  let partidosPorCircunscripcion = null;
+  function rivalesEnDisputa(nombreDeLaCircunscripcion) {
+    if (!partidosPorCircunscripcion) {
+      partidosPorCircunscripcion = {};
+      Object.keys(DATOS_PARTIDOS.partidos).forEach(function (otro) {
+        if (otro === clave) { return; }
+        DATOS_PARTIDOS.partidos[otro].provincias.forEach(function (provincia) {
+          let acumulado = 0, masIncierto = null;
+          for (let k = 1; k < provincia.distribucion_de_escanos.length; k++) {
+            acumulado += provincia.distribucion_de_escanos[k - 1];
+            const probabilidad = Math.min(1, Math.max(0, 1 - acumulado));
+            if (probabilidad < UMBRAL_MINIMO_EN_EL_AIRE) { break; }
+            if (probabilidad < UMBRAL_CASI_SEGURO && (masIncierto === null || Math.abs(probabilidad - 0.5) < Math.abs(masIncierto.probabilidad - 0.5))) { masIncierto = { escano: k, probabilidad: probabilidad }; }
+          }
+          if (masIncierto) { (partidosPorCircunscripcion[provincia.nombre] = partidosPorCircunscripcion[provincia.nombre] || []).push({ partido: otro, escano: masIncierto.escano, probabilidad: masIncierto.probabilidad }); }
+        });
+      });
+    }
+    return (partidosPorCircunscripcion[nombreDeLaCircunscripcion] || []).slice().sort((a, b) => Math.abs(a.probabilidad - 0.5) - Math.abs(b.probabilidad - 0.5));
+  }
+  const nombreDePartido = (otro) => (typeof NOMBRES !== "undefined" && NOMBRES[otro]) || otro;
   function pintarEscanosEnDisputa() {
     const contenedor = document.getElementById("partido-disputa");
     if (!contenedor) { return; }
@@ -118,14 +140,18 @@
         const seguro = probabilidad >= UMBRAL_CASI_SEGURO;
         const relleno = seguro ? 100 : Math.max(6, Math.round(100 * probabilidad));
         const estado = seguro ? "vu-rej-seguro" : "vu-rej-parcial" + (relleno >= 60 ? " vu-rej-fuerte" : "");
-        const titulo = (indice + 1) + ".º escaño por " + nombreVisible(fila.nombre) + ": " + (probabilidad >= 0.995 ? "100 %" : textoDeProbabilidadEnCuadro(probabilidad));
+        let titulo = (indice + 1) + ".º escaño por " + nombreVisible(fila.nombre) + ": " + (probabilidad >= 0.995 ? "100 %" : textoDeProbabilidadEnCuadro(probabilidad));
+        if (!seguro) {
+          const rivales = rivalesEnDisputa(fila.nombre).map((rival) => nombreDePartido(rival.partido) + " (su " + rival.escano + ".º, " + textoDeProbabilidadEnCuadro(rival.probabilidad) + ")");
+          titulo += rivales.length ? ". Se disputa con: " + rivales.join(", ") + "." : ". Ningún otro partido tiene escaños en el aire en esta circunscripción.";
+        }
         html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + color + ";--relleno:" + relleno + '%" title="' + escapar(titulo) + '">' + (probabilidad >= 0.995 ? String(indice + 1) : textoDeProbabilidadEnCuadro(probabilidad)) + "</span>";
       });
       html += "</span></div>";
     });
     html += "</div>" +
       '<p class="nota">Relleno completo y línea continua: casi seguro (' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % o más de las " + simulacionesTexto + " simulaciones); en los que llegan al 100 % el cuadrado lleva el número del escaño en lugar del porcentaje. Línea discontinua: probable (desde el " + Math.round(100 * UMBRAL_PROBABLE) + " %) o en el aire; cuanto más pálido, menos probable. " +
-      "Junto al nombre, la horquilla: los escaños casi seguros y, tras el guion, todos los que se pintan (si son los mismos, un solo número). Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia.</p>";
+      "Junto al nombre, la horquilla: los escaños casi seguros y, tras el guion, todos los que se pintan (si son los mismos, un solo número). Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia. Al pasar el ratón por un cuadrado que no es casi seguro se indica con qué partidos se disputa el escaño: los que tienen en esa circunscripción algún escaño en el aire (entre el " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % y el casi seguro), con su escaño más incierto.</p>";
     contenedor.innerHTML = html;
   }
 

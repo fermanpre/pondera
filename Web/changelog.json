@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Páginas de partido: al pasar el ratón por un escaño en disputa se ve contra quién se disputa",
+    "texto": "En «Escaños en disputa» de cada página de partido, el texto emergente de los cuadrados que no son casi seguros indica ahora con qué partidos se disputa ese escaño: los que tienen en esa circunscripción algún escaño en el aire (entre el 10 % y el casi seguro), cada uno con su escaño más incierto y su probabilidad. Ejemplo: «6.º escaño por Valencia/València: 49 %. Se disputa con: PSOE (su 5.º, 67 %)…»."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Datos curiosos: un decimal en las probabilidades inferiores al 10 %",
     "texto": "En todos los datos curiosos, las probabilidades menores del 10 % se escriben con un decimal («5,3 %» en lugar de «5 %»; por debajo del 0,05 %, «menos del 0,1 %») y desde el 10 % siguen enteras. Los porcentajes de voto ya llevaban un decimal."
   },
