@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Más incertidumbre donde no hay encuestas locales, y las encuestas viejas pesan menos",
+    "texto": "Las provincias sin ninguna encuesta de su comunidad ni propia (Asturias, Cantabria, Castilla-La Mancha, Extremadura, Illes Balears, La Rioja, Ceuta, Melilla y la mayor parte de Castilla y León) tienen ahora una desviación provincial un 30 % mayor en las simulaciones; el factor baja hacia 1 en los territorios con encuestas recientes (Madrid, con solo una de octubre, queda en 1,24). Además, el peso de las encuestas autonómicas y provinciales en la previsión tiene en cuenta su antigüedad: una encuesta de hace tres semanas pesa la mitad que una de hoy. Las medianas nacionales apenas cambian; los rangos de los territorios ciegos se ensanchan (por ejemplo, el diputado de Frente Amplio en Baleares pasa del 34 % al 47 % de probabilidad)."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Frente Amplio en Aragón: indicio de las autonómicas de febrero",
     "texto": "El promedio de Frente Amplio (CHA-IU-MS) en Aragón incorpora el resultado de las autonómicas del 8 de febrero de 2026 (CHA 9,74 % más IU-MS 2,97 % = 12,7 %), con la relación generales/autonómicas de 2023 y peso 1, como ya se hacía con Teruel Existe. Frente Amplio sube en el conjunto de Aragón del 8,8 % al 9,7 % y en Zaragoza del 10,1 % al 11,1 %."
   },

@@ -273,7 +273,8 @@
         if (!modelo.presente[indice]) continue;
         const partido = modelo.partidos[k];
         const clase = datos.clase_de_partido[partido];
-        const sigma = clase ? sigmaPorTramos(datos.tramos_provinciales[clase], reparto[indice]) : 0;
+        // factor_sigma (datos_modelo.json, de blend_regional.factores_de_sigma): más incertidumbre en las provincias sin encuestas locales (24/11/2026)
+        const sigma = clase ? sigmaPorTramos(datos.tramos_provinciales[clase], reparto[indice]) * (datos.provincias[p].factor_sigma || 1) : 0;
         ruidoso[indice] = reparto[indice] * Math.exp(generador.gauss(0, sigma));
       }
     }
