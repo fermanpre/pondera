@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Lo precalculado pasa a 50.000 simulaciones",
+    "texto": "Las páginas de partido, los mundos posibles y los mundos raros, los datos curiosos y los escaños en juego y el voto útil de cada provincia se calculan ahora con 50.000 simulaciones en lugar de 10.000 (con la misma semilla, así que las 10.000 primeras son las de antes). Los rangos y las probabilidades son más estables y los sucesos raros se apoyan en cinco veces más simulaciones. Lo que calcula el navegador (hemiciclo, tablas, mayorías, simulador) sigue con 10.000."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Dato curioso «más votos, pero no más escaños»: sin contar empates",
     "texto": "El dato curioso del PSOE y el PP cuenta ahora solo las simulaciones en las que un partido saca más votos que el otro y MENOS escaños; un empate a escaños ya no cuenta. Con ello, el PSOE con más votos y menos escaños que el PP pasa del 6,3 % al 5,3 % de las simulaciones."
   },

@@ -10,7 +10,7 @@
  */
 const comun = require("./mundos_comun.js");
 
-const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 10000;
+const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 50000;   // 50.000 desde el 24/11/2026 (antes 10.000); con la misma semilla, los 10.000 primeros son los del navegador
 const MUNDOS_QUE_SE_MUESTRAN = 10;
 const PERCENTIL_MINIMO = 1;
 const PERCENTIL_MAXIMO = 99;

@@ -18,7 +18,7 @@ const fs = require("fs");
 const path = require("path");
 const Motor = require(path.join(__dirname, "sitio", "motor.js"));
 
-const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 10000;
+const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 50000;   // 50.000 desde el 24/11/2026 (antes 10.000); con la misma semilla, los 10.000 primeros son los del navegador
 const SEMILLA = 20261129;
 const PARTIDOS_QUE_NO_TIENEN_PAGINA = ["OTROS", "NC"];
 const PROVINCIAS_VALENCIANAS = ["Alicante/Alacant", "Castellón/Castelló", "Valencia/València"];

@@ -1,7 +1,7 @@
 "use strict";
 /*
  * Página de un partido: voto previsto en cada circunscripción con sus franjas, y mapa de España con el voto como tono del color del partido. (23/11/2026)
- * Datos: datos_partidos.js (Web/datos_partidos.js: 10.000 simulaciones, semilla 20261129). La página la fija window.PARTIDO_INICIAL (la clave del partido en el modelo, por ejemplo «PP»).
+ * Datos: datos_partidos.js (Web/datos_partidos.js: 50.000 simulaciones desde el 24/11/2026, semilla 20261129). La página la fija window.PARTIDO_INICIAL (la clave del partido en el modelo, por ejemplo «PP»).
  * Direcciones de cada provincia: assets/territorios.js. Nombres y colores: assets/comun.js.
  */
 (function () {
@@ -20,6 +20,7 @@
   const enlaceDeProvincia = (nombre) => { const direccion = direccionDe(nombre); return direccion ? '<a href="' + direccion + '">' + escapar(nombreVisible(nombre)) + "</a>" : escapar(nombreVisible(nombre)); };
   const conSigno = (diferencia) => (diferencia >= 0 ? "+" : "−") + formatoUnDecimal.format(Math.abs(diferencia));
 
+  const simulacionesTexto = new Intl.NumberFormat("es-ES").format(DATOS_PARTIDOS.sorteos || 10000);   // las que calculó datos_partidos.js
   const filas = datos.provincias.slice();           // ya vienen por voto previsto decreciente
   const porNombre = {};
   filas.forEach(function (fila) { porNombre[fila.nombre] = fila; });
@@ -123,7 +124,7 @@
       html += "</span></div>";
     });
     html += "</div>" +
-      '<p class="nota">Relleno completo y línea continua: casi seguro (' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % o más de las 10.000 simulaciones); en los que llegan al 100 % el cuadrado lleva el número del escaño en lugar del porcentaje. Línea discontinua: probable (desde el " + Math.round(100 * UMBRAL_PROBABLE) + " %) o en el aire; cuanto más pálido, menos probable. " +
+      '<p class="nota">Relleno completo y línea continua: casi seguro (' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % o más de las " + simulacionesTexto + " simulaciones); en los que llegan al 100 % el cuadrado lleva el número del escaño en lugar del porcentaje. Línea discontinua: probable (desde el " + Math.round(100 * UMBRAL_PROBABLE) + " %) o en el aire; cuanto más pálido, menos probable. " +
       "Junto al nombre, la horquilla: los escaños casi seguros y, tras el guion, todos los que se pintan (si son los mismos, un solo número). Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia.</p>";
     contenedor.innerHTML = html;
   }
@@ -235,11 +236,11 @@
         '<td class="num">' + porcentaje(100 * fila.probabilidad_de_escano) + "</td>" + escanos2023;
     }).join("");
     const cabeceraDeVoto = '<th class="num">Rango 80 %</th><th class="num">Rango 95 %</th><th>Franjas</th><th class="num">Voto 2023</th><th class="num">Dif.</th><th class="num" title="Escaños del escenario (reparto central)">Esc. 2026</th><th class="num">Esc. 2023</th>';
-    const cabeceraDeEscanos = '<th class="num" title="Mediana de los escaños de las 10.000 simulaciones">Mediana</th><th class="num" title="Escaños del escenario: D’Hondt con el voto previsto de la circunscripción">Escenario</th><th class="num" title="Número de escaños más probable">Más prob.</th>' +
+    const cabeceraDeEscanos = '<th class="num" title="Mediana de los escaños de las ' + simulacionesTexto + ' simulaciones">Mediana</th><th class="num" title="Escaños del escenario: D’Hondt con el voto previsto de la circunscripción">Escenario</th><th class="num" title="Número de escaños más probable">Más prob.</th>' +
       '<th class="num">Esc. 80 %</th><th class="num">Esc. 95 %</th><th>Distribución</th><th class="num" title="Probabilidad de sacar al menos un escaño">Prob. ≥ 1</th><th class="num">Esc. 2023</th>';
     const nota = deVoto
       ? '<p class="nota">Franjas: la clara es el rango del 95 %, la oscura el del 80 % y la raya, el voto previsto; todas con la misma escala (de 0 a ' + porcentaje(techo) + ").</p>"
-      : '<p class="nota">Mediana: los escaños que quedan en el medio de las 10.000 simulaciones de esa circunscripción. Escenario: D’Hondt con el voto previsto de la circunscripción (el mismo de la previsión, el hemiciclo y las tablas). No tienen por qué coincidir ni sumar el total de España, porque cada mediana sale de sorteos distintos. ' +
+      : '<p class="nota">Mediana: los escaños que quedan en el medio de las ' + simulacionesTexto + ' simulaciones de esa circunscripción. Escenario: D’Hondt con el voto previsto de la circunscripción (el mismo de la previsión, el hemiciclo y las tablas). No tienen por qué coincidir ni sumar el total de España, porque cada mediana sale de sorteos distintos. ' +
         'En la distribución, la barra más oscura es el número de escaños más probable.</p>';
     document.getElementById("partido-tabla").innerHTML = '<div class="tabla-ancha"><table class="tabla-partido"><thead><tr><th class="num">#</th><th>Circunscripción <small class="suave">(escaños)</small></th>' +
       '<th class="num">Voto previsto</th>' + (deVoto ? cabeceraDeVoto : cabeceraDeEscanos) + "</tr></thead><tbody>" + cuerpo + "</tbody></table></div>" + nota;
