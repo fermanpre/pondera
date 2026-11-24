@@ -25,11 +25,19 @@ const TIPOS_DE_CURIOSIDAD = {
     return (typeof NOMBRES !== "undefined" && NOMBRES[partido]) || partido;
   };
   const colorDe = (partido) => (typeof COLORES !== "undefined" && COLORES[partido]) || "#7a7a75";
-  const porcentaje = (probabilidad) => Math.round(100 * probabilidad) + " %";
-  // «en el 95 % de las simulaciones» o, en el modo de frecuencias, «en 19 de cada 20 simulaciones»
-  const enSimulaciones = (probabilidad) => PROBABILIDAD.enLasSimulaciones(probabilidad, porcentaje(probabilidad));
   const formatoEntero = new Intl.NumberFormat("es-ES", { useGrouping: "always" });
   const formatoDecimal = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  // Porcentaje de una probabilidad: con un decimal cuando es inferior al 10 % («5,3 %»; por debajo del 0,05 %, «0,1 %» como mínimo) y entero desde el 10 %
+  const porcentaje = (probabilidad) => {
+    const porcentajeExacto = 100 * probabilidad;
+    if (Math.round(10 * porcentajeExacto) / 10 < 10) { return formatoDecimal.format(Math.max(0.1, porcentajeExacto)) + " %"; }
+    return Math.round(porcentajeExacto) + " %";
+  };
+  // «en el 95 % de las simulaciones» o, en el modo de frecuencias, «en 19 de cada 20 simulaciones»; si la probabilidad es menor del 0,05 %, «en menos del 0,1 % de las simulaciones»
+  const enSimulaciones = (probabilidad) => {
+    const texto = PROBABILIDAD.enLasSimulaciones(probabilidad, porcentaje(probabilidad));
+    return probabilidad > 0 && probabilidad < 0.0005 ? texto.replace("en el 0,1 %", "en menos del 0,1 %") : texto;
+  };
   function escapar(texto) { return String(texto).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
   const etiquetaDe = (partido, provincia) => '<b class="curio-partido" style="--c:' + colorDe(partido) + '">' + escapar(nombreDe(partido, provincia)) + "</b>";
   const porcentajeDeVoto = (fraccion) => formatoDecimal.format(100 * fraccion);

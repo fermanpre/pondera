@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Datos curiosos: un decimal en las probabilidades inferiores al 10 %",
+    "texto": "En todos los datos curiosos, las probabilidades menores del 10 % se escriben con un decimal («5,3 %» en lugar de «5 %»; por debajo del 0,05 %, «menos del 0,1 %») y desde el 10 % siguen enteras. Los porcentajes de voto ya llevaban un decimal."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Provincias: el número en negrita de «Los X escaños de…» son los escaños previstos",
     "texto": "En el apartado «Los X escaños de la provincia: probabilidad de cada uno», el número en negrita junto a cada partido pasa a ser el de escaños previstos (los del reparto central, los mismos de la tabla de la página, que suman los de la circunscripción) y no el de escaños casi seguros. Ejemplo: en Zamora, PP 2, PSOE 1 y Vox 0 en lugar de 1, 1 y 0. El rango del 95 % y la probabilidad de cada cuadrado no cambian."
   },
