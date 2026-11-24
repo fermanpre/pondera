@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Páginas de partido: todas las columnas de «Circunscripciones por voto» se pueden ordenar",
+    "texto": "Un clic en la cabecera de cualquier columna de «Circunscripciones por voto» (puesto, circunscripción, escaños de la circunscripción, voto previsto, rangos, voto y escaños de 2023, diferencia, mediana, escenario, escaño más probable, probabilidad de al menos uno…) ordena la tabla por ella: de mayor a menor la primera vez (en el nombre, de la A a la Z; en el voto previsto, de menor a mayor), al revés la segunda y, a la tercera, vuelve al orden de siempre. Las circunscripciones sin dato en esa columna van al final. Los rangos se ordenan por su extremo inferior. En la rejilla «Escaños en disputa», pulsar «Escaños, de más a menos seguros» devuelve el orden de siempre."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Provincias: sin texto emergente en los cuadrados de «Los N escaños de…»",
     "texto": "Los cuadrados de «Los N escaños de la provincia» ya no abren un texto emergente al pasar el ratón: la rejilla enseña a todos los partidos a la vez y cada cuadrado lleva dentro su probabilidad. Los lectores de pantalla conservan la etiqueta de cada cuadrado."
   },

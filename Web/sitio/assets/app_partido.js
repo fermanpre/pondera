@@ -65,7 +65,7 @@
 
   /* ---------- Orden alfabético (clic en «Circunscripción») ----------
      Tres estados por cada bloque, en ciclo: el orden de siempre (null), A-Z («asc») y Z-A («desc»). El nombre que se ordena es el que ve el visitante («A Coruña», no «Coruña (A)»). */
-  const ordenAlfabetico = { lista: null, disputa: null };
+  const ordenAlfabetico = { disputa: null };
   const SIGUIENTE_ORDEN = { null: "asc", asc: "desc", desc: null };
   const flechaDeOrden = (orden) => (orden === "asc" ? "▲" : orden === "desc" ? "▼" : "⇅");
   const tituloDeOrden = (orden) => (orden === "asc" ? "Ordenadas de la A a la Z; un clic más las ordena de la Z a la A" : orden === "desc" ? "Ordenadas de la Z a la A; un clic más vuelve al orden de siempre" : "Ordenar alfabéticamente");
@@ -76,6 +76,58 @@
   }
   const botonDeOrden = (bloque, texto) => '<button type="button" class="orden-boton" data-orden-de="' + bloque + '" title="' + tituloDeOrden(ordenAlfabetico[bloque]) + '" aria-label="' + tituloDeOrden(ordenAlfabetico[bloque]) + '">' + texto +
     ' <span class="orden-flecha">' + flechaDeOrden(ordenAlfabetico[bloque]) + "</span></button>";
+
+  /* ---------- Orden de «Circunscripciones por voto»: un clic en una cabecera la ordena por esa columna ----------
+     La primera vez, de mayor a menor (en el nombre, de la A a la Z; en el voto previsto, de menor a mayor, porque de mayor a menor es el orden de siempre); la segunda, al revés; la tercera vuelve
+     al orden de siempre. Las circunscripciones sin dato en esa columna van siempre al final. Los rangos se ordenan por su extremo inferior. */
+  const COLUMNAS_DE_LA_LISTA = {
+    puesto: { sentido: "asc", valor: (fila) => filas.indexOf(fila) },
+    nombre: { sentido: "asc", valor: (fila) => nombreVisible(fila.nombre), texto: true },
+    tamano: { sentido: "desc", valor: (fila) => fila.escanos_de_la_provincia },
+    voto: { sentido: "asc", valor: (fila) => fila.voto },
+    rango80: { vista: "voto", sentido: "desc", valor: (fila) => fila.p10 },
+    rango95: { vista: "voto", sentido: "desc", valor: (fila) => fila.p025 },
+    voto2023: { vista: "voto", sentido: "desc", valor: (fila) => fila.voto2023 },
+    dif: { vista: "voto", sentido: "desc", valor: (fila) => (fila.voto2023 === null ? null : fila.voto - fila.voto2023) },
+    esc2026: { sentido: "desc", valor: (fila) => fila.escanos_escenario },
+    esc2023: { sentido: "desc", valor: (fila) => fila.escanos2023 },
+    mediana: { vista: "escanos", sentido: "desc", valor: (fila) => fila.escanos.mediana },
+    masprob: { vista: "escanos", sentido: "desc", valor: (fila) => fila.escanos.mas_probable },
+    esc80: { vista: "escanos", sentido: "desc", valor: (fila) => fila.escanos.p10 },
+    esc95: { vista: "escanos", sentido: "desc", valor: (fila) => fila.escanos.p025 },
+    prob1: { vista: "escanos", sentido: "desc", valor: (fila) => fila.probabilidad_de_escano },
+  };
+  const ordenDeLista = { columna: null, sentido: null };
+  function columnaVigente() {
+    const columna = ordenDeLista.columna && COLUMNAS_DE_LA_LISTA[ordenDeLista.columna];
+    return columna && (!columna.vista || columna.vista === vista) ? columna : null;   // al cambiar de vista, una columna que ya no existe deja de ordenar
+  }
+  const sinDato = (valor) => valor === null || valor === undefined;
+  function filasOrdenadasDeLaLista() {
+    const columna = columnaVigente();
+    if (!columna) { return filas; }
+    const direccion = ordenDeLista.sentido === "asc" ? 1 : -1;
+    return filas.slice().sort(function (a, b) {
+      const va = columna.valor(a), vb = columna.valor(b);
+      if (sinDato(va)) { return sinDato(vb) ? 0 : 1; }   // sin dato: al final, sea cual sea el sentido
+      if (sinDato(vb)) { return -1; }
+      const comparacion = columna.texto ? va.localeCompare(vb, "es") : va - vb;
+      return comparacion * direccion || filas.indexOf(a) - filas.indexOf(b);
+    });
+  }
+  function cambiarOrdenDeLaLista(nombreDeColumna) {
+    const definicion = COLUMNAS_DE_LA_LISTA[nombreDeColumna];
+    if (!definicion) { return; }
+    if (ordenDeLista.columna !== nombreDeColumna || !columnaVigente()) { ordenDeLista.columna = nombreDeColumna; ordenDeLista.sentido = definicion.sentido; }
+    else if (ordenDeLista.sentido === definicion.sentido) { ordenDeLista.sentido = definicion.sentido === "asc" ? "desc" : "asc"; }
+    else { ordenDeLista.columna = null; ordenDeLista.sentido = null; }
+  }
+  function flechaDeColumna(nombreDeColumna) {
+    if (ordenDeLista.columna !== nombreDeColumna || !columnaVigente()) { return "⇅"; }
+    return ordenDeLista.sentido === "asc" ? "▲" : "▼";
+  }
+  const botonDeColumna = (nombreDeColumna, texto, titulo) => '<button type="button" class="orden-boton" data-orden-de="lista" data-columna="' + nombreDeColumna + '" title="' +
+    escapar((titulo ? titulo + ". " : "") + "Clic para ordenar por esta columna") + '">' + texto + ' <span class="orden-flecha">' + flechaDeColumna(nombreDeColumna) + "</span></button>";
 
   /* ---------- Escaños en disputa ---------- */
   // Los mismos umbrales que las páginas de provincia (voto_util_provincias.js): casi seguro 95 %, probable 75 %; por debajo, «en el aire», que aquí se enseña desde el 10 %.
@@ -199,7 +251,7 @@
       '<p class="nota">' + escapar(resumen.join(", ").replace(/, ([^,]*)$/, " y $1")) + ". Cada cuadrado es un escaño del partido en esa circunscripción, con la probabilidad de que saque al menos ese número de escaños: el segundo cuadrado de Sevilla es el 2.º por Sevilla. " +
       "Las circunscripciones van ordenadas por escaños casi seguros y, a igualdad, por probables y por escaños esperados; un clic en «Circunscripción» las ordena alfabéticamente (de la A a la Z, de la Z a la A y otra vez como al principio).</p>" +
       '<div class="vu-rejilla-escanos disputa-rejilla">' +
-      '<div class="vu-rejilla-fila vu-rejilla-cabecera"><span class="vu-rejilla-partido"><span>' + botonDeOrden("disputa", "Circunscripción") + "</span></span><span class=\"vu-rejilla-cuadros\"><span class=\"suave\">Escaños, de más a menos seguros</span></span></div>";
+      '<div class="vu-rejilla-fila vu-rejilla-cabecera"><span class="vu-rejilla-partido"><span>' + botonDeOrden("disputa", "Circunscripción") + "</span></span><span class=\"vu-rejilla-cuadros\"><button type=\"button\" class=\"orden-boton orden-suave\" data-orden-de=\"disputa\" data-columna=\"defecto\" title=\"Volver al orden de siempre: más escaños casi seguros primero\">Escaños, de más a menos seguros</button></span></div>";
     lista.forEach(function (fila) {
       const horquilla = fila.seguros === fila.probabilidades.length ? String(fila.seguros) : fila.seguros + "–" + fila.probabilidades.length;
       html += '<div class="vu-rejilla-fila"><span class="vu-rejilla-partido"><span>' + enlaceDeProvincia(fila.nombre) + ' <b title="Escaños casi seguros y, tras el guion, todos los que se pintan">' + horquilla + "</b></span></span><span class=\"vu-rejilla-cuadros\">";
@@ -316,7 +368,7 @@
     const techo = Math.max.apply(null, filas.map((fila) => fila.p975));
     const posicion = (valor) => (100 * Math.max(0, valor) / techo).toFixed(2);
     const deVoto = vista === "voto";
-    const filasDeLaLista = ordenadas(filas, ordenAlfabetico.lista);
+    const filasDeLaLista = filasOrdenadasDeLaLista();
     const cuerpo = filasDeLaLista.map(function (fila) {
       const indice = filas.indexOf(fila);   // el puesto es el del orden por voto previsto, también con el orden alfabético
       const franja = (desde, hasta, clase) => '<span class="franja ' + clase + '" style="left:' + posicion(desde) + "%;width:" + (posicion(hasta) - posicion(desde)).toFixed(2) + '%"></span>';
@@ -334,23 +386,26 @@
         '<td class="num">' + rangoDeEscanos(fila.escanos.p10, fila.escanos.p90) + '</td><td class="num">' + rangoDeEscanos(fila.escanos.p025, fila.escanos.p975) + "</td><td>" + distribucionDeEscanos(fila) + "</td>" +
         '<td class="num">' + porcentaje(100 * fila.probabilidad_de_escano) + "</td>" + escanos2023;
     }).join("");
-    const cabeceraDeVoto = '<th class="num">Rango 80 %</th><th class="num">Rango 95 %</th><th>Franjas</th><th class="num">Voto 2023</th><th class="num">Dif.</th><th class="num" title="Escaños del escenario (reparto central)">Esc. 2026</th><th class="num">Esc. 2023</th>';
-    const cabeceraDeEscanos = '<th class="num" title="Mediana de los escaños de las ' + simulacionesTexto + ' simulaciones">Mediana</th><th class="num" title="Escaños del escenario: D’Hondt con el voto previsto de la circunscripción">Escenario</th><th class="num" title="Número de escaños más probable">Más prob.</th>' +
-      '<th class="num">Esc. 80 %</th><th class="num">Esc. 95 %</th><th>Distribución</th><th class="num" title="Probabilidad de sacar al menos un escaño">Prob. ≥ 1</th><th class="num">Esc. 2023</th>';
+    const th = (columna, titulo_de_la_columna, ayuda) => '<th class="num">' + botonDeColumna(columna, titulo_de_la_columna, ayuda) + "</th>";
+    const cabeceraDeVoto = th("rango80", "Rango 80 %") + th("rango95", "Rango 95 %") + "<th>Franjas</th>" + th("voto2023", "Voto 2023") + th("dif", "Dif.", "Diferencia con el voto de 2023") +
+      th("esc2026", "Esc. 2026", "Escaños del escenario (reparto central)") + th("esc2023", "Esc. 2023");
+    const cabeceraDeEscanos = th("mediana", "Mediana", "Mediana de los escaños de las " + simulacionesTexto + " simulaciones") + th("esc2026", "Escenario", "Escaños del escenario: D’Hondt con el voto previsto de la circunscripción") +
+      th("masprob", "Más prob.", "Número de escaños más probable") + th("esc80", "Esc. 80 %") + th("esc95", "Esc. 95 %") + "<th>Distribución</th>" + th("prob1", "Prob. ≥ 1", "Probabilidad de sacar al menos un escaño") + th("esc2023", "Esc. 2023");
     const nota = deVoto
       ? '<p class="nota">Franjas: la clara es el rango del 95 %, la oscura el del 80 % y la raya, el voto previsto; todas con la misma escala (de 0 a ' + porcentaje(techo) + ").</p>"
       : '<p class="nota">Mediana: los escaños que quedan en el medio de las ' + simulacionesTexto + ' simulaciones de esa circunscripción. Escenario: D’Hondt con el voto previsto de la circunscripción (el mismo de la previsión, el hemiciclo y las tablas). No tienen por qué coincidir ni sumar el total de España, porque cada mediana sale de sorteos distintos. ' +
         'En la distribución, la barra más oscura es el número de escaños más probable.</p>';
-    document.getElementById("partido-tabla").innerHTML = '<div class="tabla-ancha"><table class="tabla-partido"><thead><tr><th class="num" title="Puesto por voto previsto">#</th><th>' + botonDeOrden("lista", "Circunscripción") + ' <small class="suave">(escaños)</small></th>' +
-      '<th class="num">Voto previsto</th>' + (deVoto ? cabeceraDeVoto : cabeceraDeEscanos) + "</tr></thead><tbody>" + cuerpo + "</tbody></table></div>" + nota;
+    document.getElementById("partido-tabla").innerHTML = '<div class="tabla-ancha"><table class="tabla-partido"><thead><tr><th class="num">' + botonDeColumna("puesto", "#", "Puesto por voto previsto") + "</th><th>" + botonDeColumna("nombre", "Circunscripción") + ' <small class="suave">' + botonDeColumna("tamano", "(escaños)", "Escaños de la circunscripción") + "</small></th>" +
+      '<th class="num">' + botonDeColumna("voto", "Voto previsto") + "</th>" + (deVoto ? cabeceraDeVoto : cabeceraDeEscanos) + "</tr></thead><tbody>" + cuerpo + "</tbody></table></div>" + nota;
   }
 
   document.addEventListener("click", function (evento) {
     const boton = evento.target.closest ? evento.target.closest("[data-orden-de]") : null;
     if (!boton) { return; }
-    const bloque = boton.getAttribute("data-orden-de");
-    ordenAlfabetico[bloque] = SIGUIENTE_ORDEN[ordenAlfabetico[bloque]];
-    if (bloque === "lista") { pintarLista(); } else { pintarEscanosEnDisputa(); }
+    const bloque = boton.getAttribute("data-orden-de"), columna = boton.getAttribute("data-columna");
+    if (bloque === "lista") { cambiarOrdenDeLaLista(columna); pintarLista(); return; }
+    ordenAlfabetico.disputa = columna === "defecto" ? null : SIGUIENTE_ORDEN[ordenAlfabetico.disputa];   // «defecto»: vuelve al orden de siempre
+    pintarEscanosEnDisputa();
   });
 
   pintarResumen();

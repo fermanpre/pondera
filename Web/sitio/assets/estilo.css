@@ -491,3 +491,5 @@ button.principal { font-weight: 600; }
 .orden-boton .orden-flecha { font-size: 0.75em; color: var(--suave); }
 .vu-rejilla-cabecera { font-size: 0.8rem; color: var(--suave); }
 .vu-rejilla-cabecera .vu-rejilla-cuadros { font-size: 0.8rem; }
+.orden-boton.orden-suave { font-weight: 400; color: var(--suave); }
+.tabla-partido th .orden-boton { text-align: inherit; }
