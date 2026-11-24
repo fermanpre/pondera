@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Frente Amplio en Aragón: indicio de las autonómicas de febrero",
+    "texto": "El promedio de Frente Amplio (CHA-IU-MS) en Aragón incorpora el resultado de las autonómicas del 8 de febrero de 2026 (CHA 9,74 % más IU-MS 2,97 % = 12,7 %), con la relación generales/autonómicas de 2023 y peso 1, como ya se hacía con Teruel Existe. Frente Amplio sube en el conjunto de Aragón del 8,8 % al 9,7 % y en Zaragoza del 10,1 % al 11,1 %."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Lo precalculado pasa a 50.000 simulaciones",
     "texto": "Las páginas de partido, los mundos posibles y los mundos raros, los datos curiosos y los escaños en juego y el voto útil de cada provincia se calculan ahora con 50.000 simulaciones en lugar de 10.000 (con la misma semilla, así que las 10.000 primeras son las de antes). Los rangos y las probabilidades son más estables y los sucesos raros se apoyan en cinco veces más simulaciones. Lo que calcula el navegador (hemiciclo, tablas, mayorías, simulador) sigue con 10.000."
   },
