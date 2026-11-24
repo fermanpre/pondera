@@ -436,3 +436,11 @@
 .globo-escano li span { display: block; color: var(--suave); }
 .globo-escano .globo-barra { display: block; height: 6px; margin-top: 4px; border-radius: 3px; background: var(--linea); overflow: hidden; }
 .globo-escano .globo-barra i { display: block; height: 100%; border-radius: 3px; }
+
+/* Botones de orden alfabético de las cabeceras de la página de partido (24/11/2026) */
+.orden-boton { background: none; border: 0; padding: 0; margin: 0; font: inherit; font-weight: 600; color: inherit; cursor: pointer; }
+.orden-boton:hover { color: var(--acento); }
+.orden-boton:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.orden-boton .orden-flecha { font-size: 0.75em; color: var(--suave); }
+.vu-rejilla-cabecera { font-size: 0.8rem; color: var(--suave); }
+.vu-rejilla-cabecera .vu-rejilla-cuadros { font-size: 0.8rem; }

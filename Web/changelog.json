@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Páginas de partido: orden alfabético de las circunscripciones y rivales de más a menos probables",
+    "texto": "En la página de cada partido, un clic en «Circunscripción» ordena alfabéticamente la tabla «Circunscripciones por voto» y la rejilla «Escaños en disputa» (de la A a la Z, de la Z a la A y, con un tercer clic, el orden de siempre); el puesto por voto de la tabla se conserva. En el globo de cada escaño en disputa, los partidos con los que se disputa van ahora siempre de la mayor a la menor probabilidad."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Globo de los escaños en disputa: barras de color proporcionales a la probabilidad",
     "texto": "El globo de cada cuadrado de «Escaños en disputa» lleva ahora una barra del color de cada partido, con la longitud proporcional a su probabilidad: una para el propio escaño y una para cada uno de los partidos con los que se disputa (la pista completa es el 100 %)."
   },

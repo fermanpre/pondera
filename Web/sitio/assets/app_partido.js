@@ -63,6 +63,20 @@
       "</div>";
   }
 
+  /* ---------- Orden alfabético (clic en «Circunscripción») ----------
+     Tres estados por cada bloque, en ciclo: el orden de siempre (null), A-Z («asc») y Z-A («desc»). El nombre que se ordena es el que ve el visitante («A Coruña», no «Coruña (A)»). */
+  const ordenAlfabetico = { lista: null, disputa: null };
+  const SIGUIENTE_ORDEN = { null: "asc", asc: "desc", desc: null };
+  const flechaDeOrden = (orden) => (orden === "asc" ? "▲" : orden === "desc" ? "▼" : "⇅");
+  const tituloDeOrden = (orden) => (orden === "asc" ? "Ordenadas de la A a la Z; un clic más las ordena de la Z a la A" : orden === "desc" ? "Ordenadas de la Z a la A; un clic más vuelve al orden de siempre" : "Ordenar alfabéticamente");
+  function ordenadas(elementos, orden) {
+    if (!orden) { return elementos; }
+    const copia = elementos.slice().sort((a, b) => nombreVisible(a.nombre).localeCompare(nombreVisible(b.nombre), "es"));
+    return orden === "desc" ? copia.reverse() : copia;
+  }
+  const botonDeOrden = (bloque, texto) => '<button type="button" class="orden-boton" data-orden-de="' + bloque + '" title="' + tituloDeOrden(ordenAlfabetico[bloque]) + '" aria-label="' + tituloDeOrden(ordenAlfabetico[bloque]) + '">' + texto +
+    ' <span class="orden-flecha">' + flechaDeOrden(ordenAlfabetico[bloque]) + "</span></button>";
+
   /* ---------- Escaños en disputa ---------- */
   // Los mismos umbrales que las páginas de provincia (voto_util_provincias.js): casi seguro 95 %, probable 75 %; por debajo, «en el aire», que aquí se enseña desde el 10 %.
   const UMBRAL_CASI_SEGURO = 0.95, UMBRAL_PROBABLE = 0.75, UMBRAL_MINIMO_EN_EL_AIRE = 0.10;
@@ -91,7 +105,7 @@
     resultado.sort((a, b) => b.seguros - a.seguros || b.probables - a.probables || b.esperados - a.esperados || nombreVisible(a.nombre).localeCompare(nombreVisible(b.nombre), "es"));
     return resultado;
   }
-  // Contra quién se disputa un escaño: los demás partidos con algún escaño «en el aire» (probabilidad entre el 10 % y el casi seguro) en esa circunscripción, cada uno con su escaño más incierto
+  // Contra quién se disputa un escaño: los demás partidos con algún escaño «en el aire» (probabilidad entre el 10 % y el casi seguro) en esa circunscripción, cada uno con su escaño más incierto; de más a menos probable
   let partidosPorCircunscripcion = null;
   function rivalesEnDisputa(nombreDeLaCircunscripcion) {
     if (!partidosPorCircunscripcion) {
@@ -110,7 +124,7 @@
         });
       });
     }
-    return (partidosPorCircunscripcion[nombreDeLaCircunscripcion] || []).slice().sort((a, b) => Math.abs(a.probabilidad - 0.5) - Math.abs(b.probabilidad - 0.5));
+    return (partidosPorCircunscripcion[nombreDeLaCircunscripcion] || []).slice().sort((a, b) => b.probabilidad - a.probabilidad || nombreDePartido(a.partido).localeCompare(nombreDePartido(b.partido), "es"));
   }
   const nombreDePartido = (otro) => (typeof NOMBRES !== "undefined" && NOMBRES[otro]) || otro;
   /* ---------- Globo de cada cuadrado (ratón, teclado y toque) ----------
@@ -123,6 +137,8 @@
       globo.id = "globo-escano"; globo.className = "globo-escano"; globo.setAttribute("role", "tooltip"); globo.hidden = true;
       document.body.appendChild(globo);
     }
+    if (contenedor.dataset.globoActivo) { return; }   // la rejilla se vuelve a pintar al ordenarla: los oyentes del contenedor se quedan y no se repiten
+    contenedor.dataset.globoActivo = "si";
     let activo = null, fijado = false;
     // Barra del color del partido con la longitud proporcional a la probabilidad (la pista completa es el 100 %)
     const barra = (valor, colorDeLaBarra) => '<span class="globo-barra"><i style="width:' + Math.max(2, Math.round(100 * valor)) + "%;background:" + colorDeLaBarra + '"></i></span>';
@@ -165,14 +181,15 @@
   function pintarEscanosEnDisputa() {
     const contenedor = document.getElementById("partido-disputa");
     if (!contenedor) { return; }
-    const lista = filasDeEscanosEnDisputa();
+    const listaPorDefecto = filasDeEscanosEnDisputa();
+    const lista = ordenadas(listaPorDefecto, ordenAlfabetico.disputa);
     if (!lista.length) {
       contenedor.innerHTML = "<h2>Escaños en disputa</h2><p class=\"nota\">En ninguna circunscripción tiene este partido un 10 % de probabilidad o más de sacar escaño.</p>";
       return;
     }
-    const total = (clave) => lista.reduce((suma, fila) => suma + fila[clave], 0);
+    const total = (clave) => listaPorDefecto.reduce((suma, fila) => suma + fila[clave], 0);
     const seguros = total("seguros"), probables = total("probables");
-    const enElAire = lista.reduce((suma, fila) => suma + fila.probabilidades.length, 0) - seguros - probables;
+    const enElAire = listaPorDefecto.reduce((suma, fila) => suma + fila.probabilidades.length, 0) - seguros - probables;
     const pluralDe = (cantidad, singular, plural) => cantidad + " " + (cantidad === 1 ? singular : plural);
     const resumen = [];
     if (seguros) { resumen.push(pluralDe(seguros, "casi seguro", "casi seguros")); }
@@ -180,8 +197,9 @@
     if (enElAire) { resumen.push(pluralDe(enElAire, "en el aire", "en el aire")); }
     let html = "<h2>Escaños en disputa</h2>" +
       '<p class="nota">' + escapar(resumen.join(", ").replace(/, ([^,]*)$/, " y $1")) + ". Cada cuadrado es un escaño del partido en esa circunscripción, con la probabilidad de que saque al menos ese número de escaños: el segundo cuadrado de Sevilla es el 2.º por Sevilla. " +
-      "Las circunscripciones van ordenadas por escaños casi seguros y, a igualdad, por probables y por escaños esperados.</p>" +
-      '<div class="vu-rejilla-escanos disputa-rejilla">';
+      "Las circunscripciones van ordenadas por escaños casi seguros y, a igualdad, por probables y por escaños esperados; un clic en «Circunscripción» las ordena alfabéticamente (de la A a la Z, de la Z a la A y otra vez como al principio).</p>" +
+      '<div class="vu-rejilla-escanos disputa-rejilla">' +
+      '<div class="vu-rejilla-fila vu-rejilla-cabecera"><span class="vu-rejilla-partido"><span>' + botonDeOrden("disputa", "Circunscripción") + "</span></span><span class=\"vu-rejilla-cuadros\"><span class=\"suave\">Escaños, de más a menos seguros</span></span></div>";
     lista.forEach(function (fila) {
       const horquilla = fila.seguros === fila.probabilidades.length ? String(fila.seguros) : fila.seguros + "–" + fila.probabilidades.length;
       html += '<div class="vu-rejilla-fila"><span class="vu-rejilla-partido"><span>' + enlaceDeProvincia(fila.nombre) + ' <b title="Escaños casi seguros y, tras el guion, todos los que se pintan">' + horquilla + "</b></span></span><span class=\"vu-rejilla-cuadros\">";
@@ -298,7 +316,9 @@
     const techo = Math.max.apply(null, filas.map((fila) => fila.p975));
     const posicion = (valor) => (100 * Math.max(0, valor) / techo).toFixed(2);
     const deVoto = vista === "voto";
-    const cuerpo = filas.map(function (fila, indice) {
+    const filasDeLaLista = ordenadas(filas, ordenAlfabetico.lista);
+    const cuerpo = filasDeLaLista.map(function (fila) {
+      const indice = filas.indexOf(fila);   // el puesto es el del orden por voto previsto, también con el orden alfabético
       const franja = (desde, hasta, clase) => '<span class="franja ' + clase + '" style="left:' + posicion(desde) + "%;width:" + (posicion(hasta) - posicion(desde)).toFixed(2) + '%"></span>';
       const barra = '<span class="franjas" style="--color:' + color + '" title="Voto previsto ' + porcentaje(fila.voto) + "; rango del 80 %: " + rango(fila.p10, fila.p90) + "; rango del 95 %: " + rango(fila.p025, fila.p975) + '">' +
         franja(fila.p025, fila.p975, "franja-95") + franja(fila.p10, fila.p90, "franja-80") + '<span class="franja-central" style="left:' + posicion(fila.voto) + '%"></span></span>';
@@ -321,9 +341,17 @@
       ? '<p class="nota">Franjas: la clara es el rango del 95 %, la oscura el del 80 % y la raya, el voto previsto; todas con la misma escala (de 0 a ' + porcentaje(techo) + ").</p>"
       : '<p class="nota">Mediana: los escaños que quedan en el medio de las ' + simulacionesTexto + ' simulaciones de esa circunscripción. Escenario: D’Hondt con el voto previsto de la circunscripción (el mismo de la previsión, el hemiciclo y las tablas). No tienen por qué coincidir ni sumar el total de España, porque cada mediana sale de sorteos distintos. ' +
         'En la distribución, la barra más oscura es el número de escaños más probable.</p>';
-    document.getElementById("partido-tabla").innerHTML = '<div class="tabla-ancha"><table class="tabla-partido"><thead><tr><th class="num">#</th><th>Circunscripción <small class="suave">(escaños)</small></th>' +
+    document.getElementById("partido-tabla").innerHTML = '<div class="tabla-ancha"><table class="tabla-partido"><thead><tr><th class="num" title="Puesto por voto previsto">#</th><th>' + botonDeOrden("lista", "Circunscripción") + ' <small class="suave">(escaños)</small></th>' +
       '<th class="num">Voto previsto</th>' + (deVoto ? cabeceraDeVoto : cabeceraDeEscanos) + "</tr></thead><tbody>" + cuerpo + "</tbody></table></div>" + nota;
   }
+
+  document.addEventListener("click", function (evento) {
+    const boton = evento.target.closest ? evento.target.closest("[data-orden-de]") : null;
+    if (!boton) { return; }
+    const bloque = boton.getAttribute("data-orden-de");
+    ordenAlfabetico[bloque] = SIGUIENTE_ORDEN[ordenAlfabetico[bloque]];
+    if (bloque === "lista") { pintarLista(); } else { pintarEscanosEnDisputa(); }
+  });
 
   pintarResumen();
   pintarEscanosEnDisputa();
