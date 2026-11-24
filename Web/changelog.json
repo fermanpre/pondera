@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "La previsión proyecta la tendencia del promedio hasta el día de la votación",
+    "texto": "Los objetivos nacionales de la previsión pasan a ser el promedio del 23/11 (último día publicable) desplazado con la tendencia de cada partido en los últimos 7 días, aplicada durante los 6 días que faltan para el 29. Movimientos principales, en puntos: PSOE +1,2, PP +0,5, Vox −1,0, Podemos −0,3, SALF −0,3. No se reescala. El promedio de encuestas que se muestra sigue siendo el de las encuestas sin proyectar. En la prueba hacia atrás (generales de 2004 a 2023) la tendencia de 7 días reduce el error medio del promedio de 1,71 a 1,53 puntos."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Frente Amplio en Aragón: más incertidumbre por la relación generales/autonómicas",
     "texto": "La desviación de Frente Amplio en las provincias aragonesas se multiplica por 1,4, porque su promedio depende del resultado de las autonómicas de febrero con una relación generales/autonómicas de 1,0 que podría ser 0,85. El rango del 80 % de Frente Amplio en Zaragoza pasa de 6,7-14,7 % a 6,3-15,6 %, de modo que el escenario de 0,85 queda dentro. La mediana no cambia."
   },

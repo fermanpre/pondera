@@ -7,6 +7,8 @@ Hace que los objetivos nacionales de la previsión (y todo lo que sale de ellos)
   2. Traduce el promedio a objetivos por candidatura (calcular_prevision_base.py) sobre la base de base_2026.json (que no cambia con los días).
   3. Sustituye los «objetivos» de sitio/datos_modelo.json y .js (el resto del modelo, la base provincial y las sigmas, queda como está: el motor JavaScript de la web
      lo lee y hace el reparto y el Monte Carlo en el navegador).
+  3 bis. En los últimos días antes de la votación (el último día publicable es el 23/11/2026 y la votación el 29), los objetivos no salen del promedio de ese último día sino del promedio
+     proyectado con la tendencia de los últimos 7 días (Sondeos/proyeccion_tendencia.py, sin reescalar). Sondeos/promedio_actual.csv y la serie del promedio siguen siendo el promedio de las encuestas.
   4. Regenera sitio/prueba_python.json (reparto proporcional y escaños sin ruido con el motor Python) y la página Resumen (generar_resumen.py: HTML, CSV y XLSX).
 Si cambia el conjunto de candidaturas con objetivo positivo (entra o sale un partido), se detiene sin escribir nada: hay que regenerar el modelo entero con exportar_datos_web.py.
 Uso: python actualizar_prevision_diaria.py
@@ -24,6 +26,7 @@ sys.path.insert(0, str(CARPETA_WEB.parent / "Sondeos"))
 import blend_regional  # noqa: E402
 import generar_resumen  # noqa: E402
 import promedio  # noqa: E402
+import proyeccion_tendencia  # noqa: E402
 import serie_promedio_diaria  # noqa: E402
 from calcular_prevision_base import preparar_problema, proporcion_upc_en_frente_amplio  # noqa: E402
 from motor_reparto import desplazar_en_proporcional, repartir_con_ajuste_iterativo, repartir_escanos_con_coaliciones  # noqa: E402
@@ -39,6 +42,23 @@ def recalcular_promedio_actual():
         raise SystemExit("Sin encuestas en la ventana del %s: no se actualiza la previsión." % dia)
     print("Promedio actual a %s: %d encuestas | PP %.2f, PSOE %.2f, Vox %.2f" % (dia, usadas, medias["PP"], medias["PSOE"], medias["Vox"]))
     return dia
+
+
+def promedio_para_la_prevision(dia):
+    """(medias proyectadas, detalle de la proyección), o (None, None) si hoy no se proyecta. Calcula el promedio de cada uno de los últimos VENTANA_DIAS días con el mismo código y los mismos
+    pesos de firma que el promedio vivo y desplaza el del último día con la pendiente de cada partido (proyeccion_tendencia.proyectar)."""
+    horizonte = proyeccion_tendencia.horizonte_aplicable(dia, promedio.FECHA_ELECCION)
+    if not horizonte:
+        return None, None
+    pesos_de_firmas = serie_promedio_diaria.leer_pesos_de_firmas()
+    encuestas = promedio.leer_encuestas("generales_proxima")
+    medias_por_dia = {}
+    for dia_de_la_ventana in proyeccion_tendencia.dias_de_la_ventana(dia):
+        medias_por_dia[dia_de_la_ventana] = promedio.calcular_promedio(pesos_de_firmas, hoy=dia_de_la_ventana, escribir=False, encuestas_leidas=encuestas)[0]
+    proyectadas, detalle = proyeccion_tendencia.proyectar(medias_por_dia, dia, horizonte)
+    movimientos = {partido: round(proyectadas[partido] - medias_por_dia[dia][partido], 2) for partido in proyectadas if abs(proyectadas[partido] - medias_por_dia[dia][partido]) >= 0.05}
+    print("Proyección de la tendencia (%d días, pendiente de los últimos %d): %s" % (horizonte, proyeccion_tendencia.VENTANA_DIAS, movimientos))
+    return proyectadas, detalle
 
 
 def calcular_datos_del_dia(dia, datos_base, medias=None):
@@ -82,10 +102,15 @@ def calcular_datos_del_dia(dia, datos_base, medias=None):
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     dia = recalcular_promedio_actual()
+    medias_proyectadas, detalle_de_la_proyeccion = promedio_para_la_prevision(dia)
     ruta_modelo = CARPETA_SITIO / "datos_modelo.json"
     datos_base = json.loads(ruta_modelo.read_text(encoding="utf-8"))
     antes = datos_base["objetivos"]
-    datos, problema, validos, escanos = calcular_datos_del_dia(dia, datos_base)
+    datos, problema, validos, escanos = calcular_datos_del_dia(dia, datos_base, medias=medias_proyectadas)
+    if detalle_de_la_proyeccion:
+        datos["proyeccion_tendencia"] = detalle_de_la_proyeccion
+    else:
+        datos.pop("proyeccion_tendencia", None)
     resumen_blend = datos["blend_regional"]
     if resumen_blend["territorios"]:
         print("Blend regional aplicado a %d territorios: %s" % (len(resumen_blend["territorios"]), ", ".join("%s (k=%d, w=%.2f)" % (n, t["k"], t["w"]) for n, t in sorted(resumen_blend["territorios"].items()))))
