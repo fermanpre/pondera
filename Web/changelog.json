@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Páginas de partido: «Circunscripciones por voto» sin scroll horizontal",
+    "texto": "La tarjeta de «Circunscripciones por voto» se mueve 10 píxeles a la izquierda y gana ancho (el hueco con el mapa baja de 28 a 18 píxeles, el mapa cede ancho y bajan el relleno de la tarjeta y de las celdas), las flechas de orden son más pequeñas y el gráfico de distribución mide 90 píxeles. La tabla cabe entera, con la última columna (Esc. 2023), desde 1.300 píxeles de ancho; entre 1.100 y 1.299 píxeles, el mapa pasa encima, con ancho limitado, y la tabla ocupa todo el ancho."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Páginas de partido: la tarjeta de «Circunscripciones por voto» se alinea con la del mapa",
     "texto": "En pantallas anchas, la tarjeta de «Circunscripciones por voto» empezaba 16 píxeles más abajo que la del mapa. Ahora las dos empiezan a la misma altura."
   },

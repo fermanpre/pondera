@@ -454,3 +454,13 @@
 
 /* Página de partido: la tarjeta de «Circunscripciones por voto» empieza a la misma altura que la del mapa (la regla general de section le daba 16 px de margen arriba) (24/11/2026) */
 .partido-lista { margin-top: 0; margin-bottom: 0; }
+
+/* Página de partido: tabla «Circunscripciones por voto» sin scroll horizontal (24/11/2026). La tarjeta se mueve 10 px a la izquierda (hueco de 28 a 18 px), el mapa cede ancho, el relleno de la tarjeta y de las celdas baja,
+   las flechas de orden son más pequeñas y el gráfico de distribución mide 90 px. Con dos columnas solo desde 1300 px; entre 1100 y 1299 px, una columna con el mapa limitado de ancho. */
+.orden-boton { display: inline-flex; align-items: baseline; gap: 2px; }
+.orden-boton .orden-flecha { font-size: 0.6em; }
+.tabla-partido th, .tabla-partido td { padding: 4px 4px; }
+.tabla-partido svg { width: 90px; height: auto; }
+.partido-lista { padding: 12px; }
+@media (min-width: 1100px) and (max-width: 1299px) { .partido-cuerpo { grid-template-columns: minmax(0, 1fr); } .partido-mapa { max-width: 480px; } }
+@media (min-width: 1300px) { .partido-cuerpo { column-gap: 18px; grid-template-columns: minmax(260px, 2.4fr) minmax(0, 8fr); } }
