@@ -70,7 +70,7 @@ def sigma_por_tramos(tramos_de_la_clase, cuota):
     return tramos_de_la_clase[-1][1]
 
 
-def ruido_provincial(reparto, sigma_partido_provincial, generador, tramos_provinciales=None, clase_de_partido=None, factor_sigma_provincial=None):
+def ruido_provincial(reparto, sigma_partido_provincial, generador, tramos_provinciales=None, clase_de_partido=None, factor_sigma_provincial=None, factor_sigma_partido_provincial=None):
     """Ruido lognormal por provincia y partido. Con tramos_provinciales (calibrados con 15 transiciones históricas) la sigma depende de la clase del partido y de su cuota."""
     ruidoso = {}
     for (provincia, partido), cuota in reparto.items():
@@ -80,12 +80,14 @@ def ruido_provincial(reparto, sigma_partido_provincial, generador, tramos_provin
             sigma = sigma_partido_provincial.get(partido, 0.0)
         if factor_sigma_provincial:
             sigma *= factor_sigma_provincial.get(provincia, 1.0)   # más incertidumbre donde no hay encuestas locales (24/11/2026)
+        if factor_sigma_partido_provincial:
+            sigma *= factor_sigma_partido_provincial.get(provincia, {}).get(partido, 1.0)   # incertidumbre adicional de un partido en una provincia (Frente Amplio en Aragón)
         ruidoso[(provincia, partido)] = cuota * math.exp(generador.gauss(0.0, sigma))
     return ruidoso
 
 
 def simular(problema, bloques, sigma_bloque, sigma_partido, sigma_partido_provincial, votos_validos_por_provincia, escanos_por_provincia,
-            sorteos, semilla, partidos_sin_escano=("OTROS",), palanca_media=0.0, palanca_sigma=0.0, pesos_palanca=None, tramos_provinciales=None, clase_de_partido=None, recolector_senado=None, factor_sigma_provincial=None):
+            sorteos, semilla, partidos_sin_escano=("OTROS",), palanca_media=0.0, palanca_sigma=0.0, pesos_palanca=None, tramos_provinciales=None, clase_de_partido=None, recolector_senado=None, factor_sigma_provincial=None, factor_sigma_partido_provincial=None):
     """Devuelve (escanos_nacionales: lista de dicts por sorteo, escanos_provinciales: lista de dicts {(provincia, partido): n})."""
     generador = random.Random(semilla)
     nacionales = []
@@ -95,7 +97,7 @@ def simular(problema, bloques, sigma_bloque, sigma_partido, sigma_partido_provin
         objetivos = perturbar_objetivos(problema.objetivo, bloques, sigma_bloque, sigma_partido, generador, palanca, pesos_palanca)
         primer_problema = ProblemaDeReparto(problema.provincias, problema.partidos, problema.base, problema.peso, objetivos)
         reparto = repartir_con_ajuste_iterativo(primer_problema, desplazar_en_proporcional)
-        ruidoso = ruido_provincial(reparto, sigma_partido_provincial, generador, tramos_provinciales, clase_de_partido, factor_sigma_provincial)
+        ruidoso = ruido_provincial(reparto, sigma_partido_provincial, generador, tramos_provinciales, clase_de_partido, factor_sigma_provincial, factor_sigma_partido_provincial)
         segundo_problema = ProblemaDeReparto(problema.provincias, problema.partidos, ruidoso, problema.peso, objetivos)
         reparto_final = repartir_con_ajuste_iterativo(segundo_problema, desplazar_en_proporcional)
         if recolector_senado is not None:

@@ -274,7 +274,8 @@
         const partido = modelo.partidos[k];
         const clase = datos.clase_de_partido[partido];
         // factor_sigma (datos_modelo.json, de blend_regional.factores_de_sigma): más incertidumbre en las provincias sin encuestas locales (24/11/2026)
-        const sigma = clase ? sigmaPorTramos(datos.tramos_provinciales[clase], reparto[indice]) * (datos.provincias[p].factor_sigma || 1) : 0;
+        const factorDelPartido = datos.provincias[p].factor_sigma_partido ? (datos.provincias[p].factor_sigma_partido[partido] || 1) : 1;   // incertidumbre adicional de un partido en una provincia (p. ej. Frente Amplio en Aragón)
+        const sigma = clase ? sigmaPorTramos(datos.tramos_provinciales[clase], reparto[indice]) * (datos.provincias[p].factor_sigma || 1) * factorDelPartido : 0;
         ruidoso[indice] = reparto[indice] * Math.exp(generador.gauss(0, sigma));
       }
     }

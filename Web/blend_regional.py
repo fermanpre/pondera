@@ -51,6 +51,10 @@ CONSISTENTE = False
 # históricas (sin encuestas locales) ya es la de los territorios ciegos, y las encuestas locales no la estrechan hoy. Se guarda en datos_modelo.json (provincias[].factor_sigma) y lo usan motor.js y montecarlo.py.
 FACTOR_SIGMA_SIN_ENCUESTA_LOCAL = 1.3
 RECENCIA_DE_UNIDAD = {}   # {unidad: recencia media (0 a 1) de las encuestas de su promedio}; lo rellena promedios_por_unidad
+# Incertidumbre adicional de un partido en las provincias de una comunidad (24/11/2026, decisión del usuario): {(comunidad, candidatura): factor de la sigma provincial de ese partido}. Frente Amplio en Aragón:
+# su promedio sale en buena parte del indicio derivado de las autonómicas de febrero (CHA 9,74 + IU-MS 2,97 = 12,7 %, con relación generales/autonómicas 1,0), y la relación podría ser 0,85 (10,8 %); con 1,0 de centro,
+# el factor 1,4 hace que el rango del 80 % de Frente Amplio en Zaragoza pase de 6,7-14,7 a 6,3-15,6, es decir, que el escenario de 0,85 (centro 9,9 %) quede dentro. Es un margen, no una medida.
+FACTOR_SIGMA_POR_PARTIDO = {("Aragón", "SUMAR"): 1.4}
 RONDAS = 300
 MUESTRA_SI_NO_CONSTA = 400  # muestra que se supone a una encuesta sin tamaño de muestra al calcular el ruido de un promedio (una encuesta provincial típica)
 DERIVA_DIARIA = 0.001  # desviación típica (en tanto por uno) que acumula una cuota por raíz de día: unos 0,1 puntos por √día, lo que se mueve el promedio nacional
@@ -496,6 +500,16 @@ def factores_de_sigma(provincias_modelo, promedios):
     return factores
 
 
+def factores_de_sigma_por_partido(provincias_modelo):
+    """{provincia: {candidatura: factor}} de las provincias con incertidumbre adicional de algún partido (FACTOR_SIGMA_POR_PARTIDO)."""
+    factores = {}
+    for p in provincias_modelo:
+        propios = {candidatura: factor for (comunidad, candidatura), factor in FACTOR_SIGMA_POR_PARTIDO.items() if comunidad == p["comunidad"]}
+        if propios:
+            factores[p["nombre"]] = propios
+    return factores
+
+
 def aplicar(problema, provincias_modelo, dia, rating):
     """(problema con la base y el objetivo del blend, resumen). Si no hay territorios con encuestas suficientes devuelve el problema sin cambios."""
     nombres_de_provincia = {p["nombre"] for p in provincias_modelo}
@@ -511,7 +525,7 @@ def aplicar(problema, provincias_modelo, dia, rating):
     fijos = objetivos_territoriales(problema, reparto0, promedios, provincias_de, manuales)
     factor_sigma = factores_de_sigma(provincias_modelo, promedios)
     if not fijos:
-        return problema, {"territorios": {}, "promedios": detalle_para_la_web, "factor_sigma": factor_sigma}
+        return problema, {"territorios": {}, "promedios": detalle_para_la_web, "factor_sigma": factor_sigma, "factor_sigma_partido": factores_de_sigma_por_partido(provincias_modelo)}
     ejes = json.loads((CARPETA_WEB / "candidaturas.json").read_text(encoding="utf-8"))["parametros"]["ejes"]
     bloque_de = {**{i: "DERECHA" for i in ejes["derecha"]}, **{i: "IZQUIERDA" for i in ejes["izquierda"]}}
     matriz, objetivo = converger(problema, fijos, provincias_de, bloque_de)
@@ -524,5 +538,5 @@ def aplicar(problema, provincias_modelo, dia, rating):
         return LAMBDA * k / (k + K0)
 
     resumen = {"territorios": {"%s (%s)" % (u[1], u[0]): {"k": (promedios.get(u) or manuales[u])[1], "w": round(peso_medio(u), 3), "w_por_bloque": {b: round(w, 3) for b, w in PESOS_APLICADOS.get(u, {}).items()}} for u in fijos},
-               "objetivo_antes": {i: problema.objetivo[i] for i in problema.partidos}, "objetivo_despues": objetivo, "promedios": detalle_para_la_web, "factor_sigma": factor_sigma}
+               "objetivo_antes": {i: problema.objetivo[i] for i in problema.partidos}, "objetivo_despues": objetivo, "promedios": detalle_para_la_web, "factor_sigma": factor_sigma, "factor_sigma_partido": factores_de_sigma_por_partido(provincias_modelo)}
     return final, resumen

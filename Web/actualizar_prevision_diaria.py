@@ -60,8 +60,13 @@ def calcular_datos_del_dia(dia, datos_base, medias=None):
     datos["objetivos"] = {partido: problema.objetivo[partido] for partido in datos["partidos"]}
     # Factor de la sigma provincial de la simulación (blend_regional.factores_de_sigma): más incertidumbre donde no hay encuestas locales (24/11/2026). Si el blend no se aplicó, 1 (sin cambio)
     factores_de_sigma = resumen_blend.get("factor_sigma", {})
+    factores_por_partido = resumen_blend.get("factor_sigma_partido", {})
     for provincia in datos["provincias"]:
         provincia["factor_sigma"] = factores_de_sigma.get(provincia["nombre"], 1.0)
+        if provincia["nombre"] in factores_por_partido:
+            provincia["factor_sigma_partido"] = factores_por_partido[provincia["nombre"]]
+        else:
+            provincia.pop("factor_sigma_partido", None)
     # Las cuotas provinciales salen siempre del problema (con o sin blend ese día): si no, un día sin blend heredaría las del fichero, que pueden ser las de otro día
     por_nombre = {p["nombre"]: p for p in datos["provincias"]}
     for nombre in problema.provincias:

@@ -33,12 +33,13 @@ def main():
     datos_base = json.loads((CARPETA_SITIO / "datos_modelo.json").read_text(encoding="utf-8"))
     datos_del_dia, problema, validos, escanos = calcular_datos_del_dia(dia, datos_base)
     factor_sigma = {p["nombre"]: p.get("factor_sigma", 1.0) for p in datos_del_dia["provincias"]}
+    factor_sigma_partido = {p["nombre"]: p["factor_sigma_partido"] for p in datos_del_dia["provincias"] if p.get("factor_sigma_partido")}
     recolector = sim.preparar_recolector_senado(problema)
     inicio = time.time()
     nacionales, _provinciales = montecarlo.simular(
         problema, sim.BLOQUES, sim.SIGMA_BLOQUE, sim.SIGMA_PARTIDO, sim.SIGMA_PROVINCIAL, validos, escanos, sorteos, SEMILLA,
         palanca_media=0.0, palanca_sigma=0.0, pesos_palanca=sim.PESOS_PALANCA, tramos_provinciales=sim.SIGMA_PROVINCIAL_CALIBRADA,
-        clase_de_partido=sim.CLASE_DE_PARTIDO, recolector_senado=recolector, factor_sigma_provincial=factor_sigma)
+        clase_de_partido=sim.CLASE_DE_PARTIDO, recolector_senado=recolector, factor_sigma_provincial=factor_sigma, factor_sigma_partido_provincial=factor_sigma_partido)
     print("%d sorteos en %.0f s" % (sorteos, time.time() - inicio))
     resumen = sim.resumir_senado(recolector, sorteos)
     salida = {"fecha_promedio": dia.isoformat(), "generado": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ"), "sorteos": sorteos, "senado": resumen}
