@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Provincias: sin texto emergente en los cuadrados de «Los N escaños de…»",
+    "texto": "Los cuadrados de «Los N escaños de la provincia» ya no abren un texto emergente al pasar el ratón: la rejilla enseña a todos los partidos a la vez y cada cuadrado lleva dentro su probabilidad. Los lectores de pantalla conservan la etiqueta de cada cuadrado."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Páginas de partido: orden alfabético de las circunscripciones y rivales de más a menos probables",
     "texto": "En la página de cada partido, un clic en «Circunscripción» ordena alfabéticamente la tabla «Circunscripciones por voto» y la rejilla «Escaños en disputa» (de la A a la Z, de la Z a la A y, con un tercer clic, el orden de siempre); el puesto por voto de la tabla se conserva. En el globo de cada escaño en disputa, los partidos con los que se disputa van ahora siempre de la mayor a la menor probabilidad."
   },

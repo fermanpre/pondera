@@ -90,7 +90,7 @@
         const relleno = seguro ? 100 : Math.max(RELLENO_MINIMO, Math.round(100 * probabilidad));
         const estado = seguro ? "vu-rej-seguro" : "vu-rej-parcial" + (relleno >= 60 ? " vu-rej-fuerte" : "");
         const titulo = escapar(rotuloDelPartido) + ", " + (indice + 1) + ".º escaño: " + PROBABILIDAD.plano(probabilidad, textoDePorcentaje(probabilidad));
-        html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + colorDe(fila.partido) + ";--relleno:" + relleno + '%" title="' + titulo + '">' + escapar(textoCortoDeProbabilidad(probabilidad)) + "</span>";
+        html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + colorDe(fila.partido) + ";--relleno:" + relleno + '%" aria-label="' + titulo + '">' + escapar(textoCortoDeProbabilidad(probabilidad)) + "</span>";   // sin texto emergente (24/11/2026): la rejilla ya enseña a todos los partidos a la vez y cada cuadrado lleva su probabilidad; queda la etiqueta para lectores de pantalla
       });
       html += "</span></div>";
     });
