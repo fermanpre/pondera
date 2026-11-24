@@ -113,6 +113,53 @@
     return (partidosPorCircunscripcion[nombreDeLaCircunscripcion] || []).slice().sort((a, b) => Math.abs(a.probabilidad - 0.5) - Math.abs(b.probabilidad - 0.5));
   }
   const nombreDePartido = (otro) => (typeof NOMBRES !== "undefined" && NOMBRES[otro]) || otro;
+  /* ---------- Globo de cada cuadrado (ratón, teclado y toque) ----------
+     Estrecho y alto: título, probabilidad y, si el escaño no es casi seguro, la lista de partidos con los que se disputa, uno por línea. Con el ratón sale al pasar por encima; con un toque
+     (o un clic) se queda fijo hasta tocar en otro sitio, porque en el móvil no hay «pasar por encima» ni texto emergente nativo. */
+  function activarGlobo(contenedor) {
+    let globo = document.getElementById("globo-escano");
+    if (!globo) {
+      globo = document.createElement("div");
+      globo.id = "globo-escano"; globo.className = "globo-escano"; globo.setAttribute("role", "tooltip"); globo.hidden = true;
+      document.body.appendChild(globo);
+    }
+    let activo = null, fijado = false;
+    function contenidoDe(detalle) {
+      let html = '<b class="globo-titulo">' + escapar(detalle.titulo) + '</b><span class="globo-prob">Probabilidad: ' + escapar(detalle.probabilidad) + "</span>";
+      if (detalle.seguro) { return html; }
+      if (detalle.rivales.length) {
+        html += '<span class="globo-sub">Se disputa con:</span><ul>' + detalle.rivales.map((rival) => "<li><b>" + escapar(rival.partido) + "</b><span>su " + rival.escano + ".º escaño, " + escapar(rival.probabilidad) + "</span></li>").join("") + "</ul>";
+      } else {
+        html += '<span class="globo-sub">Ningún otro partido tiene escaños en el aire en esta circunscripción.</span>';
+      }
+      return html;
+    }
+    function mostrar(cuadro) {
+      activo = cuadro;
+      globo.innerHTML = contenidoDe(JSON.parse(cuadro.getAttribute("data-globo")));
+      globo.hidden = false;
+      const caja = cuadro.getBoundingClientRect(), ancho = globo.offsetWidth, alto = globo.offsetHeight, margen = 8;
+      let arriba = caja.top - alto - margen;
+      if (arriba < margen) { arriba = caja.bottom + margen; }
+      let izquierda = caja.left + caja.width / 2 - ancho / 2;
+      izquierda = Math.max(margen, Math.min(izquierda, document.documentElement.clientWidth - ancho - margen));
+      globo.style.top = arriba + "px"; globo.style.left = izquierda + "px";
+    }
+    function ocultar() { globo.hidden = true; activo = null; fijado = false; }
+    const cuadroDe = (evento) => (evento.target.closest ? evento.target.closest(".vu-rej-cuadro") : null);
+    contenedor.addEventListener("mouseover", function (evento) { const cuadro = cuadroDe(evento); if (cuadro && !fijado) { mostrar(cuadro); } });
+    contenedor.addEventListener("mouseout", function (evento) { if (cuadroDe(evento) && !fijado) { globo.hidden = true; activo = null; } });
+    contenedor.addEventListener("focusin", function (evento) { const cuadro = cuadroDe(evento); if (cuadro && !fijado) { mostrar(cuadro); } });
+    contenedor.addEventListener("focusout", function () { if (!fijado) { globo.hidden = true; activo = null; } });
+    contenedor.addEventListener("click", function (evento) {
+      const cuadro = cuadroDe(evento);
+      if (!cuadro) { return; }
+      if (activo === cuadro && fijado) { ocultar(); } else { mostrar(cuadro); fijado = true; }
+    });
+    document.addEventListener("click", function (evento) { if (!cuadroDe(evento)) { ocultar(); } });
+    document.addEventListener("keydown", function (evento) { if (evento.key === "Escape") { ocultar(); } });
+    window.addEventListener("scroll", function () { if (!globo.hidden) { ocultar(); } }, { passive: true });
+  }
   function pintarEscanosEnDisputa() {
     const contenedor = document.getElementById("partido-disputa");
     if (!contenedor) { return; }
@@ -140,19 +187,22 @@
         const seguro = probabilidad >= UMBRAL_CASI_SEGURO;
         const relleno = seguro ? 100 : Math.max(6, Math.round(100 * probabilidad));
         const estado = seguro ? "vu-rej-seguro" : "vu-rej-parcial" + (relleno >= 60 ? " vu-rej-fuerte" : "");
-        let titulo = (indice + 1) + ".º escaño por " + nombreVisible(fila.nombre) + ": " + (probabilidad >= 0.995 ? "100 %" : textoDeProbabilidadEnCuadro(probabilidad));
-        if (!seguro) {
-          const rivales = rivalesEnDisputa(fila.nombre).map((rival) => nombreDePartido(rival.partido) + " (su " + rival.escano + ".º, " + textoDeProbabilidadEnCuadro(rival.probabilidad) + ")");
-          titulo += rivales.length ? ". Se disputa con: " + rivales.join(", ") + "." : ". Ningún otro partido tiene escaños en el aire en esta circunscripción.";
-        }
-        html += '<span class="vu-rej-cuadro ' + estado + '" style="--color:' + color + ";--relleno:" + relleno + '%" title="' + escapar(titulo) + '">' + (probabilidad >= 0.995 ? String(indice + 1) : textoDeProbabilidadEnCuadro(probabilidad)) + "</span>";
+        const detalle = {
+          titulo: (indice + 1) + ".º escaño por " + nombreVisible(fila.nombre),
+          probabilidad: probabilidad >= 0.995 ? "100 %" : textoDeProbabilidadEnCuadro(probabilidad),
+          seguro: seguro,
+          rivales: seguro ? [] : rivalesEnDisputa(fila.nombre).map((rival) => ({ partido: nombreDePartido(rival.partido), escano: rival.escano, probabilidad: textoDeProbabilidadEnCuadro(rival.probabilidad) })),
+        };
+        html += '<span class="vu-rej-cuadro ' + estado + '" tabindex="0" role="button" style="--color:' + color + ";--relleno:" + relleno + '%" aria-label="' + escapar(detalle.titulo + ": " + detalle.probabilidad) + '" data-globo="' + escapar(JSON.stringify(detalle)) + '">' +
+          (probabilidad >= 0.995 ? String(indice + 1) : textoDeProbabilidadEnCuadro(probabilidad)) + "</span>";
       });
       html += "</span></div>";
     });
     html += "</div>" +
       '<p class="nota">Relleno completo y línea continua: casi seguro (' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % o más de las " + simulacionesTexto + " simulaciones); en los que llegan al 100 % el cuadrado lleva el número del escaño en lugar del porcentaje. Línea discontinua: probable (desde el " + Math.round(100 * UMBRAL_PROBABLE) + " %) o en el aire; cuanto más pálido, menos probable. " +
-      "Junto al nombre, la horquilla: los escaños casi seguros y, tras el guion, todos los que se pintan (si son los mismos, un solo número). Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia. Al pasar el ratón por un cuadrado que no es casi seguro se indica con qué partidos se disputa el escaño: los que tienen en esa circunscripción algún escaño en el aire (entre el " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % y el casi seguro), con su escaño más incierto.</p>";
+      "Junto al nombre, la horquilla: los escaños casi seguros y, tras el guion, todos los que se pintan (si son los mismos, un solo número). Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia. Al pasar el ratón por un cuadrado (o tocarlo, en el móvil) se abre un globo con la probabilidad y, si el escaño no es casi seguro, los partidos con los que se disputa: los que tienen en esa circunscripción algún escaño en el aire (entre el " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % y el casi seguro), con su escaño más incierto.</p>";
     contenedor.innerHTML = html;
+    activarGlobo(contenedor);
   }
 
   /* ---------- Mapa ---------- */

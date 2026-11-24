@@ -1,6 +1,11 @@
 [
   {
     "fecha": "2026-11-24",
+    "titulo": "Páginas de partido: un globo alto y estrecho, también en el móvil",
+    "texto": "En «Escaños en disputa», el texto de cada cuadrado pasa a un globo propio, más alto que ancho, con el escaño, su probabilidad y, uno por línea, los partidos con los que se disputa. Sale al pasar el ratón por encima o con el teclado y, en el móvil, al tocar el cuadrado (se cierra tocando en otro sitio). Antes era el texto emergente del navegador, que en una sola línea larga no se leía bien y en el móvil no existe."
+  },
+  {
+    "fecha": "2026-11-24",
     "titulo": "Páginas de partido: al pasar el ratón por un escaño en disputa se ve contra quién se disputa",
     "texto": "En «Escaños en disputa» de cada página de partido, el texto emergente de los cuadrados que no son casi seguros indica ahora con qué partidos se disputa ese escaño: los que tienen en esa circunscripción algún escaño en el aire (entre el 10 % y el casi seguro), cada uno con su escaño más incierto y su probabilidad. Ejemplo: «6.º escaño por Valencia/València: 49 %. Se disputa con: PSOE (su 5.º, 67 %)…»."
   },
