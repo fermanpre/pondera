@@ -493,3 +493,8 @@ button.principal { font-weight: 600; }
 .vu-rejilla-cabecera .vu-rejilla-cuadros { font-size: 0.8rem; }
 .orden-boton.orden-suave { font-weight: 400; color: var(--suave); }
 .tabla-partido th .orden-boton { text-align: inherit; }
+
+/* Desplegable «¿Por qué no suman 100 %?» bajo las rejillas de escaños (24/11/2026) */
+.nota-desplegable { margin-top: 0.6rem; font-size: 0.9rem; color: var(--suave); }
+.nota-desplegable summary { cursor: pointer; font-weight: 600; color: var(--texto); }
+.nota-desplegable p { margin: 0.5rem 0 0; }

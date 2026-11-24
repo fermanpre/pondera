@@ -132,6 +132,7 @@
   /* ---------- Escaños en disputa ---------- */
   // Los mismos umbrales que las páginas de provincia (voto_util_provincias.js): casi seguro 95 %, probable 75 %; por debajo, «en el aire», que aquí se enseña desde el 10 %.
   const UMBRAL_CASI_SEGURO = 0.95, UMBRAL_PROBABLE = 0.75, UMBRAL_MINIMO_EN_EL_AIRE = 0.10;
+  const porcentajeExacto = (valor) => (valor === null || valor === undefined ? null : valor < 0.005 ? "<1 %" : Math.round(100 * valor) + " %");   // probabilidad de sacar exactamente k escaños
   const textoDeProbabilidadEnCuadro = (probabilidad) => String(Math.min(99, Math.round(100 * probabilidad))) + " %";   // el 100 % se sustituye por el número de escaño (ver más abajo)
   // Una fila por circunscripción con un cuadrado por cada escaño que el partido tiene al menos al 10 % de probabilidad de sacar («al menos k escaños»)
   function filasDeEscanosEnDisputa() {
@@ -147,7 +148,7 @@
       }
       if (!probabilidades.length) { return; }
       resultado.push({
-        nombre: fila.nombre, probabilidades: probabilidades,
+        nombre: fila.nombre, probabilidades: probabilidades, exactas: fila.distribucion_de_escanos,
         seguros: probabilidades.filter((p) => p >= UMBRAL_CASI_SEGURO).length,
         probables: probabilidades.filter((p) => p >= UMBRAL_PROBABLE && p < UMBRAL_CASI_SEGURO).length,
         esperados: probabilidades.reduce((suma, p) => suma + p, 0),
@@ -195,7 +196,8 @@
     // Barra del color del partido con la longitud proporcional a la probabilidad (la pista completa es el 100 %)
     const barra = (valor, colorDeLaBarra) => '<span class="globo-barra"><i style="width:' + Math.max(2, Math.round(100 * valor)) + "%;background:" + colorDeLaBarra + '"></i></span>';
     function contenidoDe(detalle) {
-      let html = '<b class="globo-titulo">' + escapar(detalle.titulo) + '</b><span class="globo-prob">Probabilidad: ' + escapar(detalle.probabilidad) + "</span>" + barra(detalle.valor, detalle.color);
+      let html = '<b class="globo-titulo">' + escapar(detalle.titulo) + '</b><span class="globo-prob">Probabilidad de sacar ' + detalle.escanos + " o más: " + escapar(detalle.probabilidad) + "</span>" + barra(detalle.valor, detalle.color) +
+        (detalle.exacta ? '<span class="globo-prob">Probabilidad de sacar exactamente ' + detalle.escanos + ": " + escapar(detalle.exacta) + "</span>" : "");
       if (detalle.seguro) { return html; }
       if (detalle.rivales.length) {
         html += '<span class="globo-sub">Se disputa con:</span><ul>' + detalle.rivales.map((rival) => "<li><b>" + escapar(rival.partido) + "</b><span>su " + rival.escano + ".º escaño, " + escapar(rival.probabilidad) + "</span>" + barra(rival.valor, rival.color) + "</li>").join("") + "</ul>";
@@ -262,11 +264,11 @@
         const detalle = {
           titulo: (indice + 1) + ".º escaño por " + nombreVisible(fila.nombre),
           probabilidad: probabilidad >= 0.995 ? "100 %" : textoDeProbabilidadEnCuadro(probabilidad),
-          valor: probabilidad, color: color,
+          valor: probabilidad, color: color, escanos: indice + 1, exacta: porcentajeExacto(fila.exactas ? fila.exactas[indice + 1] : null),
           seguro: seguro,
           rivales: seguro ? [] : rivalesEnDisputa(fila.nombre).map((rival) => ({ partido: nombreDePartido(rival.partido), color: COLORES[rival.partido] || "#7a7a75", escano: rival.escano, probabilidad: textoDeProbabilidadEnCuadro(rival.probabilidad), valor: rival.probabilidad })),
         };
-        html += '<span class="vu-rej-cuadro ' + estado + '" tabindex="0" role="button" style="--color:' + color + ";--relleno:" + relleno + '%" aria-label="' + escapar(detalle.titulo + ": " + detalle.probabilidad) + '" data-globo="' + escapar(JSON.stringify(detalle)) + '">' +
+        html += '<span class="vu-rej-cuadro ' + estado + '" tabindex="0" role="button" style="--color:' + color + ";--relleno:" + relleno + '%" aria-label="' + escapar(detalle.titulo + ": probabilidad de sacar " + detalle.escanos + " o más, " + detalle.probabilidad) + '" data-globo="' + escapar(JSON.stringify(detalle)) + '">' +
           (probabilidad >= 0.995 ? String(indice + 1) : textoDeProbabilidadEnCuadro(probabilidad)) + "</span>";
       });
       html += "</span></div>";
@@ -274,6 +276,7 @@
     html += "</div>" +
       '<p class="nota">Relleno completo y línea continua: casi seguro (' + Math.round(100 * UMBRAL_CASI_SEGURO) + " % o más de las " + simulacionesTexto + " simulaciones); en los que llegan al 100 % el cuadrado lleva el número del escaño en lugar del porcentaje. Línea discontinua: probable (desde el " + Math.round(100 * UMBRAL_PROBABLE) + " %) o en el aire; cuanto más pálido, menos probable. " +
       "Junto al nombre, la horquilla: los escaños casi seguros y, tras el guion, todos los que se pintan (si son los mismos, un solo número). Solo se enseñan los escaños con un " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % o más. Los mismos umbrales que las páginas de provincia. Al pasar el ratón por un cuadrado (o tocarlo, en el móvil) se abre un globo con la probabilidad y, si el escaño no es casi seguro, los partidos con los que se disputa, cada uno con una barra de su color proporcional a la probabilidad: los que tienen en esa circunscripción algún escaño en el aire (entre el " + Math.round(100 * UMBRAL_MINIMO_EN_EL_AIRE) + " % y el casi seguro), con su escaño más incierto.</p>";
+    html += '<details class="nota-desplegable"><summary>¿Por qué las probabilidades no suman 100 %?</summary><p>Cada cuadrado responde a una pregunta distinta: ¿con qué probabilidad saca el partido <b>al menos</b> ese número de escaños? Por eso las cifras bajan de un cuadrado al siguiente (si el partido saca 6 escaños, también saca 5) y no son alternativas que tengan que sumar 100 %.</p><p>La probabilidad de sacar <b>exactamente</b> un número de escaños es la de ese cuadrado menos la del siguiente: con un 89 % para el 5.º y un 49 % para el 6.º, el partido saca exactamente 5 en el 40 % de las simulaciones (y 6 o más en el 49 %).</p><p>Entre partidos tampoco suman 100 %, porque todos pueden sacar escaño a la vez: cada partido tiene su propia fila. Lo que sí suma 100 % es la distribución de cada partido, la probabilidad de cada número exacto de escaños, que se ve en las tablas de la página.</p></details>';
     contenedor.innerHTML = html;
     activarGlobo(contenedor);
   }

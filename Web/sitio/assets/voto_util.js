@@ -97,6 +97,7 @@
     html += "</div>" +
       '<p class="nota">Cada cuadrado es un escaño del partido, con la probabilidad de que saque al menos ese número de escaños; cuanto más pálido, menos probable. Relleno completo y línea continua: <b>casi seguro</b> (desde el ' + Math.round(100 * umbralSeguro) +
       ' %). Línea discontinua: por debajo de ese umbral. Junto al nombre, los escaños previstos (los del reparto central, que suman los de la circunscripción) y, entre paréntesis, el rango del 95 % de las simulaciones. Solo se enseñan los escaños con un 1 % o más. Una coalición cuenta como un solo partido.</p>';
+    html += '<details class="nota-desplegable"><summary>¿Por qué las probabilidades no suman 100 %?</summary><p>Cada cuadrado responde a una pregunta distinta: ¿con qué probabilidad saca el partido <b>al menos</b> ese número de escaños? Por eso las cifras bajan de un cuadrado al siguiente (si el partido saca 6 escaños, también saca 5) y no son alternativas que tengan que sumar 100 %.</p><p>La probabilidad de sacar <b>exactamente</b> un número de escaños es la de ese cuadrado menos la del siguiente: con un 89 % para el 5.º y un 49 % para el 6.º, el partido saca exactamente 5 en el 40 % de las simulaciones (y 6 o más en el 49 %).</p><p>Entre partidos tampoco suman 100 %, porque todos pueden sacar escaño a la vez: cada partido tiene su propia fila. Lo que sí suma 100 % es la distribución de cada partido, la probabilidad de cada número exacto de escaños, que se ve en las tablas de la página.</p></details>';
     return html;
   }
 
