@@ -72,7 +72,7 @@
   /* Páginas de partido */
   .enlace-partido { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--suave); }
   .enlace-partido:hover, .enlace-partido:focus { border-bottom-style: solid; }
-  .tarjetas-partido { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 10px 0 16px; }
+  .tarjetas-partido { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 10px 0 16px; }
   .tarjeta-partido { background: var(--tarjeta); border: 1px solid var(--linea); border-radius: 8px; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
   .tarjeta-partido b { font-size: 1.5rem; line-height: 1.2; }
   .tarjeta-titulo { color: var(--suave); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }

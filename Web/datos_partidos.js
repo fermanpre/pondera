@@ -213,6 +213,39 @@ if (votosACandidaturas) {
   Object.keys(salida.partidos).forEach(function (partido) { rangosDeVotos.nacional[partido] = compacto(salida.partidos[partido].votos); });
   fs.writeFileSync(path.join(carpetaSitio, "datos_votos.js"), "const DATOS_VOTOS = " + JSON.stringify(rangosDeVotos) + ";\n");
 }
+// Probabilidad de grupo parlamentario propio en el Congreso (25/11/2026). Art. 23.1 del Reglamento reformado (BOE-A-2026-16353, rige desde la XVI legislatura): 15 diputados, o al menos 5 y además
+// una media del 10 % de los votos válidos en el conjunto de las circunscripciones donde obtengan representación (aquí, votos sumados / válidos sumados) o el 3 % de los válidos de toda España.
+// Cada candidatura va por su cuenta. Los votos válidos de cada provincia se sacan de los votos a candidaturas del sorteo con la proporción de 2023.
+const candidaturasSobreValidos = datos.provincias.map((provincia) => {
+  const dato = resultados2023[provincia.nombre];
+  return dato.candidaturas.reduce((suma, candidatura) => suma + candidatura.votos, 0) / dato.validos;
+});
+const votosDelSorteo = (s, p) => votosACandidaturas ? votosACandidaturas[s * P + p] : modelo.peso[p];
+const validosDeEspana = new Float64Array(SORTEOS);
+for (let s = 0; s < SORTEOS; s++) {
+  for (let p = 0; p < P; p++) { validosDeEspana[s] += votosDelSorteo(s, p) / candidaturasSobreValidos[p]; }
+}
+partidosDelModelo.forEach(function (partido) {
+  const k = modelo.partidos.indexOf(partido);
+  let conGrupo = 0;
+  for (let s = 0; s < SORTEOS; s++) {
+    const diputados = simulacion.nacionales[s * K + k];
+    if (diputados < 5) { continue; }
+    if (diputados >= 15) { conGrupo += 1; continue; }
+    let votos = 0, votosConEscano = 0, validosConEscano = 0;
+    for (let p = 0; p < P; p++) {
+      const votosEnLaProvincia = votosDelSorteo(s, p) * simulacion.cuotas[(s * P + p) * K + k] / 65535;
+      votos += votosEnLaProvincia;
+      if (simulacion.provinciales[(s * P + p) * K + k] > 0) {
+        votosConEscano += votosEnLaProvincia;
+        validosConEscano += votosDelSorteo(s, p) / candidaturasSobreValidos[p];
+      }
+    }
+    if (votos / validosDeEspana[s] >= 0.03 || (validosConEscano > 0 && votosConEscano / validosConEscano >= 0.10)) { conGrupo += 1; }
+  }
+  salida.partidos[partido].probabilidad_de_grupo = redondear(conGrupo / SORTEOS, 4);
+  console.log("grupo propio", partido.padEnd(9), (100 * conGrupo / SORTEOS).toFixed(1), "%");
+});
 const texto = JSON.stringify(salida);
 fs.writeFileSync(path.join(carpetaSitio, "datos_partidos.json"), texto);
 fs.writeFileSync(path.join(carpetaSitio, "datos_partidos.js"), "const DATOS_PARTIDOS = " + texto + ";\n");

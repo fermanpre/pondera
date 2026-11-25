@@ -48,6 +48,14 @@
   }
 
   /* ---------- Resumen ---------- */
+  // Probabilidad de grupo parlamentario propio (datos_partidos.js)
+  function tarjetaDeGrupo(tarjeta) {
+    const p = datos.probabilidad_de_grupo;
+    if (p === undefined) { return ""; }
+    const enPorcentaje = p > 0 && p < 0.001 ? "<0,1 %" : (p < 1 && p > 0.999 ? ">99,9 %" : (p > 0 && p < 0.1 ? formatoUnDecimal.format(100 * p) : Math.round(100 * p)) + " %");
+    return tarjeta("Grupo parlamentario propio", PROBABILIDAD.html(p, enPorcentaje),
+      'Probabilidad de poder formarlo: 15 diputados, o 5 con un 10 % de voto donde obtenga escaño o un 3 % en España. <a href="metodologia.html#grupo-parlamentario">Cómo se calcula</a>.');
+  }
   function pintarResumen() {
     const nacional = datos.escanos;
     const total = filas.length;
@@ -60,7 +68,8 @@
       (datos.votos ? tarjeta("Votos previstos en España", textoDeVotos(datos.votos.central), "Rango del 80 %: " + textoDeVotos(datos.votos.p10) + " a " + textoDeVotos(datos.votos.p90) + ". Del 95 %: " +
         textoDeVotos(datos.votos.p025) + " a " + textoDeVotos(datos.votos.p975) + ". Participación prevista: " + porcentaje(DATOS_PARTIDOS.participacion.nacional) + "; sin voto desde el extranjero.") : "") +
       tarjeta("Escaños (mediana)", String(nacional.mediana), "Rango del 95 %: " + nacional.p025 + "–" + nacional.p975 + ". En el escenario (reparto central), " + nacional.escenario + "." + escanos2023) +
-      tarjeta("Dónde concurre", total + (total === 1 ? " circunscripción" : " circunscripciones"), "De las 52 de España." + (total < 52 ? " No concurre, o no se le calcula voto, en las otras " + (52 - total) + "." : "")) +
+      tarjetaDeGrupo(tarjeta) +
+      tarjeta("Dónde concurre", String(total), (total === 1 ? "Circunscripción" : "Circunscripciones") + " de las 52 de España." + (total < 52 ? " No concurre, o no se le calcula voto, en las otras " + (52 - total) + "." : "")) +
       tarjeta("Su mejor circunscripción", escapar(nombreVisible(mejor.nombre)), porcentaje(mejor.voto) + (total > 1 ? ". La peor: " + escapar(nombreVisible(peor.nombre)) + ", " + porcentaje(peor.voto) + "." : "")) +
       "</div>";
   }
@@ -414,6 +423,7 @@
   });
 
   pintarResumen();
+  PROBABILIDAD.alCambiar(pintarResumen);
   pintarEscanosEnDisputa();
   pintarMapa();
   pintarLeyenda();
