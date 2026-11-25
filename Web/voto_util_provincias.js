@@ -231,6 +231,35 @@ for (let p = 0; p < P; p++) {
     };
     return { ultimo: aProbabilidades(ultimo), fuera: aProbabilidades(primeroFuera) };
   })();
+  // Repartos más frecuentes (25/11/2026): el reparto completo de la provincia en cada sorteo (una coalición cuenta como un solo partido). Se enseñan hasta cinco, del 2 % o más; si ninguno llega al
+  // 5 % (Madrid, Barcelona), se agrupan por bloques: izquierda estatal, derecha estatal y nacionalistas y regionalistas.
+  const repartos = (function () {
+    const IZQUIERDA = ["PSOE", "SUMAR", "PODEMOS", "FV", "UPC", "ADELANTE"], DERECHA = ["PP", "VOX", "UPN", "SALF"];
+    const porPartidos = new Map(), porBloques = new Map();
+    const anotar = function (cuentas, clave) { cuentas.set(clave, (cuentas.get(clave) || 0) + 1); };
+    for (let s = 0; s < SORTEOS; s++) {
+      const reparto = [], bloques = [0, 0, 0];
+      for (let k = 0; k < K; k++) {
+        if (esSocioDeCoalicion(p, k)) continue;
+        const socio = socioDeCoalicion(p, k);
+        const cantidad = resultado.provinciales[(s * P + p) * K + k] + (socio >= 0 ? resultado.provinciales[(s * P + p) * K + socio] : 0);
+        if (!cantidad) continue;
+        const partido = modelo.partidos[k];
+        reparto.push([partido, cantidad]);
+        bloques[IZQUIERDA.indexOf(partido) >= 0 ? 0 : DERECHA.indexOf(partido) >= 0 ? 1 : 2] += cantidad;
+      }
+      reparto.sort(function (a, b) { return b[1] - a[1] || (a[0] < b[0] ? -1 : 1); });
+      anotar(porPartidos, JSON.stringify(reparto));
+      anotar(porBloques, JSON.stringify([["izquierda", bloques[0]], ["derecha", bloques[1]], ["otros", bloques[2]]]));
+    }
+    const ordenar = function (cuentas) { return Array.from(cuentas).sort(function (a, b) { return b[1] - a[1] || (a[0] < b[0] ? -1 : 1); }); };
+    let orden = ordenar(porPartidos), por = "partidos";
+    if (orden[0][1] / SORTEOS < 0.05) { orden = ordenar(porBloques); por = "bloques"; }
+    const lista = orden.slice(0, 5).filter(function (par) { return par[1] / SORTEOS >= 0.02; });
+    const cubierto = lista.reduce(function (suma, par) { return suma + par[1]; }, 0) / SORTEOS;
+    return { por: por, lista: lista.map(function (par) { return { reparto: JSON.parse(par[0]), p: Math.round(10000 * par[1] / SORTEOS) / 10000 }; }),
+      distintos: orden.length, resto: Math.round(10000 * (1 - cubierto)) / 10000 };
+  })();
   const percentil = function (q) { return costes[Math.min(SORTEOS - 1, Math.floor(q * SORTEOS))]; };
   const barreraDeFacto = { p05: Math.round(10000 * percentil(0.05)) / 10000, mediana: Math.round(10000 * percentil(0.5)) / 10000, p95: Math.round(10000 * percentil(0.95)) / 10000 };
   // Voto central de cada partido en la provincia (tanto por uno sobre votos a candidaturas), solo los de un 1 % o más: sirve para saber cuál es el partido más votado de cada grupo
@@ -277,7 +306,7 @@ for (let p = 0; p < P; p++) {
     lista[primeraFilaQueNo[partido]].faltan = Math.ceil(alto);
   });
   const corte = cocientes.length > N ? { ultimo: Math.round(cocientes[N - 1].votos), primero_fuera: Math.round(cocientes[N].votos) } : null;
-  provincias[provincia.nombre] = { barrera_de_facto: barreraDeFacto, cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, umbral_probable: UMBRAL_PROBABLE, seguros: seguros, probables: probables, aire: enElAire, escalera: escalera, disputa: disputa, valor: valor, valor_bloque: valorBloque, decisivo: decisivo, ventana_decisiva: Math.round(ventana), voto: voto };
+  provincias[provincia.nombre] = { barrera_de_facto: barreraDeFacto, cocientes: lista, corte: corte, comunidad: provincia.comunidad, escanos: N, umbral: umbral, umbral_probable: UMBRAL_PROBABLE, seguros: seguros, probables: probables, aire: enElAire, escalera: escalera, disputa: disputa, repartos: repartos, valor: valor, valor_bloque: valorBloque, decisivo: decisivo, ventana_decisiva: Math.round(ventana), voto: voto };
   if ((p + 1) % 10 === 0) console.log("  " + (p + 1) + "/" + P + " provincias (" + ((Date.now() - inicio) / 1000).toFixed(0) + " s)");
 }
 

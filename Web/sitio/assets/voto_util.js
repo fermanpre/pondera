@@ -101,6 +101,34 @@
     return html;
   }
 
+  // Repartos más frecuentes de la provincia (por partidos o, en las muy grandes, por bloques)
+  const BLOQUE_DEL_REPARTO = { izquierda: ["Izquierda", "#d0202a"], derecha: ["Derecha", "#1f6fb8"], otros: ["Nacionalistas y regionalistas", "#c9a227"] };
+  const unDecimal = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  function porcentajeDeReparto(probabilidad) {
+    const original = probabilidad <= 0 ? "0 %" : probabilidad < 0.001 ? "<0,1 %" : probabilidad < 0.0995 ? unDecimal.format(100 * probabilidad) + " %" : probabilidad > 0.995 && probabilidad < 1 ? ">99 %" : Math.round(100 * probabilidad) + " %";
+    return PROBABILIDAD.html(probabilidad, original);
+  }
+  function repartosFrecuentes(nombre, datos) {
+    const repartos = datos.repartos;
+    if (!repartos || !repartos.lista.length) { return ""; }
+    const porBloques = repartos.por === "bloques";
+    const ficha = (clave, cantidad) => {
+      const rotulo = porBloques ? BLOQUE_DEL_REPARTO[clave][0] : nombreDe(clave, nombre, true);
+      const color = porBloques ? BLOQUE_DEL_REPARTO[clave][1] : colorDe(clave);
+      return '<span class="vu-reparto-parte"><span class="ficha" style="background:' + color + '"></span>' + escapar(rotulo) + " <b>" + cantidad + "</b></span>";
+    };
+    let html = '<h4 class="vu-escalera-titulo">Repartos más frecuentes' + (porBloques ? ", por bloques" : "") + "</h4><ol class=\"vu-repartos\">";
+    repartos.lista.forEach((fila) => {
+      html += '<li><span class="vu-reparto-escanos">' + fila.reparto.filter((par) => par[1] > 0).map((par) => ficha(par[0], par[1])).join("") + '</span><b class="vu-reparto-prob">' + porcentajeDeReparto(fila.p) + "</b></li>";
+    });
+    html += "</ol>";
+    const otros = repartos.distintos - repartos.lista.length;
+    html += '<p class="nota">' + (otros > 0 ? "Otros " + entero(otros) + (otros === 1 ? " reparto suma " : " repartos distintos suman ") + porcentajeDeReparto(repartos.resto) + ". " : "") +
+      "Cada fila es un reparto completo de los " + datos.escanos + " escaños; se enseñan hasta cinco, del 2 % o más." +
+      (porBloques ? " Aquí ningún reparto por partidos llega al 5 %, así que se agrupan por bloques: izquierda (PSOE, Frente Amplio, Podemos, FV, UPC y Adelante), derecha (PP, Vox, UPN y SALF) y el resto de candidaturas." : "") + "</p>";
+    return datos.escanos === 1 ? html.replace("de los 1 escaños", "del único escaño") : html;
+  }
+
   function barras(nombre, datos) {
     const valoresDeBloque = datos.valor_bloque || {};
     const valores = Object.keys(datos.valor).filter((partido) => datos.voto[partido] !== undefined || datos.valor[partido] >= CASI_CERO);
@@ -215,7 +243,7 @@
     if (!datos) { return; }
     document.getElementById("vu-titular").textContent = titular(provincia.nombre, datos);
     document.getElementById("vu-barrera").innerHTML = barreraDeFacto(provincia.nombre, datos);
-    document.getElementById("vu-escanos").innerHTML = rejillaDeEscanos(provincia.nombre, datos) + disputaDelUltimo(provincia.nombre, datos);
+    document.getElementById("vu-escanos").innerHTML = rejillaDeEscanos(provincia.nombre, datos) + disputaDelUltimo(provincia.nombre, datos) + repartosFrecuentes(provincia.nombre, datos);
     document.getElementById("vu-barras").innerHTML = barras(provincia.nombre, datos);
     document.getElementById("vu-cocientes").innerHTML = cocientes(provincia.nombre, datos);
     const fecha = VOTO_UTIL.fecha_promedio ? new Date(VOTO_UTIL.fecha_promedio + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" }) : "";

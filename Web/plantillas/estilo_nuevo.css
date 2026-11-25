@@ -297,6 +297,11 @@
   .vu-rej-parcial { background: color-mix(in srgb, var(--color) var(--relleno), transparent); border: 2px dashed var(--color); color: var(--texto); }
   .vu-rej-fuerte { color: #fff; text-shadow: 0 0 2px rgba(0, 0, 0, 0.55); }
   .vu-quien span { white-space: nowrap; }
+  .vu-repartos { list-style: none; margin: 6px 0 8px; padding: 0; display: grid; gap: 4px; }
+  .vu-repartos li { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--linea); padding: 3px 0; }
+  .vu-reparto-escanos { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+  .vu-reparto-parte { white-space: nowrap; }
+  .vu-reparto-prob { white-space: nowrap; font-variant-numeric: tabular-nums; }
   .vu-explicacion { margin: 0 0 4px; color: var(--suave); }
   .vu-barras h4 { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.06em; color: var(--suave); margin: 14px 0 6px; }
   .vu-fila { display: grid; grid-template-columns: 130px 1fr 60px; align-items: center; gap: 10px; margin: 5px 0; }
