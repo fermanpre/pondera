@@ -113,7 +113,7 @@
     if (!repartos || !repartos.lista.length) { return ""; }
     const porBloques = repartos.por === "bloques";
     const ficha = (clave, cantidad) => {
-      const rotulo = porBloques ? BLOQUE_DEL_REPARTO[clave][0] : nombreDe(clave, nombre, true);
+      const rotulo = porBloques ? BLOQUE_DEL_REPARTO[clave][0] : siglasDe(clave, nombre);
       const color = porBloques ? BLOQUE_DEL_REPARTO[clave][1] : colorDe(clave);
       return '<span class="vu-reparto-parte"><span class="ficha" style="background:' + color + '"></span>' + escapar(rotulo) + " <b>" + cantidad + "</b></span>";
     };
