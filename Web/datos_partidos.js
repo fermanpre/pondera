@@ -11,6 +11,8 @@
  *   - escaños: mediana, escaño más probable, rangos del 80 % y del 95 % (con los índices de textoDeRangoDeEscanos de assets/app_prevision.js) y distribución de probabilidad de cada número de escaños
  *     (para la vista de escaños de la página, como en las tablas de provincia y comunidad);
  *   - escaños del escenario representativo (sitio/escenario_representativo.json) y probabilidad de sacar al menos uno (para las futuras campanitas de la página: seguros, probables y rivales).
+ *   - votos (25/11/2026): central, rangos del 80 % y del 95 %, por provincia y en toda España. En cada sorteo, la participación de cada provincia es la prevista (datos_modelo.json, bloque
+ *     «participacion») más un choque nacional, uno de su comunidad y uno propio, y los votos son electores x participación x fracción a candidaturas x cuota del sorteo. Sin voto desde el extranjero;
  * Y, por partido, el objetivo nacional, los escaños (mediana, rango del 95 % y escenario) y el voto y los escaños de 2023 en las circunscripciones donde concurre.
  * Escribe sitio/datos_partidos.js (const DATOS_PARTIDOS = {...}) y datos_partidos.json. Uso: node datos_partidos.js [sorteos]
  */
@@ -32,6 +34,55 @@ const modelo = Motor.prepararModelo(datos);
 const K = modelo.numeroDePartidos;
 const P = modelo.numeroDeProvincias;
 const simulacion = Motor.simular(modelo, { sorteos: SORTEOS, semilla: SEMILLA, guardarCuotas: true });
+
+// Participación simulada: un generador propio (no altera los sorteos de voto y escaños) y la misma semilla en cada ejecución
+function generadorNormal(semilla) {
+  let estado = semilla >>> 0;
+  const uniforme = () => {
+    estado = (estado + 0x6d2b79f5) >>> 0;
+    let t = estado;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  return () => Math.sqrt(-2 * Math.log(1 - uniforme())) * Math.cos(2 * Math.PI * uniforme());
+}
+const participacion = datos.participacion || null;
+let votosACandidaturas = null;   // [sorteo * P + provincia]: votos a candidaturas de la provincia en ese sorteo
+let votosCentrales = null;       // [provincia]
+if (participacion) {
+  const normal = generadorNormal(SEMILLA + 7);
+  const porProvincia = datos.provincias.map((provincia) => participacion.provincias[provincia.nombre]);
+  const comunidades = Array.from(new Set(porProvincia.map((dato) => dato.comunidad)));
+  const indiceDeComunidad = porProvincia.map((dato) => comunidades.indexOf(dato.comunidad));
+  votosCentrales = porProvincia.map((dato) => dato.electores * (dato.participacion / 100) * dato.a_candidaturas);
+  votosACandidaturas = new Float64Array(SORTEOS * P);
+  const choqueDeComunidad = new Float64Array(comunidades.length);
+  const choqueLocal = new Float64Array(P);
+  for (let s = 0; s < SORTEOS; s++) {
+    const choqueNacional = normal() * participacion.sigma_nacional;
+    for (let c = 0; c < comunidades.length; c++) { choqueDeComunidad[c] = normal(); }
+    // Los choques de comunidad y de provincia se centran (media ponderada por censo igual a cero) para que la desviación nacional sea exactamente la del choque nacional
+    let sumaLocal = 0, sumaDeElectores = 0;
+    for (let p = 0; p < P; p++) {
+      const dato = porProvincia[p];
+      choqueLocal[p] = choqueDeComunidad[indiceDeComunidad[p]] * dato.sigma_comunidad + normal() * dato.sigma_provincia;
+      sumaLocal += dato.electores * choqueLocal[p];
+      sumaDeElectores += dato.electores;
+    }
+    for (let p = 0; p < P; p++) {
+      const dato = porProvincia[p];
+      const tasa = dato.participacion + choqueNacional + choqueLocal[p] - sumaLocal / sumaDeElectores;
+      votosACandidaturas[s * P + p] = dato.electores * (Math.min(95, Math.max(30, tasa)) / 100) * dato.a_candidaturas;
+    }
+  }
+}
+// {central, p025, p10, p50, p90, p975} de una muestra de votos (la ordena)
+function resumenDeVotos(valores, central) {
+  valores.sort();
+  return { central: Math.round(central), p025: Math.round(percentilInferior(valores, 0.025)), p10: Math.round(percentilInferior(valores, 0.1)), p50: Math.round(valores[Math.floor(valores.length / 2)]),
+    p90: Math.round(percentilSuperior(valores, 0.9)), p975: Math.round(percentilSuperior(valores, 0.975)) };
+}
 
 const redondear = (valor, decimales) => Math.round(valor * Math.pow(10, decimales)) / Math.pow(10, decimales);
 // Mismos índices que textoDeRangoDeVoto de assets/app_prevision.js: el inferior con floor y el superior con ceil
@@ -57,12 +108,22 @@ function resultadoDe2023(partido, nombreDeProvincia) {
 
 const escanosDelEscenario = (p, k) => escenario.escanos[p * K + k];
 const partidosDelModelo = modelo.partidos.filter((partido) => PARTIDOS_QUE_NO_TIENEN_PAGINA.indexOf(partido) < 0);
+// Rangos de votos para las tablas de la portada, las provincias y las comunidades (datos_votos.js): [central, p10, p90, p2,5, p97,5]
+const rangosDeVotos = { nacional: {}, provincias: {}, comunidades: {} };
+const compacto = (resumen) => [resumen.central, resumen.p10, resumen.p90, resumen.p025, resumen.p975];
 const salida = { fecha_promedio: datos.fecha_promedio, sorteos: SORTEOS, semilla: SEMILLA, partidos: {} };
+if (participacion) {
+  const electores = datos.provincias.reduce((suma, provincia) => suma + participacion.provincias[provincia.nombre].electores, 0);
+  salida.participacion = { nacional: participacion.nacional, sigma_nacional: participacion.sigma_nacional, electores: electores };
+}
 
 partidosDelModelo.forEach(function (partido) {
   const k = modelo.partidos.indexOf(partido);
   const filas = [];
   let votos2023 = 0, escanos2023 = 0, totalDeVotos2023 = 0;
+  const votosNacionales = new Float64Array(SORTEOS);
+  const votosPorComunidad = {};   // comunidad -> {muestra por sorteo, central}
+  let votosNacionalesCentrales = 0;
   for (let p = 0; p < P; p++) {
     const provinciaDelModelo = datos.provincias[p];
     const cuotaCentral = provinciaDelModelo.cuotas[partido] || 0;
@@ -77,6 +138,21 @@ partidosDelModelo.forEach(function (partido) {
       escanosPorSorteoEnLaProvincia[s] = escanosDelSorteo;
       cuentasDeEscanos[escanosDelSorteo] += 1;
       if (escanosDelSorteo >= 1) { conEscano += 1; }
+    }
+    let votosDeLaProvincia = null;
+    if (votosACandidaturas) {
+      const muestra = new Float64Array(SORTEOS);
+      for (let s = 0; s < SORTEOS; s++) {
+        muestra[s] = votosACandidaturas[s * P + p] * valores[s] / 100;
+        votosNacionales[s] += muestra[s];
+      }
+      votosNacionalesCentrales += votosCentrales[p] * cuotaCentral;
+      const comunidad = datos.provincias[p].comunidad;
+      if (!votosPorComunidad[comunidad]) { votosPorComunidad[comunidad] = { muestra: new Float64Array(SORTEOS), central: 0 }; }
+      for (let s = 0; s < SORTEOS; s++) { votosPorComunidad[comunidad].muestra[s] += muestra[s]; }
+      votosPorComunidad[comunidad].central += votosCentrales[p] * cuotaCentral;
+      votosDeLaProvincia = resumenDeVotos(muestra, votosCentrales[p] * cuotaCentral);
+      (rangosDeVotos.provincias[provinciaDelModelo.nombre] = rangosDeVotos.provincias[provinciaDelModelo.nombre] || {})[partido] = compacto(votosDeLaProvincia);
     }
     valores.sort();
     escanosPorSorteoEnLaProvincia.sort();
@@ -100,7 +176,7 @@ partidosDelModelo.forEach(function (partido) {
     }
     filas.push({
       nombre: provinciaDelModelo.nombre, comunidad: provinciaDelModelo.comunidad, escanos_de_la_provincia: provinciaDelModelo.escanos,
-      voto: redondear(100 * cuotaCentral, 2),
+      voto: redondear(100 * cuotaCentral, 2), votos: votosDeLaProvincia,
       p025: redondear(percentilInferior(valores, 0.025), 2), p10: redondear(percentilInferior(valores, 0.1), 2), p50: redondear(valores[Math.floor(SORTEOS / 2)], 2),
       p90: redondear(percentilSuperior(valores, 0.9), 2), p975: redondear(percentilSuperior(valores, 0.975), 2),
       voto2023: de2023 ? redondear(de2023.voto, 2) : null, escanos2023: de2023 ? de2023.escanos : null,
@@ -114,6 +190,9 @@ partidosDelModelo.forEach(function (partido) {
     });
   }
   filas.sort(function (a, b) { return b.voto - a.voto; });
+  Object.keys(votosPorComunidad).forEach(function (comunidad) {
+    (rangosDeVotos.comunidades[comunidad] = rangosDeVotos.comunidades[comunidad] || {})[partido] = compacto(resumenDeVotos(votosPorComunidad[comunidad].muestra, votosPorComunidad[comunidad].central));
+  });
   // Escaños nacionales por sorteo
   const escanosPorSorteo = new Int16Array(SORTEOS);
   for (let s = 0; s < SORTEOS; s++) { escanosPorSorteo[s] = simulacion.nacionales[s * K + k]; }
@@ -122,6 +201,7 @@ partidosDelModelo.forEach(function (partido) {
   for (let p = 0; p < P; p++) { escanosDelEscenarioNacional += escanosDelEscenario(p, k); }
   salida.partidos[partido] = {
     objetivo: redondear(100 * (datos.objetivos[partido] || 0), 2),
+    votos: votosACandidaturas ? resumenDeVotos(votosNacionales, votosNacionalesCentrales) : null,
     escanos: { mediana: escanosPorSorteo[Math.floor(SORTEOS / 2)], p025: percentilInferior(escanosPorSorteo, 0.025), p975: percentilSuperior(escanosPorSorteo, 0.975), escenario: escanosDelEscenarioNacional },
     voto2023_donde_concurre: totalDeVotos2023 > 0 ? redondear(100 * votos2023 / totalDeVotos2023, 2) : null,
     escanos2023_donde_concurre: totalDeVotos2023 > 0 ? escanos2023 : null,
@@ -129,6 +209,10 @@ partidosDelModelo.forEach(function (partido) {
   };
 });
 
+if (votosACandidaturas) {
+  Object.keys(salida.partidos).forEach(function (partido) { rangosDeVotos.nacional[partido] = compacto(salida.partidos[partido].votos); });
+  fs.writeFileSync(path.join(carpetaSitio, "datos_votos.js"), "const DATOS_VOTOS = " + JSON.stringify(rangosDeVotos) + ";\n");
+}
 const texto = JSON.stringify(salida);
 fs.writeFileSync(path.join(carpetaSitio, "datos_partidos.json"), texto);
 fs.writeFileSync(path.join(carpetaSitio, "datos_partidos.js"), "const DATOS_PARTIDOS = " + texto + ";\n");

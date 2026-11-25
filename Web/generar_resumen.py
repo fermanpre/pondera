@@ -77,6 +77,8 @@ def construir_filas(prueba, modelo, partidos):
         filas.append({
             "provincia": nombre, "comunidad": provincia["comunidad"], "escanos_en_juego": provincia["escanos"],
             "voto": voto_por_partido, "escanos": escanos_por_partido,
+            "votos_a_candidaturas": int(round(provincia["peso"])),   # con la participación prevista (participacion.py)
+            "votos": {partido: int(round(provincia["peso"] * cuotas[partido])) for partido in voto_por_partido},
         })
     return filas
 
@@ -151,7 +153,7 @@ def escribir_pagina(partidos, filas):
   <div class="controles">
     <a class="boton" href="resumen_provincias.csv" download>Descargar CSV</a>
     <a class="boton" href="resumen_provincias.xlsx" download>Descargar XLSX</a>
-    <span class="nota">El CSV trae una fila por provincia y partido; el XLSX trae las dos tablas, una por hoja.</span>
+    <span class="nota">El CSV trae una fila por provincia y partido, con los votos previstos; el XLSX trae tres hojas: escaños, porcentaje de voto y votos previstos.</span>
   </div>
   <h2>Escaños</h2>
   %s
@@ -169,7 +171,7 @@ MARCA_DE_SESGOS</section>
 def escribir_csv(partidos, filas):
     with open(RUTA_CSV, "w", encoding="utf-8-sig", newline="") as fichero:
         escritor = csv.writer(fichero, delimiter=";")
-        escritor.writerow(["provincia", "comunidad", "partido", "voto_pct", "escanos"])
+        escritor.writerow(["provincia", "comunidad", "partido", "voto_pct", "escanos", "votos_previstos"])
         for fila in filas:
             for partido in partidos:
                 voto = fila["voto"].get(partido)
@@ -178,7 +180,7 @@ def escribir_csv(partidos, filas):
                     continue
                 escritor.writerow([
                     fila["provincia"], fila["comunidad"], NOMBRES_DE_PARTIDO[partido],
-                    "" if voto is None else formato_decimal(voto), "" if escanos is None else escanos,
+                    "" if voto is None else formato_decimal(voto), "" if escanos is None else escanos, fila["votos"].get(partido, ""),
                 ])
 
 
@@ -216,7 +218,19 @@ def escribir_xlsx(partidos, filas):
         for columna in range(3, len(cabecera_voto) + 1):
             hoja_voto.cell(row=fila_excel, column=columna).number_format = "0.0"
 
-    for hoja in (hoja_escanos, hoja_voto):
+    # Hoja de votos: porcentaje de la hoja «Voto (%)» por los votos a candidaturas previstos en la provincia (columna C), como fórmula
+    hoja_votos = libro.create_sheet("Votos previstos")
+    hoja_votos.append(["Provincia", "Comunidad", "Votos a candidaturas previstos"] + [NOMBRES_DE_PARTIDO[partido] for partido in partidos])
+    for numero_de_fila, fila in enumerate(filas, start=2):
+        valores = [fila["provincia"], fila["comunidad"], fila["votos_a_candidaturas"]]
+        for posicion in range(len(partidos)):
+            celda_del_porcentaje = "'Voto (%%)'!%s%d" % (get_column_letter(3 + posicion), numero_de_fila)
+            valores.append('=IF(%s="","",ROUND($C%d*%s/100,0))' % (celda_del_porcentaje, numero_de_fila, celda_del_porcentaje))
+        hoja_votos.append(valores)
+        for columna in range(3, 4 + len(partidos)):
+            hoja_votos.cell(row=numero_de_fila, column=columna).number_format = "#,##0"
+
+    for hoja in (hoja_escanos, hoja_voto, hoja_votos):
         for celda in hoja[1]:
             celda.font = negrita
             celda.alignment = Alignment(wrap_text=True, vertical="center", horizontal="center")

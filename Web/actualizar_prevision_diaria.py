@@ -24,6 +24,7 @@ CARPETA_SITIO = CARPETA_WEB / "sitio"
 sys.path.insert(0, str(CARPETA_WEB.parent / "Sondeos"))
 
 import blend_regional  # noqa: E402
+import participacion  # noqa: E402
 import generar_resumen  # noqa: E402
 import promedio  # noqa: E402
 import proyeccion_tendencia  # noqa: E402
@@ -87,6 +88,12 @@ def calcular_datos_del_dia(dia, datos_base, medias=None):
             provincia["factor_sigma_partido"] = factores_por_partido[provincia["nombre"]]
         else:
             provincia.pop("factor_sigma_partido", None)
+    # Votos de cada provincia con la participación prevista, y el bloque «participacion» que usan los rangos de votos (participacion.py, 25/11/2026)
+    provincias_base = json.loads((CARPETA_WEB / "base_2026.json").read_text(encoding="utf-8"))["provincias"]
+    datos["participacion"] = participacion.bloque_para_el_modelo(provincias_base, {p["nombre"]: p["comunidad"] for p in datos["provincias"]})
+    for provincia in datos["provincias"]:
+        provincia["peso"] = round(problema.peso[provincia["nombre"]])
+        provincia["votos_validos"] = round(validos[provincia["nombre"]])
     # Las cuotas provinciales salen siempre del problema (con o sin blend ese día): si no, un día sin blend heredaría las del fichero, que pueden ser las de otro día
     por_nombre = {p["nombre"]: p for p in datos["provincias"]}
     for nombre in problema.provincias:

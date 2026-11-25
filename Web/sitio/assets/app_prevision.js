@@ -448,7 +448,8 @@ function pintarNacional() {
     }
     const fila = document.createElement("tr");
     // Orden de columnas: voto 2023, voto 2026, dif. voto, escaños 2023, escaños 2026, dif. escaños, rango 80%, rango 95%
-    fila.innerHTML = '<td>' + ficha(partido) + nombreConEnlaceDelPartido(partido) + '</td><td>' + celdasDe2023[0] + '</td><td>' + porcentaje(voto) + '</td><td>' + celdasDe2023[1] + '</td>' +
+    const votosDelPartido = DATOS_MODELO.participacion ? htmlDeVotos(voto / 100 * DATOS_MODELO.provincias.reduce(function (suma, p) { return suma + p.peso; }, 0), rangoDeVotos("nacional", null, partido)) : "";
+    fila.innerHTML = '<td>' + ficha(partido) + nombreConEnlaceDelPartido(partido) + '</td><td>' + celdasDe2023[0] + '</td><td>' + porcentaje(voto) + votosDelPartido + '</td><td>' + celdasDe2023[1] + '</td>' +
       '<td>' + celdasDe2023[2] + '</td><td>' + entero(escanos) + '</td><td>' + celdasDe2023[3] + '</td>' +
       (votoSimulado ? '<td>' + textoDeRangoDeVoto(votoSimulado[partido], 0.1, 0.9) + '</td><td>' + textoDeRangoDeVoto(votoSimulado[partido], 0.025, 0.975) + '</td><td class="col-histograma">' + histogramaDeVoto(partido, votoSimulado[partido], voto) + '</td>'
         : '<td>' + textoDeRango(r.p10, r.p90) + '</td><td>' + textoDeRango(r.p025, r.p975) + '</td><td class="col-histograma">' + histogramaNacional(partido, modelo.partidos.indexOf(partido), escanos) + '</td>');
@@ -794,7 +795,10 @@ function pintarTablaDeTerritorio(config) {
   filas.forEach(function (f) {
     const fila = document.createElement("tr");
     const celdaPartido = '<td class="col-partido">' + ficha(f.partido) + f.nombre + '</td>';
-    const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + '</td>' + diferenciaDeVoto(f) + '<td>' + f.central + '</td>' + diferenciaDeEscanos(f) + '<td>' + f.masProbable + '</td>' +
+    const unaSola = indices.length === 1;
+    const territorio = unaSola ? DATOS_MODELO.provincias[indices[0]].nombre : DATOS_MODELO.provincias[indices[0]].comunidad;
+    const votosDeLaFila = DATOS_MODELO.participacion ? htmlDeVotos(f.cuota * pesoTotal, rangoDeVotos(unaSola ? "provincias" : "comunidades", territorio, f.partido)) : "";
+    const celdasPrevision = '<td>' + porcentaje(100 * f.cuota) + votosDeLaFila + '</td>' + diferenciaDeVoto(f) + '<td>' + f.central + '</td>' + diferenciaDeEscanos(f) + '<td>' + f.masProbable + '</td>' +
       (vistaTerritorio === "voto" ? rangosDeVoto(f) + '<td style="text-align:left">' + (f.votoPorSorteo ? histogramaDeVoto(f.partido, f.votoPorSorteo, 100 * f.cuota) : "") + '</td>'
         : rangosDeEscanos(f) + '<td style="text-align:left">' + histogramaDeEscanos(f, sorteos) + '</td>');
     fila.innerHTML = ordenarFila(celdaPartido, celdasPrevision, celdas2023(f.partido));

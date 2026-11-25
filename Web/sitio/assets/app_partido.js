@@ -57,6 +57,8 @@
     const escanos2023 = datos.escanos2023_donde_concurre === null ? "" : " En 2023, donde concurre, sacó " + datos.escanos2023_donde_concurre + ".";
     document.getElementById("partido-resumen").innerHTML = '<div class="tarjetas-partido">' +
       tarjeta("Voto previsto en España", porcentaje(datos.objetivo), "Sobre los votos a candidaturas de toda España." + diferenciaDe2023) +
+      (datos.votos ? tarjeta("Votos previstos en España", textoDeVotos(datos.votos.central), "Rango del 80 %: " + textoDeVotos(datos.votos.p10) + " a " + textoDeVotos(datos.votos.p90) + ". Del 95 %: " +
+        textoDeVotos(datos.votos.p025) + " a " + textoDeVotos(datos.votos.p975) + ". Participación prevista: " + porcentaje(DATOS_PARTIDOS.participacion.nacional) + "; sin voto desde el extranjero.") : "") +
       tarjeta("Escaños (mediana)", String(nacional.mediana), "Rango del 95 %: " + nacional.p025 + "–" + nacional.p975 + ". En el escenario (reparto central), " + nacional.escenario + "." + escanos2023) +
       tarjeta("Dónde concurre", total + (total === 1 ? " circunscripción" : " circunscripciones"), "De las 52 de España." + (total < 52 ? " No concurre, o no se le calcula voto, en las otras " + (52 - total) + "." : "")) +
       tarjeta("Su mejor circunscripción", escapar(nombreVisible(mejor.nombre)), porcentaje(mejor.voto) + (total > 1 ? ". La peor: " + escapar(nombreVisible(peor.nombre)) + ", " + porcentaje(peor.voto) + "." : "")) +
@@ -378,7 +380,7 @@
       const barra = '<span class="franjas" style="--color:' + color + '" title="Voto previsto ' + porcentaje(fila.voto) + "; rango del 80 %: " + rango(fila.p10, fila.p90) + "; rango del 95 %: " + rango(fila.p025, fila.p975) + '">' +
         franja(fila.p025, fila.p975, "franja-95") + franja(fila.p10, fila.p90, "franja-80") + '<span class="franja-central" style="left:' + posicion(fila.voto) + '%"></span></span>';
       const comunes = '<tr><td class="num suave">' + (indice + 1) + "</td><td>" + enlaceDeProvincia(fila.nombre) + ' <small class="suave">' + fila.escanos_de_la_provincia + "</small></td>" +
-        '<td class="num"><b>' + porcentaje(fila.voto) + "</b></td>";
+        '<td class="num"><b>' + porcentaje(fila.voto) + "</b>" + (fila.votos ? htmlDeVotos(fila.votos.central, [fila.votos.central, fila.votos.p10, fila.votos.p90, fila.votos.p025, fila.votos.p975]) : "") + "</td>";
       const escanos2023 = '<td class="num">' + (fila.escanos2023 === null ? "–" : fila.escanos2023) + "</td></tr>";
       if (deVoto) {
         return comunes + '<td class="num">' + rango(fila.p10, fila.p90) + '</td><td class="num">' + rango(fila.p025, fila.p975) + "</td><td>" + barra + "</td>" +

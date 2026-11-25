@@ -16,6 +16,22 @@ const formatoPorcentaje = new Intl.NumberFormat("es-ES", { minimumFractionDigits
 const formatoEntero = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0, useGrouping: "always" });
 const porcentaje = (valor) => formatoPorcentaje.format(valor) + "%";
 const entero = (valor) => formatoEntero.format(valor);
+// Votos previstos (25/11/2026), redondeados a la centena, bajo el porcentaje. «rango» es [central, p10, p90, p2,5, p97,5] (datos_votos.js o datos_partidos.js): solo se enseña si su central coincide con la cifra
+// que se está viendo (en el simulador o con otro reparto no coincide). Devuelve "" si no hay votos que enseñar.
+const textoDeVotos = (votos) => (Math.round(votos / 100) * 100).toLocaleString("es-ES", { useGrouping: "always" });
+function htmlDeVotos(votos, rango) {
+  if (!(votos >= 50)) { return ""; }
+  let titulo = "Votos previstos (sin voto desde el extranjero)";
+  if (rango && Math.abs(rango[0] - votos) <= 0.01 * votos) {
+    titulo = "Votos previstos\nRango del 80 %: " + textoDeVotos(rango[1]) + " a " + textoDeVotos(rango[2]) + "\nRango del 95 %: " + textoDeVotos(rango[3]) + " a " + textoDeVotos(rango[4]);
+  }
+  return '<span class="votos-previstos" title="' + titulo + '">' + textoDeVotos(votos) + "</span>";
+}
+const rangoDeVotos = (ambito, territorio, partido) => {
+  if (typeof DATOS_VOTOS === "undefined") { return null; }
+  const donde = ambito === "nacional" ? DATOS_VOTOS.nacional : (DATOS_VOTOS[ambito] || {})[territorio];
+  return donde ? donde[partido] || null : null;
+};
 // «1 escaño», «2 escaños»
 const escanosEnTexto = (cantidad) => cantidad + (cantidad === 1 ? " escaño" : " escaños");
 const ficha = (partido) => '<span class="ficha" style="background:' + COLORES[partido] + '"></span>';

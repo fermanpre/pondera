@@ -32,7 +32,7 @@ VERSION_DE_LA_GENERACION = datetime.now(timezone.utc).strftime("%Y%m%d%H%M")
 URL_REPOSITORIO = "https://github.com/fermanpre/pondera"
 
 SCRIPTS_DE_PREVISION = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/partidos.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js"]
-SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/territorios.js", "motor.js", "assets/hemiciclo.js", "serie_territorial.js", "assets/serie_territorial.js", "assets/cis_otros_por_comunidad.js", "assets/origen_escanos_fv.js", "assets/promedio_territorio.js", "escenario_representativo.js", "assets/app_prevision.js"]
+SCRIPTS_DE_COMUNIDADES = ["datos_modelo.js", "datos_votos.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/territorios.js", "motor.js", "assets/hemiciclo.js", "serie_territorial.js", "assets/serie_territorial.js", "assets/cis_otros_por_comunidad.js", "assets/origen_escanos_fv.js", "assets/promedio_territorio.js", "escenario_representativo.js", "assets/app_prevision.js"]
 SCRIPTS_DE_PARTIDOS = ["assets/comun.js", "assets/territorios.js", "datos_partidos.js", "assets/app_partido.js"]
 SCRIPTS_DE_PROVINCIAS = SCRIPTS_DE_COMUNIDADES + ["voto_util.js", "assets/voto_util.js"]  # voto_util.js: escaños en juego y voto útil (Web/voto_util_provincias.js)
 # Inicio reúne escaños, mapa, promedio y sondeos. Los datos pesados del promedio y de los sondeos los carga assets/carga_diferida.js al acercarse a su sección.
@@ -40,7 +40,7 @@ SCRIPTS_DEL_SENADO = ["senado.js", "senado_designados.js", "assets/comun.js", "a
 SCRIPTS_DE_MUNDOS = ["mundos.js", "assets/comun.js", "assets/hemiciclo.js", "assets/mundos_posibles.js"]  # mundos.js lo calcula Web/mundos_posibles.js (node) en el workflow
 SCRIPTS_DE_MUNDOS_RAROS = ["mundos_raros.js", "assets/comun.js", "assets/hemiciclo.js", "assets/mundos_posibles.js"]  # mundos_raros.js lo calcula Web/mundos_raros.js (node) en el workflow
 SCRIPTS_DE_CURIOSIDADES = ["curiosidades.js", "assets/comun.js", "assets/curiosidades.js", "assets/app_curiosidades.js"]
-SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/partidos.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js", "assets/mayorias_congreso.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js", "curiosidades.js", "assets/curiosidades.js"]
+SCRIPTS_DE_INICIO = ["datos_modelo.js", "datos_votos.js", "datos_mapa_2023.js", "resultados_2023.js", "assets/comun.js", "assets/partidos.js", "motor.js", "assets/hemiciclo.js", "escenario_representativo.js", "assets/app_prevision.js", "assets/mayorias_congreso.js", "assets/app_mapa.js", "assets/carga_diferida.js", "assets/subnav.js", "curiosidades.js", "assets/curiosidades.js"]
 
 # Cinta principal (grupo, texto, página a la que lleva) y segunda cinta de cada grupo (texto, destino; «#...» = sección de la misma página)
 MENU_PRINCIPAL = [("prevision", "Congreso", "index.html"), ("territorio", "Territorios", "territorios.html"), ("partido", "Partidos", "partidos.html"), ("simulador", "Simulador", "simulador.html"),

@@ -1,5 +1,10 @@
 [
   {
+    "fecha": "2026-11-25",
+    "titulo": "Votos previstos, con una participación del 75 %",
+    "texto": "La web enseña ahora los votos previstos de cada partido, en España, en cada comunidad y en cada provincia, bajo el porcentaje, con sus rangos del 80 % y del 95 % (al pasar el ratón por encima en las tablas y en la tarjeta de las páginas de partido), y el resumen trae los votos en el CSV y en el Excel. Parten de una participación del 75,0 % sobre el censo de residentes. La participación prevista pesa también en el reparto provincial: cambia un escaño en Toledo (PP 3, Vox 1), que era un empate de una décima."
+  },
+  {
     "fecha": "2026-11-24",
     "titulo": "Páginas de partido: «Circunscripciones por voto» sin scroll horizontal",
     "texto": "La tarjeta de «Circunscripciones por voto» se mueve 10 píxeles a la izquierda y gana ancho (el hueco con el mapa baja de 28 a 18 píxeles, el mapa cede ancho y bajan el relleno de la tarjeta y de las celdas), las flechas de orden son más pequeñas y el gráfico de distribución mide 90 píxeles. La tabla cabe entera, con la última columna (Esc. 2023), desde 1.300 píxeles de ancho; entre 1.100 y 1.299 píxeles, el mapa pasa encima, con ancho limitado, y la tabla ocupa todo el ancho."

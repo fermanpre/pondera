@@ -17,6 +17,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
+import participacion
 
 import proporcion_upc
 from motor_reparto import ProblemaDeReparto, cuota_nacional, repartir_escanos_con_coaliciones, repartir_proporcional
@@ -136,12 +137,15 @@ def preparar_problema(medias=None, dia=None):
     provincias = base["provincias"]
     objetivos, _factor, _reasignacion = calcular_objetivos(base, configuracion, medias_a_promedio(medias) if medias is not None else leer_promedio(), dia)
     nombres = sorted(provincias)
-    peso = {n: float(provincias[n]["votos_candidaturas"]) for n in nombres}
+    # Votos de cada provincia con la participación prevista (participacion.py): base_2026.json trae los de 2023 sobre el censo de 2026 (25/11/2026)
+    prevista = participacion.prevista(provincias)
+    factor = {n: prevista[n] / provincias[n]["participacion_base"] for n in nombres}
+    peso = {n: float(provincias[n]["votos_candidaturas"]) * factor[n] for n in nombres}
     cuotas = {(n, i): c for n in nombres for i, c in provincias[n]["cuotas"].items() if c > 0}
     partidos = [i for i in objetivos if objetivos[i] > 0 and any(par[1] == i for par in cuotas)]
     suma = sum(objetivos[i] for i in partidos)
     problema = ProblemaDeReparto(nombres, partidos, cuotas, peso, {i: objetivos[i] / suma for i in partidos})
-    validos = {n: float(provincias[n]["votos_validos"]) for n in nombres}
+    validos = {n: float(provincias[n]["votos_validos"]) * factor[n] for n in nombres}
     escanos = {n: provincias[n]["escanos"] for n in nombres}
     return problema, validos, escanos
 
