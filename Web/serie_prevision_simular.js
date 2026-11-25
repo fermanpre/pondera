@@ -142,4 +142,5 @@ function main() {
   console.log(dias.length + " días con " + sorteos + " sorteos en " + ((Date.now() - inicio) / 1000).toFixed(1) + " s");
 }
 
-main();
+if (require.main === module) main();
+module.exports = { resumirDia: resumirDia };

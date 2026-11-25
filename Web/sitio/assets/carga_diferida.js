@@ -46,7 +46,7 @@
     });
   }
   function cargarEvolucion() {
-    cargarUnaVez("evolucion", ["serie_prevision.js", "grafico_prevision.js"], function () {
+    cargarUnaVez("evolucion", ["serie_prevision.js", "proyeccion_final.js", "grafico_prevision.js"], function () {
       const aviso = document.getElementById("cargando-evolucion");
       if (aviso) { aviso.remove(); }
     });

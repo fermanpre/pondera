@@ -9,9 +9,26 @@
   if (!contenedor || typeof SERIE_PREVISION === "undefined") { return; }
 
   const S = SERIE_PREVISION;
+  const MILISEGUNDOS_POR_DIA = 86400000;
+  // Tramo proyectado (25/11/2026): la serie acaba con el último promedio publicable; PROYECCION_FINAL (proyeccion_final.js) es la previsión vigente, con la tendencia llevada al día
+  // de la votación. Se añade como último punto, con los días intermedios vacíos, y se une en línea discontinua.
+  const ultimoDiaReal = S.dias.length - 1;
+  const proyeccion = typeof PROYECCION_FINAL !== "undefined" && PROYECCION_FINAL && PROYECCION_FINAL.desde === S.ultimo_dia ? PROYECCION_FINAL : null;
+  if (proyeccion) {
+    const diasNuevos = Math.round((Date.parse(proyeccion.fecha + "T00:00:00Z") - Date.parse(S.ultimo_dia + "T00:00:00Z")) / MILISEGUNDOS_POR_DIA);
+    const huecos = new Array(diasNuevos - 1).fill(null);
+    const ampliar = (columnas, final) => {
+      if (Array.isArray(columnas)) { columnas.push(...huecos, final === undefined ? null : final); return; }
+      Object.keys(columnas).forEach((clave) => ampliar(columnas[clave], final ? final[clave] : undefined));
+    };
+    ["central", "p10", "mediana", "p90", "al_menos_uno", "mayorias", "bloques", "primera_fuerza", "en_el_aire"].forEach((campo) => ampliar(S[campo], proyeccion[campo]));
+    for (let n = 1; n <= diasNuevos; n += 1) {
+      S.dias.push(new Date(Date.parse(S.ultimo_dia + "T00:00:00Z") + n * MILISEGUNDOS_POR_DIA).toISOString().slice(0, 10));
+      S.hay_datos.push(n === diasNuevos);
+    }
+  }
   const dias = S.dias;
   const totalDias = dias.length;
-  const MILISEGUNDOS_POR_DIA = 86400000;
   const primerDia = Date.parse(S.primer_dia + "T00:00:00Z");
   const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   const MARGEN = { izquierda: 46, derecha: 14, arriba: 14, abajo: 28 };
@@ -224,7 +241,18 @@
         enTramo = true;
       }
       svg += '<path d="' + trazo + '" fill="none" stroke="' + serie.color + '" stroke-width="2" stroke-linejoin="round"' + (serie.trazo ? ' stroke-dasharray="' + serie.trazo + '"' : "") + " />";
+      const antes = serie.valores[ultimoDiaReal];
+      const despues = serie.valores[totalDias - 1];
+      if (proyeccion && hasta === totalDias - 1 && antes !== null && despues !== null && despues !== undefined) {
+        svg += '<line x1="' + x(ultimoDiaReal) + '" y1="' + y(antes) + '" x2="' + x(hasta) + '" y2="' + y(despues) + '" stroke="' + serie.color + '" stroke-width="2.5" stroke-dasharray="3 3" />';
+        svg += '<circle cx="' + x(hasta) + '" cy="' + y(despues) + '" r="3" fill="' + serie.color + '" />';
+      }
     });
+    if (proyeccion && hasta === totalDias - 1) {
+      svg += '<rect x="' + x(ultimoDiaReal) + '" y="' + MARGEN.arriba + '" width="' + (x(hasta) - x(ultimoDiaReal)) + '" height="' + alto + '" fill="var(--suave)" fill-opacity="0.12" />';
+      // En pantallas estrechas el rótulo pisaría los de las marcas: queda la zona sombreada y la nota de debajo
+      if (anchura >= 600) { svg += '<text x="' + x(hasta) + '" y="' + (MARGEN.arriba + 10) + '" text-anchor="end" font-size="11" font-weight="600" fill="var(--texto)">Proyección al 29</text>'; }
+    }
     if (estado.indiceMarcado >= desde && estado.indiceMarcado <= hasta) {
       svg += '<line x1="' + x(estado.indiceMarcado) + '" x2="' + x(estado.indiceMarcado) + '" y1="' + MARGEN.arriba + '" y2="' + (MARGEN.arriba + alto) + '" stroke="var(--texto)" stroke-opacity="0.5" />';
       visibles.forEach((serie) => {
@@ -241,6 +269,7 @@
       const caja = zona.getBoundingClientRect();
       const fraccion = Math.min(1, Math.max(0, (suceso.clientX - caja.left) / caja.width));
       estado.indiceMarcado = Math.round(desde + fraccion * (hasta - desde));
+      if (proyeccion && estado.indiceMarcado > ultimoDiaReal) { estado.indiceMarcado = totalDias - 1; }
       dibujar();
     };
     zona.addEventListener("pointermove", mover);
@@ -252,7 +281,7 @@
     const definicion = GRAFICOS[estado.grafico];
     const indice = estado.indiceMarcado;
     const hayDatos = S.hay_datos[indice];
-    let texto = "<b>" + textoDeFecha(indice) + "</b>" + (S.publicada_desde && dias[indice] >= S.publicada_desde ? " · previsión publicada" : " · reconstrucción");
+    let texto = "<b>" + textoDeFecha(indice) + "</b>" + (proyeccion && indice > ultimoDiaReal ? " · proyección de la tendencia (previsión actual)" : (S.publicada_desde && dias[indice] >= S.publicada_desde ? " · previsión publicada" : " · reconstrucción"));
     if (!hayDatos) {
       texto += ": sin datos ese día (ninguna encuesta en la ventana del promedio).";
     } else {
@@ -312,6 +341,7 @@
       partidos.appendChild(etiqueta);
     });
     document.getElementById("nota-evolucion").textContent = definicion.nota +
+      (proyeccion ? " En línea discontinua, la proyección de la tendencia de la última semana hasta el día de la votación: el punto final es la previsión actual." : "") +
       (S.ultimo_dia >= "2026-11-23" ? " Serie congelada: la ley electoral prohíbe publicar sondeos en los cinco días previos a la votación." : "");
   }
 
