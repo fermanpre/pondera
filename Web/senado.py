@@ -65,9 +65,10 @@ PROVINCIAS_VOX_UN_CANDIDATO = (
 # Escenarios: disciplina de la lista conjunta de izquierdas (None = sin lista conjunta) y seguimiento del pacto PP-Vox (None = sin pacto)
 ESCENARIOS = {
     "sin_pactos": {"disciplina_izquierda": None, "seguimiento_pp_vox": None, "titulo": "Sin pactos (cada partido por separado)"},
-    # Principal desde el 26/11/2026 (decisión de Fernando): a mitad de camino entre «sin pactos» y los pactos completos. 65 % de disciplina de la izquierda (lo que se vio en la Entesa catalana) y 40 % de seguimiento
-    # del pacto PP-Vox (el precedente de UPyD en 2011 sugiere entre el 25 y el 50 %). Los pactos al 100 y al 75 % se quedan como el extremo optimista.
-    "intermedio": {"disciplina_izquierda": 0.65, "seguimiento_pp_vox": 0.40, "titulo": "Intermedio: lista de izquierdas al 65 % y pacto PP-Vox al 40 %"},
+    # Principal desde el 26/11/2026 (decisión de Fernando): a mitad de camino entre «sin pactos» y los pactos completos. 73 % de disciplina de la izquierda (la Entesa catalana recibió el 65 % del voto del Congreso de sus socios, que ya incluye la pérdida normal del Senado, en torno al 89 %:
+    # 0,65 / 0,89 = 0,73; con ese valor sale casi lo de GAD3: PP 122, izquierda 70) y 40 % de seguimiento del pacto PP-Vox (el precedente de UPyD en 2011 sugiere entre el 25 y el 50 %). Con una disciplina
+    # inferior a un 82 % la lista conjunta rinde menos que ir cada partido por separado. Los pactos al 100 y al 75 % se quedan como el extremo optimista.
+    "intermedio": {"disciplina_izquierda": 0.73, "seguimiento_pp_vox": 0.40, "titulo": "Intermedio: lista de izquierdas al 73 % y pacto PP-Vox al 40 %"},
     "solo_lista_izquierda": {"disciplina_izquierda": 1.0, "seguimiento_pp_vox": None, "titulo": "Solo lista conjunta de izquierdas"},
     "pactos_50": {"disciplina_izquierda": 1.0, "seguimiento_pp_vox": 0.50, "titulo": "Lista de izquierdas y pacto PP-Vox (seguimiento 50 %)"},
     "pactos_75": {"disciplina_izquierda": 1.0, "seguimiento_pp_vox": 0.75, "titulo": "Lista de izquierdas y pacto PP-Vox (seguimiento 75 %)"},
