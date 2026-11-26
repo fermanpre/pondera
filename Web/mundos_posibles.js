@@ -12,7 +12,7 @@
 const comun = require("./mundos_comun.js");
 
 const SORTEOS = process.argv[2] ? parseInt(process.argv[2], 10) : 50000;   // 50.000 desde el 24/11/2026 (antes 10.000); con la misma semilla, los 10.000 primeros son los del navegador
-const PERCENTILES = [0.1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+const PERCENTILES = [50, 40, 60, 30, 70, 20, 80, 10, 90, 0.1, 100];   // del más centrado al más extremo (26/11/2026): primero lo esperable
 const SEMIANCHURA_DE_LA_BANDA = 0.005;   // fracción de sorteos a cada lado del percentil
 
 const simulacion = comun.prepararSimulacion(SORTEOS);

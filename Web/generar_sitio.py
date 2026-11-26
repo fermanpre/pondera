@@ -61,7 +61,7 @@ PAGINAS = [
     {"archivo": "senado.html", "plantilla": "senado", "titulo": "Previsión del Senado", "grupo": "senado", "scripts": SCRIPTS_DEL_SENADO, "probabilidades": True,
      "descripcion": "Senadores que elegirán los votantes en las generales de 2026: reparto por partido con rangos, escenarios de pactos y probabilidades en cada circunscripción."},
     {"archivo": "mundos.html", "plantilla": "mundos", "titulo": "Mundos posibles", "grupo": "mundos", "scripts": SCRIPTS_DE_MUNDOS,
-     "descripcion": "Once maneras en las que podría quedar el Congreso en las generales de 2026, desde un resultado muy malo para la derecha hasta uno muy bueno, con el mundo de la mitad en el centro."},
+     "descripcion": "Once maneras en las que podría quedar el Congreso en las generales de 2026: primero lo más esperable y, según se baja, resultados cada vez más improbables."},
     {"archivo": "mundos_raros.html", "plantilla": "mundos_raros", "titulo": "Mundos raros", "grupo": "mundos_raros", "scripts": SCRIPTS_DE_MUNDOS_RAROS, "probabilidades": True,
      "descripcion": "Sucesos que ocurren en una de cada cien o de cada mil simulaciones del Congreso, cada uno con un mundo en el que pasa: partidos que aparecen, que desaparecen o que suben mucho."},
     {"archivo": "curiosidades.html", "plantilla": "curiosidades", "titulo": "Datos curiosos", "grupo": "curiosidades", "scripts": SCRIPTS_DE_CURIOSIDADES, "probabilidades": True,
