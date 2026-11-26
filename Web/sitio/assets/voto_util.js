@@ -51,16 +51,21 @@
     return "De los " + datos.escanos + " escaños de " + nombre + ", " + lista(partes) + ".";
   }
 
-  // Disputa por el último escaño: en qué parte de las simulaciones se lo lleva cada partido (y quién es el primero que se queda fuera)
+  // Escaños en juego (26/11/2026): los que no son casi seguros, y qué probabilidad tiene cada candidato de sacar cada uno (la misma de la rejilla). Sustituye a la «disputa por el último escaño»,
+  // que miraba de quién era el cociente más bajo de los que entran y podía señalar un escaño que ya era seguro
   const MINIMO_EN_LA_DISPUTA = 0.03;
-  function disputaDelUltimo(nombre, datos) {
-    if (!datos.disputa) { return ""; }
-    const fragmento = (cuentas) => Object.keys(cuentas).filter((partido) => cuentas[partido] >= MINIMO_EN_LA_DISPUTA).sort((a, b) => cuentas[b] - cuentas[a])
-      .map((partido) => '<span><span class="ficha" style="background:' + colorDe(partido) + '"></span>' + escapar(nombreDe(partido, nombre, true)) + " <b>" + porcentajeEntero(cuentas[partido]) + "</b></span>").join(" · ");
-    const ultimo = fragmento(datos.disputa.ultimo);
-    if (!ultimo) { return ""; }
-    const fuera = fragmento(datos.disputa.fuera);
-    return '<p class="vu-quien"><b>Disputa por el último escaño:</b> ' + ultimo + "</p>" + (fuera ? '<p class="vu-quien vu-fuera"><b>El primero que se queda fuera:</b> ' + fuera + "</p>" : "");
+  function escanosEnJuego(nombre, datos) {
+    if (!datos.escalera || !datos.escalera.length) { return ""; }
+    const enJuego = datos.escanos - sumaDe(datos.seguros);
+    if (enJuego <= 0) { return '<p class="vu-quien"><b>Ningún escaño en juego:</b> todos son casi seguros.</p>'; }
+    const candidatos = [];
+    datos.escalera.forEach((fila) => fila.p.forEach((probabilidad, indice) => {
+      if (probabilidad >= MINIMO_EN_LA_DISPUTA && probabilidad < datos.umbral) { candidatos.push({ partido: fila.partido, escano: indice + 1, probabilidad }); }
+    }));
+    if (!candidatos.length) { return ""; }
+    const lista = candidatos.sort((a, b) => b.probabilidad - a.probabilidad).map((candidato) => '<span><span class="ficha" style="background:' + colorDe(candidato.partido) + '"></span>' +
+      escapar(nombreDe(candidato.partido, nombre, true)) + " (" + candidato.escano + ".º) <b>" + porcentajeEntero(candidato.probabilidad) + "</b></span>").join(" · ");
+    return '<p class="vu-quien"><b>' + (enJuego === 1 ? "El escaño en juego:" : "Los " + enJuego + " escaños en juego:") + "</b> " + lista + "</p>";
   }
 
   // Texto corto para dentro de un cuadrado: «97%», o «19/20» en el modo de frecuencias
@@ -243,12 +248,12 @@
     if (!datos) { return; }
     document.getElementById("vu-titular").textContent = titular(provincia.nombre, datos);
     document.getElementById("vu-barrera").innerHTML = barreraDeFacto(provincia.nombre, datos);
-    document.getElementById("vu-escanos").innerHTML = rejillaDeEscanos(provincia.nombre, datos) + disputaDelUltimo(provincia.nombre, datos) + repartosFrecuentes(provincia.nombre, datos);
+    document.getElementById("vu-escanos").innerHTML = rejillaDeEscanos(provincia.nombre, datos) + escanosEnJuego(provincia.nombre, datos) + repartosFrecuentes(provincia.nombre, datos);
     document.getElementById("vu-barras").innerHTML = barras(provincia.nombre, datos);
     document.getElementById("vu-cocientes").innerHTML = cocientes(provincia.nombre, datos);
     const fecha = VOTO_UTIL.fecha_promedio ? new Date(VOTO_UTIL.fecha_promedio + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" }) : "";
     document.getElementById("vu-nota").innerHTML = "Casi seguro: el partido saca ese escaño en al menos el " + Math.round(100 * datos.umbral) + "% de las " + entero(VOTO_UTIL.sorteos) +
-      " simulaciones. Probable: en al menos el " + Math.round(100 * datos.umbral_probable) + " %. En el aire: en menos. «Disputa por el último escaño»: en qué parte de las simulaciones el último escaño del reparto es de cada partido. Valor de un voto: escaños que gana de media el partido por cada voto más en esta provincia (se suma un " + Math.round(100 * VOTO_UTIL.delta) + "% de sus votos y se repite el reparto con las mismas simulaciones), " +
+      " simulaciones. Probable: en al menos el " + Math.round(100 * datos.umbral_probable) + " %. En el aire: en menos. «Escaños en juego»: los que no son casi seguros, con la probabilidad de que cada candidato saque cada uno. Valor de un voto: escaños que gana de media el partido por cada voto más en esta provincia (se suma un " + Math.round(100 * VOTO_UTIL.delta) + "% de sus votos y se repite el reparto con las mismas simulaciones), " +
       "dividido por lo que vale un voto medio en España (un escaño por cada " + entero(VOTO_UTIL.votos_por_escano_medio) + " votos). Para el bloque se cuentan los escaños que gana el conjunto de su bloque: un escaño que un partido le quita a otro del mismo bloque no suma, y uno que le quita al bloque contrario sí. Promedio a " + fecha + ". <a href=\"metodologia.html#voto-util\">Cómo se calcula</a>.";
   }
 
