@@ -155,17 +155,19 @@ if (cuentaSinVox >= 1) {
   elegidos.push({ tipo: "grande", partido: "PP", sentido: "coalicion", umbral: 176, probabilidad: cuentaSinVox / SORTEOS, distancia: -1, destacado: "PP",
                   cumple: function (sorteo) { return sumaDe(sorteo, SOCIOS_SIN_VOX) >= 176; },
                   titulo: "El PP puede sumar mayoría absoluta sin Vox",
-                  // El mundo que se enseña no es el típico del grupo, sino el más ajustado (26/11/2026): 176 justos, con el PP lo más corto posible y sus socios nacionalistas lo más fuertes posible
+                  // El mundo que se enseña no es el típico del grupo, sino uno ajustado y verosímil (26/11/2026): 176 justos con Junts 6, PNV 5, Coalición Canaria 2 y SALF sin escaño; si hay varios,
+                  // el que tiene a Vox, ERC y Bildu más cerca de sus medianas en todas las simulaciones
                   elegir: function (grupo) {
-                    const justos = grupo.filter(function (sorteo) { return sumaDe(sorteo, SOCIOS_SIN_VOX) === 176; });
-                    if (!justos.length) { return simulacion.masParecidoALaMediana(grupo); }
-                    const clave = function (sorteo) { const pnv = sumaDe(sorteo, ["PNV"]), junts = sumaDe(sorteo, ["JUNTS"]); return [sumaDe(sorteo, ["PP"]), -Math.min(pnv, junts), -(pnv + junts)]; };
-                    const comparar = function (a, b) { const x = clave(a), y = clave(b); return x[0] - y[0] || x[1] - y[1] || x[2] - y[2]; };
-                    const mejor = justos.slice().sort(comparar)[0];
-                    return simulacion.masParecidoALaMediana(justos.filter(function (sorteo) { return comparar(sorteo, mejor) === 0; }));
+                    const de = function (sorteo, partido) { return sumaDe(sorteo, [partido]); };
+                    const ajustados = grupo.filter(function (sorteo) { return sumaDe(sorteo, SOCIOS_SIN_VOX) === 176 && de(sorteo, "JUNTS") === 6 && de(sorteo, "PNV") === 5 && de(sorteo, "CC") === 2 && de(sorteo, "SALF") === 0; });
+                    if (!ajustados.length) { return simulacion.masParecidoALaMediana(grupo); }
+                    const resto = ["VOX", "ERC", "BILDU"];
+                    const medianas = resto.map(function (partido) { const valores = []; for (let sorteo = 0; sorteo < SORTEOS; sorteo++) { valores.push(de(sorteo, partido)); } valores.sort(function (a, b) { return a - b; }); return valores[Math.floor(SORTEOS / 2)]; });
+                    const distancia = function (sorteo) { return resto.reduce(function (suma, partido, i) { return suma + Math.abs(de(sorteo, partido) - medianas[i]); }, 0); };
+                    return ajustados.slice().sort(function (a, b) { return distancia(a) - distancia(b); })[0];
                   },
                   nota: "PP, UPN, Coalición Canaria, PNV y Junts suman 176 diputados o más. Es la combinación amplia sin Vox: solo con UPN y Coalición Canaria ocurre en el " + enPorcentaje(veces(["PP", "UPN", "CC"])) +
-                        " de las simulaciones, y el PP solo, en el " + enPorcentaje(veces(["PP"])) + ". El mundo que se enseña es el más ajustado: 176 justos, con el PP lo más corto posible. La suma no dice si esos partidos querrían pactar." });
+                        " de las simulaciones, y el PP solo, en el " + enPorcentaje(veces(["PP"])) + ". El mundo que se enseña es uno ajustado: 176 justos, con Junts 6, PNV 5, Coalición Canaria 2 y SALF sin escaño. La suma no dice si esos partidos querrían pactar." });
 }
 
 const mundos = elegidos.map(function (candidato) {
