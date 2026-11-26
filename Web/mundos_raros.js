@@ -145,6 +145,20 @@ if (elegidos.length < SUCESOS_QUE_SE_MUESTRAN) {
   });
 }
 
+// Suceso propio (26/11/2026), fuera del reparto por tipos: el PP puede sumar mayoría absoluta sin Vox, con UPN, Coalición Canaria, PNV y Junts. Basta con que ocurra al menos una vez.
+const sumaDe = function (sorteo, partidos) { return partidos.reduce(function (suma, partido) { const k = modelo.partidos.indexOf(partido); return suma + (k >= 0 ? escanosDelPartido(sorteo, k) : 0); }, 0); };
+const veces = function (partidos) { let cuenta = 0; for (let sorteo = 0; sorteo < SORTEOS; sorteo++) { if (sumaDe(sorteo, partidos) >= 176) { cuenta += 1; } } return cuenta; };
+const SOCIOS_SIN_VOX = ["PP", "UPN", "CC", "PNV", "JUNTS"];
+const cuentaSinVox = veces(SOCIOS_SIN_VOX);
+if (cuentaSinVox >= 1) {
+  const enPorcentaje = function (cuenta) { return (100 * cuenta / SORTEOS).toFixed(1).replace(".", ",") + " %"; };
+  elegidos.push({ tipo: "grande", partido: "PP", sentido: "coalicion", umbral: 176, probabilidad: cuentaSinVox / SORTEOS, distancia: -1, destacado: "PP",
+                  cumple: function (sorteo) { return sumaDe(sorteo, SOCIOS_SIN_VOX) >= 176; },
+                  titulo: "El PP puede sumar mayoría absoluta sin Vox",
+                  nota: "PP, UPN, Coalición Canaria, PNV y Junts suman 176 diputados o más. Es la combinación amplia sin Vox: solo con UPN y Coalición Canaria ocurre en el " + enPorcentaje(veces(["PP", "UPN", "CC"])) +
+                        " de las simulaciones, y el PP solo, en el " + enPorcentaje(veces(["PP"])) + ". La suma no dice si esos partidos querrían pactar." });
+}
+
 const mundos = elegidos.map(function (candidato) {
   const grupo = [];
   for (let sorteo = 0; sorteo < SORTEOS; sorteo++) { if (candidato.cumple(sorteo)) { grupo.push(sorteo); } }
