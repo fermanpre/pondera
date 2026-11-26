@@ -5,10 +5,10 @@
  */
 const escritura = (numero) => String(numero).replace(".", ",");
 
-// Tabla de un mundo: votos, porcentaje y escaños de cada partido que saca escaño o al menos un 1 % del voto (y el partido destacado, si lo hay), de más a menos votos
+// Tabla de un mundo: votos, porcentaje y escaños de cada partido que saca escaño o al menos un 0,5 % del voto (y el partido destacado, si lo hay), de más a menos votos
 function tablaDelMundo(mundo) {
   const entero = (numero) => numero.toLocaleString("es-ES", { useGrouping: "always" });
-  const partidos = Object.keys(mundo.votos).filter((partido) => mundo.escanos[partido] > 0 || mundo.porcentaje[partido] >= 1 || partido === mundo.destacado || partido === mundo.partido)
+  const partidos = Object.keys(mundo.votos).filter((partido) => mundo.escanos[partido] > 0 || mundo.porcentaje[partido] >= 0.5 || partido === mundo.destacado || partido === mundo.partido)
     .sort((a, b) => mundo.votos[b] - mundo.votos[a]);
   const filas = partidos.map((partido) =>
     '<tr' + (partido === (mundo.destacado || mundo.partido) ? ' class="mundo-destacado"' : '') + '><td class="col-partido"><span class="ficha" style="background:' + (COLORES[partido] || "#9a9a94") + '"></span>' +
