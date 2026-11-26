@@ -152,6 +152,7 @@
 
   /* Pantallas anchas: el texto corrido mantiene una línea legible y las secciones de datos usan dos columnas */
   .contenedor p, .contenedor li { max-width: 125ch; }
+  .contenedor p#ultima-actualizacion { max-width: none; } /* el aviso de actualización ocupa todo el ancho (26/11/2026) */
   .dos-columnas { display: grid; grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr); gap: 24px; align-items: start; }
   @media (max-width: 1399px) { .dos-columnas { grid-template-columns: minmax(0, 1fr); } }
   .dos-columnas .mayorias { margin-top: 0; }
