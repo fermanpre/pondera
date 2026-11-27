@@ -339,7 +339,8 @@ def indicios_manuales(dia, rating, provincias_de):
             else:
                 peso = rating.get(promedio.normalizar_firma(fila["casa"]), promedio.RATING_FIRMA_DESCONOCIDA) * 0.5 ** (antiguedad / VIDA_MEDIA_DIAS)
                 recencia = 0.5 ** (antiguedad / VIDA_MEDIA_DIAS)
-            acumulado[(unidad, fila["bloque"])].append((float(fila["porcentaje"]) / 100.0, peso, recencia))
+            # El peso manual también cuenta en k (27/11/2026): un indicio con peso_manual 12 pesa como 12 indicios en w = k / (k + k0). Con todos los pesos manuales anteriores iguales a 1 no cambia nada.
+            acumulado[(unidad, fila["bloque"])].append((float(fila["porcentaje"]) / 100.0, peso, recencia * (peso if peso_manual else 1.0)))
     resultado = {}
     for (unidad, bloque), valores in acumulado.items():
         media = sum(v * p for v, p, _r in valores) / sum(p for _v, p, _r in valores)

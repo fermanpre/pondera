@@ -105,13 +105,14 @@
    ],
    "reparto_de_desaparecidos": {
     "activo": true,
-    "descripcion": "El voto de 2019 de las candidaturas que no continúan se reparte por bloque entre las candidaturas de 2026 de ese bloque, en proporción a su cuota de 2023 en la provincia (en lugar de repartirse en proporción entre todas al normalizar). Decisión del usuario (12/11/2026). El contraste con el histórico fue neutro (RMS 0,1889 frente a 0,1875 con peso 0,75; mejora en 2 de 8 elecciones): poner activo=false para volver al reparto proporcional.",
+    "descripcion": "El voto de 2019 de las candidaturas que no continúan se reparte por bloque entre las candidaturas de 2026 de ese bloque, en proporción a su cuota de 2023 en la provincia (en lugar de repartirse en proporción entre todas al normalizar). Decisión del usuario (12/11/2026). El contraste con el histórico fue neutro (RMS 0,1889 frente a 0,1875 con peso 0,75; mejora en 2 de 8 elecciones): poner activo=false para volver al reparto proporcional. CUP (27/11/2026, decisión del usuario): la mitad a ERC y la otra mitad entre los partidos de izquierda; el mismo reparto se aplica a la CUP de 2023 (antes se descartaba y se repartía en proporción al normalizar).",
     "claves": {
      "CS": {
       "DERECHA": 1.0
      },
      "CUP": {
-      "IZQUIERDA": 1.0
+      "ERC": 0.5,
+      "IZQUIERDA": 0.5
      },
      "PRC": {
       "DERECHA": 0.5,
@@ -132,6 +133,9 @@
       "ERC",
       "BILDU",
       "BNG"
+     ],
+     "ERC": [
+      "ERC"
      ]
     },
     "eje_periferico": [
@@ -388,10 +392,15 @@
    "mover": [
     {
      "de": "PODEMOS",
-     "a": "ERC"
+     "a": "ERC",
+     "fraccion": 0.5
+    },
+    {
+     "de": "PODEMOS",
+     "a": "SUMAR"
     }
    ],
-   "nota": "Acuerdo Podemos-ERC: Podemos no se presenta como tal; su parte va a la fila ERC."
+   "nota": "Acuerdo Podemos-ERC: Podemos no se presenta como tal. Decisión del usuario (27/11/2026): la mitad de su voto va a la fila ERC y la otra mitad a Sumar (los Comuns); antes iba todo a ERC."
   },
   {
    "region": "Comunitat Valenciana",
