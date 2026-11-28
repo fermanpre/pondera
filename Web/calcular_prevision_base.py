@@ -79,6 +79,12 @@ def calcular_objetivos(base, configuracion, promedio, dia=None):
         objetivos["UPC"] = objetivos["SUMAR"] * proporcion_upc_en_frente_amplio(provincias, dia)
         objetivos["SUMAR"] -= objetivos["UPC"]
 
+    # CHA-FA (Aragón; 28/11/2026): GAD3 y SocioMétrica la dan aparte (0,3 % del voto nacional) del Frente Amplio nacional, y de las demás casas no sabemos cómo la cuentan. Se suponen 0,2 puntos fuera del total de Sumar de las encuestas
+    # (decisión del usuario, prudente frente a los 0,3 de esas dos casas): se suman a su objetivo nacional, para que el voto de CHA-FA en Zaragoza y Huesca no se reste al Frente Amplio del resto de España.
+    cha_fa = configuracion["parametros"].get("cha_fa_fuera_del_promedio")
+    if cha_fa:
+        objetivos["SUMAR"] += cha_fa["puntos"] / 100.0
+
     # Coalición UPN-PP en Navarra: las encuestas ya no dan UPN, así que la coalición sigue la evolución nacional del PP.
     # Objetivo de la coalición = su peso en la base (voto de UPN y del PP en Navarra) x (objetivo del PP / cuota nacional del PP en la base, contando su parte en la coalición).
     # El PP del resto de España pierde la parte del PP en la coalición, porque el PP de las encuestas ya la incluye.
