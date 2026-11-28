@@ -488,6 +488,45 @@ def converger(problema, fijos, provincias_de, bloque_de):
     return matriz, objetivo
 
 
+def limitar_podemos_frente_al_frente_amplio(matriz, problema, total_de_podemos, maximo):
+    """Limita el voto de Podemos al «maximo» (por uno) del de Sumar (el Frente Amplio) en cada provincia donde concurren por separado (28/11/2026, decisión del usuario: no es creíble que Podemos pase del 40-50 % del FA).
+    El voto que sobra pasa a Sumar dentro de la misma provincia (la suma de ambos no cambia), y para que el total nacional de Podemos siga siendo el del promedio se sube Podemos en el resto de provincias a costa de Sumar, sin pasar del límite."""
+    provincias = [n for n in problema.provincias if matriz.get((n, "SUMAR"), 0.0) > 0 and matriz.get((n, "PODEMOS"), 0.0) > 0]
+    total = sum(problema.peso.values())
+    def nacional():
+        return sum(matriz[(n, "PODEMOS")] * problema.peso[n] for n in provincias) / total
+    afectadas = set()
+    for n in provincias:
+        sumar, podemos = matriz[(n, "SUMAR")], matriz[(n, "PODEMOS")]
+        if podemos > maximo * sumar:
+            conjunto = sumar + podemos
+            matriz[(n, "SUMAR")] = conjunto / (1.0 + maximo)
+            matriz[(n, "PODEMOS")] = maximo * conjunto / (1.0 + maximo)
+            afectadas.add(n)
+    objetivo_en_estas = total_de_podemos - sum(matriz.get((n, "PODEMOS"), 0.0) * problema.peso[n] for n in problema.provincias if n not in provincias) / total
+    faltante = objetivo_en_estas - nacional()
+    if faltante > 0:
+        libres = [n for n in provincias if n not in afectadas]
+        conjuntos = {n: matriz[(n, "SUMAR")] + matriz[(n, "PODEMOS")] for n in libres}
+        tope = {n: maximo * conjuntos[n] / (1.0 + maximo) for n in libres}
+        base = {n: matriz[(n, "PODEMOS")] for n in libres}
+        def con_factor(factor):
+            return sum(min(base[n] * factor, tope[n]) * problema.peso[n] for n in libres) / total
+        objetivo_libres = sum(base[n] * problema.peso[n] for n in libres) / total + faltante
+        bajo, alto = 1.0, 50.0
+        for _ in range(60):
+            medio = (bajo + alto) / 2.0
+            if con_factor(medio) < objetivo_libres:
+                bajo = medio
+            else:
+                alto = medio
+        for n in libres:
+            nuevo = min(base[n] * alto, tope[n])
+            matriz[(n, "PODEMOS")] = nuevo
+            matriz[(n, "SUMAR")] = conjuntos[n] - nuevo
+    return matriz, sorted(afectadas)
+
+
 def factores_de_sigma(provincias_modelo, promedios):
     """{provincia: factor por el que se multiplica la sigma provincial de la simulación}: 1 + (FACTOR_SIGMA_SIN_ENCUESTA_LOCAL - 1) x (1 - cobertura), con cobertura la mayor recencia (0 a 1) entre el promedio de la
     provincia y el de su comunidad, y 0 si no hay ninguno. Los indicios manuales no cuentan como cobertura: cada uno solo cubre un partido. Ver FACTOR_SIGMA_SIN_ENCUESTA_LOCAL."""
@@ -530,6 +569,10 @@ def aplicar(problema, provincias_modelo, dia, rating):
     ejes = json.loads((CARPETA_WEB / "candidaturas.json").read_text(encoding="utf-8"))["parametros"]["ejes"]
     bloque_de = {**{i: "DERECHA" for i in ejes["derecha"]}, **{i: "IZQUIERDA" for i in ejes["izquierda"]}}
     matriz, objetivo = converger(problema, fijos, provincias_de, bloque_de)
+    maximo_de_podemos = json.loads((CARPETA_WEB / "candidaturas.json").read_text(encoding="utf-8"))["parametros"].get("podemos_maximo_sobre_frente_amplio")
+    if maximo_de_podemos and "PODEMOS" in problema.partidos and "SUMAR" in problema.partidos:
+        matriz, limitadas = limitar_podemos_frente_al_frente_amplio(matriz, problema, objetivo["PODEMOS"], maximo_de_podemos)
+        print("Podemos limitado al %d %% del Frente Amplio en: %s" % (round(100 * maximo_de_podemos), ", ".join(limitadas) or "ninguna"))
     final = ProblemaDeReparto(problema.provincias, problema.partidos, matriz, problema.peso, objetivo)
     def peso_medio(unidad):
         pesos = PESOS_APLICADOS.get(unidad)

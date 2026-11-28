@@ -2,6 +2,7 @@
  "_nota": "Capa de mapeo entre las candidaturas históricas y las de 2026. Base de partida: resultados PROVISIONALES del Congreso 2023 (noche electoral, sin voto CERA), a escala del censo de residentes de 2026 (INE).",
  "eleccion_base": "congreso_2023_prov",
  "parametros": {
+    "podemos_maximo_sobre_frente_amplio": 0.45,
     "cha_fa_fuera_del_promedio": {"puntos": 0.2, "nota": "28/11/2026: voto de CHA-FA (Zaragoza y Huesca) que se supone fuera del total de Sumar de las encuestas (0,3 en GAD3 y SocioMétrica; 0,2 prudente para el resto). Se suma al objetivo nacional de Sumar (calcular_prevision_base.py)."},
   "ancla_cis": {
    "activa": true,
