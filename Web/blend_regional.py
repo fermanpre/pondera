@@ -76,7 +76,7 @@ ERROR_DE_CASA_PUNTOS = 2.0  # error sistemático de una casa de nota n, en punto
 PESO_POR_VARIANZA_EN_PROVINCIAS = True  # provincias: w de cada bloque = V modelo / (V modelo + V encuesta); comunidades: w = k / (k + K0)
 RESULTADO_DE_ELECCION = re.compile(r"elections?", re.IGNORECASE)
 # Bloques que solo se usan en los indicios territoriales manuales (Sondeos/indicios_territoriales.csv); no entran en el promedio de las encuestas regionales
-BLOQUES_MANUALES = {"FA": ["SUMAR"], "EXISTE": ["EXISTE"], "GBAI": ["GBAI"]}
+BLOQUES_MANUALES = {"FA": ["SUMAR"], "PODEMOS": ["PODEMOS"], "EXISTE": ["EXISTE"], "GBAI": ["GBAI"]}   # PODEMOS (28/11/2026): Aragón, donde el indicio del Frente Amplio ocupaba todo el bloque Sumar + Podemos y lo dejaba en 0,1 %
 RUTA_INDICIOS = CARPETA_WEB.parent / "Sondeos" / "indicios_territoriales.csv"
 BLOQUES = {"PP": ["PP"], "PSOE": ["PSOE"], "VOX": ["VOX"], "IZQ": ["SUMAR", "PODEMOS"], "FV": ["FV"], "ERC": ["ERC"], "JUNTS": ["JUNTS"], "BILDU": ["BILDU"], "PNV": ["PNV"], "BNG": ["BNG"], "CC": ["CC"], "UPC": ["UPC"], "ADELANTE": ["ADELANTE"]}
 LIBRES = ("PNV", "BILDU", "BNG", "ERC", "JUNTS", "FV", "UPC", "CC", "ADELANTE", "GBAI")   # UPC, CC y Adelante Andalucía (22/11/2026): partidos de un solo territorio que siguen a sus encuestas también en el total nacional; Geroa Bai (solo Navarra), igual
